@@ -1,0 +1,64 @@
+using System;
+using Domain.Entities;
+using Domain.Interfaces.Repositories;
+using Microsoft.EntityFrameworkCore;
+
+namespace Persistence.Repositories;
+
+public class BasketRepository(StoreContext context) : IBasketRepository
+{
+    private readonly StoreContext _context = context;
+
+    public async Task<Basket> AddItemToBasketAsync(string userId, Product product, int quantity, CancellationToken cancellationToken)
+    {
+        var basket = await GetBasketByUserIdAsync(userId, cancellationToken);
+
+        if (basket == null)
+        {
+            basket = new Basket { UserId = userId };
+            _context.Baskets.Add(basket);
+        }
+
+        basket.AddItem(product, quantity);
+        basket.UpdatedAt = DateTime.UtcNow;
+        return basket;
+    }
+
+    public Task CreateBasketAsync(string userId, CancellationToken cancellationToken)
+    {
+        var basket = new Basket { UserId = userId };
+        _context.Baskets.Add(basket);
+        return Task.CompletedTask;
+    }
+
+    public async Task<Basket?> GetBasketByPaymentIdAsync(string paymentId, CancellationToken cancellationToken)
+    {
+        var orderId = await _context.Payments
+            .Include(p => p.Order)
+            .Select(p => p.OrderId)
+            .FirstOrDefaultAsync(cancellationToken);
+        var basketId = await _context.Orders
+            .Where(o => o.Id == orderId)
+            .Select(o => o.BasketId)
+            .FirstOrDefaultAsync(cancellationToken);
+        return await _context.Baskets    
+            .FirstOrDefaultAsync(b => b.Id == basketId, cancellationToken);
+    }
+
+    public async Task<Basket?> GetBasketByUserIdAsync(string userId, CancellationToken cancellationToken)
+    {     
+        return await _context.Baskets
+            
+            .Include(x => x.Items)
+            .ThenInclude(x => x.Product)
+            .FirstOrDefaultAsync(b => b.UserId == userId, cancellationToken);
+    }
+
+    public async Task<Basket> RemoveItemFromBasketAsync(string userId, string productId, int quantity, CancellationToken cancellationToken)
+    {
+        var basket = await GetBasketByUserIdAsync(userId, cancellationToken) ?? throw new InvalidOperationException("Basket not found");
+        basket.RemoveItem(productId, quantity);
+        basket.UpdatedAt = DateTime.UtcNow;
+        return basket;
+    }
+}

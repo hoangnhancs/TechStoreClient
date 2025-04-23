@@ -15,7 +15,7 @@ public class Address
     public required string PostalCode { get; set; }
     public required string Country { get; set; }
     public string? PhoneNumber { get; set; }
-    public AddressType Type { get; set; }
+    public AddressType Type { get; set; } 
     public bool IsDefault { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }

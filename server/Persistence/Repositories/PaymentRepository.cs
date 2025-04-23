@@ -8,7 +8,7 @@ namespace Persistence.Repositories;
 public class PaymentRepository(StoreContext context) : IPaymentRepository
 {
     private readonly StoreContext _context = context;
-    public Task<Payment> CreatePaymentAsync(string orderId, string UserId, CancellationToken cancellationToken)
+    public async Task<Payment> CreatePaymentAsync(string orderId, string UserId, CancellationToken cancellationToken)
     {
         var payment = new Payment
         {
@@ -19,7 +19,8 @@ public class PaymentRepository(StoreContext context) : IPaymentRepository
             UpdatedAt = DateTime.UtcNow
         };
         _context.Payments.Add(payment);
-        return Task.FromResult(payment);
+        await _context.SaveChangesAsync(cancellationToken);
+        return payment;
     }
 
     public async Task<Payment?> GetPaymentByBasketIdAsync(string basketId, CancellationToken cancellationToken)

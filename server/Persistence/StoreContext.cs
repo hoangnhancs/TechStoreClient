@@ -27,7 +27,7 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
             .HasOne(b => b.User)
             .WithOne(u => u.Basket) // Navigation property ngược lại trong User
             .HasForeignKey<Basket>(b => b.UserId) // Chỉ định UserId là khóa ngoại
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         // Order → User
         builder.Entity<Order>()
@@ -41,7 +41,7 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
             .HasOne(o => o.Basket)
             .WithMany() // Không cần navigation property ngược lại
             .HasForeignKey(o => o.BasketId) // Chỉ định BasketId là khóa ngoại
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Payment → User
         builder.Entity<Payment>()

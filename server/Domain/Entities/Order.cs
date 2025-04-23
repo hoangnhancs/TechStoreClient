@@ -19,7 +19,6 @@ public class Order
     public long ShippingCost { get; set; } 
     public long Total { get; set; }
     public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.CashOnDelivery;
-    public required string PaymentId { get; set; } 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 }

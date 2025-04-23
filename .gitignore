@@ -487,3 +487,5 @@ $RECYCLE.BIN/
 .env.development.json
 .env.local
 .env.*.local
+
+server/API/appsettings.Development.json

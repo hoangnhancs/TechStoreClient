@@ -227,8 +227,7 @@ namespace Persistence.Migrations
                         name: "FK_Baskets_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -273,7 +272,6 @@ namespace Persistence.Migrations
                     ShippingCost = table.Column<long>(type: "bigint", nullable: false),
                     Total = table.Column<long>(type: "bigint", nullable: false),
                     PaymentMethod = table.Column<int>(type: "int", nullable: false),
-                    PaymentId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -300,7 +298,8 @@ namespace Persistence.Migrations
                         name: "FK_Orders_Baskets_BasketId",
                         column: x => x.BasketId,
                         principalTable: "Baskets",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(

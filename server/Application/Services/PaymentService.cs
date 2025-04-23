@@ -24,6 +24,10 @@ public class PaymentService(IConfiguration config, IPaymentRepository paymentRep
         if (payment == null)
         {
             payment = await paymentRepository.CreatePaymentAsync(basket.Id, UserId, cancellationToken);
+            if (payment == null)
+            {
+                throw new InvalidOperationException("Failed to create payment.");
+            }
         }
 
         if (string.IsNullOrEmpty(payment.PaymentIntentId))

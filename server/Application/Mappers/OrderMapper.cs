@@ -19,8 +19,6 @@ public class OrderMapper
             ShippingCost = order.ShippingCost,
             Total = order.Total,
             PaymentMethod = order.PaymentMethod.ToString(),
-            CreatedAt = order.CreatedAt,
-            UpdatedAt = order.UpdatedAt,
         };
     }
 }

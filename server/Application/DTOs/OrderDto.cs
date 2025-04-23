@@ -4,7 +4,7 @@ namespace Application.DTOs;
 
 public class OrderDto
 {
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string Id { get; set; } = null!;
     public required string UserId { get; set; }
     public required string BasketId { get; set; }
     public required string ShippingAddressId { get; set; }
@@ -13,6 +13,4 @@ public class OrderDto
     public long ShippingCost { get; set; }
     public long Total { get; set; }
     public string PaymentMethod { get; set; } = null!;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; }
 }

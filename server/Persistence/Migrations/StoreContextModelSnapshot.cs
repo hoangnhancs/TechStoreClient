@@ -149,10 +149,6 @@ namespace Persistence.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("int");
 
-                    b.Property<string>("PaymentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("PaymentMethod")
                         .HasColumnType("int");
 
@@ -507,7 +503,7 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Entities.User", "User")
                         .WithOne("Basket")
                         .HasForeignKey("Domain.Entities.Basket", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -537,7 +533,7 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Entities.Basket", "Basket")
                         .WithMany()
                         .HasForeignKey("BasketId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Address", "BillingAddress")

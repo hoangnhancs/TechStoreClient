@@ -4,10 +4,9 @@ using Application.DTOs;
 using Domain.Entities;
 using MediatR;
 
-namespace Application.Command.Order;
+namespace Application.Queries.Order;
 
-public class CreateOrderCommand : IRequest<Result<OrderDto>>
+public class GetOrderByUserIdQuery : IRequest<Result<List<OrderDto>>>
 {
     public required string UserId { get; set; }
-    public required string AddressId { get; set; }
 }

@@ -19,7 +19,7 @@ export default function LoginPromptDialog({ open, onClose }: Props) {
       <DialogTitle>Login Required</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Please login or register to add items to your cart.
+          Chức năng này yêu cầu bạn phải đăng nhập
         </DialogContentText>
       </DialogContent>
       <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>

@@ -1,16 +1,18 @@
 import { Box, Button, Divider, Paper, Typography } from "@mui/material";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Basket } from "../../lib/types";
+import { Basket, Item } from "../../lib/types";
 import { useAppDispatch } from "../../hooks";
 import { setBasketStates } from "../basket/basketSlice";
 
+
 type Props = {
     basket: Basket,
-    selectedItems: string[]
+    selectedItems: Item[]
 }
 
 export default function OrderSummary({ basket, selectedItems }: Props) {
+    
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
     const location = useLocation()
@@ -18,12 +20,32 @@ export default function OrderSummary({ basket, selectedItems }: Props) {
     const discount = 3000
     const getTotalPrice = () => {
         let total = 0
-        basket?.items.forEach(item => {
-            if (selectedItems.find(selectedId => selectedId === item.productId))   
-                (total += item.price * item.quantity)
+        selectedItems.forEach(item => {
+            total += item.price * item.quantity
         })
         return total
     }
+
+    // const createOrderParas = {
+    //     items: basket.items
+    //         .filter(item => selectedItems.find(selectedId => selectedId === item.productId))
+    //         .map(item => ({
+    //             productId: item.productId,
+    //             productName: item.productName,
+    //             imageUrl: item.imageUrl,
+    //             quantity: item.quantity,
+    //             unitPrice: item.price,
+    //             brand: item.brand,
+    //             category: item.category,
+    //         })),
+    //     shippingCost: shippingCost,
+    //     discount: discount,
+    //     subTotal: getTotalPrice(),
+    //     total: getTotalPrice() + shippingCost - discount,
+    //     orderStatus: "Created",
+    //     paymentStatus: "Pending",
+    //     paymentMethod: "test",
+    // } 
 
     const handleClickPayment = () => {
         dispatch(setBasketStates({ selectedItems, basket }))
@@ -121,7 +143,7 @@ export default function OrderSummary({ basket, selectedItems }: Props) {
                 <Box display="flex" justifyContent="space-between" sx={{ mb: 2, mt: 2 }}>
                     <Typography variant="h6">Tổng tiền:</Typography>
                     <Typography variant="h6" sx={{ color: 'primary.main' }}>
-                        {getTotalPrice() + shippingCost - discount} VND
+                        {(getTotalPrice() + shippingCost - discount) > 0 ? (getTotalPrice() + shippingCost - discount) : 0} VND
                     </Typography>
                 </Box>
                 
@@ -134,7 +156,6 @@ export default function OrderSummary({ basket, selectedItems }: Props) {
                     size="large"
                     sx={{ mt: 2, py: 1.5 }}
                     onClick={handleClickPayment}
-                    
                 >
                     Thanh toán ({selectedItems.length} sản phẩm)
                 </Button>

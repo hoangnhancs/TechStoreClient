@@ -1,31 +1,21 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithErrorHandling } from "../../app/api/baseApi";
-import { Basket } from "../../lib/types";
-import { basketApi } from "../basket/basketApi";
+import { CreateOrderInput, Order } from "../../lib/types";
+
 
 export const orderApi = createApi({
-    reducerPath: 'orderApi',
+    reducerPath: "orderApi",
     baseQuery: baseQueryWithErrorHandling,
+    tagTypes: ["Order"],
     endpoints: (builder) => ({
-        createPaymentIntent: builder.mutation<Basket, void>({
-            query: () => ({
-                url: '/api/payments/create-payment-intent',
-                method: 'POST',
+        createOrder: builder.mutation<Order, CreateOrderInput>({
+        query: (input) => ({
+                url: "/order/createorder",
+                method: "POST",
+                body: input,
             }),
-            onQueryStarted: async (_, {dispatch, queryFulfilled}) => {
-                try {
-                    const {data} = await queryFulfilled
-                    dispatch (
-                        basketApi.util.updateQueryData('fetchBasket', undefined, (draft) => {
-                            draft.clientSecret = data.clientSecret
-                        })
-                    )
-                } catch (error) {
-                    console.error("Failed to create payment intent", error)
-                }
-            }
         }),
     }),
-})
+}); 
 
-export const { useCreatePaymentIntentMutation } = orderApi
+export const { useCreateOrderMutation } = orderApi;

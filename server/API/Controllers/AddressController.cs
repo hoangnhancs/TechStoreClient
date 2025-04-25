@@ -1,20 +1,73 @@
 using System;
 using System.Security.Claims;
 using Application.Command.Address;
+using Application.DTOs;
+using Application.Queries.Address;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
 [Authorize]
-public class AddressController : BaseApiController
+public class AddressController(IConfiguration configuration) : BaseApiController
 {
-    [HttpPost("myaddresses")]
-    public async Task<IActionResult> CreateAddress()
+    [HttpPost("create-address")]
+    public async Task<IActionResult> CreateAddress([FromBody] AddressDto dto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
-        return HandleResult(await Mediator.Send(new AddAddressCommand { UserId = userId }));
+        return HandleResult(await Mediator.Send(new AddAddressCommand { UserId = userId, Address = dto }));
+    }
+
+    [HttpGet("myaddresses")]
+    public async Task<IActionResult> GetAddresses()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User not authenticated");
+        return HandleResult(await Mediator.Send(new GetAddressesByUserIdQuery { UserId = userId }));
+    }
+
+    [HttpGet("provinces")]
+    public async Task<IActionResult> GetProvinces()
+    {
+        var token = configuration["GHN:ApiToken"];
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("Token", token);
+        var response = await client.GetAsync("https://online-gateway.ghn.vn/shiip/public-api/master-data/province");
+        if (!response.IsSuccessStatusCode)
+            return StatusCode((int)response.StatusCode, "Failed to fetch provinces");
+
+        var content = await response.Content.ReadAsStringAsync();
+        return Ok(content);
+    }
+
+    [HttpGet("districts")]
+    public async Task<IActionResult> GetDistricts(string provinceId)
+    {
+        var token = configuration["GHN:ApiToken"];
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("Token", token);
+        var response = await client.GetAsync($"https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id={provinceId}");
+        if (!response.IsSuccessStatusCode)
+            return StatusCode((int)response.StatusCode, "Failed to fetch districts");
+
+        var content = await response.Content.ReadAsStringAsync();
+        return Ok(content);
+    }
+
+    [HttpGet("wards")]
+    public async Task<IActionResult> GetWards(string districtId)
+    {
+        var token = configuration["GHN:ApiToken"];
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("Token", token);
+        var response = await client.GetAsync($"https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id={districtId}");
+        if (!response.IsSuccessStatusCode)
+            return StatusCode((int)response.StatusCode, "Failed to fetch wards");
+
+        var content = await response.Content.ReadAsStringAsync();
+        return Ok(content);
     }
 }

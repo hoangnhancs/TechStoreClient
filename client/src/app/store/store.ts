@@ -17,7 +17,10 @@ import {
   REGISTER,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage"; 
+
+import { paymentApi } from "../../features/payment/paymentApi";
 import { orderApi } from "../../features/order/orderApi";
+import { addressApi } from "../../features/address/addressApi";
 
 const persistConfig = {
   key: "root", // key để lưu trong localStorage
@@ -32,6 +35,8 @@ const rootReducer = combineReducers({
   [basketApi.reducerPath]: basketApi.reducer,
   [userApi.reducerPath]: userApi.reducer,
   [orderApi.reducerPath]: orderApi.reducer,
+  [paymentApi.reducerPath]: paymentApi.reducer,
+  [addressApi.reducerPath]: addressApi.reducer,
   counter: counterReducer,
   ui: uiReducer,
   basket: basketReducer,
@@ -52,6 +57,8 @@ export const store = configureStore({
       basketApi.middleware,
       userApi.middleware,
       orderApi.middleware,
+      paymentApi.middleware,
+      addressApi.middleware,
     ), //thêm middleware cho productApi vào store
 });
 

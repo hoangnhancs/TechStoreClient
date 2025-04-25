@@ -41,6 +41,8 @@ public class AddItemToBasketHandler : IRequestHandler<AddItemToBasketCommand, Re
 
         if (!result) return Result<BasketDto>.Failure("Don't have any update when add item", 400);
 
+        
+
         return Result<BasketDto>.Success(BasketMapper.MapToDto(newBasket));
     }
 }

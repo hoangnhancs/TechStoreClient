@@ -1,15 +1,17 @@
 import { createSlice } from "@reduxjs/toolkit"
-import { Basket } from "../../lib/types"
+import { Basket, Item } from "../../lib/types"
 
 interface BasketState {
-    selectedItems: string[]
+    selectedItems: Item[]
     basket: Basket
 }
 
 const initialState = {
-    selectedItems: [] as string[],
-    basket: {} as Basket
-}
+  selectedItems: JSON.parse(
+    localStorage.getItem("selectedItems") || "[]"
+  ) as Item[],
+  basket: JSON.parse(localStorage.getItem("basket") || "{}") as Basket,
+};
 
 export const basketSlice = createSlice({
     name: 'basket',
@@ -18,10 +20,17 @@ export const basketSlice = createSlice({
         setBasketStates: (state, action: {payload: BasketState}) => {
             state.selectedItems = action.payload.selectedItems;
             state.basket = action.payload.basket;
+            localStorage.setItem(
+              "selectedItems",
+              JSON.stringify(state.selectedItems)
+            );
+            localStorage.setItem("basket", JSON.stringify(state.basket));
         },
         clearBasketStates: (state) => {
             state.selectedItems = [];
             state.basket = {} as Basket;
+            localStorage.removeItem("selectedItems");
+            localStorage.removeItem("basket");
         }
     }
 })

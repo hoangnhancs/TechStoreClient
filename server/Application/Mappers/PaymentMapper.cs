@@ -10,6 +10,7 @@ public class PaymentMapper
     {
         return new PaymentDto
         {
+            Id = payment.Id.ToString(),
             OrderId = payment.OrderId,
             PaymentIntentId = payment.PaymentIntentId,
             ClientSecret = payment.ClientSecret,

@@ -2,9 +2,8 @@ using System;
 
 namespace Application.DTOs;
 
-public class OrderDto
+public class CreateOrUpdateOrderDto
 {
-    public string Id { get; set; } = null!;
     public string? UserId { get; set; }
     public string? ShippingAddressId { get; set; }
     public string? BillingAddressId { get; set; }
@@ -12,7 +11,7 @@ public class OrderDto
     public long ShippingCost { get; set; }
     public long Discount { get; set; }
     public List<OrderItemDto> Items { get; set; } = [];
-    public string PaymentMethod { get; set; } = null!;
-    public string PaymentStatus { get; set; } = null!;
+    public string? PaymentMethod { get; set; }
+    public string? PaymentStatus { get; set; }
     public string OrderStatus { get; set; } = null!;
 }

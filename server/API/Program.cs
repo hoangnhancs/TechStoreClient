@@ -70,8 +70,7 @@ if (app.Environment.IsDevelopment())
 app.UseCookiePolicy();
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
-app.UseAuthorization();
+
 
 app.UseMiddleware<ExceptionMiddleware>();
 
@@ -84,6 +83,9 @@ app.UseCors(options =>
         .AllowCredentials()
         .WithOrigins("https://localhost:3000");
 });
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 

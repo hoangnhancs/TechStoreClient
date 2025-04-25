@@ -10,14 +10,13 @@ public static class BasketItemMapper
     {
         return new BasketItemDto
         {
-            Id = basketItem.Id,
             ProductId = basketItem.ProductId,
-            ProductName = basketItem.Product.Name,
+            ProductName = basketItem.Product?.Name ?? string.Empty,
             Quantity = basketItem.Quantity,
-            ImageUrl = basketItem.Product.ImageUrl,
-            Price = basketItem.Product.Price,
-            Brand = basketItem.Product.Brand,
-            Category = basketItem.Product.Category,
+            ImageUrl = basketItem.Product?.ImageUrl ?? string.Empty,
+            Price = basketItem.Product?.Price ?? 0,
+            Brand = basketItem.Product?.Brand ?? string.Empty,
+            Category = basketItem.Product?.Category ?? string.Empty,
         };
     }
 }

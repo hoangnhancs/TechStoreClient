@@ -4,7 +4,7 @@ namespace Application.DTOs;
 
 public class AddressDto
 {
-    public string Id { get; set; } = null!;
+    public string? Id { get; set; }
     public string? UserId { get; set; }
     public string? FullName { get; set; }
     public string? Line1 { get; set; }

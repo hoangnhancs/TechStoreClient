@@ -15,9 +15,40 @@ export type Basket = {
     id: string;
     userId: string;
     items: Item[];
-    clientSecret: string;
-    paymentIntentId: string;
 }
+
+export type Payment = {
+    id: number;
+    orderId: string;
+    paymentIntentId: string;
+    clientSecret: string;
+    status: string;
+}
+
+export type Order = {
+    id: string;
+    userId: string;
+    shippingAddressId: string;
+    billingAddressId: string;
+    subToTal: number;
+    shippingCost: number;
+    discount: number;
+    items: OrderItem[];
+    orderStatus: string;
+    paymentMethod: string;
+    paymentStatus: string;
+};
+
+export type CreateOrderInput = {
+    shippingAddressId?: string | null;
+    billingAddressId?: string | null;
+    shippingCost: number;
+    discount: number;
+    items: OrderItem[];
+    orderStatus: string;
+    paymentMethod?: string | null;
+    paymentStatus?: string | null;
+};
 
 export type Item = {
     productId: string;
@@ -29,6 +60,17 @@ export type Item = {
     category: string;
 }
 
+export type OrderItem = {
+    productId: string;
+    productName: string;
+    imageUrl: string;
+    quantity: number;
+    unitPrice: number;
+    brand: string;
+    category: string;
+    orderId?: string | null;
+};
+
 export type User = {
     id: string ;
     email: string;
@@ -36,5 +78,20 @@ export type User = {
     imageUrl: string;
     totalSpent: number;
     roles: string[]
+}
+
+export type Address = {
+    id?: string | null;
+    userId? : string | null;
+    fullName?: string | null;
+    line1?: string | null;
+    line2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+    phoneNumber?: string | null;
+    type?: string | null;
+    isDefault?: boolean;
 }
     

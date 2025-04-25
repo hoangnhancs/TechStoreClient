@@ -1,4 +1,5 @@
 using System;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Domain.Entities;
 
@@ -6,9 +7,8 @@ public class Order
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public required string UserId { get; set; }
-    public User? User { get; set; } 
-    public required string BasketId { get; set; }
-    public Basket? Basket { get; set; }
+    public User? User { get; set; }
+    public List<OrderItem> Items { get; set; } = [];
     public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Paid;
     public OrderStatus OrderStatus { get; set; } = OrderStatus.Created;
     public required string ShippingAddressId { get; set; }
@@ -17,10 +17,24 @@ public class Order
     public Address? BillingAddress { get; set; }
     public long SubToTal {get; set; }
     public long ShippingCost { get; set; } 
+    public long Discount { get; set; } = 0;
     public long Total { get; set; }
     public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.CashOnDelivery;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+
+    public void UpdateOrder(List<OrderItem> items, string shippingAddressId, string? billingAddressId, PaymentMethod paymentMethod, long shippingCost, long discount)
+    {
+        Items = items;
+        ShippingAddressId = shippingAddressId;
+        BillingAddressId = billingAddressId;
+        PaymentMethod = paymentMethod;
+        SubToTal = items.Sum(x => (x.Product?.Price ?? 0) * x.Quantity);
+        Discount = discount;
+        ShippingCost = shippingCost;
+        Total = items.Sum(x => (x.Product?.Price ?? 0) * x.Quantity) + shippingCost - discount;
+        UpdatedAt = DateTime.UtcNow;
+    } 
 }
 
 public enum PaymentStatus
@@ -30,19 +44,20 @@ public enum PaymentStatus
 }         
 public enum OrderStatus
 {
-    Created = 1,      
-    Processing = 2,       
-    Shipped = 3,         
-    Delivered = 4,      
-    Completed = 5,      
-    Cancelled = 6   
+    Created,      
+    Processing,       
+    Shipped,         
+    Delivered,      
+    Completed,      
+    Cancelled   
 }
 public enum PaymentMethod
 {
-    CashOnDelivery = 1, 
-    CreditCard = 2,    
-    VNpay = 3,       
-    Momo = 4,       
-    BankTransfer = 5,  
+    NotSelected,
+    CashOnDelivery, 
+    CreditCard,    
+    VNpay,       
+    Momo,       
+    BankTransfer,  
 }
 

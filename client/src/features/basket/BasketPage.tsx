@@ -10,13 +10,14 @@ import OrderSummary from "../order/OrderSummary";
 
 
 
+
 export default function BasketPage() {
 
     const {data: basket, isLoading} = useFetchBasketQuery()
     const [removeItemFromBasket] = useRemoveBasketItemMutation()
     const navigate = useNavigate()
     const [groupedItems, setGroupedItems] = useState<Record<string, Item[]>>({})
-    const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
+    const [selectedItems, setSelectedItems] = useState<Array<Item>>(JSON.parse(localStorage.getItem("selectedItems") || "[]"))
     const {data: currentUser} = useGetCurrentUserQuery()
 
     useEffect(() => {
@@ -38,51 +39,58 @@ export default function BasketPage() {
             navigate('/products')
     }, [currentUser, navigate])
 
-    const toogleSelectItem = (productId: string) => {
-        const tmpSelectedItems = new Set(selectedItems)
-        if (tmpSelectedItems.has(productId)) {
-            tmpSelectedItems.delete(productId)
+
+    const toogleSelectItem = (item: Item) => {
+        const exists = selectedItems.some(selected => selected.productId === item.productId);
+        let updatedSelectedItems;
+        if (exists) {
+            updatedSelectedItems = selectedItems.filter(selected => selected.productId !== item.productId);
         } else {
-            tmpSelectedItems.add(productId)
+            updatedSelectedItems = [...selectedItems, item];
         }
-        setSelectedItems(tmpSelectedItems)
+        setSelectedItems(updatedSelectedItems)
+        localStorage.setItem("selectedItems", JSON.stringify(Array.from(updatedSelectedItems)));
     }
 
     const isCategorySelectedAll = (category: string) => {
         const itemsGroupedByCategory = groupedItems[category] || []
-        return itemsGroupedByCategory.every(item => selectedItems.has(item.productId))
+        return itemsGroupedByCategory.every(item => selectedItems.some(selected => selected.productId === item.productId))
     }
 
     const toogleSelectCategory = (category: string) => {
         const itemsGroupedByCategory = groupedItems[category] || []
-        const tmpSelectedItems = new Set(selectedItems)
+        const tmpSelectedItems = new Array(selectedItems)
+        let updatedSelectedItems;
         if (isCategorySelectedAll(category)) {
-            itemsGroupedByCategory.forEach(item => tmpSelectedItems.delete(item.productId))
+            updatedSelectedItems = selectedItems.filter(selected => selected.category != category)
         } else {
-            itemsGroupedByCategory.forEach(item => tmpSelectedItems.add(item.productId))
+            updatedSelectedItems = [...selectedItems, ...itemsGroupedByCategory]
         }
-        setSelectedItems(tmpSelectedItems)
+        setSelectedItems(updatedSelectedItems)
+        localStorage.setItem("selectedItems", JSON.stringify(Array.from(tmpSelectedItems)));
     }
 
     const isSelectedAllItems = () => {
-        if (selectedItems.size > 0 && selectedItems.size === basket?.items.length) {
+        if (selectedItems.length > 0 && selectedItems.length === basket?.items.length) {
             return true
         }
         return false
     }
 
     const toogleSelectAllItems = () => {
-        const tmpSelectedItems = new Set(selectedItems)
+        const tmpSelectedItems: Item[] = []
         if (isSelectedAllItems())
-            setSelectedItems(new Set())
+        {
+            setSelectedItems([])
+            localStorage.setItem("selectedItems", JSON.stringify([]));
+        }
         else
         {
-            basket?.items.forEach(item => tmpSelectedItems.add(item.productId))
+            basket?.items.forEach(item => tmpSelectedItems.push(item))
             setSelectedItems(tmpSelectedItems)
+            localStorage.setItem("selectedItems", JSON.stringify(Array.from(tmpSelectedItems)));
         }   
     }
-
-    
 
 
     if (isLoading) return <Typography variant="h4">Loading...</Typography>
@@ -257,7 +265,7 @@ export default function BasketPage() {
                                                 p: 0.5,
                                             }}
                                         >
-                                            <Checkbox checked={selectedItems.has(item.productId)} onChange={() => toogleSelectItem(item.productId)} />
+                                            <Checkbox checked={selectedItems.some(selected => selected.productId === item.productId)} onChange={() => toogleSelectItem(item)} />
                                         </Grid>
                                         <Grid                             
                                             size={1.5}

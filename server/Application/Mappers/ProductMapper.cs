@@ -23,7 +23,7 @@ public static class ProductMapper
         };
     }
 
-    public static Product MapToDomain(ProductDto productDto)
+    public static Product MapToEntity(ProductDto productDto)
     {
         return new Product
         {

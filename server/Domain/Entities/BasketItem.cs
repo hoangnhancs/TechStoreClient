@@ -10,7 +10,7 @@ public class BasketItem
     public int Quantity { get; set; }
     //navigation properties
     public required string ProductId { get; set; }
-    public required Product Product { get; set; }
+    public Product? Product { get; set; }
     public required string BasketId { get; set; }
     public Basket Basket { get; set; } = null!;
 }

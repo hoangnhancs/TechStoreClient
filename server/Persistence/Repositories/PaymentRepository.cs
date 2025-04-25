@@ -8,7 +8,7 @@ namespace Persistence.Repositories;
 public class PaymentRepository(StoreContext context) : IPaymentRepository
 {
     private readonly StoreContext _context = context;
-    public async Task<Payment> CreatePaymentAsync(string orderId, string UserId, CancellationToken cancellationToken)
+    public Task<Payment> CreatePaymentAsync(string orderId, string UserId, CancellationToken cancellationToken)
     {
         var payment = new Payment
         {
@@ -19,17 +19,21 @@ public class PaymentRepository(StoreContext context) : IPaymentRepository
             UpdatedAt = DateTime.UtcNow
         };
         _context.Payments.Add(payment);
-        await _context.SaveChangesAsync(cancellationToken);
-        return payment;
+
+        return Task.FromResult(payment);
     }
 
-    public async Task<Payment?> GetPaymentByBasketIdAsync(string basketId, CancellationToken cancellationToken)
+    public async Task<Payment?> GetPaymentByOrderIdAsync(string orderId, CancellationToken cancellationToken)
     {
-        var orderId = await _context.Orders
-            .Where(o => o.BasketId == basketId)
-            .Select(o => o.Id)
-            .FirstOrDefaultAsync(cancellationToken);
-        return await _context.Payments.FirstOrDefaultAsync(p => p.OrderId == orderId, cancellationToken);
+        return await _context.Payments
+            .FirstOrDefaultAsync(p => p.OrderId == orderId, cancellationToken);
+    }
+
+    public async Task<List<Payment>> GetPaymentByUserIdAsync(string userId, CancellationToken cancellationToken)
+    {
+        return await _context.Payments
+            .Where(p => p.UserId == userId)
+            .ToListAsync(cancellationToken);
     }
 
     public Task<Payment> UpdatePaymentAsync(Payment payment, CancellationToken cancellationToken)

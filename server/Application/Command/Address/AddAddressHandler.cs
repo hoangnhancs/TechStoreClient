@@ -19,7 +19,12 @@ public class AddAddressHandler : IRequestHandler<AddAddressCommand, Result<Addre
     }
     public async Task<Result<AddressDto>> Handle(AddAddressCommand request, CancellationToken cancellationToken)
     {
-        var address = await _addressRepository.CreateAddressAsync(request.UserId, cancellationToken);
+        if (request.Address.IsDefault == true)
+        {
+            await _addressRepository.SetOtherAddressNotDefaultAsync(request.UserId, cancellationToken);
+        }
+        var addressEntity = AddressMapper.MapToEntity(request.Address);
+        var address = await _addressRepository.CreateAddressAsync(request.UserId, addressEntity, cancellationToken);
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
         if (!result) return Result<AddressDto>.Failure("Problem when create address", 400);
         return Result<AddressDto>.Success(AddressMapper.MapToDto(address));

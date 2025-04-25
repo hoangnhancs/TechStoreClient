@@ -1,5 +1,6 @@
 using System;
 using Domain.Entities;
+using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Domain.Interfaces.Services;
 using Microsoft.Extensions.Configuration;
@@ -8,26 +9,33 @@ using Stripe;
 
 namespace Application.Services;
 
-public class PaymentService(IConfiguration config, IPaymentRepository paymentRepository) : IPaymentService
+public class PaymentService(IConfiguration config, IPaymentRepository paymentRepository, IUnitOfWork unitOfWork) : IPaymentService
 {
-    public async Task<PaymentIntent> CreateOrUpdatePaymentIntentAsync(Basket basket, string UserId, CancellationToken cancellationToken)
+    public async Task<PaymentIntent> CreateOrUpdatePaymentIntentAsync(Order order, string UserId, CancellationToken cancellationToken)
     {
         StripeConfiguration.ApiKey = config["StripeSettings:SecretKey"];
 
         var service = new PaymentIntentService();
         var intent = new PaymentIntent();
-        var subtotal = basket.Items.Sum(item => item.Product.Price * item.Quantity);
-        var deliveryFee = 1000;
-        var discount = 3000;
-        var payment = await paymentRepository.GetPaymentByBasketIdAsync(basket.Id, cancellationToken);
+
+        if (order == null)
+        {
+            throw new InvalidOperationException("Order not found.");
+        }
+
+        var subtotal = order.Items.Sum(item => item.UnitPrice * item.Quantity);
+        var deliveryFee = order.ShippingCost;
+        var discount = order.Discount;
+        var payment = await paymentRepository.GetPaymentByOrderIdAsync(order.Id, cancellationToken);
 
         if (payment == null)
         {
-            payment = await paymentRepository.CreatePaymentAsync(basket.Id, UserId, cancellationToken);
-            if (payment == null)
+            payment = await paymentRepository.CreatePaymentAsync(order.Id, UserId, cancellationToken);
+            if (payment == null || subtotal <= 0)
             {
                 throw new InvalidOperationException("Failed to create payment.");
             }
+            await unitOfWork.SaveChangesAsync(cancellationToken);
         }
 
         if (string.IsNullOrEmpty(payment.PaymentIntentId))
@@ -49,7 +57,7 @@ public class PaymentService(IConfiguration config, IPaymentRepository paymentRep
             intent = await service.UpdateAsync(payment.PaymentIntentId, options, cancellationToken: cancellationToken);
         }
 
-        return intent;
-        
+        return intent ?? throw new InvalidOperationException("PaymentIntent creation or update failed.");
+
     }
 }

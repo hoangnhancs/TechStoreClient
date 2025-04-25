@@ -24,5 +24,23 @@ public class AddressMapper
             IsDefault = address.IsDefault
         };
     }
+    public static Address MapToEntity(AddressDto addressDto)
+    {
+        return new Address
+        {
+            Id = addressDto.Id ?? Guid.NewGuid().ToString(),
+            UserId = addressDto.UserId ?? string.Empty,
+            FullName = addressDto.FullName ?? string.Empty,
+            Line1 = addressDto.Line1 ?? string.Empty,
+            Line2 = addressDto.Line2,
+            PhoneNumber = addressDto.PhoneNumber,
+            City = addressDto.City ?? string.Empty,
+            State = addressDto.State ?? string.Empty,
+            PostalCode = addressDto.PostalCode ?? string.Empty,
+            Country = addressDto.Country ?? string.Empty,
+            Type = Enum.TryParse<AddressType>(addressDto.Type, out var type) ? type : AddressType.Both,
+            IsDefault = addressDto.IsDefault
+        };
+    }
 }
 

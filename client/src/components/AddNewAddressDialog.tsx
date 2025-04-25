@@ -152,7 +152,7 @@ export default function AddNewAddressDialog({ open, onClose}: Props ) {
                     Hủy
                 </Button>
                 <Button onClick={handleAddNewAddress} variant="contained" color="primary">
-                    Lưu địa chỉ
+                    Lưu địa chỉi
                 </Button>
             </DialogActions>
         </Dialog>

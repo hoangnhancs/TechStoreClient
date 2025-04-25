@@ -8,12 +8,10 @@ public class Address
     public required string UserId { get; set; } 
     public User? User { get; set; }
     public required string FullName { get; set; }
-    public required string Line1 { get; set; }
-    public string? Line2 { get; set; }
-    public required string City { get; set; }
-    public required string State { get; set; }
-    public required string PostalCode { get; set; }
-    public required string Country { get; set; }
+    public required string Province { get; set; }
+    public string? District { get; set; }
+    public required string Ward { get; set; }
+    public required string DetailAddress { get; set; }
     public string? PhoneNumber { get; set; }
     public AddressType Type { get; set; } 
     public bool IsDefault { get; set; }

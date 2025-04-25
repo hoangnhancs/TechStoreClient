@@ -15,6 +15,7 @@ const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PK)
 export default function CheckOutPage() {
   const {basket, selectedItems} = useAppSelector(state => state.basket)
   const [selectGroupedItems, setSelectGroupedItems] = useState<Record<string, Item[]>>({})
+
   useEffect(() => {
     if (selectedItems.length > 0) {    
       const groupedByCategory = selectedItems.reduce((groups, item) => {

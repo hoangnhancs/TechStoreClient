@@ -84,12 +84,11 @@ export type Address = {
     id?: string | null;
     userId? : string | null;
     fullName?: string | null;
-    line1?: string | null;
-    line2?: string | null;
-    city?: string | null;
+    province?: string | null;
+    district?: string | null;
+    ward?: string | null;
+    detailAddress?: string | null;
     state?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
     phoneNumber?: string | null;
     type?: string | null;
     isDefault?: boolean;

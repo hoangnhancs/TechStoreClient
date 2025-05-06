@@ -147,7 +147,6 @@ namespace Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ShippingAddressId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<long>("ShippingCost")
@@ -558,8 +557,7 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Entities.Address", "ShippingAddress")
                         .WithMany()
                         .HasForeignKey("ShippingAddressId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.Entities.User", "User")
                         .WithMany("Ordereds")

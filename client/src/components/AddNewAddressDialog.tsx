@@ -2,47 +2,43 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Checkbox } from "@mui/material";
-import { useCreateAddressMutation } from "../features/address/addressApi";
+import { useCreateAddressMutation, useUpdateAddressMutation } from "../features/address/addressApi";
+import { Address, District, Province, Ward } from "../lib/types";
+
+
 
 
 
 type Props = {
     open: boolean,
     onClose: () => void
+    mode: "add" | "update"
+    selectedAddress: Address | null
+    inputWards: Ward[] | null
+    inputDistricts: District[] | null
+    inputProvinces: Province[] | null
+    canDisableDefaultAddress: boolean
 }
 
-type Province = {
-    ProvinceID: string;
-    ProvinceName: string;
-};
+export default function AddNewAddressDialog({ open, onClose, mode, selectedAddress, inputProvinces, inputDistricts, inputWards, canDisableDefaultAddress}: Props ) {
 
-type District = {   
-    DistrictID: string;
-    DistrictName: string;
-};
+    const [form, setForm] = useState<Address>({
+        fullName: "",
+        phoneNumber: "",
+        province: "",
+        district: "",
+        ward: "",
+        detailAddress: "",
+        isDefault: false
+    });
 
-type Ward = {
-    
-    WardCode: string;
-    WardName: string;
-}
+    const [tracking, setTracking] = useState(0);
+    const [provinces, setProvinces] = useState<Province[]>(inputProvinces || []);
+    const [districts, setDistricts] = useState<District[]>(inputDistricts || []);
+    const [wards, setWards] = useState<Ward[]>(inputWards || []);
 
-export default function AddNewAddressDialog({ open, onClose}: Props ) {
 
-    
-
-    const [provinces, setProvinces] = useState<Province[]>([]);
-    const [districts, setDistricts] = useState<District[]>([]);
-    const [wards, setWards] = useState<Ward[]>([]);
-    const [selectedProvince, setSelectedProvince] = useState<string>('');
-    const [selectedDistrict, setSelectedDistrict] = useState<string>('');
-    const [selectedWard, setSelectedWard] = useState<string>('');
-    const [detailsAddress, setDetailsAddress] = useState<string>('');
-    const [fullName, setFullName] = useState<string>('');
-    const [phoneNumber, setPhoneNumber] = useState<string>('');
-    const [isDefaultAddress, setIsDefaultAddress] = useState<boolean>(false);
-    const [canAddAddress, setCanAddAddress] = useState<boolean>(false);
-
+    const [updateAddress] = useUpdateAddressMutation();
     const [addAddress] = useCreateAddressMutation();
 
     useEffect(() => {
@@ -53,77 +49,138 @@ export default function AddNewAddressDialog({ open, onClose}: Props ) {
         });
     }, []);
 
+
     useEffect(() => {
-        if (selectedProvince && selectedDistrict && selectedWard && detailsAddress && fullName && phoneNumber) 
-        {
-            setCanAddAddress(true);
+  
+        if (mode === "update" && selectedAddress && tracking === 0 && provinces.length > 0) {
+            const provinceId = provinces.find((p) => p.ProvinceName === selectedAddress.province)?.ProvinceID;
+            const districtId = districts.find((d) => d.DistrictName === selectedAddress.district)?.DistrictID;
+            const wardCode = wards.find((w) => w.WardName === selectedAddress.ward)?.WardCode;
+            setForm({
+                fullName: selectedAddress.fullName || "",
+                phoneNumber: selectedAddress.phoneNumber || "",
+                province: provinceId,
+                district: districtId,
+                ward: wardCode || "",
+                detailAddress: selectedAddress.detailAddress || "",
+                isDefault: selectedAddress.isDefault || false,
+            });
+            setTracking(1);
+        };
+    }, [mode, selectedAddress, provinces, districts, wards, tracking]);
+
+    const canSubmit = Boolean(
+        form.fullName &&
+        form.phoneNumber &&
+        form.province &&
+        form.district &&
+        form.ward &&
+        form.detailAddress
+    );
+
+    const handleChange = (field: keyof Address, value: string | boolean) => {
+        if (field === "province") {
+            fetchDistricts(value as string);
+            setForm((prev) => ({
+                ...prev,
+                province: value as string,
+                district: "",
+                ward: ""
+            }));
+            setWards([]);
+
+        } 
+        else if (field === "district") {
+            fetchWards(value as string);
+            setForm((prev) => ({
+                ...prev,
+                district: value as string,
+                ward: ""
+            }));
+
         }
-    }, [selectedProvince, selectedDistrict, selectedWard, detailsAddress, fullName, phoneNumber]);
+        else {
+            setForm((prev) => ({
+                ...prev,
+                [field]: value,
+            }));
 
-    const handleProvinceChange = (provinceId: string) => {
-        setSelectedProvince(provinceId);
-        setSelectedDistrict('');
-        setSelectedWard('');
-        setDetailsAddress('')
-        axios
-            .get(`https://localhost:5001/api/address/districts?provinceId=${provinceId}`, {withCredentials: true,})
-            .then((response) => {
-                setDistricts(response.data.data);
-        });
+        }
     };
 
-    const handleDistrictChange = (districtId: string) => {
-        setSelectedDistrict(districtId);
-        setSelectedWard('');
-        setDetailsAddress('')
-        axios
-            .get(`https://localhost:5001/api/address/wards?districtId=${districtId}`, {withCredentials: true,})
-            .then((response) => {
-                setWards(response.data.data);
-        });
+    const fetchDistricts = (provinceId: string) => {
+        try {
+            axios.get(`https://localhost:5001/api/address/districts?provinceId=${provinceId}`, 
+                        {withCredentials: true,}) 
+                .then((response) => {
+                setDistricts(response.data.data)});
+        } catch (err) {
+            console.error("Failed to fetch districts", err);
+            setDistricts([]);
+            return [];
+        }
     };
 
-    const handleWardChange = (wardId: string) => {
-        setSelectedWard(wardId);
-        setDetailsAddress('')
+    const fetchWards = (districtId: string) => {
+    try {
+        axios.get(`https://localhost:5001/api/address/wards?districtId=${districtId}`, 
+                        {withCredentials: true,}) 
+                .then((response) => {
+                setWards(response.data.data)});
+        } catch (err) {
+            console.error("Failed to fetch wards", err);
+            setWards([]);
+            return [];
+        }
     };
 
     const handleCancel = () => {
+        setForm({
+            fullName: "",
+            phoneNumber: "",
+            province: "",
+            district: "",
+            ward: "",
+            detailAddress: "",
+            isDefault: false
+        });
+        setTracking(0)
         onClose()
-        setSelectedDistrict('')
-        setSelectedProvince('')
-        setSelectedWard('')
-        setDetailsAddress('')
-        setFullName('')
-        setPhoneNumber('')
-        setIsDefaultAddress(false)
     }
 
     const toogleDefaultAddress = () => {
-        setIsDefaultAddress(!isDefaultAddress)
+        setForm(prev => ({
+        ...prev,
+        isDefault: !prev.isDefault
+    }));
     }
 
     const handleAddNewAddress = () => {  
+        
         addAddress({
-            fullName: fullName,
-            phoneNumber: phoneNumber.toString(),
-            province: provinces.find((province: Province) => province.ProvinceID === selectedProvince)?.ProvinceName,
-            district: districts.find((district: District) => district.DistrictID === selectedDistrict)?.DistrictName,
-            ward: wards.find((ward: Ward) => ward.WardCode === selectedWard)?.WardName,
-            detailAddress: detailsAddress,
-            isDefault: isDefaultAddress                
-        })
-        console.log(
-            `fullName: ${fullName},
-            phoneNumber: ${phoneNumber},
-            province: ${selectedProvince},
-            district: ${selectedDistrict},
-            ward: ${selectedWard},
-            wards: ${wards}
-            detailAddress: ${detailsAddress},
-            isDefault: ${isDefaultAddress} `               
-        )
+            fullName: form.fullName,
+            phoneNumber: form.phoneNumber?.toString(),
+            province: provinces.find((province: Province) => province.ProvinceID === form.province)?.ProvinceName,
+            district: districts.find((district: District) => district.DistrictID === form.district)?.DistrictName,
+            ward: wards.find((ward: Ward) => ward.WardCode === form.ward)?.WardName,
+            detailAddress: form.detailAddress,
+            isDefault: form.isDefault                
+        }).unwrap().then(() => {onClose()})
     }
+
+    const handleUpdateAddress = () => {
+        updateAddress({id: selectedAddress?.id || "", address: {
+            fullName: form.fullName,
+            phoneNumber: form.phoneNumber?.toString(),
+            province: provinces.find((province: Province) => province.ProvinceID === form.province)?.ProvinceName,
+            district: districts.find((district: District) => district.DistrictID === form.district)?.DistrictName,
+            ward: wards.find((ward: Ward) => ward.WardCode === form.ward)?.WardName,
+            detailAddress: form.detailAddress,
+            isDefault: form.isDefault                
+        }}).unwrap().then(() => {onClose()})
+        console.log(mode, form.province, form.district, form.ward, form.detailAddress, form.isDefault, form.fullName, form.phoneNumber)
+    }
+
 
     return (
         <Dialog 
@@ -145,9 +202,9 @@ export default function AddNewAddressDialog({ open, onClose}: Props ) {
                         </Typography>
                         <TextField 
                             fullWidth
-                            onChange={(e) => setFullName(e.target.value)}
+                            onChange={(e) => handleChange("fullName", e.target.value)}
                             placeholder="Nhập họ và tên"
-                            value={fullName}
+                            value={form.fullName}
                         >
                         </TextField>
                         <Typography variant="subtitle1" sx={{ mb: 1 }}>
@@ -155,9 +212,9 @@ export default function AddNewAddressDialog({ open, onClose}: Props ) {
                         </Typography>
                         <TextField 
                             fullWidth
-                            onChange={(e) => setPhoneNumber(e.target.value)}
+                            onChange={(e) => handleChange("phoneNumber", e.target.value)}
                             placeholder="Nhập số điện thoại"
-                            value={phoneNumber}
+                            value={form.phoneNumber}
                         >
                         </TextField>
                     </Grid>
@@ -167,11 +224,15 @@ export default function AddNewAddressDialog({ open, onClose}: Props ) {
                         </Typography>
                         <Select 
                             fullWidth 
-                            value={selectedProvince} 
-                            onChange={(e) => handleProvinceChange(e.target.value)}
+                            value={form.province || ""} 
+                            onChange={(e) => handleChange("province", e.target.value ?? "")}
                         >
                             {provinces.map((province: Province) => (                                
-                                <MenuItem key={province.ProvinceID} value={province.ProvinceID}>
+                                <MenuItem 
+                                    key={province.ProvinceID} 
+                                    value={province.ProvinceID}
+                                    
+                                >
                                     {province.ProvinceName}
                                 </MenuItem>
                             ))}
@@ -181,9 +242,9 @@ export default function AddNewAddressDialog({ open, onClose}: Props ) {
                         </Typography>
                         <Select 
                             fullWidth 
-                            value={selectedDistrict} 
-                            onChange={(e) => handleDistrictChange(e.target.value)}
-                            disabled={!selectedProvince}
+                            value={form.district || ""} 
+                            onChange={(e) => handleChange("district", e.target.value ?? "")}
+                            disabled={!form.province}
                         >
                             {districts.map((district: District) => (                                
                                 <MenuItem key={district.DistrictID} value={district.DistrictID}>
@@ -196,9 +257,9 @@ export default function AddNewAddressDialog({ open, onClose}: Props ) {
                         </Typography>
                         <Select
                             fullWidth
-                            onChange={(e) => handleWardChange(e.target.value)}
-                            value={selectedWard}
-                            disabled={!selectedDistrict || !selectedProvince}
+                            onChange={(e) => handleChange("ward", e.target.value ?? "")} 
+                            value={form.ward || ""}
+                            disabled={!form.district || !form.province}
                         >
                             {wards.map((ward: Ward) => (  
                                 <MenuItem key={ward.WardCode} value={ward.WardCode}>
@@ -213,8 +274,8 @@ export default function AddNewAddressDialog({ open, onClose}: Props ) {
                             fullWidth 
                             multiline 
                             rows={4} 
-                            value={detailsAddress}
-                            onChange={(e) => setDetailsAddress(e.target.value)}
+                            value={form.detailAddress}
+                            onChange={(e) => handleChange("detailAddress", (e.target.value))}
                             placeholder="Số nhà, tên đường, tổ dân phố, thôn, xóm..."
                         >
                         </TextField>
@@ -222,8 +283,9 @@ export default function AddNewAddressDialog({ open, onClose}: Props ) {
                     <Divider sx={{width: '100%', mt: 1}}></Divider>
                     <Box display={"flex"} flexDirection={"row"} alignItems={"center"}>
                         <Checkbox
-                            checked={isDefaultAddress} 
+                            checked={!canDisableDefaultAddress ? true : form.isDefault} 
                             onChange={toogleDefaultAddress}   
+                            disabled={!canDisableDefaultAddress}
                         />
                         <Typography variant="subtitle1" sx={{ ml: 1 }}>                       
                             Đặt làm địa chỉ mặc định
@@ -237,7 +299,7 @@ export default function AddNewAddressDialog({ open, onClose}: Props ) {
                     color="secondary">
                     Hủy
                 </Button>
-                <Button disabled={!canAddAddress} onClick={handleAddNewAddress} variant="contained" color="primary">
+                <Button disabled={!canSubmit} onClick={(mode == "add") ? handleAddNewAddress : handleUpdateAddress} variant="contained" color="primary">
                     Lưu địa chỉ
                 </Button>
             </DialogActions>

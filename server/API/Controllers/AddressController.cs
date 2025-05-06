@@ -20,6 +20,15 @@ public class AddressController(IConfiguration configuration) : BaseApiController
         return HandleResult(await Mediator.Send(new AddAddressCommand { UserId = userId, Address = dto }));
     }
 
+    [HttpPut("update-address/{id}")]
+    public async Task<IActionResult> UpdateAddress(string id, [FromBody] AddressDto address)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User not authenticated");
+        return HandleResult(await Mediator.Send(new UpdateAddressCommand { UserId = userId, AddressId = id, Address = address }));
+    }
+
     [HttpGet("myaddresses")]
     public async Task<IActionResult> GetAddresses()
     {
@@ -28,6 +37,16 @@ public class AddressController(IConfiguration configuration) : BaseApiController
             return Unauthorized("User not authenticated");
         return HandleResult(await Mediator.Send(new GetAddressesByUserIdQuery { UserId = userId }));
     }
+
+    [HttpGet("myaddresses/{id}")]
+    public async Task<IActionResult> GetAddressById(string id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User not authenticated");
+        return HandleResult(await Mediator.Send(new GetAddressByIdQuery { AddressId = id }));
+    }
+
 
     [HttpGet("provinces")]
     public async Task<IActionResult> GetProvinces()
@@ -44,7 +63,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
     }
 
     [HttpGet("districts")]
-    public async Task<IActionResult> GetDistricts(string provinceId)
+    public async Task<IActionResult> GetDistricts([FromQuery]string provinceId)
     {
         var token = configuration["GHN:ApiToken"];
         using var client = new HttpClient();
@@ -58,7 +77,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
     }
 
     [HttpGet("wards")]
-    public async Task<IActionResult> GetWards(string districtId)
+    public async Task<IActionResult> GetWards([FromQuery]string districtId)
     {
         var token = configuration["GHN:ApiToken"];
         using var client = new HttpClient();

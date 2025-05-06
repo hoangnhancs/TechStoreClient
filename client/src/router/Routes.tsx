@@ -13,6 +13,9 @@ import BasketPage from "../features/basket/BasketPage";
 import LoginForm from "../features/user/LoginForm";
 import RegisterForm from "../features/user/RegisterForm";
 import CheckOutPage from "../features/order/CheckOutPage";
+import OrderSuccessPage from "../features/order/OrderSuccessPage";
+import MyOrdersPage from "../features/order/MyOrdersPage";
+import OrderDetailsPage from "../features/order/OrderDetailsPage";
 
 export const router = createBrowserRouter([
     {
@@ -29,6 +32,9 @@ export const router = createBrowserRouter([
             {path: '/login', element: <LoginForm />},
             {path: '/register', element: <RegisterForm />},
             {path: '/order', element: <CheckOutPage />},
+            {path: '/order-success', element: <OrderSuccessPage />},
+            {path: '/my-orders', element: <MyOrdersPage />},
+            {path: '/my-orders/:orderId', element: <OrderDetailsPage />},
             {path: '/error', element: <Error />},
             {path: '/server-error', element: <ServerError />},
             {path: '/not-found', element: <NotFound />},

@@ -7,4 +7,5 @@ namespace Domain.Interfaces.Services;
 public interface IPaymentService
 {
     Task<PaymentIntent> CreateOrUpdatePaymentIntentAsync(Order order, string UserId, CancellationToken cancellationToken);
+    Task<PaymentIntent> GetPaymentIntent(string paymentIntentId, CancellationToken cancellationToken);
 }

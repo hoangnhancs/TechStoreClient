@@ -7,8 +7,9 @@ public interface IOrderRepository
 {
     Task<Order?> GetOrderByIdAsync(string id);
     Task<List<Order>> GetOrdersByUserIdAsync(string userId);
+    Task<Order> GetOrderDetailById(string orderId);
     Task<Order?> GetUnCompletedOrdersByUserIdAsync(string userId);
-    Task<Order> CreateOrderAsync(List<OrderItem> items, string userId, string shippingAddressId, string billingingAddressId, long shippingCost, long discount);
-    Task<Order> UpdateOrderAsync(string orderId, List<OrderItem> items, string shippingAddressId, string billingingAddressId, long shippingcost, long discount, string orderStatus, string paymentMethod, string paymentStatus);
+    Task<Order> CreateOrderAsync(List<OrderItem> items, string userId, string? shippingAddressId, string? billingingAddressId, long shippingCost, long discount);
+    Task<Order> UpdateOrderAsync(string orderId, List<OrderItem> items, string? shippingAddressId, string? billingingAddressId, long shippingcost, long discount, string orderStatus, string paymentMethod, string paymentStatus);
     void AttachProduct(Product product);
 }

@@ -25,16 +25,18 @@ public class OrderRepository(StoreContext context) : IOrderRepository
             .ToListAsync();
         return orders;
     }
-    public Task<Order> CreateOrderAsync(List<OrderItem> items, string userId, string shippingAddressId, string billingAddressId, long shippingcost, long discount)
+    public Task<Order> CreateOrderAsync(List<OrderItem> items, string userId, string? shippingAddressId, string? billingAddressId, long shippingcost, long discount)
     {
+        shippingAddressId = string.IsNullOrWhiteSpace(shippingAddressId) ? null : shippingAddressId;
+        billingAddressId = string.IsNullOrWhiteSpace(billingAddressId) ? null : billingAddressId;
         var order = new Order
         {
             UserId = userId,
             Items = items,
             PaymentStatus = PaymentStatus.Pending,
             OrderStatus = OrderStatus.Created,
-            ShippingAddressId = shippingAddressId,
-            BillingAddressId = billingAddressId,
+            ShippingAddressId = shippingAddressId ,
+            BillingAddressId = billingAddressId ,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
             SubToTal = items.Sum(x => x.UnitPrice  * x.Quantity),
@@ -54,7 +56,7 @@ public class OrderRepository(StoreContext context) : IOrderRepository
         return Task.FromResult(order);
     }
 
-    public async Task<Order> UpdateOrderAsync(string orderId, List<OrderItem> items, string shippingAddressId, string billingingAddressId, long shippingcost, long discount, string orderStatus, string paymentMethod, string paymentStatus)
+    public async Task<Order> UpdateOrderAsync(string orderId, List<OrderItem> items, string? shippingAddressId, string? billingingAddressId, long shippingcost, long discount, string orderStatus, string paymentMethod, string paymentStatus)
     {
         var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
         if (order == null) throw new InvalidOperationException("Order not found");
@@ -83,6 +85,17 @@ public class OrderRepository(StoreContext context) : IOrderRepository
     public void AttachProduct(Product product)
     {
         _context.Products.Attach(product);
+    }
+
+    public async Task<Order> GetOrderDetailById(string orderId)
+    {
+        var orderDetails = await _context.Orders
+            .Include(o => o.Items)
+            .ThenInclude(o => o.Product)
+            .Include(o => o.ShippingAddress)
+            .FirstOrDefaultAsync(o => o.Id == orderId);
+        if (orderDetails == null) throw new InvalidOperationException("Order not found");
+        return orderDetails;
     }
 }
 

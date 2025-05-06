@@ -43,14 +43,12 @@ public class BasketController() : BaseApiController
             });
         }
 
-        var command = new AddItemToBasketCommand
+        return HandleResult(await Mediator.Send(new AddItemToBasketCommand
         {
             UserId = userId,
             ProductId = addItemDto.Product.Id,
             Quantity = addItemDto.Quantity
-        };
-
-        return HandleResult(await Mediator.Send(command));
+        }));
     }
 
     [HttpDelete("mybasket/items/{productId}")]
@@ -64,13 +62,27 @@ public class BasketController() : BaseApiController
             return Unauthorized("User not authenticated");
         }
 
-        var command = new RemoveItemFromBasketCommand
+        return HandleResult(await Mediator.Send(new RemoveItemFromBasketCommand
         {
             UserId = userId,
             ProductId = productId,
             Quantity = quantity
-        };
+        }));
+    }
+    [HttpPost("mybasket/remove_items")]
+    public async Task<IActionResult> RemovePermanentItemsFromBasket([FromBody] RemoveItemsDto removeItemsDto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        return HandleResult(await Mediator.Send(command));
+        if (string.IsNullOrEmpty(userId)) 
+        {
+            return Unauthorized("User not authenticated");
+        }
+
+        return HandleResult(await Mediator.Send(new RemovePermanentItemsFromBasketCommand
+        {
+            UserId = userId,
+            ProductIds = removeItemsDto.ProductIds
+        }));
     }
 }

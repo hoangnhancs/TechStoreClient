@@ -1,57 +1,24 @@
 import { Box, Button, Divider, Paper, Typography } from "@mui/material";
+import { Link, useLocation } from "react-router-dom";
+import { useOrderProcessing } from "../../app/hooks/useOrderProcessing";
+import { useEffect } from "react";
 
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Basket, Item } from "../../lib/types";
-import { useAppDispatch } from "../../hooks";
-import { setBasketStates } from "../basket/basketSlice";
+
+
 
 
 type Props = {
-    basket: Basket,
-    selectedItems: Item[]
+    isCanCompleteOrder?: boolean
+    onPaymentOrder?: () => void
 }
 
-export default function OrderSummary({ basket, selectedItems }: Props) {
-    
-    const navigate = useNavigate()
-    const dispatch = useAppDispatch()
+export default function OrderSummary({ isCanCompleteOrder, onPaymentOrder }: Props) {
     const location = useLocation()
-    const shippingCost = 1000
-    const discount = 3000
-    const getTotalPrice = () => {
-        let total = 0
-        selectedItems.forEach(item => {
-            total += item.price * item.quantity
-        })
-        return total
-    }
-
-    // const createOrderParas = {
-    //     items: basket.items
-    //         .filter(item => selectedItems.find(selectedId => selectedId === item.productId))
-    //         .map(item => ({
-    //             productId: item.productId,
-    //             productName: item.productName,
-    //             imageUrl: item.imageUrl,
-    //             quantity: item.quantity,
-    //             unitPrice: item.price,
-    //             brand: item.brand,
-    //             category: item.category,
-    //         })),
-    //     shippingCost: shippingCost,
-    //     discount: discount,
-    //     subTotal: getTotalPrice(),
-    //     total: getTotalPrice() + shippingCost - discount,
-    //     orderStatus: "Created",
-    //     paymentStatus: "Pending",
-    //     paymentMethod: "test",
-    // } 
-
-    const handleClickPayment = () => {
-        dispatch(setBasketStates({ selectedItems, basket }))
-        navigate('/order')
-    }
-    
+    const { selectedItems, handleCreateOrder, getTotalPrice, shippingCost, discount } = useOrderProcessing()
+    useEffect(() => {
+        console.log("OrderSummary received selectedItems:", selectedItems);
+        console.log("Total price calculated:", getTotalPrice());
+    }, [selectedItems, getTotalPrice]);
     return (
         <Paper 
             elevation={3}
@@ -59,10 +26,11 @@ export default function OrderSummary({ basket, selectedItems }: Props) {
                 width: '100%', 
                 position: 'sticky',
                 top: 109,
-                p: 2 
+                p: 2,
+                borderRadius: 3, 
             }}   
         >
-            <Box display={'flex'} flexDirection={'column'} sx={{ width: '100%' }}>
+            <Box display={'flex'} flexDirection={'column'} sx={{ width: '100%', borderRadius: 3 }}>
                 <Typography variant="h5" sx={{ mb: 3, fontWeight: 'bold' }}>
                     Thông tin đơn hàng
                 </Typography>
@@ -155,7 +123,7 @@ export default function OrderSummary({ basket, selectedItems }: Props) {
                     fullWidth
                     size="large"
                     sx={{ mt: 2, py: 1.5 }}
-                    onClick={handleClickPayment}
+                    onClick={handleCreateOrder}
                 >
                     Thanh toán ({selectedItems.length} sản phẩm)
                 </Button>
@@ -163,11 +131,11 @@ export default function OrderSummary({ basket, selectedItems }: Props) {
                     <Button 
                         variant="contained" 
                         color="primary"
-                        disabled={selectedItems.length === 0}
+                        disabled={selectedItems.length === 0 || !isCanCompleteOrder}
                         fullWidth
                         size="large"
                         sx={{ mt: 2, py: 1.5 }}
-                        onClick={() => {}}    
+                        onClick={onPaymentOrder}                           
                     >
                         Hoàn tất thanh toán
                     </Button>

@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Avatar, Box, Divider, ListItemIcon, ListItemText } from '@mui/material';
 
 import { Link, useLocation, useNavigate } from 'react-router';
-import { Add, Logout, Password, Person } from '@mui/icons-material';
+import { Add, Logout, Password, Person, Receipt } from '@mui/icons-material';
 import { useGetCurrentUserQuery, useLogoutMutation } from './userApi';
 import { basketApi } from '../basket/basketApi';
 import { useDispatch } from 'react-redux';
@@ -78,6 +78,12 @@ export default function UserMenu() {
                         <Person />
                     </ListItemIcon>
                     <ListItemText>My Profile</ListItemText>
+                </MenuItem>
+                <MenuItem component={Link} to={`/my-orders`} onClick={handleClose}>
+                    <ListItemIcon>
+                        <Receipt />
+                    </ListItemIcon>
+                    <ListItemText>My orders</ListItemText>
                 </MenuItem>
                 <MenuItem component={Link} to={`/change-password`} onClick={handleClose}>
                     <ListItemIcon>

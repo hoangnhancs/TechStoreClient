@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Box, Button, Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
 import { useFetchProductByIdQuery } from "./productApi";
 import { useState } from "react";
 import LoginPromptDialog from "../../components/LoginPromptDialog";
@@ -61,7 +61,16 @@ export default function ProductDetails() {
   const isSelected = true; 
   
   if (isLoading || !product) {
-    return <Typography>Loading...</Typography>;
+    return (
+      <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="100vh" // Chiều cao toàn trang
+      >
+          <CircularProgress />
+      </Box>
+    );
   }
 
   const productDetails = [

@@ -1,32 +1,97 @@
 import { Box, Button, Paper, Step, StepLabel, Stepper, Typography } from "@mui/material"
-import { AddressElement } from "@stripe/react-stripe-js";
-import { useState } from "react"
-import { useFetchAddressQuery } from "../features/address/addressApi";
+import { useEffect, useState } from "react"
 import AddNewAddressDialog from "../components/AddNewAddressDialog";
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { Address, PaymentInfor } from "../lib/types";
+import ChangeAddressPrompt from "../components/ChangeAddressPrompt";
+import PaymentMethodSelector from "./PaymentMethodSelector";
+import PreviewOrder from "./PreviewOrder";
 
 
+
+
+
+type Props = {
+    addresses: Address[] | undefined
+    onActiveStepChange?: (step: number) => void
+    onPaymentInforChange: (paymentInfor: PaymentInfor) => void
+    onAddressChange: (address: Address) => void
+}
 
 const steps = ['Địa chỉ', 'Phương thức thanh toán', 'Hoàn tất thanh toán'];
 
-export default function CheckOutStepper() {
+export default function CheckOutStepper({ addresses, onActiveStepChange, onPaymentInforChange, onAddressChange }: Props) {
+
     const [activeStep, setActiveStep] = useState(0)
-    const { data: addresses } = useFetchAddressQuery()
     const [isAddingNewAddress, setIsAddingNewAddress] = useState(false); 
-    // const [selectedAddress, setSelectedAddress] = useState<Address | null>(addresses?.find(address => address.isDefault) || null)
-    const handleNextStep = () => {
+    const [isChangeAddressOpen, setIsChangeAddressOpen] = useState(false);
+    const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
+    const [paymentInfor, setPaymentInfor] = useState<PaymentInfor>({
+        paymentMethod: '',
+        walletType: null,
+        isValid: false,
+    })
+    const handleNextStep = () => {  
+        if (onActiveStepChange) {
+            onActiveStepChange(activeStep + 1);
+        }
         setActiveStep(step => step + 1)
     }
     const handleBackStep = () => {
+        if (onActiveStepChange) {
+            onActiveStepChange(activeStep - 1);
+        }
         setActiveStep(step => step - 1)
     }
 
     const handleOpenAddNewAddress = () => {
-        console.log("Opening dialog...");
         setIsAddingNewAddress(true)
     }
     const handleCloseAddNewAddress = () => {
         setIsAddingNewAddress(false);
     };
+
+    const handleOpenChangeAddress = () => {  
+        setIsChangeAddressOpen(true);
+    }
+    const handleCloseChangeAddress = () => {
+        setIsChangeAddressOpen(false);
+    }
+
+    const handlePaymentInforChange = (paymentInfor: PaymentInfor) => {
+        setPaymentInfor(paymentInfor);
+        onPaymentInforChange(paymentInfor);
+    }
+
+    const handleAddressChange = (address: Address) => {
+        setSelectedAddress(address);
+        onAddressChange(address)
+    }
+
+    const isCanNextStep = () : boolean => {
+        if (activeStep >= steps.length - 1) 
+            return false
+        if (activeStep === 0 && selectedAddress === null) 
+            return false
+        if (activeStep === 1 && 
+            (paymentInfor.paymentMethod === null || paymentInfor.paymentMethod === ''
+                || (paymentInfor.paymentMethod === 'CreditCard' && paymentInfor.isValid === false)
+                || (paymentInfor.paymentMethod === 'wallet' && paymentInfor.walletType === null))) 
+            return false
+        if (activeStep === 2)
+            return false
+        
+        return true;
+    }
+
+
+    useEffect(() => {
+        if (selectedAddress == null && addresses && addresses.length > 0) {
+            const defaultAddress = addresses.find(address => address.isDefault) || addresses[0];
+            setSelectedAddress(defaultAddress);
+            onAddressChange(defaultAddress);
+        }
+    }, [addresses, selectedAddress, onAddressChange]);
     
     return (
         <Paper sx={{p: 3, borderRadius: 3, mt: 1.94}}>
@@ -41,7 +106,7 @@ export default function CheckOutStepper() {
                     )
                 })}
             </Stepper>
-            <Box sx={{ mt: 2}}>
+            <Box sx={{ mt: 4}}>
                 <Box sx={{ display: activeStep === 0 ? 'block' : 'none'}}>
                     {!addresses || addresses.length == 0 ? (
                         <Box>
@@ -51,24 +116,67 @@ export default function CheckOutStepper() {
                             <Button variant="outlined" onClick={handleOpenAddNewAddress}>
                                 Thêm địa chỉ mới
                             </Button>
-                            <AddNewAddressDialog 
+                            <AddNewAddressDialog
+                                canDisableDefaultAddress={true}
+                                inputWards={null}
+                                inputDistricts={null}
+                                inputProvinces={null}
+                                mode="add"
+                                selectedAddress={null}
                                 open={isAddingNewAddress} 
                                 onClose={handleCloseAddNewAddress}
                             />
                         </Box>  
-                    ) : <AddressElement options={{mode: 'shipping'}} />}
+                    ) : (
+                        <Box display={"flex"} flexDirection={"column"} gap={2}>
+                            <Box display={"flex"} flexDirection={"row"}  gap={2}>
+                                <Box display={"flex"} flexDirection={"column"} sx={{width: '100%'}}>
+                                    <Box display={"flex"} flexDirection={"row"} gap={2} >
+                                        <LocationOnIcon style={{ color: 'black' }} />
+                                        <Typography sx={{ml: 1}}>
+                                            Địa chỉ giao hàng
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ mt: 1 }} display="flex" flexDirection="row" gap={2} justifyContent="space-between" width="100%">
+                                        <Box display="flex" flexDirection="row" alignItems="center">
+                                            <Typography fontWeight="bold" textAlign="center">
+                                                {selectedAddress ? selectedAddress?.fullName + " " + selectedAddress?.phoneNumber : ""}
+                                            </Typography>
+                                            <Typography sx={{ ml: 2 }}>
+                                                {selectedAddress ? selectedAddress?.detailAddress + ", " + selectedAddress?.ward + ", " + selectedAddress?.district + ", " + selectedAddress?.province : ""}
+                                            </Typography>
+                                        </Box>
+                                        <Box display={"flex"} sx={{ mr: 0}} justifyContent={"right"}>
+                                            <Button onClick={handleOpenChangeAddress} variant="text" sx={{ color: 'blue' }}>Thay đổi</Button>
+                                        </Box>
+                                        <ChangeAddressPrompt
+                                            open={isChangeAddressOpen}
+                                            onClose={handleCloseChangeAddress}
+                                            selectedAddress={selectedAddress}
+                                            onAddressChange={handleAddressChange}
+                                            addresses={addresses}
+                                        />
+                                    </Box>
+                                </Box>                                
+                            </Box>
+                        </Box>
+                    )}
                     
                 </Box>
                 <Box sx={{ display: activeStep === 1 ? 'block' : 'none'}}>
-                    Chọn phương thức thanh toán
+                    <PaymentMethodSelector onPaymentInforChange={handlePaymentInforChange} />
                 </Box>
                 <Box sx={{ display: activeStep === 2 ? 'block' : 'none'}}>
-                    Hoàn tất thanh toán
+                    <PreviewOrder
+                        selectedAddress={selectedAddress}
+                        paymentInfor={paymentInfor}
+                        onPlaceOrder={() => console.log("Order placed!")}
+                    />
                 </Box>
             </Box>
             <Box display={'flex'} justifyContent='space-between' mt={2}>
                 <Button onClick={handleBackStep} disabled={activeStep === 0}>Quay lại</Button>
-                <Button onClick={handleNextStep} disabled={activeStep === steps.length - 1}>Tiếp theo</Button>
+                <Button onClick={handleNextStep} disabled={!isCanNextStep()}>Tiếp theo</Button>
             </Box>
         </Paper>
     )

@@ -1,4 +1,4 @@
-import { Box, Button, Container, Divider, Grid, Paper, Typography, Checkbox, IconButton } from "@mui/material";
+import { Box, Button, Container, Divider, Grid, Paper, Typography, Checkbox, IconButton, CircularProgress } from "@mui/material";
 import { useFetchBasketQuery, useRemoveBasketItemMutation } from "./basketApi"
 import { Item } from "../../lib/types";
 import { useEffect, useState } from "react";
@@ -6,20 +6,26 @@ import { Add, Delete, Remove } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useGetCurrentUserQuery } from "../user/userApi";
 import OrderSummary from "../order/OrderSummary";
+import { useDispatch } from "react-redux";
+import { setBasketStates } from "./basketSlice";
+import { useAppSelector } from "../../hooks";
 
 
 
 
 
 export default function BasketPage() {
-
+    const { selectedItems: reduxSelectedItems } = useAppSelector(state => state.basket);
     const {data: basket, isLoading} = useFetchBasketQuery()
     const [removeItemFromBasket] = useRemoveBasketItemMutation()
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const [groupedItems, setGroupedItems] = useState<Record<string, Item[]>>({})
-    const [selectedItems, setSelectedItems] = useState<Array<Item>>(JSON.parse(localStorage.getItem("selectedItems") || "[]"))
+    const [selectedItems, setSelectedItems] = useState<Array<Item>>([])
     const {data: currentUser} = useGetCurrentUserQuery()
-
+    useEffect(() => {
+        setSelectedItems(reduxSelectedItems || []);
+    }, [reduxSelectedItems]);
     useEffect(() => {
         if (basket?.items) {
             const groupedByCategory = basket.items.reduce((groups, item) => {
@@ -49,7 +55,7 @@ export default function BasketPage() {
             updatedSelectedItems = [...selectedItems, item];
         }
         setSelectedItems(updatedSelectedItems)
-        localStorage.setItem("selectedItems", JSON.stringify(Array.from(updatedSelectedItems)));
+        dispatch(setBasketStates({selectedItems: updatedSelectedItems, basket: basket || {id: "", userId: "", items: []}})) 
     }
 
     const isCategorySelectedAll = (category: string) => {
@@ -59,7 +65,7 @@ export default function BasketPage() {
 
     const toogleSelectCategory = (category: string) => {
         const itemsGroupedByCategory = groupedItems[category] || []
-        const tmpSelectedItems = new Array(selectedItems)
+        // const tmpSelectedItems = selectedItems
         let updatedSelectedItems;
         if (isCategorySelectedAll(category)) {
             updatedSelectedItems = selectedItems.filter(selected => selected.category != category)
@@ -67,7 +73,7 @@ export default function BasketPage() {
             updatedSelectedItems = [...selectedItems, ...itemsGroupedByCategory]
         }
         setSelectedItems(updatedSelectedItems)
-        localStorage.setItem("selectedItems", JSON.stringify(Array.from(tmpSelectedItems)));
+        dispatch(setBasketStates({selectedItems: updatedSelectedItems, basket: basket || {id: "", userId: "", items: []}})) 
     }
 
     const isSelectedAllItems = () => {
@@ -82,18 +88,34 @@ export default function BasketPage() {
         if (isSelectedAllItems())
         {
             setSelectedItems([])
-            localStorage.setItem("selectedItems", JSON.stringify([]));
+            dispatch(setBasketStates({selectedItems: [], basket: basket || {id: "", userId: "", items: []}})) 
         }
         else
         {
             basket?.items.forEach(item => tmpSelectedItems.push(item))
             setSelectedItems(tmpSelectedItems)
-            localStorage.setItem("selectedItems", JSON.stringify(Array.from(tmpSelectedItems)));
+            dispatch(setBasketStates({selectedItems: tmpSelectedItems, basket: basket || {id: "", userId: "", items: []}})) 
         }   
     }
 
+    const handleRemoveItem = (productId: string, quantity: number) => {
+        removeItemFromBasket({productId, quantity})
+        const tmpSelecteditems = selectedItems.filter(item => item.productId !== productId)
+        setSelectedItems(tmpSelecteditems)
+        dispatch(setBasketStates({selectedItems: tmpSelecteditems, basket: basket || {id: "", userId: "", items: []}}))
+    }
 
-    if (isLoading) return <Typography variant="h4">Loading...</Typography>
+    if (isLoading) 
+        return (
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100vh" // Chiều cao toàn trang
+            >
+                <CircularProgress />
+            </Box>
+        );
 
     if (!basket || basket.items.length === 0) 
     return (
@@ -106,7 +128,8 @@ export default function BasketPage() {
           color="primary" 
           fullWidth 
           href="/products"
-          sx={{ maxWidth: 300, mx: 'auto', display: 'block' }}
+          sx={{ maxWidth: 300, mx: 'auto', display: 'block', textAlign: "center" }}
+          
         >
           Tiếp tục mua sắm
         </Button>
@@ -389,7 +412,7 @@ export default function BasketPage() {
                                             <Button 
                                                 color="error" 
                                                 startIcon={<Delete />} 
-                                                onClick={() => removeItemFromBasket({productId: item.productId, quantity: item.quantity})}
+                                                onClick={() => handleRemoveItem(item.productId, item.quantity)}
                                             >
                                                 Xóa
                                             </Button>
@@ -405,7 +428,7 @@ export default function BasketPage() {
 
             {/*Summary order*/}
             <Grid size={4} sx={{ p: 2 }}>
-                <OrderSummary basket= {basket} selectedItems= {Array.from(selectedItems)} />
+                <OrderSummary />
             </Grid>
             
         </Grid>

@@ -3,9 +3,9 @@ import {
   FetchArgs,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query";
-import { startLoading, stopLoading } from "../../layouts/uiSlice";
 import { toast } from "react-toastify";
 import { router } from "../../router/Routes";
+import { LoadingPriority, startLoading, stopLoading } from "../../layouts/uiSlice";
 
 type CustomError = | string | {message: string} | {errors: string [], title: string}
 
@@ -19,14 +19,13 @@ const sleep = () => new Promise((resolve) => setTimeout(resolve, 500));
 export const baseQueryWithErrorHandling = async (
   args: string | FetchArgs,
   api: BaseQueryApi,
-  extraOptions: object
+  extraOptions: { loadingPriority?: LoadingPriority } = {}
 ) => {
-  api.dispatch(startLoading()); //start loading
-
+  const priority = extraOptions.loadingPriority || LoadingPriority.LOW
+  api.dispatch(startLoading(priority)); 
   await sleep();
   const result = await customBaseQuery(args, api, extraOptions);
-
-  api.dispatch(stopLoading()); //stop loading
+  api.dispatch(stopLoading()); 
   if (result.error) {
     
     const originalStatus = result.error.status === 'PARSING_ERROR' && result.error.originalStatus 
@@ -46,10 +45,10 @@ export const baseQueryWithErrorHandling = async (
             }
             break
         case 401:
-            toast.error((responseData as string) || "Unauthorized c");
+            toast.error((responseData as string) || "Unauthorized");
             break
         case 404:
-            toast.error((responseData as string) || "Not found c");
+            toast.error((responseData as string) || "Not found");
             router.navigate('/not-found')
             break
         case 500:

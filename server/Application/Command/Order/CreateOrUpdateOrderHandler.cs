@@ -28,7 +28,7 @@ public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCom
         if (uncompletedOrder != null)
         {       
             var items = OrderMapper.MapToEntity(orderDto).Items.ToList();
-            var newOrder = await _orderRepository.UpdateOrderAsync(uncompletedOrder.Id, items, orderDto.ShippingAddressId ?? string.Empty, orderDto.BillingAddressId ?? string.Empty, orderDto.ShippingCost, orderDto.Discount, orderDto.OrderStatus, orderDto.PaymentMethod, orderDto.PaymentStatus);
+            var newOrder = await _orderRepository.UpdateOrderAsync(uncompletedOrder.Id, items, orderDto.ShippingAddressId, orderDto.BillingAddressId, orderDto.ShippingCost, orderDto.Discount, orderDto.OrderStatus, orderDto.PaymentMethod, orderDto.PaymentStatus);
             var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
             if (!result)
             {
@@ -40,7 +40,7 @@ public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCom
         else
         {
             var items = OrderMapper.MapToEntity(orderDto).Items.ToList();
-            var newOrder = await _orderRepository.CreateOrderAsync(items, request.UserId, orderDto.ShippingAddressId ?? string.Empty, orderDto.BillingAddressId ?? string.Empty, orderDto.ShippingCost, orderDto.Discount);
+            var newOrder = await _orderRepository.CreateOrderAsync(items, request.UserId, orderDto.ShippingAddressId, orderDto.BillingAddressId, orderDto.ShippingCost, orderDto.Discount);
             var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
             if (!result)
             {

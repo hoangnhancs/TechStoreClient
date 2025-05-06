@@ -22,6 +22,7 @@ public static class OrderMapper
             OrderStatus = order.OrderStatus.ToString(),
             Items = order.Items.Select(OrderItemMapper.MapToDto).ToList(),
             PaymentStatus = order.PaymentStatus.ToString(),
+            UpdateAt = order.UpdatedAt,
         };
     }
     public static OrderDto MapToDto(CreateOrUpdateOrderDto createOrUpdateOrderDto)
@@ -30,8 +31,8 @@ public static class OrderMapper
         {
             Id = string.Empty,
             UserId = createOrUpdateOrderDto.UserId,
-            ShippingAddressId = createOrUpdateOrderDto.ShippingAddressId ?? string.Empty,
-            BillingAddressId = createOrUpdateOrderDto.BillingAddressId ?? string.Empty,
+            ShippingAddressId = createOrUpdateOrderDto.ShippingAddressId,
+            BillingAddressId = createOrUpdateOrderDto.BillingAddressId,
             SubToTal = createOrUpdateOrderDto.SubToTal,
             ShippingCost = createOrUpdateOrderDto.ShippingCost,
             Discount = createOrUpdateOrderDto.Discount,
@@ -48,7 +49,7 @@ public static class OrderMapper
             Id = orderDto.Id ?? string.Empty,
             UserId = orderDto.UserId ?? string.Empty,
             Items = orderDto.Items.Select(OrderItemMapper.MapToEntiy).ToList(),
-            ShippingAddressId = orderDto.ShippingAddressId ?? string.Empty,
+            ShippingAddressId = orderDto.ShippingAddressId,
             BillingAddressId = orderDto.BillingAddressId,
             SubToTal = orderDto.SubToTal,
             ShippingCost = orderDto.ShippingCost,

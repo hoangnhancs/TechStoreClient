@@ -12,7 +12,7 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250425164635_InitTable")]
+    [Migration("20250428152805_InitTable")]
     partial class InitTable
     {
         /// <inheritdoc />
@@ -150,7 +150,6 @@ namespace Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ShippingAddressId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<long>("ShippingCost")
@@ -561,8 +560,7 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Entities.Address", "ShippingAddress")
                         .WithMany()
                         .HasForeignKey("ShippingAddressId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Domain.Entities.User", "User")
                         .WithMany("Ordereds")

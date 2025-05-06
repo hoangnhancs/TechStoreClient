@@ -3,6 +3,7 @@ import { Box, Container, createTheme, CssBaseline, ThemeProvider } from "@mui/ma
 import NavBar from "./layouts/NavBar"
 import { Outlet } from "react-router-dom"
 import { useAppSelector } from "./hooks"
+import LoadingOverlay from "./components/LoadingOverlay"
 
 function App() {
 
@@ -56,6 +57,7 @@ function App() {
 
   return (
     <>
+      <LoadingOverlay />
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <NavBar />

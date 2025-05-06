@@ -42,7 +42,6 @@ public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdate
 
 
         var intent = await _paymentService.CreateOrUpdatePaymentIntentAsync(unCompletedOrder, request.UserId, cancellationToken); 
-        //trong nay da create and save payment neu chua co
 
 
 
@@ -55,6 +54,8 @@ public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdate
         {
             payment.ClientSecret = intent.ClientSecret;
             payment.PaymentIntentId = intent.Id;
+            payment.CreatedAt = payment.CreatedAt;
+            payment.UpdatedAt = DateTime.UtcNow;
         }
         else
         {

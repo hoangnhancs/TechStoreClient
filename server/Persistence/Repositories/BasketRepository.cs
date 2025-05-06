@@ -31,20 +31,6 @@ public class BasketRepository(StoreContext context) : IBasketRepository
         return Task.CompletedTask;
     }
 
-    // public async Task<Basket?> GetBasketByPaymentIdAsync(string paymentId, CancellationToken cancellationToken)
-    // {
-    //     var orderId = await _context.Payments
-    //         .Include(p => p.Order)
-    //         .Select(p => p.OrderId)
-    //         .FirstOrDefaultAsync(cancellationToken);
-    //     var basketId = await _context.Orders
-    //         .Where(o => o.Id == orderId)
-    //         .Select(o => o.BasketId)
-    //         .FirstOrDefaultAsync(cancellationToken);
-    //     return await _context.Baskets    
-    //         .FirstOrDefaultAsync(b => b.Id == basketId, cancellationToken);
-    // }
-
     public async Task<Basket?> GetBasketByUserIdAsync(string userId, CancellationToken cancellationToken)
     {
         return await _context.Baskets
@@ -58,6 +44,17 @@ public class BasketRepository(StoreContext context) : IBasketRepository
     {
         var basket = await GetBasketByUserIdAsync(userId, cancellationToken) ?? throw new InvalidOperationException("Basket not found");
         basket.RemoveItem(productId, quantity);
+        basket.UpdatedAt = DateTime.UtcNow;
+        return basket;
+    }
+
+    public async Task<Basket> RemovePermanentItemsFromBasketAsync(string userId, List<string> productIds, CancellationToken cancellationToken)
+    {
+        var basket = await GetBasketByUserIdAsync(userId, cancellationToken) ?? throw new InvalidOperationException("Basket not found");
+        foreach (var productId in productIds)
+        {
+            basket.RemovePermanentItem(productId);
+        }
         basket.UpdatedAt = DateTime.UtcNow;
         return basket;
     }

@@ -1,5 +1,5 @@
 import { StoreMallDirectory, DarkMode, LightMode, ShoppingCart } from "@mui/icons-material";
-import { AppBar, Badge, Box, CircularProgress, Container, Divider, IconButton, LinearProgress, List, Toolbar, Typography } from "@mui/material";
+import { AppBar, Badge, Box, CircularProgress, Container, Divider, IconButton, List, Toolbar, Typography } from "@mui/material";
 import MenuItemLink from "../components/MenuItemLink";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Menu, Close } from "@mui/icons-material";
@@ -191,11 +191,6 @@ export default function NavBar() {
       >
         {mobileMenu}
       </Drawer>
-      {isLoading && (
-        <Box sx={{width: '100%'}}>
-          <LinearProgress color="secondary" />
-        </Box>
-      )}
     </AppBar>
   );
 }

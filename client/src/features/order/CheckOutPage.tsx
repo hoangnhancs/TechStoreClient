@@ -1,238 +1,178 @@
-import { Box, Divider, Grid, Paper, Typography } from "@mui/material";
+import { Box, CircularProgress, Grid, Paper, Typography, Avatar } from "@mui/material";
 import CheckOutStepper from "../../layouts/CheckOutStepper";
 import OrderSummary from "./OrderSummary";
-import { useAppSelector } from "../../hooks";
-import {loadStripe} from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { Item } from "../../lib/types";
 import { useEffect, useState } from "react";
+import { useFetchAddressQuery } from "../address/addressApi";
+import { styled } from '@mui/material/styles';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import { useOrderProcessing } from "../../app/hooks/useOrderProcessing";
+import { stripePromise } from "../../app/stripe/stripePromise";
 
 
+const SummarySection = styled(Paper)(({ theme }) => ({
+    padding: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+    borderRadius: theme.spacing(1),
+    boxShadow: 'rgba(0, 0, 0, 0.04) 0px 3px 5px'
+}));
 
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PK)
+const ColumnHeader = styled(Grid)(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    padding: theme.spacing(1),
+    backgroundColor: theme.palette.grey[50],
+    borderRadius: theme.spacing(1),
+    marginBottom: theme.spacing(1)
+}));
+
+const ItemContainer = styled(Box)(({ theme }) => ({
+    borderRadius: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+    padding: theme.spacing(1),
+}));
 
 export default function CheckOutPage() {
-  const {basket, selectedItems} = useAppSelector(state => state.basket)
-  const [selectGroupedItems, setSelectGroupedItems] = useState<Record<string, Item[]>>({})
+    const {
+        selectedItems,
+        handleActiveStepChange,
+        handlePaymentInforChange,
+        handleAddressChange,
+        handlePaymentOrder,
+        isCanCompleteOrder,
+    } = useOrderProcessing();
+    const { data: addresses } = useFetchAddressQuery()
+    const [selectGroupedItems, setSelectGroupedItems] = useState<Record<string, Item[]>>({})
 
-  useEffect(() => {
-    if (selectedItems.length > 0) {    
-      const groupedByCategory = selectedItems.reduce((groups, item) => {
-          const category = item.category || 'Other'
-          if (!(item.category in groups)){
-              groups[category] = []
-          }
-          groups[category].push(item)
-          return groups
-      }, {} as Record<string, Item[]>)
-      setSelectGroupedItems(groupedByCategory)
-    }
-  }, [selectedItems])
+ 
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('vi-VN', { 
+            style: 'currency', 
+            currency: 'VND',
+            maximumFractionDigits: 0 
+        }).format(amount);
+    };
+
     
-  return (
-    <Grid container spacing={2}>
-      <Grid size={8} >
-        {!stripePromise  ? (
-          <Typography variant="h6">Loading...</Typography>
-        ): (
-          <Elements stripe={stripePromise} >
-            <CheckOutStepper />
-            <Grid size={12} sx={{ mt: 2,  }}>
-                {/*column name*/}
-                <Paper
-                    elevation={3}
-                    sx={{
-                        width: '100%',
-                        mb: 2,
-                        p: 2,
-                        borderRadius: 3,                       
-                    }}                    
-                >
-                    <Grid container spacing={0}>
-                        <Grid
-                            size={6.9}
-                            sx={{
-                                display: 'flex',                                                                                                        
-                                bgcolor: 'background.paper',
-                                alignItems: 'center',
-                                p: 0.5,
-                            }}
-                        >
-                            <Typography sx={{textAlign: 'left'}}>Sản phẩm</Typography>
-                        </Grid>
-                        <Grid
-                            size={1.7}
-                            sx={{
-                                display: 'flex',                                                                                                       
-                                bgcolor: 'background.paper',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                p: 0.5,
-                            }}
-                        >
-                            <Typography>Đơn giá</Typography>
-                        </Grid>
-                        <Grid
-                            size={1.7}
-                            sx={{
-                                display: 'flex',                                                                                                        
-                                bgcolor: 'background.paper',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                p: 0.5,
-                            }}
-                        >
-                            <Typography>Số lượng</Typography>
-                        </Grid>
-                        <Grid
-                            size={1.7}
-                            sx={{
-                                display: 'flex',                                                                                                        
-                                bgcolor: 'background.paper',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                p: 0.5,
-                            }}
-                        >
-                            <Typography>Thành tiền</Typography>
-                        </Grid>
-                    </Grid>
-                </Paper>
-                {/*Items details*/}
-                {Object.entries(selectGroupedItems).map(([category, items]) => (
-                    <Paper elevation={3} sx={{ p: 2, mb: 2, borderRadius: 3 }} key={category} >                
-                        <Box
-                            sx={{ 
-                                display: 'flex', 
-                                flexDirection: 'column', 
-                                gap: 1, 
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                bgcolor: 'background.paper',
-                                width: '100%',
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    width: '100%',
+    useEffect(() => {
+        if (selectedItems.length > 0) {    
+            const groupedByCategory = selectedItems.reduce((groups: Record<string, Item[]>, item) => {
+                const category = item.category || 'Other'
+                if (!(item.category in groups)){
+                    groups[category] = []
+                }
+                groups[category].push(item)
+                return groups
+            }, {} as Record<string, Item[]>)
+            setSelectGroupedItems(groupedByCategory)
+        }
+    }, [selectedItems])
 
-                                }}
-                            >
-                                <Grid container spacing={0}>
-                                  <Grid
-                                      size={5}
-                                      sx={{
-                                          display: 'flex',                                                                        
-                                          bgcolor: 'background.paper',
-                                          alignItems: 'center',
-                                          p: 0.5,
-                                      }}
-                                  >
-                                      <Typography sx={{textAlign: 'left'}}>{category}</Typography>
-                                  </Grid>                        
-                                </Grid>
-                                <Divider />
-                            </Box>
-                            {items.map(item => (
-                              <Box
-                                  key={item.productId}
-                                  sx={{ 
-                                      width: '100%',
-                                  }}
-                              >
-                                <Grid container spacing={0}>                              
-                                  <Grid                             
-                                      size={1.5}
-                                      sx={{                                                                         
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          bgcolor: 'background.paper',
-                                          
-                                      }}
-                                  >
-                                      <Box
-                                          component="img"
-                                          src={item.imageUrl}
-                                          alt={item.productName}
-                                          sx={{ 
-                                              width: 100, 
-                                              height: 100, 
-                                              objectFit: 'cover',
-                                              
-                                          }}
-                                      />
-                                  </Grid> 
-                                  <Grid
-                                      size={5.4}
-                                      sx={{
-                                          display: 'flex',                                                                        
-                                          bgcolor: 'background.paper',
-                                          alignItems: 'center',
-                                          p: 0.5,
-                                      }}
-                                  >
-                                      <Typography sx={{textAlign: 'left'}}>{item.productName}</Typography>
-                                  </Grid>
-                                  <Grid
-                                      size={1.7}
-                                      sx={{
-                                          display: 'flex',                                                                        
-                                          bgcolor: 'background.paper',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          p: 0.5,
-                                      }}
-                                  >
-                                      <Typography>{item.price}</Typography>
-                                  </Grid>
-                                  <Grid
-                                      size={1.7}
-                                      sx={{
-                                          display: 'flex',                                                                        
-                                          bgcolor: 'background.paper',
-                                          alignItems: 'center',
-                                          p: 0.5,
-                                      }}
-                                  >
-                                      <Box display={'flex'} alignItems={'center'} justifyContent={'center'} sx={{width: '100%',}}>
-                                          <Typography 
-                                              sx={{
-                                                  textAlign: 'center',                                                
-                                                  minWidth: 40,
-                                                  fontSize: '0.95rem',
-                                              }}
-                                          >
-                                              {item.quantity}                                            
-                                          </Typography>                                        
-                                      </Box>
-                                      
-                                  </Grid>
-                                  <Grid
-                                      size={1.7}
-                                      sx={{
-                                          display: 'flex',                                                                        
-                                          bgcolor: 'background.paper',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          p: 0.5,
-                                      }}
-                                  >
-                                      <Typography>{item.quantity * item.price}</Typography>
-                                  </Grid>
-                                </Grid>
-                              </Box>                   
-                          ))}  
+    
+    return (
+        <Grid container spacing={2}>
+            <Grid size={8}>
+            {!stripePromise ? (
+                <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                <CircularProgress />
+                </Box>
+            ) : (
+                <Elements stripe={stripePromise}>
+                    <CheckOutStepper 
+                        addresses={addresses} 
+                        onAddressChange={handleAddressChange}
+                        onActiveStepChange={handleActiveStepChange} 
+                        onPaymentInforChange={handlePaymentInforChange} 
+                    />
+                
+                    <SummarySection sx={{ mt: 3 }}>
+                        <Box display="flex" alignItems="center" mb={2}>
+                        <LocalShippingIcon color="primary" sx={{ mr: 1 }} />
+                        <Typography variant="subtitle1" fontWeight="bold">
+                            Sản phẩm đã chọn ({selectedItems.length})
+                        </Typography>
                         </Box>
-                    </Paper>
-                ))}          
+                        
+                        <Box sx={{ mb: 2 }}>
+                        <Grid container>
+                            <ColumnHeader size={6.9}>
+                                <Typography fontWeight="medium">Sản phẩm</Typography>
+                            </ColumnHeader>
+                            <ColumnHeader size={1.7} sx={{ justifyContent: 'center' }}>
+                                <Typography fontWeight="medium">Đơn giá</Typography>
+                            </ColumnHeader>
+                            <ColumnHeader size={1.7} sx={{ justifyContent: 'center' }}>
+                                <Typography fontWeight="medium">Số lượng</Typography>
+                            </ColumnHeader>
+                            <ColumnHeader size={1.7} sx={{ justifyContent: 'center' }}>
+                                <Typography fontWeight="medium">Thành tiền</Typography>
+                            </ColumnHeader>
+                        </Grid>
+                        </Box>
+                        
+                        {Object.entries(selectGroupedItems).map(([category, items]) => (
+                        <Paper key={category} elevation={0} 
+                            sx={{ 
+                            mb: 3, 
+                            p: 2, 
+                            borderRadius: 2,
+                            border: '1px solid rgba(0, 0, 0, 0.08)'
+                            }}
+                        >
+                            <Typography sx={{ p: 1, fontWeight: 'bold', mb: 1, borderBottom: '1px solid rgba(0, 0, 0, 0.08)' }} variant="subtitle1">
+                                {category}
+                            </Typography>
+                            
+                            {items.map(item => (
+                            <ItemContainer key={item.productId}>
+                                <Grid container alignItems="center">
+                                    <Grid size={6.9} sx={{ display: 'flex', alignItems: 'center' }}>
+                                        <Avatar 
+                                        variant="rounded"
+                                        src={item.imageUrl} 
+                                        alt={item.productName}
+                                        sx={{ width: 80, height: 80, mr: 2 }}
+                                        />
+                                        <Typography fontWeight="medium">{item.productName}</Typography>
+                                    </Grid>
+                                
+                                    <Grid size={1.7} sx={{ display: 'flex', justifyContent: 'center' }}>
+                                        <Typography>{formatCurrency(item.price)}</Typography>
+                                    </Grid>
+                                
+                                    <Grid size={1.7} sx={{ display: 'flex', justifyContent: 'center' }}>
+                                        <Typography 
+                                        sx={{
+                                            textAlign: 'center',                                                
+                                            minWidth: 40,
+                                            fontSize: '0.95rem',
+                                        }}
+                                        >
+                                        {item.quantity}                                            
+                                        </Typography>
+                                    </Grid>
+                                
+                                    <Grid size={1.7} sx={{ display: 'flex', justifyContent: 'center' }}>
+                                        <Typography fontWeight="medium" color="primary">
+                                            {formatCurrency(item.quantity * item.price)}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            </ItemContainer>
+                            ))}
+                        </Paper>
+                        ))}                
+                    </SummarySection>
+                </Elements>
+            )}
             </Grid>
-          </Elements>
-        )}  
-      </Grid>
-      <Grid size={4} >
-        <OrderSummary basket={basket} selectedItems={selectedItems} />
-      </Grid>
-    </Grid>
-  )
+            
+            <Grid size={4}>
+                <OrderSummary isCanCompleteOrder={isCanCompleteOrder()} onPaymentOrder={handlePaymentOrder} />
+            </Grid>
+        </Grid>
+    )
 }

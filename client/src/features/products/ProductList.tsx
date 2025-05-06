@@ -1,13 +1,21 @@
-import { Box, Grid, Typography } from "@mui/material"
+import { Box, CircularProgress, Grid } from "@mui/material"
 import ProductCard from "./ProductCard"
 import { useFetchProductsQuery } from "./productApi"
 
-
-
 export default function ProductList() {
     const {data, isLoading} = useFetchProductsQuery()
-    
-    if (isLoading || !data) return <Typography>Loading...</Typography>
+
+    if (isLoading || !data) 
+    return (
+        <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100vh" // Chiều cao toàn trang
+        >
+            <CircularProgress />
+        </Box>
+    );
     
     return (
         <Box

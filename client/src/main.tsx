@@ -12,11 +12,24 @@ import { persistor, store } from './app/store/store.ts';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PersistGate } from 'redux-persist/integration/react';
+import { Box, CircularProgress } from '@mui/material';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <PersistGate loading={<div>Loading...</div>} persistor={persistor}></PersistGate>
+      <PersistGate 
+        loading={ 
+            <Box
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                height="100vh" // Chiều cao toàn trang
+            >
+                <CircularProgress />
+            </Box>
+        } 
+          persistor={persistor}>
+      </PersistGate>
       <ToastContainer position='bottom-right' hideProgressBar theme='colored'/>
       <RouterProvider router={router} />
     </Provider>  

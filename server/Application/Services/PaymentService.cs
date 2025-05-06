@@ -27,13 +27,25 @@ public class PaymentService(IConfiguration config, IPaymentRepository paymentRep
         var deliveryFee = order.ShippingCost;
         var discount = order.Discount;
         var payment = await paymentRepository.GetPaymentByOrderIdAsync(order.Id, cancellationToken);
+        //check payment on stripe
+        //if not valid or not found, create a new one
 
         if (payment == null)
         {
             payment = await paymentRepository.CreatePaymentAsync(order.Id, UserId, cancellationToken);
             if (payment == null || subtotal <= 0)
             {
-                throw new InvalidOperationException("Failed to create payment.");
+                if (payment == null)
+                {
+                    // Log chi tiết
+                    Console.WriteLine($"Error: Payment creation failed for order ID: {order.Id}, User ID: {UserId}");
+                }
+                else
+                {
+                    // Log chi tiết
+                    Console.WriteLine($"Error: Subtotal is zero or negative for order ID: {order.Id}. Items count: {order.Items.Count}, Subtotal: {subtotal}");
+                }
+                throw new InvalidOperationException($"Failed to create payment. Subtotal: {subtotal}, Payment: {(payment == null ? "null" : "not null")}");
             }
             await unitOfWork.SaveChangesAsync(cancellationToken);
         }
@@ -59,5 +71,22 @@ public class PaymentService(IConfiguration config, IPaymentRepository paymentRep
 
         return intent ?? throw new InvalidOperationException("PaymentIntent creation or update failed.");
 
+    }
+
+    public async Task<PaymentIntent> GetPaymentIntent(string paymentIntentId, CancellationToken cancellationToken)
+    {
+        var paymentIntentService = new PaymentIntentService();
+        try
+        {
+            var paymentIntent = await paymentIntentService.GetAsync(
+                paymentIntentId, cancellationToken: cancellationToken
+            );
+            return paymentIntent;
+        }
+        catch (System.Exception)
+        {
+            
+            throw new ApplicationException("PaymentIntent not found.");
+        }  
     }
 }

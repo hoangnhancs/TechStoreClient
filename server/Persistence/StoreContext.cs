@@ -39,33 +39,20 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
             .HasOne(o => o.ShippingAddress)
             .WithMany()
             .HasForeignKey(o => o.ShippingAddressId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict); // Không xóa Order khi xóa Address
 
         builder.Entity<Order>()
             .HasOne(o => o.BillingAddress)
             .WithMany()
             .HasForeignKey(o => o.BillingAddressId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict); // Không xóa Order khi xóa Address
-
-
-        // // Payment → User
-        // builder.Entity<Payment>()
-        //     .HasOne(p => p.User)
-        //     .WithMany(u => u.Payments) // Navigation property ngược lại trong User
-        //     .HasForeignKey(p => p.UserId) // Chỉ định UserId là khóa ngoại
-        //     .OnDelete(DeleteBehavior.NoAction);
 
         builder.Entity<Payment>()
             .HasOne(p => p.User)
             .WithMany(u => u.Payments) // Navigation property ngược lại trong User
             .HasForeignKey(p => p.UserId) // Chỉ định UserId là khóa ngoại
             .OnDelete(DeleteBehavior.NoAction);
-
-        // // Payment → Order
-        // builder.Entity<Payment>()
-        //     .HasOne(p => p.Order)
-        //     .WithMany() // Không cần navigation property ngược lại
-        //     .HasForeignKey(p => p.OrderId) // Chỉ định OrderId là khóa ngoại
-        //     .OnDelete(DeleteBehavior.Cascade);
     }
 }

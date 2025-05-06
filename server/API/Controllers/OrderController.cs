@@ -30,4 +30,14 @@ public class OrderController : BaseApiController
 
         return HandleResult(await Mediator.Send(new CreateOrUpdateOrderCommand { UserId = userId, CreateOrderDto = orderDto }));
     }
+
+    [HttpGet("myorders/{orderId}")]
+    public async Task<IActionResult> GetOrderDetailsByOrderId(string orderId)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User not authenticated");
+
+        return HandleResult(await Mediator.Send(new GetOrderDetailsByOrderIdQuery { OrderId = orderId }));
+    }
 }

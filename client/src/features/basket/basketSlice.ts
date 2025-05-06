@@ -7,10 +7,8 @@ interface BasketState {
 }
 
 const initialState = {
-  selectedItems: JSON.parse(
-    localStorage.getItem("selectedItems") || "[]"
-  ) as Item[],
-  basket: JSON.parse(localStorage.getItem("basket") || "{}") as Basket,
+  selectedItems: [] as Item[],
+  basket: {id: "", userId: "", items: []} as Basket,
 };
 
 export const basketSlice = createSlice({
@@ -20,17 +18,10 @@ export const basketSlice = createSlice({
         setBasketStates: (state, action: {payload: BasketState}) => {
             state.selectedItems = action.payload.selectedItems;
             state.basket = action.payload.basket;
-            localStorage.setItem(
-              "selectedItems",
-              JSON.stringify(state.selectedItems)
-            );
-            localStorage.setItem("basket", JSON.stringify(state.basket));
         },
         clearBasketStates: (state) => {
             state.selectedItems = [];
-            state.basket = {} as Basket;
-            localStorage.removeItem("selectedItems");
-            localStorage.removeItem("basket");
+            state.basket = { id: "", userId: "", items: [] } as Basket;
         }
     }
 })

@@ -237,7 +237,7 @@ namespace Persistence.Migrations
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PaymentStatus = table.Column<int>(type: "int", nullable: false),
                     OrderStatus = table.Column<int>(type: "int", nullable: false),
-                    ShippingAddressId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ShippingAddressId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     BillingAddressId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     SubToTal = table.Column<long>(type: "bigint", nullable: false),
                     ShippingCost = table.Column<long>(type: "bigint", nullable: false),

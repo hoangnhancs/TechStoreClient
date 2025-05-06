@@ -9,9 +9,9 @@ public class Order
     public required string UserId { get; set; }
     public User? User { get; set; }
     public List<OrderItem> Items { get; set; } = [];
-    public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Paid;
+    public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
     public OrderStatus OrderStatus { get; set; } = OrderStatus.Created;
-    public required string ShippingAddressId { get; set; }
+    public string? ShippingAddressId { get; set; }
     public Address? ShippingAddress { get; set; }
     public string? BillingAddressId { get; set; }
     public Address? BillingAddress { get; set; }
@@ -19,7 +19,7 @@ public class Order
     public long ShippingCost { get; set; } 
     public long Discount { get; set; } = 0;
     public long Total { get; set; }
-    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.CashOnDelivery;
+    public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.NotSelected;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 
@@ -39,8 +39,8 @@ public class Order
 
 public enum PaymentStatus
 {
-    Pending = 1,         
-    Paid = 2,   
+    Pending = 0,         
+    Paid = 1,   
 }         
 public enum OrderStatus
 {

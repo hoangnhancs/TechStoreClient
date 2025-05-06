@@ -53,4 +53,9 @@ public class Basket
     {
         return Items.FirstOrDefault(x => x.ProductId == productId);
     }
+    public void RemovePermanentItem(string productId)
+    {
+        var item = FindItem(productId);
+        if (item != null) Items.Remove(item);
+    } 
 }

@@ -1,4 +1,5 @@
 import json
+import re
 
 camera_tags = ["phân giải"]
 laptop_tags = ["ổ cứng", "ram", "cpu", "kích thước", "độ phân giải", "card"]
@@ -24,30 +25,51 @@ tags_dict = {
     "watch": watch_tags
 }
 
+def extract_tag_value(tag, item):
+    # Tìm trong attributes
+    if "attributes" in item and item["attributes"]:
+        for attr in item["attributes"]:
+            if isinstance(attr, dict):
+                for k, v in attr.items():
+                    if tag.lower() in k.lower():
+                        return v
+            elif isinstance(attr, str):
+                if tag.lower() in attr.lower():
+                    return attr
+    # Tìm trong descriptions
+    if "descriptions" in item and item["descriptions"]:
+        for desc in item["descriptions"]:
+            if tag.lower() in desc.lower():
+                # Lấy cụm từ sau tag
+                match = re.search(rf"{tag}[:\- ]*([^\.,;]*)", desc, re.I)
+                if match:
+                    return match.group(1).strip()
+    # Tìm trong name
+    if "name" in item and tag.lower() in item["name"].lower():
+        match = re.search(rf"{tag}[:\- ]*([^\.,;]*)", item["name"], re.I)
+        if match:
+            return match.group(1).strip()
+    # Tìm trong metakeywords
+    if "metakeywords" in item and tag.lower() in item["metakeywords"].lower():
+        return tag
+    return None
 
-def check_tags_in_attributes(attributes_data, key_tag, value_tag):
-    """
-    Kiểm tra từng tag trong {cat}_tags có xuất hiện trong thuộc tính sản phẩm không.
-    """
-    # print("Check sản phẩm: ", url)
-    # print([attr['name'] for attr in attributes])  
-    attributes = attributes_data['attributes']
-    url = attributes_data['url']
-    tags_lower = [attr['name'].lower() for attr in attributes] 
+def update_tags_for_item(item, tags_template):
+    tags = []
+    for tag in tags_template:
+        value = extract_tag_value(tag, item)
+        if value:
+            tags.append(f"{tag}: {value}")
+    item["tags"] = tags
+    return item
 
-    for required_tag in value_tag:
-        if any(required_tag in tag for tag in tags_lower):
-            # print(f"✅ Có tag: {laptop_tag}")
-            continue
-        else:
-            # print(f"❌ Không có tag: {laptop_tag}")
-            if (url not in missing_tags):
-                missing_tags[url] = [required_tag]
-            else:
-                missing_tags[url].append(required_tag)
-
-
-
-
-
-
+# Ví dụ cho 1 sản phẩm
+item = {
+    "name": "Laptop HP 250 G9 AG2K7AT",
+    "attributes": [],
+    "descriptions": ["Màn hình 15.6 inch Full HD cho hình ảnh sắc nét và rõ ràng, rất phù hợp cho việc xem phim và làm việc."],
+    "metakeywords": "laptop, hp, 250, g9, ag2k7at"
+}
+tags_template = ["ổ cứng", "ram", "cpu", "kích thước", "độ phân giải", "card"]
+item = update_tags_for_item(item, tags_template)
+print(item["tags"])

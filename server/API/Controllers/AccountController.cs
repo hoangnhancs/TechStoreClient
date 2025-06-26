@@ -1,6 +1,8 @@
 using System;
+using API.DTOs;
 using Application.Command.Baskets;
 using Application.DTOs;
+using Application.Interface;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -8,8 +10,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class AccountController(SignInManager<User> signInManager) : BaseApiController
+public class AccountController : BaseApiController
 {
+    private readonly SignInManager<User> signInManager;
+    private readonly ITokenServices tokenServices;
+
+    public AccountController(SignInManager<User> signInManager, ITokenServices tokenServices)
+    {
+        this.signInManager = signInManager;
+        this.tokenServices = tokenServices;
+    }
     [AllowAnonymous]
     [HttpPost("register")]
     public async Task<ActionResult> RegisterUser(RegisterDto registerDto)
@@ -49,7 +59,7 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
         });
     }
 
-    [AllowAnonymous]
+
     [HttpGet("user-info")]
     public async Task<ActionResult> GetUserInfo()
     {
@@ -69,6 +79,9 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
             ImageUrl = user.ImageUrl ?? string.Empty,
             TotalSpent = user.TotalSpent,
             Roles = roles.ToList(),
+            Gender = user.Gender.ToString(),
+            DateOfBirth = user.DateOfBirth,
+            PhoneNumber = user.PhoneNumber ?? string.Empty,
             // user.Photos,
         });
     }
@@ -114,16 +127,25 @@ public class AccountController(SignInManager<User> signInManager) : BaseApiContr
         if (user == null) return Unauthorized();
 
         var roles = await signInManager.UserManager.GetRolesAsync(user);
-
-        return Ok(new UserDto
+        var createdToken = await tokenServices.CreateTokenAsync(user);
+        Response.Cookies.Append("access_token", createdToken, new CookieOptions
         {
-            DisplayName = user.DisplayName ?? string.Empty,
-            Email = user.Email ?? string.Empty,
-            Id = user.Id,
-            ImageUrl = user.ImageUrl ?? string.Empty,
-            TotalSpent = user.TotalSpent,
-            Roles = roles.ToList(),
-            // user.Photos,
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = DateTime.Now.AddHours(1)
         });
+        return Ok(new UserDto
+            {
+                DisplayName = user.DisplayName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                Id = user.Id,
+                ImageUrl = user.ImageUrl ?? string.Empty,
+                TotalSpent = user.TotalSpent,
+                Roles = roles.ToList(),
+                // user.Photos,
+            });
+
+        // return Ok( new {token});
     }    
 }

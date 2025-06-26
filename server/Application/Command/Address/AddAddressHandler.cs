@@ -2,9 +2,11 @@ using System;
 using Application.Core;
 using Application.DTOs;
 using Application.Mappers;
+using AutoMapper;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using MediatR;
+
 
 namespace Application.Command.Address;
 
@@ -12,10 +14,12 @@ public class AddAddressHandler : IRequestHandler<AddAddressCommand, Result<Addre
 {
     private readonly IAddressRepository _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
-    public AddAddressHandler(IAddressRepository addressRepository, IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    public AddAddressHandler(IAddressRepository addressRepository, IUnitOfWork unitOfWork, IMapper mapper)
     {
         _addressRepository = addressRepository;
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
     public async Task<Result<AddressDto>> Handle(AddAddressCommand request, CancellationToken cancellationToken)
     {
@@ -23,10 +27,10 @@ public class AddAddressHandler : IRequestHandler<AddAddressCommand, Result<Addre
         {
             await _addressRepository.SetOtherAddressNotDefaultAsync(request.UserId, cancellationToken);
         }
-        var addressEntity = AddressMapper.MapToEntity(request.Address);
+        var addressEntity = _mapper.Map<Domain.Entities.Address>(request.Address);
         var address = await _addressRepository.CreateAddressAsync(request.UserId, addressEntity, cancellationToken);
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
         if (!result) return Result<AddressDto>.Failure("Problem when create address", 400);
-        return Result<AddressDto>.Success(AddressMapper.MapToDto(address));
+        return Result<AddressDto>.Success(_mapper.Map<AddressDto>(address));
     }
 }

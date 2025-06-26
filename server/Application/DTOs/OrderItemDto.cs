@@ -1,4 +1,5 @@
 using System;
+using Domain.Entities;
 
 namespace Application.DTOs;
 
@@ -10,6 +11,6 @@ public class OrderItemDto
     public int Quantity { get; set; }
     public long UnitPrice { get; set; }
     public required string Brand { get; set; }
-    public required string Category { get; set; }
+    public required CategoryDto Category { get; set; }
     public string? OrderId { get; set; } 
 }

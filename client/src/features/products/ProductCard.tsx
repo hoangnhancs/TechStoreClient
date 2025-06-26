@@ -5,8 +5,8 @@ import discount from '../../assets/discount.png';
 import { useGetCurrentUserQuery } from "../user/userApi";
 import { useState } from "react";
 import LoginPromptDialog from "../../components/LoginPromptDialog";
-import { useAddBasketItemMutation } from "../basket/basketApi";
 import { toast } from "react-toastify";
+import { useAddBasketItemMutation } from "../../app/api/basketApi";
 
 type Props = {
     product: Product
@@ -97,8 +97,10 @@ export default function ProductCard({product}: Props) {
             component="img"
             sx={{
                 height: 230,
+                width: 230,
                 backgroundSize: 'cover',
-                
+                objectFit: 'contain',  
+                mx: 'auto',  // Căn giữa hình ảnh
             }}
             image={product.imageUrl}
         >

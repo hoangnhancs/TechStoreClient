@@ -3,21 +3,79 @@ import { Stripe, StripeElements, StripeCardElement } from "@stripe/stripe-js";
 export type Product = {
   id: string;
   name: string;
-  description?: string;
+  description: string[];
+  oldPrice: number;
   price: number;
-  category: string;
+  discountPercentage: number;
+  category: Category;
   brand: string;
   quantityInStock: number;
   imageUrl: string;
+  averageRating: number;
+  ratingCount: number;
+  unitSold: number;
+  urlSlug: string;
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  isNewArrival: boolean;
+  isOnSale: boolean;
+  images: Images[];
+  productTagFilters: ProductTagFilter[];
+  tags: string[];
+  attributes: Attribute[];
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type ProductTagFilter = {
+    id: number;
+    filterTagValueId: number;
+    productId: string;
+};
+
+export type Images = {
+    id: string;
+    imageUrl: string;
+    productId: string
+}
+
+export type FilterTagValue = {
+  id: number;
+  value: string;
+  filterTagId: number;
+}
+
+export type FilterTag = {
+  id: number;
+  name: string | null;
+  categoryId: string;
+  values: FilterTagValue[];
+}
+
+export type Attribute = {
+  id: string;
+  name: string;
+  value: string;
+  productId: string;
+  displayOrder: number,
+  attributeType: string,
+}
 
 export type Basket = {
   id: string;
   userId: string;
   items: Item[];
 };
+
+export type Category = {
+  id: number;
+  name: string;
+  imageUrl: string;
+  description: string;
+}
 
 export type Payment = {
   id: string;
@@ -60,8 +118,15 @@ export type Item = {
   quantity: number;
   price: number;
   brand: string;
-  category: string;
+  category: Category;
 };
+
+export type Category = {
+  id: number;
+  name: string;
+  imageUrl: string | null;
+  description: string | null;
+}
 
 export type OrderItem = {
   productId: string;
@@ -70,7 +135,7 @@ export type OrderItem = {
   quantity: number;
   unitPrice: number;
   brand: string;
-  category: string;
+  category: Category;
   orderId?: string | null;
 };
 
@@ -81,10 +146,13 @@ export type User = {
   imageUrl: string;
   totalSpent: number;
   roles: string[];
+  gender: string;
+  phoneNumber: string;
+  dateOfBirth: Date | null;
 };
 
 export type Address = {
-  id: string;
+  id?: string;
   userId?: string | null;
   fullName?: string | null;
   province?: string | null;
@@ -126,4 +194,37 @@ export type PaymentInfor = {
   stripe?: Stripe | null;
   elements?: StripeElements | null;
   cardElement?: StripeCardElement | null;
+};
+
+
+export type Comment = {
+  id: string;
+  content: string;
+  isVisible: boolean;
+  isEdited: boolean;
+  user: User;
+  productId: string;
+  parentCommentId?: string | null;
+  isAdminComment: boolean;
+  hasAdminReply: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  canReply: boolean;
+  replies: Comment[];
+}
+
+export type Review = {
+  id: string;
+  productId: string;
+  userId: string;
+  user: User;
+  rating: number;
+  comment: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type AuthUserResponse = {
+  user: User;
+  token: string;
 };

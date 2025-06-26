@@ -5,11 +5,11 @@ import MenuItem from '@mui/material/MenuItem';
 import { useState } from 'react';
 import { Avatar, Box, Divider, ListItemIcon, ListItemText } from '@mui/material';
 
-import { Link, useLocation, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Add, Logout, Password, Person, Receipt } from '@mui/icons-material';
 import { useGetCurrentUserQuery, useLogoutMutation } from './userApi';
-import { basketApi } from '../basket/basketApi';
 import { useDispatch } from 'react-redux';
+import { basketApi } from '../../app/api/basketApi';
 
 export default function UserMenu() {
     const dispatch = useDispatch();
@@ -45,15 +45,27 @@ export default function UserMenu() {
                 size='large'
                 sx={{fontSize: '1.1rem'}}
             >
-                <Box display='flex' alignItems='center' gap={2}>
+                <Box display='flex' alignItems='center' gap={2} minWidth={0}>
                     <Avatar 
                         alt={currentUser?.displayName + ' image'}
                         src={currentUser?.imageUrl} 
                     />
-                    {currentUser?.displayName}
+                    <Box
+                        sx={{
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            fontSize: '1.1rem',
+                            fontWeight: 500,
+                            maxWidth: 120, // hoặc giá trị phù hợp với layout của bạn
+                        }}
+                    >
+                        {currentUser?.displayName}
+                    </Box>
                 </Box>
             </Button>
             <Menu
+                keepMounted        
                 id="basic-menu"
                 anchorEl={anchorEl}
                 open={open}
@@ -73,7 +85,7 @@ export default function UserMenu() {
                 </MenuItem>
                 )}
                 
-                <MenuItem component={Link} to={`/profiles/${currentUser?.id}`} onClick={handleClose}>
+                <MenuItem component={Link} to={'/profile'} onClick={handleClose}>
                     <ListItemIcon>
                         <Person />
                     </ListItemIcon>
@@ -95,6 +107,7 @@ export default function UserMenu() {
                 <MenuItem onClick={() => {
                     handleLogout();
                     handleClose();
+                    navigate('/login');
                 }}>
                     <ListItemIcon>
                         <Logout />

@@ -1,16 +1,24 @@
+using System.Text;
+using API.Extensions;
 using API.Middleware;
+using API.SignalR;
+using Application.Interface;
+using Application.Mappers;
 using Application.Queries.Products;
-using Application.Services;
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
-using Domain.Interfaces.Services;
+using Infrastructure.Security;
+using Infrastructure.Service;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Persistence;
 using Persistence.Repositories;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +32,7 @@ builder.Services.AddControllers(opt =>
 
 builder.Services.AddDbContext<StoreContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddTransient<ExceptionMiddleware>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
@@ -31,13 +40,22 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddOpenApi();
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetProductDetailsHandler>());
 builder.Services.AddCors();
+builder.Services.AddSignalR();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IFilterTagValueRepository, FilterTagValueRepository>();
+builder.Services.AddScoped<IFilterTagRepository, FilterTagRepository>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+builder.Services.AddScoped<IUserAccessor, UserAccessor>();
+builder.Services.AddScoped<ITokenServices, TokenServices>();
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 // Trong Program.cs
 // builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddHttpContextAccessor();
@@ -48,17 +66,21 @@ builder.Services.AddIdentityApiEndpoints<User>(opt =>
 })
  .AddRoles<IdentityRole>()
  .AddEntityFrameworkStores<StoreContext>();
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAppCookiePolicy();
+builder.Services.AddAppAuthorization();
+builder.Services.AddAuditLogging();
 
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Cookie.SameSite = SameSiteMode.None;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-});
-builder.Services.Configure<CookiePolicyOptions>(options =>
-{
-    options.MinimumSameSitePolicy = SameSiteMode.None;
-    options.Secure = CookieSecurePolicy.Always;
-});
+// builder.Services.ConfigureApplicationCookie(options =>
+// {
+//     options.Cookie.SameSite = SameSiteMode.None;
+//     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+// });
+// builder.Services.Configure<CookiePolicyOptions>(options =>
+// {
+//     options.MinimumSameSitePolicy = SameSiteMode.None;
+//     options.Secure = CookieSecurePolicy.Always;
+// }); da update trong api.extensions
 
 var app = builder.Build();
 
@@ -67,6 +89,17 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.Use(async (context, next) =>
+{
+    var token = context.Request.Cookies["access_token"];
+    if (!string.IsNullOrEmpty(token))
+    {
+        context.Request.Headers.Append("Authorization", "Bearer " + token);
+    }
+    await next();
+});
+
 app.UseCookiePolicy();
 app.UseHttpsRedirection();
 
@@ -90,7 +123,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapGroup("api").MapIdentityApi<User>(); //chuyen tu api/account thanh api
-
+app.MapHub<CommentHub>("/commentHub");
+app.MapHub<ReviewHub>("/reviewHub");
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 

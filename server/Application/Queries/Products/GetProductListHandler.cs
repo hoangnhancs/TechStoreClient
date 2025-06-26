@@ -1,6 +1,7 @@
 using Application.Core;
 using Application.DTOs;
 using Application.Mappers;
+using AutoMapper;
 using Domain.Interfaces.Repositories;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -11,17 +12,19 @@ namespace Application.Queries.Products;
 public class GetProductListHandler : IRequestHandler<GetProductListQuery, Result<List<ProductDto>>>
 {
     private readonly IProductRepository _repository;
+    private readonly IMapper _mapper;
 
-    public GetProductListHandler(IProductRepository repository)
+    public GetProductListHandler(IMapper mapper, IProductRepository repository)
     {
         _repository = repository;
+        _mapper = mapper;
     }
 
     public async Task<Result<List<ProductDto>>> Handle(GetProductListQuery request, CancellationToken cancellationToken)
     {
-        var products = await _repository.GetAllProductsAsync(cancellationToken);
+        var products = await _repository.GetAllProducts(cancellationToken);
 
-        var productsDto = products.Select(ProductMapper.MapToDto).ToList();
+        var productsDto = products.Select(_mapper.Map<ProductDto>).ToList();
 
         if (productsDto == null || productsDto.Count == 0)
         {

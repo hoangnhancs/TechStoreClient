@@ -10,5 +10,7 @@ public class UserDto
     public string ImageUrl { get; set; } = string.Empty;
     public long TotalSpent { get; set; }
     public List<string> Roles { get; set; } = [];
-
+    public string Gender { get; set; } = string.Empty;
+    public string PhoneNumber { get; set; } = string.Empty;
+    public DateOnly? DateOfBirth { get; set; }
 }

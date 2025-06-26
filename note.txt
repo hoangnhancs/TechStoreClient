@@ -2,3 +2,32 @@ truy cap: https://sso.ghn.vn/register
 register account
 
 camera-micro-printer-tv-laptop-monitor
+
+de lam signalR can tao signalR service o FE,
+tao commenthubở BE, dang ky maphub o program
+
+tai sao luc nao cung retries
+
+1. Đăng ký listener với SignalR
+newConnection.off("ReceiveReview");
+newConnection.on("ReceiveReview", (review: Review) => {
+  if (this.reviewCallback) {
+    this.reviewCallback(review);
+  }
+});
+Đoạn này đăng ký với SignalR: Khi server gửi sự kiện "ReceiveReview", hàm callback sẽ được gọi.
+Nhưng callback này không xử lý trực tiếp UI, mà chỉ gọi tiếp this.reviewCallback(review) nếu có.
+2. Đăng ký callback từ phía React component
+public onReceiveNewReview = (callback: ReviewCallBack) => {
+  this.reviewCallback = callback;
+};
+Đoạn này cho phép component phía React (FE) đăng ký một hàm để xử lý review mới.
+Khi component mount, bạn gọi:
+reviewSignalRService.onReceiveNewReview((review) => {
+  setReviews(prev => [...prev, review]);
+});
+Như vậy, khi có review mới từ server, SignalR sẽ gọi callback ở trên, callback này lại gọi tiếp callback mà component đã đăng ký.
+Tóm lại
+Listener với SignalR: Để nhận dữ liệu từ server.
+onReceiveNewReview: Để React component đăng ký xử lý dữ liệu khi có review mới.
+Cách này giúp tách biệt logic nhận dữ liệu (service) và logic xử lý UI (component), đồng thời chỉ cần đăng ký 1 lần duy nhất ở service, các component có thể tự do thay đổi cách xử lý khi nhận review mới.

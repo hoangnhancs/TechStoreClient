@@ -1,9 +1,8 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import counterReducer from "../../features/counter/counterSlice";
-import { productApi } from "../../features/products/productApi";
+import { productApi } from "../api/productApi";
 import uiReducer from "../../layouts/uiSlice";
-import { errorApi } from "../../features/error/errorApi";
-import { basketApi } from "../../features/basket/basketApi";
+
 import { userApi } from "../../features/user/userApi";
 import basketReducer from "../../features/basket/basketSlice";
 import {
@@ -16,18 +15,34 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage"; 
 
-import { paymentApi } from "../../features/payment/paymentApi";
-import { orderApi } from "../../features/order/orderApi";
-import { addressApi } from "../../features/address/addressApi";
+import storageSession from "redux-persist/lib/storage/session";
+import { errorApi } from "../api/errorApi";
+import { basketApi } from "../api/basketApi";
+import { orderApi } from "../api/orderApi";
+import { paymentApi } from "../api/paymentApi";
+import { addressApi } from "../api/addressApi";
+import { filterTagValueApi } from "../api/filterTagValueApi";
+import { filterTagApi } from "../api/filterTagApi";
+import filterReducer from "../../features/filter/filterSlice";
 
 const persistConfig = {
   key: "root", // key để lưu trong localStorage
-  storage,
-  whitelist: ["basket"], // Chỉ persist slice basket
+  storage: storageSession,
+  whitelist: ["basket", "filter"], // Chỉ persist slice basket
   // blacklist: [] // Loại trừ các reducers không muốn persist
 };
+const middlewares = [
+  productApi.middleware,
+  errorApi.middleware,
+  basketApi.middleware,
+  userApi.middleware,
+  orderApi.middleware,
+  paymentApi.middleware,
+  addressApi.middleware,
+  filterTagValueApi.middleware,
+  filterTagApi.middleware,
+];
 
 const rootReducer = combineReducers({
   [productApi.reducerPath]: productApi.reducer,
@@ -37,9 +52,12 @@ const rootReducer = combineReducers({
   [orderApi.reducerPath]: orderApi.reducer,
   [paymentApi.reducerPath]: paymentApi.reducer,
   [addressApi.reducerPath]: addressApi.reducer,
+  [filterTagValueApi.reducerPath]: filterTagValueApi.reducer,
+  [filterTagApi.reducerPath]: filterTagApi.reducer,
   counter: counterReducer,
   ui: uiReducer,
   basket: basketReducer,
+  filter: filterReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -51,15 +69,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(
-      productApi.middleware,
-      errorApi.middleware,
-      basketApi.middleware,
-      userApi.middleware,
-      orderApi.middleware,
-      paymentApi.middleware,
-      addressApi.middleware,
-    ), //thêm middleware cho productApi vào store
+    }).concat(...middlewares), //thêm middleware cho productApi vào store
 });
 
 export const persistor = persistStore(store);

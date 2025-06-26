@@ -7,10 +7,11 @@ import { useMediaQuery, useTheme, Drawer } from "@mui/material";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { toggleDarkMode } from "./uiSlice";
-import { useFetchBasketQuery } from "../features/basket/basketApi";
+
 import { useGetCurrentUserQuery } from "../features/user/userApi";
 import UserMenu from "../features/user/UserMenu";
 import LoginPromptDialog from "../components/LoginPromptDialog";
+import { useFetchBasketQuery } from "../app/api/basketApi";
 
 
 
@@ -27,7 +28,6 @@ const rightLinks = [
     {title: 'login', path: '/login'},
     {title: 'register', path: '/register'},
 ]
-
 export default function NavBar() {
 
   const {isLoading, isDarkMode} = useAppSelector(state => state.ui)

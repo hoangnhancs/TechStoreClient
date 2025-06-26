@@ -13,6 +13,15 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
     public required DbSet<Address> Addresses { get; set; }
     public required DbSet<Order> Orders { get; set; }
     public required DbSet<Payment> Payments { get; set; }
+    public required DbSet<ProductImage> ProductImages { get; set; }
+    public required DbSet<ProductAttribute> ProductAttributes { get; set; }
+    public required DbSet<ProductTag> ProductDisplayTags { get; set; }
+    public required DbSet<Category> Categories { get; set; }
+    public required DbSet<ProductTagFilter> ProductTagFilters { get; set; }
+    public required DbSet<Comment> Comments { get; set; }
+    public required DbSet<Review> Reviews { get; set; }
+    public required DbSet<FilterTag> FilterTags { get; set; }
+    public required DbSet<FilterTagValue> FilterTagValues { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -54,5 +63,13 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
             .WithMany(u => u.Payments) // Navigation property ngược lại trong User
             .HasForeignKey(p => p.UserId) // Chỉ định UserId là khóa ngoại
             .OnDelete(DeleteBehavior.NoAction);
+        builder.Entity<Product>()
+            .Property(p => p.AverageRating)
+            .HasPrecision(3, 2);
+        builder.Entity<ProductTagFilter>()
+            .HasOne(ptf => ptf.FilterTagValue)
+            .WithMany()
+            .HasForeignKey(ptf => ptf.FilterTagValueId)
+            .OnDelete(DeleteBehavior.NoAction); 
     }
 }

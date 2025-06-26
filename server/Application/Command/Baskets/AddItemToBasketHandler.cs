@@ -2,6 +2,7 @@ using System;
 using Application.Core;
 using Application.DTOs;
 using Application.Mappers;
+using AutoMapper;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using MediatR;
@@ -15,14 +16,15 @@ public class AddItemToBasketHandler : IRequestHandler<AddItemToBasketCommand, Re
     private readonly IBasketRepository _basketRepository;
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public AddItemToBasketHandler(IBasketRepository basketRepository, IProductRepository productRepository, IUnitOfWork unitOfWork)
+    public AddItemToBasketHandler(IBasketRepository basketRepository, IProductRepository productRepository, IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _unitOfWork = unitOfWork;
-        _productRepository = productRepository;
         _basketRepository = basketRepository;
+        _productRepository = productRepository;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
-
 
     public async Task<Result<BasketDto>> Handle(AddItemToBasketCommand request, CancellationToken cancellationToken)
     {
@@ -43,7 +45,7 @@ public class AddItemToBasketHandler : IRequestHandler<AddItemToBasketCommand, Re
 
         
 
-        return Result<BasketDto>.Success(BasketMapper.MapToDto(newBasket));
+        return Result<BasketDto>.Success(_mapper.Map<BasketDto>(newBasket));
     }
 }
 

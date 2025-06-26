@@ -2,6 +2,7 @@ using System;
 using Application.Core;
 using Application.DTOs;
 using Application.Mappers;
+using AutoMapper;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using MediatR;
@@ -12,11 +13,13 @@ public class UpdateAddressHandler : IRequestHandler<UpdateAddressCommand, Result
 {
     private readonly IAddressRepository _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
 
-    public UpdateAddressHandler(IAddressRepository addressRepository, IUnitOfWork unitOfWork)
+    public UpdateAddressHandler(IAddressRepository addressRepository, IUnitOfWork unitOfWork, IMapper mapper)
     {
         _addressRepository = addressRepository;
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
     public async Task<Result<AddressDto>> Handle(UpdateAddressCommand request, CancellationToken cancellationToken)
@@ -25,10 +28,10 @@ public class UpdateAddressHandler : IRequestHandler<UpdateAddressCommand, Result
         {
             await _addressRepository.SetOtherAddressNotDefaultAsync(request.UserId, cancellationToken);
         }
-        var addressEntity = AddressMapper.MapToEntity(request.Address);
+        var addressEntity = _mapper.Map<Domain.Entities.Address>(request.Address);
         var address = await _addressRepository.UpdateAddressAsync(request.AddressId, addressEntity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result<AddressDto>.Success(AddressMapper.MapToDto(address));
+        return Result<AddressDto>.Success(_mapper.Map<AddressDto>(address));
     }
 
 }

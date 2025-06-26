@@ -4,11 +4,12 @@ import OrderSummary from "./OrderSummary";
 import { Elements } from "@stripe/react-stripe-js";
 import { Item } from "../../lib/types";
 import { useEffect, useState } from "react";
-import { useFetchAddressQuery } from "../address/addressApi";
+
 import { styled } from '@mui/material/styles';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { useOrderProcessing } from "../../app/hooks/useOrderProcessing";
 import { stripePromise } from "../../app/stripe/stripePromise";
+import { useFetchAddressQuery } from "../../app/api/addressApi";
 
 
 const SummarySection = styled(Paper)(({ theme }) => ({
@@ -59,12 +60,12 @@ export default function CheckOutPage() {
     
     useEffect(() => {
         if (selectedItems.length > 0) {    
-            const groupedByCategory = selectedItems.reduce((groups: Record<string, Item[]>, item) => {
+            const groupedByCategory = selectedItems.reduce((groups: Record<string, Item[]>, item: Item) => {
                 const category = item.category || 'Other'
-                if (!(item.category in groups)){
-                    groups[category] = []
+                if (!(item.category.id in groups)){
+                    groups[category.id] = []
                 }
-                groups[category].push(item)
+                groups[category.id].push(item)
                 return groups
             }, {} as Record<string, Item[]>)
             setSelectGroupedItems(groupedByCategory)

@@ -1,6 +1,6 @@
 import { MenuItem } from "@mui/material";
 import { ReactNode } from "react";
-import { NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 
 interface MenuItemLinkProps {
   children: ReactNode;

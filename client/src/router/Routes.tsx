@@ -16,6 +16,8 @@ import CheckOutPage from "../features/order/CheckOutPage";
 import OrderSuccessPage from "../features/order/OrderSuccessPage";
 import MyOrdersPage from "../features/order/MyOrdersPage";
 import OrderDetailsPage from "../features/order/OrderDetailsPage";
+import ProductListByCategory from "../features/products/ProductListByCategory";
+import UserProfilePage from "../features/user/UserProfilePage";
 
 export const router = createBrowserRouter([
     {
@@ -25,8 +27,10 @@ export const router = createBrowserRouter([
             {path: '', element: <HomePage />},
             {path: '/products', element: <ProductCatalog />},
             {path: '/products/:id', element: <ProductDetails />},
+            {path: '/products/category/:id', element: <ProductListByCategory />},
             {path: '/about', element: <AboutPage />},
             {path: '/contact', element: <ContactPage />},
+            {path: '/profile', element: <UserProfilePage />},
             {path: '/basket', element: <BasketPage />},
             {path: '/counter', element: <Counter />},
             {path: '/login', element: <LoginForm />},

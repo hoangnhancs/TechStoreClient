@@ -1,6 +1,6 @@
 import { Box, Button, Container, Divider, Grid, Paper, Typography, Checkbox, IconButton, CircularProgress } from "@mui/material";
-import { useFetchBasketQuery, useRemoveBasketItemMutation } from "./basketApi"
-import { Item } from "../../lib/types";
+
+import { Category, Item } from "../../lib/types";
 import { useEffect, useState } from "react";
 import { Add, Delete, Remove } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -9,10 +9,11 @@ import OrderSummary from "../order/OrderSummary";
 import { useDispatch } from "react-redux";
 import { setBasketStates } from "./basketSlice";
 import { useAppSelector } from "../../hooks";
+import { useFetchBasketQuery, useRemoveBasketItemMutation } from "../../app/api/basketApi";
 
 
 
-
+type GroupedItems = Record<number, { category: Category, productItems: Item[] }>;
 
 export default function BasketPage() {
     const { selectedItems: reduxSelectedItems } = useAppSelector(state => state.basket);
@@ -20,7 +21,7 @@ export default function BasketPage() {
     const [removeItemFromBasket] = useRemoveBasketItemMutation()
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const [groupedItems, setGroupedItems] = useState<Record<string, Item[]>>({})
+    const [groupedItems, setGroupedItems] = useState<GroupedItems>({})
     const [selectedItems, setSelectedItems] = useState<Array<Item>>([])
     const {data: currentUser} = useGetCurrentUserQuery()
     useEffect(() => {
@@ -28,15 +29,20 @@ export default function BasketPage() {
     }, [reduxSelectedItems]);
     useEffect(() => {
         if (basket?.items) {
-            const groupedByCategory = basket.items.reduce((groups, item) => {
-                const category = item.category || 'Other'
-                if (!(item.category in groups)){
-                    groups[category] = []
+            const groups: GroupedItems = {}
+            basket.items.forEach((item) => {
+                const category = item.category
+                if (!category) return
+                if (!(item.category.id in groups)){
+                    groups[category.id] = {
+                        category: category,
+                        productItems: []
+                    }
                 }
-                groups[category].push(item)
+                groups[category.id].productItems.push(item)
                 return groups
-            }, {} as Record<string, Item[]>)
-            setGroupedItems(groupedByCategory)
+            }, {} as Record<number, Item[]>)
+            setGroupedItems(groups)
         }
     }, [basket])
 
@@ -58,19 +64,19 @@ export default function BasketPage() {
         dispatch(setBasketStates({selectedItems: updatedSelectedItems, basket: basket || {id: "", userId: "", items: []}})) 
     }
 
-    const isCategorySelectedAll = (category: string) => {
-        const itemsGroupedByCategory = groupedItems[category] || []
-        return itemsGroupedByCategory.every(item => selectedItems.some(selected => selected.productId === item.productId))
+    const isCategorySelectedAll = (categoryId: number) => {
+        const itemsGroupedByCategory = groupedItems[categoryId] || []
+        return itemsGroupedByCategory.productItems.every(item => selectedItems.some(selected => selected.productId === item.productId))
     }
 
-    const toogleSelectCategory = (category: string) => {
-        const itemsGroupedByCategory = groupedItems[category] || []
+    const toogleSelectCategory = (categoryId: number) => {
+        const itemsGroupedByCategory = groupedItems[categoryId] || []
         // const tmpSelectedItems = selectedItems
         let updatedSelectedItems;
-        if (isCategorySelectedAll(category)) {
-            updatedSelectedItems = selectedItems.filter(selected => selected.category != category)
+        if (isCategorySelectedAll(categoryId)) {
+            updatedSelectedItems = selectedItems.filter(selected => selected.category.id != categoryId)
         } else {
-            updatedSelectedItems = [...selectedItems, ...itemsGroupedByCategory]
+            updatedSelectedItems = [...selectedItems, ...itemsGroupedByCategory.productItems]
         }
         setSelectedItems(updatedSelectedItems)
         dispatch(setBasketStates({selectedItems: updatedSelectedItems, basket: basket || {id: "", userId: "", items: []}})) 
@@ -135,6 +141,8 @@ export default function BasketPage() {
         </Button>
       </Container>
     );
+
+    
     
     return (  
         <Grid container spacing={1} >
@@ -254,7 +262,7 @@ export default function BasketPage() {
                                             p: 0.5,
                                         }}
                                     >
-                                        <Checkbox checked={isCategorySelectedAll(category)} onChange={() => toogleSelectCategory(category)} />
+                                        <Checkbox checked={isCategorySelectedAll(Number(category))} onChange={() => toogleSelectCategory(Number(category))} />
                                     </Grid>
                                     <Grid
                                         size={4.5}
@@ -265,12 +273,12 @@ export default function BasketPage() {
                                             p: 0.5,
                                         }}
                                     >
-                                        <Typography sx={{textAlign: 'left'}}>{category}</Typography>
+                                        <Typography sx={{textAlign: 'left'}}>{items.category.name}</Typography>
                                     </Grid>                        
                                 </Grid>
                                 <Divider />
                             </Box>
-                            {items.map(item => (
+                            {items.productItems.map(item => (
                                 <Box
                                     key={item.productId}
                                     sx={{ 

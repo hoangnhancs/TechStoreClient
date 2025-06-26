@@ -1,5 +1,5 @@
-import { Box, List, ListItemButton, ListItemIcon, ListItemText, Typography, Paper, Divider } from '@mui/material';
-import { Laptop, Checkroom, MenuBook, KeyboardArrowRight } from '@mui/icons-material';
+import { Box, List, ListItemButton, ListItemIcon, ListItemText, Paper,  } from '@mui/material';
+import { Laptop, KeyboardArrowRight, Camera, Mic, Monitor, Phone, Print, Tablet, Tv, Watch, Computer } from '@mui/icons-material';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
@@ -7,6 +7,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
 // Import Swiper styles
 import 'swiper/swiper-bundle.css';  // This single import replaces all individual CSS imports
+import { useNavigate } from 'react-router-dom';
 
 // Import modules
 
@@ -20,9 +21,16 @@ interface Category {
 
 // Data mẫu với icons
 const categories: Category[] = [
-    { id: 1, name: 'Electronics', icon: <Laptop /> },
-    { id: 2, name: 'Clothing', icon: <Checkroom /> },
-    { id: 3, name: 'Books', icon: <MenuBook /> },
+    { id: 1, name: 'Camera', icon: <Camera /> },
+    { id: 2, name: 'Laptop', icon: <Laptop /> },
+    { id: 3, name: 'Microphones', icon: <Mic /> },
+    { id: 4, name: 'Monitor', icon: <Monitor /> },
+    { id: 5, name: 'PC', icon: <Computer /> },
+    { id: 6, name: 'Phone', icon: <Phone /> },
+    { id: 7, name: 'Printer', icon: <Print /> },
+    { id: 8, name: 'Tablet', icon: <Tablet /> },
+    { id: 9, name: 'TV', icon: <Tv /> },
+    { id: 10, name: 'Watch', icon: <Watch /> },
 ];
 
 const bannerItems = [
@@ -46,11 +54,12 @@ const bannerItems = [
 ];
 
 export default function SidePanel() {
+    const navigate = useNavigate();
     return (
         <Box 
             sx={{
                 width: '100%',
-                height: 300,
+                height: 356,
                 display: 'flex',
                 flexDirection: 'row', // Đặt Categories và Carousel ngang hàng
                 gap: 2,
@@ -64,9 +73,10 @@ export default function SidePanel() {
                     height: '100%',
                     overflow: 'auto', // Cho phép scroll nếu có nhiều categories
                     borderRadius: 5,
+                    
                 }}
             >
-                <Typography 
+                {/* <Typography 
                     variant="h6" 
                     sx={{ 
                         p: 2, 
@@ -78,19 +88,21 @@ export default function SidePanel() {
                 >
                     Categories
                 </Typography>
-                <Divider />
-                <List sx={{ p: 1 }}>
+                <Divider /> */}
+
+                <List sx={{ p: 1 , }}>
                     {categories.map((category) => (
                         <ListItemButton
                             key={category.id}
                             sx={{
+                                height: 30,
                                 borderRadius: 1,
                                 mb: 0.5,
                                 '&:hover': {
                                     backgroundColor: 'action.hover',
-         
-                                }
+                                },
                             }}
+                            onClick={() => navigate(`/products/category/${category.id}`)}
                         >
                             <ListItemIcon sx={{ minWidth: 40 }}>
                                 {category.icon}
@@ -171,7 +183,7 @@ export default function SidePanel() {
             >
                 <Swiper
                     modules={[Navigation, Pagination, Autoplay]}
-                    navigation={true}  // Make sure this is explicitly set to true
+                    navigation={true} 
                     pagination={{
                         clickable: true,
                         type: 'bullets',
@@ -181,7 +193,7 @@ export default function SidePanel() {
                         disableOnInteraction: false
                     }}
                     loop={true}
-                    className="mySwiper"  // Add a custom class
+                    className="mySwiper"  
                     style={{ width: '100%', height: '100%' }}
                 >
                     {bannerItems.map((item, index) => (

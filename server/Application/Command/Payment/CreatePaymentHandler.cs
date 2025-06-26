@@ -2,6 +2,7 @@ using System;
 using Application.Core;
 using Application.DTOs;
 using Application.Mappers;
+using AutoMapper;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using MediatR;
@@ -13,11 +14,13 @@ public class CreatePaymentHandler : IRequestHandler<CreatePaymentCommand, Result
     private readonly IPaymentRepository _paymentRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IUnitOfWork _unitOfWork;
-    public CreatePaymentHandler(IPaymentRepository paymentRepository, IOrderRepository orderRepository, IUnitOfWork unitOfWork)
+    private readonly IMapper _mapper;
+    public CreatePaymentHandler(IMapper mapper, IPaymentRepository paymentRepository, IOrderRepository orderRepository, IUnitOfWork unitOfWork)
     {
         _paymentRepository = paymentRepository;
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
     public async Task<Result<PaymentDto>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
     {
@@ -27,7 +30,7 @@ public class CreatePaymentHandler : IRequestHandler<CreatePaymentCommand, Result
         var payment = await _paymentRepository.CreatePaymentAsync(unCompleteOrder.Id, request.UserId, cancellationToken);
         if (payment == null)
             return Result<PaymentDto>.Failure("Payment creation failed", 500);
-        var paymentDto = PaymentMapper.MapToDto(payment);
+        var paymentDto = _mapper.Map<PaymentDto>(payment);
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
         if (!result)
             return Result<PaymentDto>.Failure("Payment creation failed", 500);

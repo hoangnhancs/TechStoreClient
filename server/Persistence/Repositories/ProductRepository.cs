@@ -12,11 +12,57 @@ public class ProductRepository(StoreContext context) : IProductRepository
     public async Task<Product?> GetProductByIdAsync(string productId, CancellationToken cancellationToken)
     {
         return await _context.Products
-            .FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
+            .Where(p => p.Id == productId)
+            .Include(p => p.Category)
+            .Include(p => p.DisplayTags)
+            .Include(p => p.ProductTagFilters)
+            .Include(p => p.Reviews)
+            .Include(p => p.DetailImages)
+            .Include(p => p.Attributes)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<List<Product>> GetAllProductsAsync(CancellationToken cancellationToken)
+    public async Task<List<Product>> GetAllProducts(CancellationToken cancellationToken)
     {
-        return await _context.Products.ToListAsync(cancellationToken);
+        return await _context.Products
+            .Include(p => p.Category)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<Product>> GetTop10ProductPerCategory(CancellationToken cancellationToken)
+    {
+        // var sqlQuery = @"
+        //     SELECT topProducts.*
+        //     FROM (
+        //         SELECT DISTINCT CategoryId FROM Products
+        //     ) AS c
+        //     CROSS APPLY (
+        //         SELECT TOP 10 *
+        //         FROM Products as p
+        //         WHERE p.CategoryId = c.CategoryId
+        //         ORDER BY p.CreatedAt DESC
+        //     ) AS topProducts";
+        var sqlQuery = @"
+            SELECT *
+            FROM (
+                SELECT *, ROW_NUMBER() OVER (PARTITION BY CategoryId ORDER BY CreatedAt DESC) as rn
+                FROM Products
+            ) as topProducts
+            WHERE rn <= 10
+        ";
+        return await _context.Products
+            .FromSqlRaw(sqlQuery)
+            .Include(p => p.Category)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<Product>> GetProductsByCategory(int categoryId, CancellationToken cancellationToken)
+    {
+        return await _context.Products
+            .Include(p => p.Category)
+            .Where(p => p.CategoryId == categoryId)
+            .Include(p => p.DisplayTags)
+            .Include(p => p.ProductTagFilters)
+            .ToListAsync(cancellationToken);
     }
 }

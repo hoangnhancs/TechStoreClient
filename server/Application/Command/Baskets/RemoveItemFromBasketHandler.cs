@@ -2,6 +2,7 @@ using System;
 using Application.Core;
 using Application.DTOs;
 using Application.Mappers;
+using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
@@ -14,11 +15,13 @@ public class RemoveItemFromBasketHandler : IRequestHandler<RemoveItemFromBasketC
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBasketRepository _basketRepository;
     private readonly IProductRepository _productRepository;
-    public RemoveItemFromBasketHandler(IUnitOfWork unitOfWork,IBasketRepository basketRepository, IProductRepository productRepository)
+    private readonly IMapper _mapper;
+    public RemoveItemFromBasketHandler(IMapper mapper, IUnitOfWork unitOfWork, IBasketRepository basketRepository, IProductRepository productRepository)
     {
         _basketRepository = basketRepository;
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
+        _mapper = mapper;
     }
 
     public async Task<Result<BasketDto>> Handle(RemoveItemFromBasketCommand request, CancellationToken cancellationToken)
@@ -39,6 +42,6 @@ public class RemoveItemFromBasketHandler : IRequestHandler<RemoveItemFromBasketC
 
         if (!result) return Result<BasketDto>.Failure("Don't have any update when remove item", 400);
 
-        return Result<BasketDto>.Success(BasketMapper.MapToDto(newBasket));
+        return Result<BasketDto>.Success(_mapper.Map<BasketDto>(newBasket));
     }
 }

@@ -23,7 +23,8 @@ import { useNavigate } from 'react-router-dom';
 import { Receipt, Info } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { useFetchOrderQuery } from './orderApi';
+import { useFetchOrderQuery } from '../../app/api/orderApi';
+
 
 const OrderContainer = styled(Box)(({ theme }) => ({
     padding: theme.spacing(3),

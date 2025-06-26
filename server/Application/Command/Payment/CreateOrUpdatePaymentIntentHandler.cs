@@ -5,9 +5,10 @@ using Domain.Interfaces.Repositories;
 using MediatR;
 using Domain.Interfaces;
 using Persistence;
-using Domain.Interfaces.Services;
 using Application.Mappers;
 using Microsoft.CodeAnalysis.CSharp;
+using AutoMapper;
+using Application.Interface;
 
 namespace Application.Command.Payment;
 
@@ -15,24 +16,25 @@ public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdate
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBasketRepository _basketRepository;
-    private readonly IPaymentService _paymentService; 
+    private readonly IPaymentService _paymentService;
     private readonly IPaymentRepository _paymentRepository;
     private readonly IOrderRepository _orderRepository;
+    private readonly IMapper _mapper;
 
-
-    public CreateOrUpdatePaymentIntentHandler(IUnitOfWork unitOfWork,IBasketRepository basketRepository, IPaymentService paymentService, IPaymentRepository paymentRepository, IOrderRepository orderRepository)
+    public CreateOrUpdatePaymentIntentHandler(IMapper mapper, IUnitOfWork unitOfWork, IBasketRepository basketRepository, IPaymentService paymentService, IPaymentRepository paymentRepository, IOrderRepository orderRepository)
     {
         _orderRepository = orderRepository;
         _basketRepository = basketRepository;
         _paymentService = paymentService;
         _unitOfWork = unitOfWork;
         _paymentRepository = paymentRepository;
+        _mapper = mapper;
     }
 
     public async Task<Result<PaymentDto>> Handle(CreateOrUpdatePaymentIntentCommand request, CancellationToken cancellationToken)
     {
 
-    
+
 
         var unCompletedOrder = await _orderRepository.GetUnCompletedOrdersByUserIdAsync(request.UserId);
 
@@ -41,12 +43,12 @@ public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdate
 
 
 
-        var intent = await _paymentService.CreateOrUpdatePaymentIntentAsync(unCompletedOrder, request.UserId, cancellationToken); 
+        var intent = await _paymentService.CreateOrUpdatePaymentIntentAsync(unCompletedOrder, request.UserId, cancellationToken);
 
 
 
         if (intent == null)
-            return Result<PaymentDto>.Failure("Payment intent creation failed", 500);      
+            return Result<PaymentDto>.Failure("Payment intent creation failed", 500);
 
         var payment = await _paymentRepository.GetPaymentByOrderIdAsync(unCompletedOrder.Id, cancellationToken);
 
@@ -65,9 +67,9 @@ public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdate
 
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<PaymentDto>.Success(PaymentMapper.MapToDto(payment));
+        return Result<PaymentDto>.Success(_mapper.Map<PaymentDto>(payment));
 
     }
-    
+
 }
 

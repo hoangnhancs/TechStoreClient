@@ -4,9 +4,8 @@ namespace Domain.Entities;
 
 public class ProductImage
 {
-    public required string Id { get; set; } = Guid.NewGuid().ToString();
-    public required string ImageUrl { get; set; } 
-    public bool IsMain { get; set; } = false;
-    public required string ProductId { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string ImageUrl { get; set; } = string.Empty;
+    public string ProductId { get; set; } = string.Empty;
     public Product? Product { get; set; } 
 }

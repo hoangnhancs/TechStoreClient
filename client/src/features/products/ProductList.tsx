@@ -1,9 +1,10 @@
 import { Box, CircularProgress, Grid } from "@mui/material"
 import ProductCard from "./ProductCard"
-import { useFetchProductsQuery } from "./productApi"
+import { useFetchTop10ProductsQuery,   } from "../../app/api/productApi"
 
 export default function ProductList() {
-    const {data, isLoading} = useFetchProductsQuery()
+    const {data, isLoading} = useFetchTop10ProductsQuery()
+    // const {data, isLoading} = useFetchProductsQuery()
 
     if (isLoading || !data) 
     return (

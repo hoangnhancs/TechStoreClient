@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithErrorHandling } from "../../app/api/baseApi";
-import { User } from "../../lib/types";
+import { AuthUserResponse, User } from "../../lib/types";
 
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -11,22 +11,26 @@ export const userApi = createApi({
       query: () => ({ url: "/account/user-info", method: "GET" }),
       providesTags: ["User"],
     }),
-    login: builder.mutation<User, { email: string; password: string }>({
+    login: builder.mutation<AuthUserResponse,{ email: string; password: string }>({
       query: ({ email, password }) => ({
         url: "/account/login",
         method: "POST",
         body: { email, password },
+        credentials: "include",
       }),
+      
       invalidatesTags: ["User", "Basket"],
     }),
     logout: builder.mutation<void, void>({
-      query: () => ({ url: "/account/logout", method: "POST" }),
+      query: () => ({ url: "/account/logout", method: "POST", credentials: "include" }),
       invalidatesTags: ["User", "Basket"],
+      
     }),
-    register: builder.mutation<User, {email: string, displayName: string, password: string, confirmPassword: string}>({
-      query: (credentials) => ({ 
-        url: "/account/register", method: "POST", 
-        body: credentials
+    register: builder.mutation<User, {email: string; displayName: string; password: string; confirmPassword: string;}>({
+      query: (credentials) => ({
+        url: "/account/register",
+        method: "POST",
+        body: credentials,
       }),
       invalidatesTags: ["User", "Basket"],
     }),

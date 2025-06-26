@@ -1,5 +1,6 @@
 import { Button, ButtonGroup, Container, Typography } from "@mui/material";
-import { useLazyGet400ErrorQuery, useLazyGet401ErrorQuery, useLazyGet404ErrorQuery, useLazyGet500ErrorQuery, useLazyGetValidationErrorQuery } from "./errorApi";
+import { useLazyGet400ErrorQuery, useLazyGet401ErrorQuery, useLazyGet404ErrorQuery, useLazyGet500ErrorQuery, useLazyGetValidationErrorQuery } from "../../app/api/errorApi";
+
 
 export default function Error() {
 

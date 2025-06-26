@@ -37,6 +37,7 @@ public class BasketRepository(StoreContext context) : IBasketRepository
 
             .Include(x => x.Items)
             .ThenInclude(x => x.Product)
+            .ThenInclude(x => x!.Category)
             .FirstOrDefaultAsync(b => b.UserId == userId, cancellationToken);
     }
 

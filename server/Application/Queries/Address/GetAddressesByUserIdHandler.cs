@@ -2,6 +2,7 @@ using System;
 using Application.Core;
 using Application.DTOs;
 using Application.Mappers;
+using AutoMapper;
 using Domain.Interfaces.Repositories;
 using MediatR;
 
@@ -10,10 +11,12 @@ namespace Application.Queries.Address;
 public class GetAddressesByUserIdHandler : IRequestHandler<GetAddressesByUserIdQuery, Result<List<AddressDto>>>
 {
     private readonly IAddressRepository _addressRepository;
+    private readonly IMapper _mapper;
 
-    public GetAddressesByUserIdHandler(IAddressRepository addressRepository)
+    public GetAddressesByUserIdHandler(IMapper mapper, IAddressRepository addressRepository)
     {
         _addressRepository = addressRepository;
+        _mapper = mapper;
     }
 
     public async Task<Result<List<AddressDto>>> Handle(GetAddressesByUserIdQuery request, CancellationToken cancellationToken)
@@ -23,6 +26,6 @@ public class GetAddressesByUserIdHandler : IRequestHandler<GetAddressesByUserIdQ
         {
             return Result<List<AddressDto>>.Success([]);
         }
-        return Result<List<AddressDto>>.Success(addresses.Select(AddressMapper.MapToDto).ToList());
+        return Result<List<AddressDto>>.Success(addresses.Select(_mapper.Map<AddressDto>).ToList());
     }
 }

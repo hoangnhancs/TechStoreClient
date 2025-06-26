@@ -11,6 +11,7 @@ type Props = {
     addresses: Address[] | null
     selectedAddress: Address | null 
     onAddressChange: (address: Address) => void
+    // onRefetchAddresses: () => void
 }
 
 export default function ChangeAddressPrompt({open, addresses, selectedAddress, onClose, onAddressChange}: Props) {
@@ -45,7 +46,6 @@ export default function ChangeAddressPrompt({open, addresses, selectedAddress, o
 
     const handleOpenUpdateAddress = async (address: Address) => {
         try {
-
             setDialogMode("update");
             setEditingAddress(address);
             let tempProvinces: Province[] = [];
@@ -114,8 +114,9 @@ export default function ChangeAddressPrompt({open, addresses, selectedAddress, o
     };
 
     const canDisableDefaultAddress = () => {
+        
         if (addresses) {
-            if (dialogMode === "add" && addresses.length === 0) {
+            if (dialogMode === "add" && (addresses.length === 0 || addresses===null || !addresses)) {
                 return false
             }
             if (dialogMode === "update" && addresses.length <= 1) {
@@ -124,6 +125,11 @@ export default function ChangeAddressPrompt({open, addresses, selectedAddress, o
             return true
         }
         return false    
+    }
+
+    const handleClearDialogData = () => {
+        if (dialogMode === "update")
+            setDialogData({provinces: null, districts: null, wards: null});
     }
 
     return (
@@ -181,8 +187,7 @@ export default function ChangeAddressPrompt({open, addresses, selectedAddress, o
                 <Box>
                     <Button sx={{width: 'auto', mt: 3}} variant="outlined" onClick={handleOpenAddNewAddress}>
                         Thêm địa chỉ mới
-                    </Button>
-                    
+                    </Button>    
                 </Box>
                 
             </DialogContent>
@@ -195,6 +200,8 @@ export default function ChangeAddressPrompt({open, addresses, selectedAddress, o
                 selectedAddress={editingAddress}
                 open={isDialogOpen} 
                 onClose={() => setIsDialogOpen(false)}
+                onClearDialogData={handleClearDialogData}
+                // onRefetchAddresses={onRefetchAddresses}
             />}
             <DialogActions >
                 <Button 

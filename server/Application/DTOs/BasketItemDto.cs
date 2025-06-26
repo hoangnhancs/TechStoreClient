@@ -10,5 +10,5 @@ public class BasketItemDto
     public int Quantity { get; set; }
     public long Price { get; set; }
     public required string Brand { get; set; }
-    public required string Category { get; set; }  
+    public required CategoryDto Category { get; set; }  
 }

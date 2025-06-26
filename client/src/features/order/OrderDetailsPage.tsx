@@ -33,8 +33,9 @@ import {
 } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { useGetOrderDetailsQuery } from './orderApi';
-import { useGetAddressQuery } from '../address/addressApi';
+import { useGetOrderDetailsQuery } from '../../app/api/orderApi';
+import { useGetAddressQuery } from '../../app/api/addressApi';
+
 
 const StatusChip = styled(Chip)<{ status: string }>(({ theme, status }) => {
 let color;

@@ -2,8 +2,8 @@ import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Checkbox } from "@mui/material";
-import { useCreateAddressMutation, useUpdateAddressMutation } from "../features/address/addressApi";
 import { Address, District, Province, Ward } from "../lib/types";
+import { useCreateAddressMutation, useUpdateAddressMutation } from "../app/api/addressApi";
 
 
 
@@ -18,9 +18,12 @@ type Props = {
     inputDistricts: District[] | null
     inputProvinces: Province[] | null
     canDisableDefaultAddress: boolean
+    onClearDialogData?: () => void
+    // onRefetchAddresses: () => void
 }
 
-export default function AddNewAddressDialog({ open, onClose, mode, selectedAddress, inputProvinces, inputDistricts, inputWards, canDisableDefaultAddress}: Props ) {
+export default function AddNewAddressDialog({ open, onClose, mode, selectedAddress, inputProvinces, 
+    inputDistricts, inputWards, canDisableDefaultAddress, onClearDialogData}: Props ) {
 
     const [form, setForm] = useState<Address>({
         fullName: "",
@@ -165,7 +168,7 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
             ward: wards.find((ward: Ward) => ward.WardCode === form.ward)?.WardName,
             detailAddress: form.detailAddress,
             isDefault: form.isDefault                
-        }).unwrap().then(() => {onClose()})
+        }).unwrap().then(() => {if(onClearDialogData){onClearDialogData();}onClose();})
     }
 
     const handleUpdateAddress = () => {
@@ -177,7 +180,7 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
             ward: wards.find((ward: Ward) => ward.WardCode === form.ward)?.WardName,
             detailAddress: form.detailAddress,
             isDefault: form.isDefault                
-        }}).unwrap().then(() => {onClose()})
+        }}).unwrap().then(() => {if (onClearDialogData){onClearDialogData();};onClose()})
         console.log(mode, form.province, form.district, form.ward, form.detailAddress, form.isDefault, form.fullName, form.phoneNumber)
     }
 
@@ -193,7 +196,7 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
                 maxHeight: '80vh', // 80% height cua vp
             },}}
         >
-            <DialogTitle>Thêm địa chỉ mới</DialogTitle>
+            <DialogTitle>{mode === "add" ? "Thêm địa chỉ mới" : "Cập nhật địa chỉ"}</DialogTitle>
             <DialogContent>
                 <Grid container spacing={1}>
                     <Grid size={6} display={'flex'} flexDirection={'column'}>
@@ -285,7 +288,7 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
                         <Checkbox
                             checked={!canDisableDefaultAddress ? true : form.isDefault} 
                             onChange={toogleDefaultAddress}   
-                            disabled={!canDisableDefaultAddress}
+                            disabled={!canDisableDefaultAddress || form.isDefault}
                         />
                         <Typography variant="subtitle1" sx={{ ml: 1 }}>                       
                             Đặt làm địa chỉ mặc định

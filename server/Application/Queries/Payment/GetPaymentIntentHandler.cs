@@ -1,6 +1,6 @@
 using System;
 using Application.Core;
-using Domain.Interfaces.Services;
+using Application.Interface;
 using MediatR;
 using Stripe;
 

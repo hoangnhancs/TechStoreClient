@@ -16,6 +16,7 @@ type Props = {
     onActiveStepChange?: (step: number) => void
     onPaymentInforChange: (paymentInfor: PaymentInfor) => void
     onAddressChange: (address: Address) => void
+
 }
 
 const steps = ['Địa chỉ', 'Phương thức thanh toán', 'Hoàn tất thanh toán'];
@@ -86,10 +87,24 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
 
 
     useEffect(() => {
-        if (selectedAddress == null && addresses && addresses.length > 0) {
+        if (!addresses || addresses.length === 0) {
+            console.log("No addresses available, setting selectedAddress to null");
+            console.log("Addresses:", addresses);
+            return;
+        }
+
+        // Nếu selectedAddress chưa có, chọn mặc định
+        if (selectedAddress == null) {
             const defaultAddress = addresses.find(address => address.isDefault) || addresses[0];
             setSelectedAddress(defaultAddress);
             onAddressChange(defaultAddress);
+            return;
+        }
+
+        // Nếu selectedAddress đã có, tìm object mới trong addresses theo id
+        const updated = addresses.find(addr => addr.id === selectedAddress.id);
+        if (updated && updated !== selectedAddress) {
+            setSelectedAddress(updated);
         }
     }, [addresses, selectedAddress, onAddressChange]);
     
@@ -117,7 +132,7 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
                                 Thêm địa chỉ mới
                             </Button>
                             <AddNewAddressDialog
-                                canDisableDefaultAddress={true}
+                                canDisableDefaultAddress={false}
                                 inputWards={null}
                                 inputDistricts={null}
                                 inputProvinces={null}
@@ -125,6 +140,7 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
                                 selectedAddress={null}
                                 open={isAddingNewAddress} 
                                 onClose={handleCloseAddNewAddress}
+                                // onRefetchAddresses={onRefetchAddresses}
                             />
                         </Box>  
                     ) : (
@@ -155,6 +171,7 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
                                             selectedAddress={selectedAddress}
                                             onAddressChange={handleAddressChange}
                                             addresses={addresses}
+                                            // onRefetchAddresses={onRefetchAddresses}
                                         />
                                     </Box>
                                 </Box>                                

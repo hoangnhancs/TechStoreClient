@@ -1,5 +1,6 @@
 using System;
 using System.Security.Claims;
+using API.DTOs;
 using Application.Command.Baskets;
 using Application.DTOs;
 using Application.Queries.Baskets;
@@ -15,12 +16,12 @@ public class BasketController() : BaseApiController
     [HttpGet("mybasket")]
     public async Task<IActionResult> GetBasket()
     {
-        var userId =  User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
-        
-        return HandleResult(await Mediator.Send(new GetBasketQuery {UserId = userId}));
+
+        return HandleResult(await Mediator.Send(new GetBasketQuery { UserId = userId }));
     }
 
     [HttpPost("mybasket/items")]
@@ -32,7 +33,7 @@ public class BasketController() : BaseApiController
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (string.IsNullOrEmpty(userId)) 
+        if (string.IsNullOrEmpty(userId))
         {
             return Unauthorized(new
             {
@@ -52,12 +53,12 @@ public class BasketController() : BaseApiController
     }
 
     [HttpDelete("mybasket/items/{productId}")]
-    public async Task<IActionResult> RemoveItemFromBsket(string productId, [FromQuery]int quantity)
+    public async Task<IActionResult> RemoveItemFromBsket(string productId, [FromQuery] int quantity)
     {
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (string.IsNullOrEmpty(userId)) 
+        if (string.IsNullOrEmpty(userId))
         {
             return Unauthorized("User not authenticated");
         }
@@ -74,7 +75,7 @@ public class BasketController() : BaseApiController
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (string.IsNullOrEmpty(userId)) 
+        if (string.IsNullOrEmpty(userId))
         {
             return Unauthorized("User not authenticated");
         }

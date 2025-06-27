@@ -27,39 +27,41 @@ export const baseQueryWithErrorHandling = async (
   const result = await customBaseQuery(args, api, extraOptions);
   api.dispatch(stopLoading()); 
   if (result.error) {
-    
     const originalStatus = result.error.status === 'PARSING_ERROR' && result.error.originalStatus 
         ? result.error.originalStatus 
         : result.error.status;
-    const responseData = result.error.data as CustomError
-    //handle error
-    console.log(result.error);
-    console.log(originalStatus, responseData);
+    const responseData = result.error.data as CustomError;
+    const isDev = import.meta.env.MODE === "development";
+    if (isDev) {
+      console.log(result.error);
+      console.log(originalStatus, responseData);
+    }
+  
     switch (originalStatus) {
-        case 400:
-            if (typeof responseData === "string")
-                toast.error(responseData || "Bad request c");
-            else if ('errors' in responseData) {
-                toast.error(responseData.title)
-                throw Object.values(responseData.errors).flat().join(', ')       
-            }
-            break
-        case 401:
-            toast.error((responseData as string) || "Unauthorized");
-            console.log(responseData)
-            break
-        case 404:
-            toast.error((responseData as string) || "Not found");
-            router.navigate('/not-found')
-            break
-        case 500:
-            if (typeof responseData !== "string" && 'message' in responseData)
-                toast.error((responseData.message ) || "Server error c");
-                router.navigate('/server-error', {state: {error: responseData}})
-            break
+      case 400:
+        if (typeof responseData === "string") {
+          if (isDev) toast.error(responseData || "Bad request c");
         }
+        else if ('errors' in responseData) {
+          if (isDev) toast.error(responseData.title);
+          throw Object.values(responseData.errors).flat().join(', ');
+        }
+        break;
+      case 401:
+        if (isDev) toast.error((responseData as string) || "Unauthorized");
+        break;
+      case 404:
+        if (isDev) toast.error((responseData as string) || "Not found");
+        router.navigate('/not-found');
+        break;
+      case 500:
+        if (typeof responseData !== "string" && 'message' in responseData) {
+          if (isDev) toast.error((responseData.message) || "Server error c");
+          router.navigate('/server-error', {state: {error: responseData}});
+        }
+        break;
+    }
   }
-
   return result;
 };
 

@@ -7,8 +7,6 @@ import { useMediaQuery, useTheme, Drawer } from "@mui/material";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { toggleDarkMode } from "./uiSlice";
-
-import { useGetCurrentUserQuery } from "../features/user/userApi";
 import UserMenu from "../features/user/UserMenu";
 import LoginPromptDialog from "../components/LoginPromptDialog";
 import { useFetchBasketQuery } from "../app/api/basketApi";
@@ -31,9 +29,11 @@ const rightLinks = [
 export default function NavBar() {
 
   const {isLoading, isDarkMode} = useAppSelector(state => state.ui)
+  // const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
   const dispatch = useAppDispatch()
   const theme = useTheme();
-  const {data: currentUser} = useGetCurrentUserQuery();
+  // const {data: currentUser} = useGetCurrentUserQuery(undefined, {skip: true});
+  const currentUser = useAppSelector(state => state.user.currentUser);
   const {data: basket} = useFetchBasketQuery(undefined, {
     skip: !currentUser
   })
@@ -55,6 +55,19 @@ export default function NavBar() {
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
+
+  // useEffect(() => {
+  //   if (currentUser) {
+  //     console.log("Tim thay user", currentUser)
+  //   }
+  //   else {
+  //     console.log("Khong tim thay user")
+  //   }
+  // }, [currentUser])
+  // useEffect(() => {
+  //   console.log("isAuthenticated", isAuthenticated);
+  // }, [isAuthenticated]);
+  
 
   const mobileMenu = (
     <Box sx={{ width: 250 }}>

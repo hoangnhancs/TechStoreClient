@@ -25,6 +25,8 @@ import { addressApi } from "../api/addressApi";
 import { filterTagValueApi } from "../api/filterTagValueApi";
 import { filterTagApi } from "../api/filterTagApi";
 import filterReducer from "../../features/filter/filterSlice";
+import authReducer from "../slice/authSlice";
+import userReducer from "../../features/user/userSlice";
 
 const persistConfig = {
   key: "root", // key để lưu trong localStorage
@@ -58,6 +60,8 @@ const rootReducer = combineReducers({
   ui: uiReducer,
   basket: basketReducer,
   filter: filterReducer,
+  auth: authReducer,
+  user: userReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

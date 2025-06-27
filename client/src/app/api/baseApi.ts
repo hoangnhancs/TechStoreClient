@@ -12,13 +12,6 @@ type CustomError = | string | {message: string} | {errors: string [], title: str
 const customBaseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL,
   credentials: "include", // Include credentials (cookies) in requests
-  prepareHeaders: (headers) => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
-    }
-    return headers;
-  }
 });
 
 const sleep = () => new Promise((resolve) => setTimeout(resolve, 500));
@@ -53,6 +46,7 @@ export const baseQueryWithErrorHandling = async (
             break
         case 401:
             toast.error((responseData as string) || "Unauthorized");
+            console.log(responseData)
             break
         case 404:
             toast.error((responseData as string) || "Not found");

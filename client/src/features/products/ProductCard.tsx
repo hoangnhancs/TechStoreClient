@@ -7,18 +7,20 @@ import { useState } from "react";
 import LoginPromptDialog from "../../components/LoginPromptDialog";
 import { toast } from "react-toastify";
 import { useAddBasketItemMutation } from "../../app/api/basketApi";
+import { useAppSelector } from "../../hooks";
 
 type Props = {
     product: Product
 }
 
 export default function ProductCard({product}: Props) {
-
+    const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
     const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
-    const {data} = useGetCurrentUserQuery();
+    const {data} = useGetCurrentUserQuery(undefined, {skip: !isAuthenticated});
     const [addBasketItem] = useAddBasketItemMutation()
 
     const handleAddToCart = () => {
+        console.log(data)
         if (!data?.id) {
             setOpenLoginPrompt(true); 
             return;

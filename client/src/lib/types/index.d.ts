@@ -139,13 +139,16 @@ export type OrderItem = {
   orderId?: string | null;
 };
 
-export type User = {
+export type BasicUser = {
   id: string;
-  email: string;
   displayName: string;
   imageUrl: string;
-  totalSpent: number;
   roles: string[];
+};
+
+export type User = BasicUser & {
+  email: string;
+  totalSpent: number;
   gender: string;
   phoneNumber: string;
   dateOfBirth: Date | null;
@@ -222,9 +225,4 @@ export type Review = {
   comment: string;
   createdAt: Date;
   updatedAt: Date;
-};
-
-export type AuthUserResponse = {
-  user: User;
-  token: string;
 };

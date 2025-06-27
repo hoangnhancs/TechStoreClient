@@ -117,11 +117,17 @@ app.UseCors(options =>
         .WithOrigins("https://localhost:3000");
 });
 
+app.Use(async (context, next) =>
+{
+    Console.WriteLine("ACCESS TOKEN COOKIE: " + context.Request.Cookies["access_token"]);
+    Console.WriteLine("AUTH HEADER: " + context.Request.Headers["Authorization"]);
+    await next();
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.MapGroup("api").MapIdentityApi<User>(); //chuyen tu api/account thanh api
 app.MapHub<CommentHub>("/commentHub");
 app.MapHub<ReviewHub>("/reviewHub");

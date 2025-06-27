@@ -76,11 +76,12 @@ function App() {
           <Container maxWidth="xl" sx={{ 
             mt: 12  // marginTop responsive
           }}>
-            <Outlet />
+            <Outlet /> 
           </Container> 
         </Box>
       </ThemeProvider> 
     </>    
+    // Outlet sẽ hiển thị những gì nằm trong children của Route hiện tại. Để nó hoạt động
   )
 }
 

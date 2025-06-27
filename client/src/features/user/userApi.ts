@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithErrorHandling } from "../../app/api/baseApi";
-import { AuthUserResponse, User } from "../../lib/types";
+import { User } from "../../lib/types";
 
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -11,18 +11,18 @@ export const userApi = createApi({
       query: () => ({ url: "/account/user-info", method: "GET" }),
       providesTags: ["User"],
     }),
-    login: builder.mutation<AuthUserResponse,{ email: string; password: string }>({
+    login: builder.mutation<User,{ email: string; password: string }>({
       query: ({ email, password }) => ({
         url: "/account/login",
         method: "POST",
         body: { email, password },
-        credentials: "include",
+        
       }),
       
       invalidatesTags: ["User", "Basket"],
     }),
     logout: builder.mutation<void, void>({
-      query: () => ({ url: "/account/logout", method: "POST", credentials: "include" }),
+      query: () => ({ url: "/account/logout", method: "POST",  }),
       invalidatesTags: ["User", "Basket"],
       
     }),

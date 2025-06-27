@@ -138,10 +138,8 @@ public class AccountController : BaseApiController
         return Ok(new UserDto
             {
                 DisplayName = user.DisplayName ?? string.Empty,
-                Email = user.Email ?? string.Empty,
                 Id = user.Id,
                 ImageUrl = user.ImageUrl ?? string.Empty,
-                TotalSpent = user.TotalSpent,
                 Roles = roles.ToList(),
                 // user.Photos,
             });

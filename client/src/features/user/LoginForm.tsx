@@ -4,7 +4,7 @@ import UserFormWrapper from "./UserFormWrapper";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "../../components/TextInput";
 import { useLoginMutation } from "./userApi";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../hooks";
@@ -14,21 +14,19 @@ import { setCurrentUser } from "./userSlice";
 export default function LoginForm() {
 
     const [login, {isSuccess, isError, error, data}] = useLoginMutation()
+    const location = useLocation()
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
 
     useEffect(() => {
         if (isSuccess && data) {
-            toast.success("Login successful")
-            navigate('/products')
-            console.log("bat dau set authenticated")
             dispatch(setAuthenticated(true))
             dispatch(setCurrentUser(data))
-            // dispatch(userApi.util.invalidateTags(['User']));
-            console.log("Da set authenticated la true")
-            console.log(data)
+            const from = location.state?.from || '/products'
+            navigate(from, { replace: true });
+            toast.success("Login successful")
         }
-    }, [isSuccess, data, navigate, dispatch])
+    }, [isSuccess, data, navigate, dispatch, location])
 
     useEffect(() => {
         if (isError && error) { 

@@ -10,6 +10,7 @@ import { toggleDarkMode } from "./uiSlice";
 import UserMenu from "../features/user/UserMenu";
 import LoginPromptDialog from "../components/LoginPromptDialog";
 import { useFetchBasketQuery } from "../app/api/basketApi";
+import { useGetCurrentUserQuery } from "../features/user/userApi";
 
 
 
@@ -32,8 +33,8 @@ export default function NavBar() {
   // const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
   const dispatch = useAppDispatch()
   const theme = useTheme();
-  // const {data: currentUser} = useGetCurrentUserQuery(undefined, {skip: true});
-  const currentUser = useAppSelector(state => state.user.currentUser);
+  const {data: currentUser} = useGetCurrentUserQuery();
+  // const currentUser = useAppSelector(state => state.user.currentUser);
   const {data: basket} = useFetchBasketQuery(undefined, {
     skip: !currentUser
   })
@@ -89,7 +90,7 @@ export default function NavBar() {
         ))}
       </List>
       <Divider />
-      {currentUser ? (<UserMenu />) : (
+      {currentUser ? (<UserMenu currentUser={currentUser} />) : (
         <List>
           {rightLinks.map(({title, path}) => (
             <MenuItemLink 
@@ -100,8 +101,7 @@ export default function NavBar() {
             </MenuItemLink>
           ))}
         </List>
-      )}
-      
+      )} 
     </Box>
   );
 
@@ -154,7 +154,7 @@ export default function NavBar() {
                 </IconButton>
                 <Box sx={{ width: 220, display: 'flex', justifyContent: 'flex-start' }}>
                   {currentUser ? (
-                    <UserMenu />
+                    <UserMenu currentUser={currentUser} />
                   ) : (
                     <List sx={{ display: 'flex', gap: 1 }}>
                       {rightLinks.map(({title, path}) => (

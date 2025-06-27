@@ -91,7 +91,7 @@ public class AccountController : BaseApiController
     public async Task<ActionResult> Logout()
     {
         await signInManager.SignOutAsync();
-
+        Response.Cookies.Delete("access_token");
         return NoContent();
     }
 

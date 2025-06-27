@@ -6,7 +6,7 @@ import {
   DialogContentText, 
   DialogTitle 
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import CloseIcon from '@mui/icons-material/Close';
 
 type Props = {
@@ -15,6 +15,7 @@ type Props = {
 }
 
 export default function LoginPromptDialog({ open, onClose }: Props) {
+  const navigate = useNavigate();
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle sx={{ m: 0, p: 2 }}>
@@ -41,18 +42,23 @@ export default function LoginPromptDialog({ open, onClose }: Props) {
       </DialogContent>
       <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
         <Button 
-          component={Link} 
-          to="/register" 
           variant="outlined" 
-          onClick={onClose}
+          onClick={() => {
+            onClose();
+            console.log(location.pathname);
+            navigate('/register', {state: {from: location.pathname}});
+            
+          }}
         >
           Register
         </Button>
         <Button 
-          component={Link} 
-          to="/login" 
           variant="contained" 
-          onClick={onClose}
+          onClick={() => {
+            onClose();     
+            console.log(location.pathname);
+            navigate('/login', {state: {from: location.pathname}});        
+          }}
         >
           Login
         </Button>

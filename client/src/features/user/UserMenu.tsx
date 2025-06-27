@@ -7,13 +7,18 @@ import { Avatar, Box, Divider, ListItemIcon, ListItemText } from '@mui/material'
 
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Add, Logout, Password, Person, Receipt } from '@mui/icons-material';
-import { useGetCurrentUserQuery, useLogoutMutation } from './userApi';
+import { useLogoutMutation, userApi } from './userApi';
 import { useDispatch } from 'react-redux';
 import { basketApi } from '../../app/api/basketApi';
+import { BasicUser } from '../../lib/types';
 
-export default function UserMenu() {
+type Props = {
+    currentUser: BasicUser
+}
+
+export default function UserMenu({currentUser}: Props) {
     const dispatch = useDispatch();
-    const {data: currentUser} = useGetCurrentUserQuery()
+    // const {data: currentUser} = useGetCurrentUserQuery()
     const location = useLocation()
     const navigate = useNavigate()
     const [logoutUser, {isSuccess}] = useLogoutMutation()
@@ -34,6 +39,7 @@ export default function UserMenu() {
 
     const handleLogout = () => {
         logoutUser()
+        dispatch(userApi.util.resetApiState());
         dispatch(basketApi.util.resetApiState());        
     }
 
@@ -106,8 +112,7 @@ export default function UserMenu() {
                 <Divider />
                 <MenuItem onClick={() => {
                     handleLogout();
-                    handleClose();
-                    navigate('/login');
+                    handleClose();     
                 }}>
                     <ListItemIcon>
                         <Logout />

@@ -1,16 +1,17 @@
 
 import { Box, Container, createTheme, CssBaseline, ThemeProvider } from "@mui/material"
 import NavBar from "./layouts/NavBar"
-import { Outlet } from "react-router-dom"
+import { Outlet, useLocation } from "react-router-dom"
 import { useAppSelector } from "./hooks"
 import LoadingOverlay from "./components/LoadingOverlay"
 
-function App() {
 
-  const isDarkMode = useAppSelector(state => state.ui.isDarkMode)
-  
+function App() {
+  const hideNavRoutes = ['/', '/login', '/register'];
+  const isDarkMode = useAppSelector(state => state.ui.isDarkMode) 
   const palletteType = isDarkMode ? 'dark' : 'light'
-  
+  const location = useLocation()
+  const shouldHideNav = hideNavRoutes.includes(location.pathname);
   const theme = createTheme({
     palette: {
       mode: palletteType,
@@ -54,12 +55,14 @@ function App() {
       }
     }
   })
+
+
   return (
     <>
       <LoadingOverlay />
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <NavBar />
+        {shouldHideNav  ? null : <NavBar />}
         <Box
           sx={{
             background: isDarkMode 

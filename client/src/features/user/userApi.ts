@@ -11,22 +11,20 @@ export const userApi = createApi({
       query: () => ({ url: "/account/user-info", method: "GET" }),
       providesTags: ["User"],
     }),
-    login: builder.mutation<BasicUser,{ email: string; password: string }>({
+    login: builder.mutation<BasicUser, { email: string; password: string }>({
       query: ({ email, password }) => ({
         url: "/account/login",
         method: "POST",
         body: { email, password },
-        
       }),
-      
+
       invalidatesTags: ["User", "Basket"],
     }),
     logout: builder.mutation<void, void>({
-      query: () => ({ url: "/account/logout", method: "POST",  }),
+      query: () => ({ url: "/account/logout", method: "POST" }),
       invalidatesTags: ["User", "Basket"],
-      
     }),
-    register: builder.mutation<User, {email: string; displayName: string; password: string; confirmPassword: string;}>({
+    register: builder.mutation<User,{email: string;displayName: string;password: string;confirmPassword: string;}>({
       query: (credentials) => ({
         url: "/account/register",
         method: "POST",
@@ -34,7 +32,27 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User", "Basket"],
     }),
+    resendConfirmEmail: builder.mutation<void, { email?: string, userId?: string | null }>({
+      query: (credentials) => ({
+        url: "/account/resendConfirmEmail",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+    verifyEmail: builder.mutation<void, { userId: string; code: string }>({
+      query: ({ userId, code }) => ({
+        url: `/confirmEmail?userId=${userId}&code=${code}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const {useGetCurrentUserQuery, useLoginMutation, useLogoutMutation, useRegisterMutation} = userApi
+export const {
+  useGetCurrentUserQuery, 
+  useLoginMutation, 
+  useLogoutMutation, 
+  useRegisterMutation, 
+  useResendConfirmEmailMutation,
+  useVerifyEmailMutation,
+} = userApi

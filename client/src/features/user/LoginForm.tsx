@@ -4,12 +4,13 @@ import UserFormWrapper from "./UserFormWrapper";
 import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "../../components/TextInput";
 import { useLoginMutation } from "./userApi";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../hooks";
 import { setAuthenticated } from "../../app/slice/authSlice";
 import { setCurrentUser } from "./userSlice";
+import { Box, Typography } from "@mui/material";
 
 export default function LoginForm() {
 
@@ -54,6 +55,14 @@ export default function LoginForm() {
     >
         <TextInput type="email" label="Email" name="email"></TextInput>
         <TextInput type="password" label="Password" name="password"></TextInput>
+        <Box display={'flex'} justifyContent={'center'} gap={3}>
+            <Typography>
+                Forgot password? <Link to={'/forgot-password'}>Reset password</Link> 
+            </Typography>
+            <Typography>
+                Don't have an account? <Link to={'/register'}>Sign up</Link> 
+            </Typography>
+        </Box>
     </UserFormWrapper>
   )
 }

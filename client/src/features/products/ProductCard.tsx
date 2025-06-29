@@ -51,7 +51,7 @@ export default function ProductCard({product}: Props) {
             overflow: 'visible', // Để hiển thị phần thẻ giảm giá bên ngoài
         }}
     >
-        <Box
+        {product.discountPercentage ? <Box
             sx={{
                 position: 'absolute',
                 top: 0,
@@ -90,9 +90,9 @@ export default function ProductCard({product}: Props) {
                     transform:'translateY(-2px)'
                 }}
             >
-                Giảm 4%
-            </Typography>    
-        </Box>
+                Giảm {product.discountPercentage}%
+            </Typography>  
+        </Box> : null}
         <CardMedia
             component="img"
             sx={{

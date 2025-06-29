@@ -5,7 +5,8 @@ import { LockOpen } from "@mui/icons-material";
 import TextInput from "../../components/TextInput";
 import { useRegisterMutation } from "./userApi";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { Box, Typography } from "@mui/material";
 
 
 
@@ -28,7 +29,7 @@ export default function RegisterForm() {
             title="Register"
             icon={<LockOpen />}
             onSubmit={handleSubmit}
-            submitButtonText="Login"
+            submitButtonText="Sign up"
             resolver={zodResolver(registerSchema)}
             reset={true}
         >
@@ -36,6 +37,11 @@ export default function RegisterForm() {
             <TextInput type="text" label="Display name" name="displayName"></TextInput>
             <TextInput type="password" label="Password" name="password"></TextInput>
             <TextInput type="password" label="Confirm Password" name="confirmPassword"></TextInput>
+            <Box display="flex" justifyContent="center" alignItems={"center"}>
+                <Typography>
+                    Already have an account? <Link to={'/login'}>Login</Link> 
+                </Typography>
+            </Box>    
         </UserFormWrapper>
     )
 }

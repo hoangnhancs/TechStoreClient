@@ -7,7 +7,7 @@ import LoadingOverlay from "./components/LoadingOverlay"
 
 
 function App() {
-  const hideNavRoutes = ['/', '/login', '/register'];
+  const hideNavRoutes = ['/', '/login', '/register', '/forgot-password', '/confirm-email'];
   const isDarkMode = useAppSelector(state => state.ui.isDarkMode) 
   const palletteType = isDarkMode ? 'dark' : 'light'
   const location = useLocation()

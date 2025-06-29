@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using API.DTOs;
 using Application.Command.Baskets;
 using Application.DTOs;
@@ -7,6 +8,8 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -14,11 +17,15 @@ public class AccountController : BaseApiController
 {
     private readonly SignInManager<User> signInManager;
     private readonly ITokenServices tokenServices;
+    private readonly IConfiguration config;
+    private readonly IEmailSender<User> emailSender;
 
-    public AccountController(SignInManager<User> signInManager, ITokenServices tokenServices)
+    public AccountController(SignInManager<User> signInManager, ITokenServices tokenServices, IConfiguration config, IEmailSender<User> emailSender)
     {
         this.signInManager = signInManager;
         this.tokenServices = tokenServices;
+        this.config = config;
+        this.emailSender = emailSender;
     }
     [AllowAnonymous]
     [HttpPost("register")]
@@ -136,14 +143,40 @@ public class AccountController : BaseApiController
             Expires = DateTime.Now.AddHours(1)
         });
         return Ok(new UserDto
-            {
-                DisplayName = user.DisplayName ?? string.Empty,
-                Id = user.Id,
-                ImageUrl = user.ImageUrl ?? string.Empty,
-                Roles = roles.ToList(),
-                // user.Photos,
-            });
+        {
+            DisplayName = user.DisplayName ?? string.Empty,
+            Id = user.Id,
+            ImageUrl = user.ImageUrl ?? string.Empty,
+            Roles = roles.ToList(),
+            // user.Photos,
+        });
 
         // return Ok( new {token});
-    }    
+    }
+
+    [AllowAnonymous]
+    [HttpPost("resendConfirmEmail")]
+    public async Task<IActionResult> ResendConfirmEmail([FromBody]ForgotPasswordDto fgpDto)
+    {
+        if (string.IsNullOrEmpty(fgpDto.Email) && string.IsNullOrEmpty(fgpDto.UserId))
+        {
+            return BadRequest("Email or UserId must be provided");
+        }
+        var user = await signInManager.UserManager.Users.FirstOrDefaultAsync(x => x.Email == fgpDto.Email || x.Id == fgpDto.UserId);
+
+        if (user == null || string.IsNullOrEmpty(user.Email))
+            return BadRequest("User not found or email not valid");
+
+        await SendConfirmationEmailAsync(user, user.Email);
+
+        return Ok();
+    }
+
+    private async Task SendConfirmationEmailAsync(User user, string email)
+    {
+        var code = await signInManager.UserManager.GenerateEmailConfirmationTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        var confirmEmailUrl = $"{config["ClientAppUrl"]}/confirm-email?userId={user.Id}&code={code}";
+        await emailSender.SendConfirmationLinkAsync(user, email, confirmEmailUrl);
+    }
 }

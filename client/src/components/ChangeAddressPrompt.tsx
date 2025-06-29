@@ -86,17 +86,18 @@ export default function ChangeAddressPrompt({open, addresses, selectedAddress, o
                 districts: tempDistricts,
                 wards: tempWards
             });
+            setIsDialogOpen(true);
         } catch (error) {
             console.error("Error loading address data:", error);
         }
     };
 
-    useEffect(() => {
-        if (dialogMode == "update" && dialogData.provinces && dialogData.districts && dialogData.wards) {
-            console.log("change address", selectedAddress?.id)
-            setIsDialogOpen(true);
-        }
-    }, [dialogData, dialogMode, selectedAddress]);
+    // useEffect(() => {
+    //     if (dialogMode == "update" && dialogData.provinces && dialogData.districts && dialogData.wards) {
+    //         console.log("change address", selectedAddress?.id)
+    //         setIsDialogOpen(true);
+    //     }
+    // }, [dialogData, dialogMode, selectedAddress]);
 
 
     const handleCancel = () => {

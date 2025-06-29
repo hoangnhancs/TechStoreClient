@@ -18,6 +18,8 @@ import MyOrdersPage from "../features/order/MyOrdersPage";
 import OrderDetailsPage from "../features/order/OrderDetailsPage";
 import ProductListByCategory from "../features/products/ProductListByCategory";
 import UserProfilePage from "../features/user/UserProfilePage";
+import ForgotPasswordForm from "../features/user/ForgotPasswordForm";
+import VerifyEmail from "../features/user/VerifyEmail";
 
 export const router = createBrowserRouter([
     {
@@ -35,6 +37,8 @@ export const router = createBrowserRouter([
             {path: '/counter', element: <Counter />},
             {path: '/login', element: <LoginForm />},
             {path: '/register', element: <RegisterForm />},
+            {path: '/confirm-email', element: <VerifyEmail />},
+            {path: '/forgot-password', element: <ForgotPasswordForm />},
             {path: '/order', element: <CheckOutPage />},
             {path: '/order-success', element: <OrderSuccessPage />},
             {path: '/my-orders', element: <MyOrdersPage />},

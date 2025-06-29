@@ -8,6 +8,7 @@ using Application.Queries.Products;
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
+using Infrastructure.Email;
 using Infrastructure.Security;
 using Infrastructure.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Persistence;
 using Persistence.Repositories;
+using Resend;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,10 +40,19 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetProductDetailsHandler>());
 builder.Services.AddCors();
 builder.Services.AddSignalR();
 
+
+builder.Services.AddHttpClient<ResendClient>();                 // 3️⃣
+builder.Services.Configure<ResendClientOptions>(o =>
+{
+    o.ApiToken = builder.Configuration["Resend:ApiKey"]!;        // appsettings.json
+});
+builder.Services.AddTransient<IResend, ResendClient>();           // 4️⃣
+builder.Services.AddTransient<IEmailSender<User>, EmailSender>(); // đã có, giữ nguyên
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetProductDetailsHandler>());
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();
@@ -56,31 +67,20 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IUserAccessor, UserAccessor>();
 builder.Services.AddScoped<ITokenServices, TokenServices>();
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
-// Trong Program.cs
-// builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddIdentityApiEndpoints<User>(opt =>
 {
     opt.User.RequireUniqueEmail = true;
+    // opt.SignIn.RequireConfirmedEmail = true;
 })
- .AddRoles<IdentityRole>()
- .AddEntityFrameworkStores<StoreContext>();
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<StoreContext>();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAppCookiePolicy();
 builder.Services.AddAppAuthorization();
 builder.Services.AddAuditLogging();
 
-// builder.Services.ConfigureApplicationCookie(options =>
-// {
-//     options.Cookie.SameSite = SameSiteMode.None;
-//     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-// });
-// builder.Services.Configure<CookiePolicyOptions>(options =>
-// {
-//     options.MinimumSameSitePolicy = SameSiteMode.None;
-//     options.Secure = CookieSecurePolicy.Always;
-// }); da update trong api.extensions
 
 var app = builder.Build();
 

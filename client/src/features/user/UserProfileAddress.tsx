@@ -48,7 +48,7 @@ export default function UserProfileAddress() {
       setDialogMode("update");
       setEditingAddress(address);
       console.log(address)
-      setIsDialogOpen(true)
+      
       let tempProvinces: Province[] = [];
       let tempDistricts: District[] = [];
       let tempWards: Ward[] = [];
@@ -87,6 +87,8 @@ export default function UserProfileAddress() {
           districts: tempDistricts,
           wards: tempWards
       });
+      console.log(dialogData)
+      setIsDialogOpen(true)
     } catch (error) {
       console.error("Error loading address data:", error);
     }
@@ -95,26 +97,30 @@ export default function UserProfileAddress() {
     <>
       <Box display={"flex"} flexDirection="column" gap={2}>
         {(addresses && addresses.length > 0) && 
-          (addresses.map((address) => (
-            <Box key={address.id}>
-              <Divider sx={{width: "100%", margin: 0}}></Divider>
+          (addresses.map((address, idx) => (
+            <Box display={"flex"} flexDirection={"column"}>
+              <Box key={address.id}>
+                {idx === 0 ? null :<Divider sx={{width: "100%", margin: 0}}></Divider>}
                 <Grid container sx={{mt: 1}}>
-                    <Grid size={9}>
-                      <Box display={"flex"} flexDirection={"column"}>
-                          <Typography variant="subtitle2" fontWeight={'normal'}>{flattenedAddress(address)[0]}</Typography>
-                          <Typography variant="subtitle2" fontWeight={'normal'}>{flattenedAddress(address)[1]}</Typography>
-                          <Typography variant="subtitle2" fontWeight={'normal'}>{flattenedAddress(address)[2]}</Typography>
-                          <Typography variant="subtitle2" fontWeight={'normal'}>{flattenedAddress(address)[3]}</Typography>
-                          {address.isDefault && (<Typography variant="subtitle2" fontWeight={'normal'}>Mặc định</Typography>)}  
-                      </Box>
-                    </Grid>
+                  <Grid size={9}>
+                    <Box display={"flex"} flexDirection={"column"}>
+                      <Typography variant="subtitle2" fontWeight={'normal'}>{flattenedAddress(address)[0]}</Typography>
+                      <Typography variant="subtitle2" fontWeight={'normal'}>{flattenedAddress(address)[1]}</Typography>
+                      <Typography variant="subtitle2" fontWeight={'normal'}>{flattenedAddress(address)[2]}</Typography>
+                      <Typography variant="subtitle2" fontWeight={'normal'}>{flattenedAddress(address)[3]}</Typography>
+                    </Box>
+                  </Grid>
                     <Grid size={2} sx={{display: "flex", justifyContent: "right", alignItems: "center"}}>
-                      <Button onClick={() => handleOpenUpdateAddress(address)} sx={{ alignItems: "center", height: "30%"}}>
+                      <Button onClick={() => handleOpenUpdateAddress(address)} variant="outlined" sx={{ alignItems: "center", height: "30%"}}>
                           Cập nhật
-                      </Button>   
+                      </Button >   
+                      {!address.isDefault && (<Button variant="outlined" color="error" sx={{ alignItems: "center", height: "30%", ml: 1}}>Xóa</Button>)}
                     </Grid>
                 </Grid>
             </Box>
+            {address.isDefault && (<Typography variant="subtitle2" fontWeight={'normal'}>Mặc định</Typography>)}  
+            </Box>
+           
           )))
         }
       </Box>

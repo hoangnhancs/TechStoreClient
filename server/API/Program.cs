@@ -44,13 +44,13 @@ builder.Services.AddCors();
 builder.Services.AddSignalR();
 
 
-builder.Services.AddHttpClient<ResendClient>();                 // 3️⃣
+builder.Services.AddHttpClient<ResendClient>();
 builder.Services.Configure<ResendClientOptions>(o =>
 {
     o.ApiToken = builder.Configuration["Resend:ApiKey"]!;        // appsettings.json
 });
-builder.Services.AddTransient<IResend, ResendClient>();           // 4️⃣
-builder.Services.AddTransient<IEmailSender<User>, EmailSender>(); // đã có, giữ nguyên
+builder.Services.AddTransient<IResend, ResendClient>();      
+builder.Services.AddTransient<IEmailSender<User>, EmailSender>(); 
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetProductDetailsHandler>());
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -72,10 +72,15 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddIdentityApiEndpoints<User>(opt =>
 {
     opt.User.RequireUniqueEmail = true;
-    // opt.SignIn.RequireConfirmedEmail = true;
+    opt.SignIn.RequireConfirmedEmail = true;
 })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<StoreContext>();
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromMinutes(15);
+});
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAppCookiePolicy();
 builder.Services.AddAppAuthorization();
@@ -117,12 +122,12 @@ app.UseCors(options =>
         .WithOrigins("https://localhost:3000");
 });
 
-app.Use(async (context, next) =>
-{
-    Console.WriteLine("ACCESS TOKEN COOKIE: " + context.Request.Cookies["access_token"]);
-    Console.WriteLine("AUTH HEADER: " + context.Request.Headers["Authorization"]);
-    await next();
-});
+// app.Use(async (context, next) =>
+// {
+//     Console.WriteLine("ACCESS TOKEN COOKIE: " + context.Request.Cookies["access_token"]);
+//     Console.WriteLine("AUTH HEADER: " + context.Request.Headers["Authorization"]);
+//     await next();
+// });
 
 app.UseAuthentication();
 app.UseAuthorization();

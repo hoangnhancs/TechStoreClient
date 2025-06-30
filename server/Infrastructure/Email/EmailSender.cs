@@ -9,7 +9,7 @@ public class EmailSender(IResend resend, IConfiguration config) : Microsoft.AspN
 {
     public async Task SendConfirmationLinkAsync(User user, string email, string confirmationLink)
     {
-        var subject = "Confirm your email address";
+        var subject = "Confirm your email address TechStore";
         var body = $@"
             <!DOCTYPE html>
             <html>
@@ -24,7 +24,7 @@ public class EmailSender(IResend resend, IConfiguration config) : Microsoft.AspN
             </head>
             <body>
                 <p>Hi {user.DisplayName},</p>
-                <p>Thank you for registering with us! To complete your registration, please verify your email address by clicking the button below:</p>
+                <p>Thank you for registering with us! This link will expire in 15 minutes, to complete your registration, please verify your email address by clicking the button below:</p>
                 <p><a href='{confirmationLink}' class='button'>Verify Email Address</a></p>
                 <p>If you didn't create an account with us, please ignore this email.</p>
                 <div class='footer'>
@@ -39,7 +39,7 @@ public class EmailSender(IResend resend, IConfiguration config) : Microsoft.AspN
 
     public async Task SendPasswordResetCodeAsync(User user, string email, string resetCode)
     {
-        var subject = "Reset password Reactivities";
+        var subject = "Reset password TechStore";
         var body = $@"
             <!DOCTYPE html>
             <html>
@@ -59,7 +59,7 @@ public class EmailSender(IResend resend, IConfiguration config) : Microsoft.AspN
                 <p><a href='{config["ClientAppUrl"]}/reset-password?email={email}&code={resetCode}' class='button'>
                     Reset Password</a>
                 </p>
-                <p class='note'>This link will expire in 4 hours. If you don't use it by then, you'll need to request another password reset.</p>
+                <p class='note'>This link will expire in 15 minutes. If you don't use it by then, you'll need to request another password reset.</p>
                 <p>If you didn't request a password reset, please ignore this email or contact our support team if you have concerns.</p>
                 <div class='footer'>
                     <p>Best regards,</p>

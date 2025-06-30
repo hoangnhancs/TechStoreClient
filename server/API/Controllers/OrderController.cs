@@ -12,6 +12,7 @@ namespace API.Controllers;
 public class OrderController : BaseApiController
 {
     [HttpGet("myorders")]
+    [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<IActionResult> GetOrderByUserId()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -22,6 +23,7 @@ public class OrderController : BaseApiController
     }
 
     [HttpPost("createorder")]
+    [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrUpdateOrderDto orderDto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -32,6 +34,7 @@ public class OrderController : BaseApiController
     }
 
     [HttpGet("myorders/{orderId}")]
+    [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<IActionResult> GetOrderDetailsByOrderId(string orderId)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

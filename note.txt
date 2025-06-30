@@ -31,3 +31,137 @@ Tóm lại
 Listener với SignalR: Để nhận dữ liệu từ server.
 onReceiveNewReview: Để React component đăng ký xử lý dữ liệu khi có review mới.
 Cách này giúp tách biệt logic nhận dữ liệu (service) và logic xử lý UI (component), đồng thời chỉ cần đăng ký 1 lần duy nhất ở service, các component có thể tự do thay đổi cách xử lý khi nhận review mới.
+
+
+Tầng	Vai trò chính
+Domain	Chứa business model thuần, không phụ thuộc framework
+Application	Chứa logic xử lý UseCase (service, handler, interface)
+Infrastructure	Chứa code kỹ thuật: truy xuất DB, gọi Stripe, gửi mail
+API	Endpoint, UI-facing, cấu hình DI
+
+✅ Trả lời cho câu hỏi Stripe
+Stripe là một dependency bên ngoài → nghĩa là:
+
+Không thể đưa logic Stripe vào Domain
+
+Không nên đưa interface Stripe vào Domain, vì nó không phải business rule thuần (business của bạn đâu phụ thuộc Stripe đâu, bạn có thể thay bằng PayPal sau này)
+
+👉 Vậy interface Stripe nên đặt ở đâu?
+→ Ở Application (nếu Stripe chỉ là 1 adapter cho use-case như "Thanh toán đơn hàng").
+
+🚫 Khi nào KHÔNG nên để interface ở Domain?
+Khi nó liên quan đến:
+
+Gửi email
+
+Gửi thông báo real-time
+
+Thanh toán (Stripe, ZaloPay)
+
+File upload (S3, Firebase)
+
+Những thứ trên không phải "core domain logic", mà là phần hạ tầng thay đổi (Infrastructure)
+
+✅ Còn khi nào interface nên để ở Domain?
+Chỉ khi interface:
+
+Là điều kiện cần cho Domain hoạt động đúng
+
+Là một abstract service/contract gắn với model chính
+
+Ví dụ:
+
+csharp
+Copy
+Edit
+public interface IPriceCalculator
+{
+    decimal Calculate(Product product, int quantity);
+}
+Cái này bạn có thể đặt ở Domain, vì đây là logic kinh doanh thực sự (có thể test unit độc lập, không cần API, DB, hay Stripe).
+
+🔁 Quay lại với TokenService
+Thành phần	Đặc điểm	Đặt ở đâu?
+TokenService	Gọi JWT lib, sinh token → kỹ thuật	✅ Implement ở Infrastructure
+ITokenService	Không gắn chặt domain → logic ở UseCase	✅ Interface ở Application
+
+✅ Tóm tắt quy tắc "vàng":
+Loại service	Interface ở đâu?	Implementation ở đâu?
+Business thuần (ex: IOrderValidator)	Domain	Application hoặc Infrastructure
+Gọi bên thứ 3 (ex: Stripe, Email)	Application	Infrastructure
+DB / file / API call	Application	Infrastructure
+UI, controller, API, auth middleware	Không cần interface	API
+
+👉 Nếu bạn để StripeService implement ở Application thì:
+Nó có thể vẫn hoạt động
+
+Nhưng vi phạm nguyên tắc Clean: Application không nên gọi SDK ngoài như Stripe
+
+Nên áp dụng ở:
+Các endpoint bảo mật cần xác thực danh tính chính xác:
+
+/change-password
+
+/user-info
+
+/order/create
+
+/checkout
+
+/payment
+
+/admin/* (nếu cần 2FA nữa thì thêm Require2FA)
+
+❌ Không cần áp dụng ở:
+/login, /register, /forgot-password, /reset-password
+
+Vì những endpoint này thường dành cho người chưa xác thực hoặc đang cố gắng lấy lại quyền
+
+
+Tổng quan nhanh:
+IsPersistent = true: lưu cookie vào ổ đĩa, còn nếu false thì cookie chỉ là "phiên trình duyệt" (tab đóng là mất).
+
+options.ValidationInterval: sau mỗi khoảng này, ASP.NET sẽ check lại SecurityStamp để xem token còn hợp lệ hay không.
+
+🔍 Trả lời từng câu hỏi cụ thể:
+1. Có ValidationInterval = 15 phút và IsPersistent = true
+✔️ Cookie vẫn tồn tại sau khi tắt tab hoặc tắt trình duyệt, vì cookie được lưu xuống ổ đĩa.
+✔️ Sau mỗi 15 phút, nếu user đang hoạt động, ASP.NET sẽ kiểm tra SecurityStamp.
+
+➡️ Nếu security_stamp không đổi → user tiếp tục được giữ login.
+➡️ Nếu đã đổi (do reset password chẳng hạn) → user bị logout tự động trong lần request tiếp theo sau 15 phút.
+
+✅ => Đây là behavior đúng và hợp lý nhất khi bạn muốn duy trì đăng nhập lâu dài nhưng vẫn có khả năng kiểm soát bảo mật.
+
+2. Có ValidationInterval = 15 phút, nhưng KHÔNG IsPersistent = true
+❌ Cookie sẽ là session cookie (tồn tại trong RAM).
+⟶ Khi đóng tab hoặc tắt trình duyệt, cookie bị mất ngay lập tức → user logout rồi, không cần đợi 15 phút.
+
+⏱️ Sau 15 phút, nếu tab vẫn mở và user vẫn hoạt động:
+
+ASP.NET sẽ check security_stamp
+
+Nếu hợp lệ → vẫn giữ login
+
+Nếu không → logout
+
+✅ Nhưng trường hợp đóng trình duyệt là mất rồi, nên không có chuyện kiểm tra 15 phút nữa.
+
+3. Không có cả ValidationInterval và IsPersistent
+ValidationInterval mặc định là 30 phút, tức vẫn sẽ tự check security_stamp sau mỗi 30 phút
+
+IsPersistent = false mặc định, nên vẫn là session cookie
+
+➡️ Tức là:
+
+Nếu không đóng trình duyệt, sau 30 phút sẽ kiểm tra security_stamp
+
+Nếu bạn đổi password → sẽ bị logout khi đến kỳ kiểm tra
+
+Nếu bạn đóng trình duyệt → logout luôn
+
+✅ Tóm tắt bảng so sánh
+Case	Cookie sống lâu?	Đóng trình duyệt có mất login?	Check security stamp?	Có thể tự logout sau N phút?
+ValidationInterval = 15, IsPersistent = true	✅ Có	❌ Không	✅ Mỗi 15 phút	✅ Nếu security_stamp thay đổi
+ValidationInterval = 15, IsPersistent = false	❌ Không	✅ Có	✅ Nếu tab còn mở	❌ Vì tab đóng là mất rồi
+Không có cả 2	❌ Không	✅ Có	✅ Mỗi 30 phút (mặc định)	✅ Nếu security_stamp thay đổi

@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
+import { Box, Button, Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import LoginPromptDialog from "../../components/LoginPromptDialog";
 import { useGetCurrentUserQuery } from "../user/userApi";
@@ -9,6 +9,7 @@ import ProductAttributesPrompt from "../../components/ProductAttributesPrompt";
 import type { Swiper as SwiperType } from 'swiper';
 import { useAddBasketItemMutation } from "../../app/api/basketApi";
 import { Product } from "../../lib/types";
+import LoadingComponent from "../../components/LoadingComponent";
 
 // Import modules
 
@@ -65,14 +66,7 @@ export default function ProductInformation({product}: Props) {
   
     if (!product) {
         return (
-            <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100vh" // Chiều cao toàn trang
-            >
-                <CircularProgress />
-            </Box>
+            <LoadingComponent />
         );
     }
 

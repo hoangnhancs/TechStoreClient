@@ -14,7 +14,6 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    CircularProgress,
     Alert,
     Stack,
     styled,
@@ -35,6 +34,7 @@ import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { useGetOrderDetailsQuery } from '../../app/api/orderApi';
 import { useGetAddressQuery } from '../../app/api/addressApi';
+import LoadingComponent from '../../components/LoadingComponent';
 
 
 const StatusChip = styled(Chip)<{ status: string }>(({ theme, status }) => {
@@ -81,11 +81,7 @@ const { data: address } = useGetAddressQuery(
 
 if (isLoading) {
     return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-                <CircularProgress />
-            </Box>
-        </Container>
+        <LoadingComponent />
     );
 }
 

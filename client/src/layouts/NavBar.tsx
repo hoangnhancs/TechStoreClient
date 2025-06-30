@@ -55,20 +55,7 @@ export default function NavBar() {
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
-  };
-
-  // useEffect(() => {
-  //   if (currentUser) {
-  //     console.log("Tim thay user", currentUser)
-  //   }
-  //   else {
-  //     console.log("Khong tim thay user")
-  //   }
-  // }, [currentUser])
-  // useEffect(() => {
-  //   console.log("isAuthenticated", isAuthenticated);
-  // }, [isAuthenticated]);
-  
+  };  
 
   const mobileMenu = (
     <Box sx={{ width: 250 }}>

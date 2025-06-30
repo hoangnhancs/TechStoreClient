@@ -1,6 +1,7 @@
-import { Box, CircularProgress, Grid } from "@mui/material"
+import { Box, Grid } from "@mui/material"
 import ProductCard from "./ProductCard"
 import { useFetchTop10ProductsQuery,   } from "../../app/api/productApi"
+import LoadingComponent from "../../components/LoadingComponent"
 
 export default function ProductList() {
     const {data, isLoading} = useFetchTop10ProductsQuery()
@@ -8,14 +9,7 @@ export default function ProductList() {
 
     if (isLoading || !data) 
     return (
-        <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="100vh" // Chiều cao toàn trang
-        >
-            <CircularProgress />
-        </Box>
+        <LoadingComponent />
     );
     
     return (

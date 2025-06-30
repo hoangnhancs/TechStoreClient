@@ -66,8 +66,8 @@ public class AccountController : BaseApiController
         });
     }
 
-
     [HttpGet("user-info")]
+    [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<ActionResult> GetUserInfo()
     {
         if (User.Identity?.IsAuthenticated == false) return NoContent();
@@ -103,6 +103,7 @@ public class AccountController : BaseApiController
     }
 
     [HttpPost("change-password")]
+    [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<ActionResult> ChangePassword(ChangePasswordDto passwordDto)
     {
         var user = await signInManager.UserManager.GetUserAsync(User);

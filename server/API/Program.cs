@@ -76,7 +76,25 @@ builder.Services.AddIdentityApiEndpoints<User>(opt =>
 })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<StoreContext>();
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("SecurityStampRequirement", policy =>
+    {
+        policy.Requirements.Add(new SecurityStampRequirement());
+    });
+});
+builder.Services.AddTransient<IAuthorizationHandler, SecurityStampRequirementHandler>();
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromDays(7); // Cookie sống 7 ngày
+    options.SlidingExpiration = true;              // Cứ dùng là gia hạn thêm
+    options.Cookie.IsEssential = true;
+});
 
+builder.Services.Configure<SecurityStampValidatorOptions>(opt =>
+{
+    opt.ValidationInterval = TimeSpan.FromMinutes(15); // Auto check mỗi 15p
+});
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
     options.TokenLifespan = TimeSpan.FromMinutes(15);

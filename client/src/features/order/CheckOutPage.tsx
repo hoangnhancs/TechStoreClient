@@ -78,7 +78,7 @@ export default function CheckOutPage() {
             <Grid size={8}>
             {!stripePromise ? (
                 <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-                <CircularProgress />
+                    <CircularProgress />
                 </Box>
             ) : (
                 <Elements stripe={stripePromise}>

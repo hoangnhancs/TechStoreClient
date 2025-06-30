@@ -1,4 +1,4 @@
-import { Box, Button, Container, Divider, Grid, Paper, Typography, Checkbox, IconButton, CircularProgress } from "@mui/material";
+import { Box, Button, Container, Divider, Grid, Paper, Typography, Checkbox, IconButton } from "@mui/material";
 
 import { Category, Item } from "../../lib/types";
 import { useEffect, useState } from "react";
@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import { setBasketStates } from "./basketSlice";
 import { useAppSelector } from "../../hooks";
 import { useFetchBasketQuery, useRemoveBasketItemMutation } from "../../app/api/basketApi";
+import LoadingComponent from "../../components/LoadingComponent";
 
 
 
@@ -113,14 +114,7 @@ export default function BasketPage() {
 
     if (isLoading) 
         return (
-            <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100vh" // Chiều cao toàn trang
-            >
-                <CircularProgress />
-            </Box>
+            <LoadingComponent />
         );
 
     if (!basket || basket.items.length === 0) 

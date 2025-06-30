@@ -3,8 +3,8 @@ import CommentList from "../comment/CommentList";
 import ReviewList from "../review/ReviewList";
 import ProductInformation from "./ProductInformation";
 import { useFetchProductByIdQuery } from "../../app/api/productApi";
-import { Box, CircularProgress } from "@mui/material";
 import { useGetCurrentUserQuery } from "../user/userApi";
+import LoadingComponent from "../../components/LoadingComponent";
 
 
 export default function ProductDetails() {
@@ -13,14 +13,7 @@ export default function ProductDetails() {
     const {data: currentUser} = useGetCurrentUserQuery()
     if (isLoading || !product) {
         return (
-            <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100vh" // Chiều cao toàn trang
-            >
-                <CircularProgress />
-            </Box>
+            <LoadingComponent />
         );
     }
     return (

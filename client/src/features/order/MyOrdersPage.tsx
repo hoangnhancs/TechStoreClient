@@ -16,14 +16,13 @@ import {
     ListItem,
     ListItemAvatar,
     ListItemText,
-    CircularProgress,
-
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Receipt, Info } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { useFetchOrderQuery } from '../../app/api/orderApi';
+import LoadingComponent from '../../components/LoadingComponent';
 
 
 const OrderContainer = styled(Box)(({ theme }) => ({
@@ -87,9 +86,7 @@ export default function MyOrdersPage() {
     };
 
     if (isLoading) return (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-            <CircularProgress />
-        </Box>
+        <LoadingComponent />
     );
 
     if (error) return (

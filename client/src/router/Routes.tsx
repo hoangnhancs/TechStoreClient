@@ -21,30 +21,33 @@ import UserProfilePage from "../features/user/UserProfilePage";
 import ForgotPasswordForm from "../features/user/ForgotPasswordForm";
 import VerifyEmail from "../features/user/VerifyEmail";
 import ResetPasswordForm from "../features/user/ResetPasswordForm";
+import RequireAuth from "./RequireAuth";
 
 export const router = createBrowserRouter([
     {
         path: '/',
         element: <App />,
         children: [
+            {element: <RequireAuth />, children: [
+                {path: '/profile', element: <UserProfilePage />},
+                {path: '/basket', element: <BasketPage />},
+                {path: '/order', element: <CheckOutPage />},
+                {path: '/order-success', element: <OrderSuccessPage />},
+                {path: '/my-orders', element: <MyOrdersPage />},
+                {path: '/my-orders/:orderId', element: <OrderDetailsPage />},
+            ]},
             {path: '', element: <HomePage />},
             {path: '/products', element: <ProductCatalog />},
             {path: '/products/:id', element: <ProductDetails />},
             {path: '/products/category/:id', element: <ProductListByCategory />},
             {path: '/about', element: <AboutPage />},
             {path: '/contact', element: <ContactPage />},
-            {path: '/profile', element: <UserProfilePage />},
-            {path: '/basket', element: <BasketPage />},
             {path: '/counter', element: <Counter />},
             {path: '/login', element: <LoginForm />},
             {path: '/register', element: <RegisterForm />},
             {path: '/confirm-email', element: <VerifyEmail />},
             {path: '/forgot-password', element: <ForgotPasswordForm />},
             {path: '/reset-password', element: <ResetPasswordForm />},
-            {path: '/order', element: <CheckOutPage />},
-            {path: '/order-success', element: <OrderSuccessPage />},
-            {path: '/my-orders', element: <MyOrdersPage />},
-            {path: '/my-orders/:orderId', element: <OrderDetailsPage />},
             {path: '/error', element: <Error />},
             {path: '/server-error', element: <ServerError />},
             {path: '/not-found', element: <NotFound />},

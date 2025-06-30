@@ -1,4 +1,4 @@
-import { Box, Button, CircularProgress, Grid, Menu, Typography,  } from "@mui/material"
+import { Box, Button, Grid, Menu, Typography,  } from "@mui/material"
 import ProductCard from "./ProductCard"
 import { useFetchProductsByCatQuery,   } from "../../app/api/productApi"
 import { useParams } from "react-router-dom"
@@ -10,6 +10,7 @@ import React from "react";
 import { useFetchFilterTagsQuery } from "../../app/api/filterTagApi";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { clearAllFilters, clearFilterByTagId, setFilter } from "../filter/filterSlice";
+import LoadingComponent from "../../components/LoadingComponent";
 
 
 
@@ -119,14 +120,7 @@ export default function ProductListByCategory() {
 
     if (isLoadingFilterTagValueLoading || isProductLoading || !productByCat) 
     return (
-        <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            height="100vh" // Chiều cao toàn trang
-        >
-            <CircularProgress />
-        </Box>
+        <LoadingComponent />
     );
     
     return (

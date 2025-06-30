@@ -28,7 +28,11 @@ public class TokenServices : ITokenServices
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
             new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim("security_stamp", await _userManager.GetSecurityStampAsync(user)),
+            //lay security stamp trong identity user(db user), 
+            // set vao claims de sau nay dung de so sanh, tao moi token sau khi reset pw
+            //boi vi reset pw se thay doi security stamp
         };
 
         var roles = await _userManager.GetRolesAsync(user);

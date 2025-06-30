@@ -5,23 +5,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import TextInput from "../../components/TextInput";
 import { Button } from "@mui/material";
 import { Link } from "react-router-dom";
-import { useResendConfirmEmailMutation } from "./userApi";
+import { useForgotPasswordMutation } from "./userApi";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { FieldValues } from "react-hook-form";
 
 export default function ForgotPasswordForm() {
-    const [resendEmail, { isSuccess }] = useResendConfirmEmailMutation()
+    const [forgotPassword, { isSuccess, error }] = useForgotPasswordMutation()
 
     useEffect(() => {
         if (isSuccess) {
             toast.success('Email sent successfully. Please check your inbox.');
         }
-    })
+    }, [isSuccess, error])
 
     const handleSubmit = async (data: FieldValues) => {
         try {
-            resendEmail({"email":data.email})
+            forgotPassword({"email": data.email})
             console.log(data.email)
         } catch (error) {
             console.log(error)

@@ -20,6 +20,7 @@ import ProductListByCategory from "../features/products/ProductListByCategory";
 import UserProfilePage from "../features/user/UserProfilePage";
 import ForgotPasswordForm from "../features/user/ForgotPasswordForm";
 import VerifyEmail from "../features/user/VerifyEmail";
+import ResetPasswordForm from "../features/user/ResetPasswordForm";
 
 export const router = createBrowserRouter([
     {
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
             {path: '/register', element: <RegisterForm />},
             {path: '/confirm-email', element: <VerifyEmail />},
             {path: '/forgot-password', element: <ForgotPasswordForm />},
+            {path: '/reset-password', element: <ResetPasswordForm />},
             {path: '/order', element: <CheckOutPage />},
             {path: '/order-success', element: <OrderSuccessPage />},
             {path: '/my-orders', element: <MyOrdersPage />},

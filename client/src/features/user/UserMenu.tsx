@@ -11,6 +11,7 @@ import { useLogoutMutation, userApi } from './userApi';
 import { useDispatch } from 'react-redux';
 import { basketApi } from '../../app/api/basketApi';
 import { BasicUser } from '../../lib/types';
+import { clearCurrentUser } from './userSlice';
 
 type Props = {
     currentUser: BasicUser
@@ -39,7 +40,8 @@ export default function UserMenu({currentUser}: Props) {
 
     const handleLogout = () => {
         logoutUser()
-        dispatch(userApi.util.resetApiState());
+        dispatch(clearCurrentUser())
+        dispatch(userApi.util.resetApiState()); //reset api de reset slice
         dispatch(basketApi.util.resetApiState());        
     }
 

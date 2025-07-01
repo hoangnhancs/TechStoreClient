@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Text.Json;
 using API.DTOs;
 using Application.Command.Baskets;
 using Application.DTOs;
@@ -81,15 +82,8 @@ public class AccountController : BaseApiController
         return Ok(new UserDto
         {
             DisplayName = user.DisplayName ?? string.Empty,
-            Email = user.Email ?? string.Empty,
             Id = user.Id,
             ImageUrl = user.ImageUrl ?? string.Empty,
-            TotalSpent = user.TotalSpent,
-            Roles = roles.ToList(),
-            Gender = user.Gender.ToString(),
-            DateOfBirth = user.DateOfBirth,
-            PhoneNumber = user.PhoneNumber ?? string.Empty,
-            // user.Photos,
         });
     }
 
@@ -99,6 +93,7 @@ public class AccountController : BaseApiController
     {
         await signInManager.SignOutAsync();
         Response.Cookies.Delete("access_token");
+        Response.Cookies.Delete("user");
         return NoContent();
     }
 
@@ -138,10 +133,32 @@ public class AccountController : BaseApiController
         var createdToken = await tokenServices.CreateTokenAsync(user);
         Response.Cookies.Append("access_token", createdToken, new CookieOptions
         {
-            HttpOnly = true,
+            HttpOnly = true, //httponly, k cho phep FE doc cookies
             Secure = true,
             SameSite = SameSiteMode.None,
             Expires = DateTime.Now.AddHours(1)
+        });
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        var userInforJson = JsonSerializer.Serialize(new UserDto
+        {
+            DisplayName = user.DisplayName ?? string.Empty,
+            Id = user.Id,
+            ImageUrl = user.ImageUrl ?? string.Empty,
+            Roles = roles.ToList(),
+            DateOfBirth = user.DateOfBirth,
+            PhoneNumber = user.PhoneNumber ?? string.Empty,
+            Gender = user.Gender.ToString(),
+            TotalSpent = user.TotalSpent,
+        }, options); //set cookies nnhung thong tin co ban cua user
+        Response.Cookies.Append("user", userInforJson, new CookieOptions
+        {
+            HttpOnly = false, // cho phep FE doc cookies
+            Secure = true,
+            SameSite = SameSiteMode.None,
         });
         return Ok(new UserDto
         {

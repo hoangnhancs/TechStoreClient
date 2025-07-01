@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Grid, Paper, Typography, Avatar } from "@mui/material";
+import {Grid, Paper, Typography, Avatar, Box } from "@mui/material";
 import CheckOutStepper from "../../layouts/CheckOutStepper";
 import OrderSummary from "./OrderSummary";
 import { Elements } from "@stripe/react-stripe-js";
@@ -10,6 +10,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { useOrderProcessing } from "../../app/hooks/useOrderProcessing";
 import { stripePromise } from "../../app/stripe/stripePromise";
 import { useFetchAddressQuery } from "../../app/api/addressApi";
+import LoadingComponent from "../../components/LoadingComponent";
 
 
 const SummarySection = styled(Paper)(({ theme }) => ({
@@ -77,9 +78,7 @@ export default function CheckOutPage() {
         <Grid container spacing={2}>
             <Grid size={8}>
             {!stripePromise ? (
-                <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-                    <CircularProgress />
-                </Box>
+                <LoadingComponent />
             ) : (
                 <Elements stripe={stripePromise}>
                     <CheckOutStepper 

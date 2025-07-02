@@ -28,10 +28,17 @@ export default function ProductListByCategory() {
     const [openTagId, setOpenTagId] = useState<number | null>(null);
     const selectedFilters = useAppSelector((state) => state.filter.filter);
     const [tmpSelectedFilters, setTmpSelectedFilters] = useState<Record<number, number[]>>(selectedFilters);
-
+    console.log(selectedFilters)
     useEffect(() => {
         setTmpSelectedFilters(selectedFilters);
     }, [selectedFilters]);
+
+    // Cleanup chỉ gọi 1 lần khi component unmount
+    useEffect(() => {
+        return () => {
+            dispatch(clearAllFilters()); 
+        };
+    }, [dispatch]);
 
     const handleSetTmpFilter = (tagId: number, valueId: number) => {
         setTmpSelectedFilters((prev) => {
@@ -112,7 +119,7 @@ export default function ProductListByCategory() {
         const texts: Record<string, string> = {};
         for (const tag in selectedFilters) {
             const tagId = tag;
-            const values = selectedFilters[tag].map(valueId => filterTextMapping[valueId]);
+            const values = selectedFilters[tag].map((valueId: number) => filterTextMapping[valueId]);
             texts[tagId] = values.join(' | ');
         }
         return texts;

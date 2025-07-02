@@ -65,7 +65,9 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
     }
 
     const handleAddressChange = (address: Address) => {
-        setSelectedAddress(address);
+        setSelectedAddress(address); 
+        //callback update selected address tu dialog
+        //khi thuc hien update address
         onAddressChange(address)
     }
 

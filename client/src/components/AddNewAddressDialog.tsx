@@ -5,10 +5,6 @@ import { Checkbox } from "@mui/material";
 import { Address, District, Province, Ward } from "../lib/types";
 import { useCreateAddressMutation, useUpdateAddressMutation } from "../app/api/addressApi";
 
-
-
-
-
 type Props = {
     open: boolean,
     onClose: () => void

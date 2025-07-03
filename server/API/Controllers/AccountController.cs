@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using API.DTOs;
@@ -6,27 +7,37 @@ using Application.Command.Baskets;
 using Application.DTOs;
 using Application.Interface;
 using Domain.Entities;
+using Domain.Interfaces;
+using Domain.Interfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Persistence;
 
 namespace API.Controllers;
 
 public class AccountController : BaseApiController
 {
-    private readonly SignInManager<User> signInManager;
-    private readonly ITokenServices tokenServices;
-    private readonly IConfiguration config;
-    private readonly IEmailSender<User> emailSender;
+    private readonly SignInManager<User> _signInManager;
+    private readonly ITokenServices _tokenServices;
+    private readonly IConfiguration _config;
+    private readonly IEmailSender<User> _emailSender;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IHttpContextAccessorHelper _httpContextAccessorHelper;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public AccountController(SignInManager<User> signInManager, ITokenServices tokenServices, IConfiguration config, IEmailSender<User> emailSender)
+    public AccountController(SignInManager<User> signInManager, ITokenServices tokenServices, IConfiguration config, IEmailSender<User> emailSender,
+                            IRefreshTokenRepository refreshTokenRepository, IHttpContextAccessorHelper httpContextAccessorHelper, IUnitOfWork unitOfWork)
     {
-        this.signInManager = signInManager;
-        this.tokenServices = tokenServices;
-        this.config = config;
-        this.emailSender = emailSender;
+        _signInManager = signInManager;
+        _tokenServices = tokenServices;
+        _config = config;
+        _emailSender = emailSender;
+        _refreshTokenRepository = refreshTokenRepository;
+        _httpContextAccessorHelper = httpContextAccessorHelper;
+        _unitOfWork = unitOfWork;
     }
     [AllowAnonymous]
     [HttpPost("register")]
@@ -39,7 +50,7 @@ public class AccountController : BaseApiController
             DisplayName = registerDto.DisplayName,
         };
 
-        var result = await signInManager.UserManager.CreateAsync(user, registerDto.Password);
+        var result = await _signInManager.UserManager.CreateAsync(user, registerDto.Password);
 
 
         if (!result.Succeeded)
@@ -52,7 +63,7 @@ public class AccountController : BaseApiController
         }
 
         await Mediator.Send(new CreateBasketCommand { UserId = user.Id });
-        await signInManager.UserManager.AddToRoleAsync(user, "Member");
+        await _signInManager.UserManager.AddToRoleAsync(user, "Member");
 
 
         return Ok(new UserDto
@@ -73,17 +84,19 @@ public class AccountController : BaseApiController
     {
         if (User.Identity?.IsAuthenticated == false) return NoContent();
 
-        var user = await signInManager.UserManager.GetUserAsync(User);
+        var user = await _signInManager.UserManager.GetUserAsync(User);
 
         if (user == null) return Unauthorized();
 
-        var roles = await signInManager.UserManager.GetRolesAsync(user);
+        var roles = await _signInManager.UserManager.GetRolesAsync(user);
+        List<string> listRoles = new List<string>(roles);
 
         return Ok(new UserDto
         {
             DisplayName = user.DisplayName ?? string.Empty,
             Id = user.Id,
             ImageUrl = user.ImageUrl ?? string.Empty,
+            Roles = listRoles,
         });
     }
 
@@ -91,8 +104,20 @@ public class AccountController : BaseApiController
 
     public async Task<ActionResult> Logout()
     {
-        await signInManager.SignOutAsync();
+        await _signInManager.SignOutAsync();
+        var token = Request.Cookies["refresh_token"];
+        string ipAddress = _httpContextAccessorHelper.GetClientIp();
+        if (!string.IsNullOrEmpty(token))
+        {
+            var refreshToken = await _refreshTokenRepository.GetByTokenAsync(token);
+            if (refreshToken != null && refreshToken.IsActive)
+            {
+                await _refreshTokenRepository.RevokeAsync(token, ipAddress, "logout");
+                await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+            }
+        }
         Response.Cookies.Delete("access_token");
+        Response.Cookies.Delete("refresh_token");
         Response.Cookies.Delete("user");
         return NoContent();
     }
@@ -101,11 +126,11 @@ public class AccountController : BaseApiController
     [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<ActionResult> ChangePassword(ChangePasswordDto passwordDto)
     {
-        var user = await signInManager.UserManager.GetUserAsync(User);
+        var user = await _signInManager.UserManager.GetUserAsync(User);
 
         if (user == null) return Unauthorized();
 
-        var result = await signInManager.UserManager
+        var result = await _signInManager.UserManager
             .ChangePasswordAsync(user, passwordDto.CurrentPassword, passwordDto.NewPassword);
 
         if (result.Succeeded) return Ok("Change password successfully for user " + user.UserName);
@@ -117,7 +142,7 @@ public class AccountController : BaseApiController
     [HttpPost("login")]
     public async Task<ActionResult> Login(LoginDto loginDto)
     {
-        var result = await signInManager.PasswordSignInAsync(
+        var result = await _signInManager.PasswordSignInAsync(
             loginDto.Email,
             loginDto.Password,
             isPersistent: true,  // Set to true if you want "remember me" functionality
@@ -125,18 +150,30 @@ public class AccountController : BaseApiController
 
         if (!result.Succeeded) return Unauthorized();
 
-        var user = await signInManager.UserManager.FindByEmailAsync(loginDto.Email);
+        var user = await _signInManager.UserManager.FindByEmailAsync(loginDto.Email);
 
         if (user == null) return Unauthorized();
 
-        var roles = await signInManager.UserManager.GetRolesAsync(user);
-        var createdToken = await tokenServices.CreateTokenAsync(user);
-        Response.Cookies.Append("access_token", createdToken, new CookieOptions
+        var roles = await _signInManager.UserManager.GetRolesAsync(user);
+        var accessToken = await _tokenServices.CreateAccessTokenAsync(user);
+        Response.Cookies.Append("access_token", accessToken, new CookieOptions
         {
             HttpOnly = true, //httponly, k cho phep FE doc cookies
             Secure = true,
             SameSite = SameSiteMode.None,
             Expires = DateTime.Now.AddHours(1)
+        });
+        var ipAddress = _httpContextAccessorHelper.GetClientIp();
+        var refreshToken = _tokenServices.CreateRefreshToken(user, ipAddress);
+        await _refreshTokenRepository.AddAsync(refreshToken);
+        await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+
+        Response.Cookies.Append("refresh_token", refreshToken.Token, new CookieOptions
+        {
+            HttpOnly = true, //httponly, k cho phep FE doc cookies
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = refreshToken.Expires
         });
 
         var options = new JsonSerializerOptions
@@ -173,6 +210,52 @@ public class AccountController : BaseApiController
     }
 
     [AllowAnonymous]
+    [HttpPost("refreshToken")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        //b1: lay rf token tu cookie
+        var refreshToken = Request.Cookies["refresh_token"];
+        if (string.IsNullOrEmpty(refreshToken)) return Unauthorized();
+
+        //b2: kiem tra rf token co hop le khong, neu co thi revoke and replace by token moi
+        var tokenInDb = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+        if (tokenInDb == null || !tokenInDb.IsActive) return Unauthorized();
+
+        var user = await _signInManager.UserManager.FindByIdAsync(tokenInDb.UserId);
+        if (user == null) return Unauthorized();
+
+        var newAccessToken = await _tokenServices.CreateAccessTokenAsync(user);
+        var ipAddress = _httpContextAccessorHelper.GetClientIp();
+        var newRefreshToken = _tokenServices.CreateRefreshToken(user, ipAddress);
+
+        tokenInDb.Revoked = DateTime.UtcNow;
+        tokenInDb.ReplacedByToken = newRefreshToken.Token;
+
+        //b3: cap nhat rf token moi vao db va update token cu
+        await _refreshTokenRepository.AddAsync(newRefreshToken);
+        await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+
+        //b4: gan vao response
+        Response.Cookies.Append("access_token", newAccessToken, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = DateTime.Now.AddHours(1)
+        });
+
+        Response.Cookies.Append("refresh_token", newRefreshToken.Token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = newRefreshToken.Expires
+        });
+        
+        return Ok();
+    }
+
+    [AllowAnonymous]
     [HttpPost("resendConfirmEmail")]
     public async Task<IActionResult> ResendConfirmEmail([FromBody]ForgotPasswordDto fgpDto)
     {
@@ -180,7 +263,7 @@ public class AccountController : BaseApiController
         {
             return BadRequest("Email or UserId must be provided");
         }
-        var user = await signInManager.UserManager.Users.FirstOrDefaultAsync(x => x.Email == fgpDto.Email || x.Id == fgpDto.UserId);
+        var user = await _signInManager.UserManager.Users.FirstOrDefaultAsync(x => x.Email == fgpDto.Email || x.Id == fgpDto.UserId);
 
         if (user == null || string.IsNullOrEmpty(user.Email))
             return BadRequest("User not found or email not valid");
@@ -192,9 +275,9 @@ public class AccountController : BaseApiController
 
     private async Task SendConfirmationEmailAsync(User user, string email)
     {
-        var code = await signInManager.UserManager.GenerateEmailConfirmationTokenAsync(user);
+        var code = await _signInManager.UserManager.GenerateEmailConfirmationTokenAsync(user);
         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-        var confirmEmailUrl = $"{config["ClientAppUrl"]}/confirm-email?userId={user.Id}&code={code}";
-        await emailSender.SendConfirmationLinkAsync(user, email, confirmEmailUrl);
+        var confirmEmailUrl = $"{_config["ClientAppUrl"]}/confirm-email?userId={user.Id}&code={code}";
+        await _emailSender.SendConfirmationLinkAsync(user, email, confirmEmailUrl);
     }
 }

@@ -9,6 +9,7 @@ using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Infrastructure.Email;
+using Infrastructure.Helper;
 using Infrastructure.Security;
 using Infrastructure.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -66,6 +67,11 @@ builder.Services.AddScoped<IFilterTagRepository, FilterTagRepository>();
 builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IUserAccessor, UserAccessor>();
 builder.Services.AddScoped<ITokenServices, TokenServices>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<IHttpContextAccessorHelper, HttpContextAccessorHelper>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
+
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 builder.Services.AddHttpContextAccessor();

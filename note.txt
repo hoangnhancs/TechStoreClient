@@ -165,3 +165,18 @@ Case	Cookie sống lâu?	Đóng trình duyệt có mất login?	Check security s
 ValidationInterval = 15, IsPersistent = true	✅ Có	❌ Không	✅ Mỗi 15 phút	✅ Nếu security_stamp thay đổi
 ValidationInterval = 15, IsPersistent = false	❌ Không	✅ Có	✅ Nếu tab còn mở	❌ Vì tab đóng là mất rồi
 Không có cả 2	❌ Không	✅ Có	✅ Mỗi 30 phút (mặc định)	✅ Nếu security_stamp thay đổi
+
+jwt token còn hạn, mặc dù óng xong mở lại vẫn ok
+Chính xác, unwrap() giúp bắt lỗi tốt hơn rất nhiều. Lý do là vì nó biến một mutation của RTK Query thành một Promise chuẩn, cho phép bạn sử dụng cú pháp async/await với try...catch một cách tự nhiên và mạnh mẽ.
+
+Hãy so sánh hai cách tiếp cận:
+
+1. Không dùng unwrap()
+Khi bạn gọi deleteAddress(addressToDeleteId), nó chỉ đơn giản là kích hoạt (trigger) mutation. Nó không trả về một Promise mà bạn có thể await để biết kết quả.
+
+Để bắt lỗi, bạn phải theo dõi các trạng thái do hook trả về:
+Khi bạn gọi await deleteAddress(addressToDeleteId).unwrap(), nó sẽ trả về một Promise:
+
+Nếu mutation thành công, Promise sẽ resolve.
+Nếu mutation thất bại, Promise sẽ reject và ném ra một lỗi (throw an error).
+Điều này cho phép bạn bọc nó trong một khối try...catch quen thuộc:

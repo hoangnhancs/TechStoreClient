@@ -1,19 +1,42 @@
-import { useFetchAddressQuery } from "../../app/api/addressApi"
+import { useDeleteAddressMutation, useFetchAddressQuery } from "../../app/api/addressApi"
 import { Box, Button, Divider, Grid, Typography } from "@mui/material"
 import { Address, District, Province, Ward } from "../../lib/types";
 import { useState } from "react";
 import axios from "axios";
 import AddNewAddressDialog from "../../components/AddNewAddressDialog";
+import { toast } from "react-toastify";
+import YesNoDialog from "../../components/YesNoDialog";
 
 export default function UserProfileAddress() {
   const [dialogMode, setDialogMode] = useState<"add" | "update">("add");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [deleteAddress] = useDeleteAddressMutation();
+  const [addressToDeleteId, setAddressToDeleteId] = useState<string | null>(null);
+  const [deleteAddressDialogOpen, setDeleteAddressDialogOpen] = useState(false);
   const [dialogData, setDialogData] = useState<{
       provinces: Province[] | null,
       districts: District[] | null,
       wards: Ward[] | null}>({provinces: null, districts: null, wards: null});
   const {data: addresses} = useFetchAddressQuery()
+  const handleDeleteAddress = async() => {
+    try {
+      if (addressToDeleteId){
+        await deleteAddress(addressToDeleteId);
+      }
+      setDeleteAddressDialogOpen(false);
+      setAddressToDeleteId(null);
+      toast.success("Address deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete address:" + error);
+    }
+  };
+
+  const handleOpenDeleteDialog = (addressId: string) => {
+    setAddressToDeleteId(addressId);
+    setDeleteAddressDialogOpen(true);
+  }
+
   const flattenedAddress = (address: Address): string[] => {
     return [
         address.fullName ?? "",
@@ -114,7 +137,10 @@ export default function UserProfileAddress() {
                       <Button onClick={() => handleOpenUpdateAddress(address)} variant="outlined" sx={{ alignItems: "center", height: "30%"}}>
                           Cập nhật
                       </Button >   
-                      {!address.isDefault && (<Button variant="outlined" color="error" sx={{ alignItems: "center", height: "30%", ml: 1}}>Xóa</Button>)}
+                      {!address.isDefault && address.id && (
+                        <Button onClick={() => handleOpenDeleteDialog(address.id!)} variant="outlined" color="error" sx={{ alignItems: "center", height: "30%", ml: 1}}>
+                          Xóa
+                        </Button>)}
                     </Grid>
                 </Grid>
             </Box>
@@ -141,6 +167,15 @@ export default function UserProfileAddress() {
         onClearDialogData={handleClearDialogData}
         // onRefetchAddresses={onRefetchAddresses}
       />}
+      {(
+        <YesNoDialog
+          title="Xóa địa chỉ"
+          description="Bạn có chắc chắn muốn xóa địa chỉ này không?"
+          open={deleteAddressDialogOpen}
+          onClose={() => setDeleteAddressDialogOpen(false)}
+          onOk={handleDeleteAddress}
+        />
+      )}
     </> 
   )
 }

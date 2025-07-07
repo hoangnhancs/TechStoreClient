@@ -61,6 +61,10 @@ public class AccountController : BaseApiController
             }
             return BadRequest(ModelState); // lỗi tạo user
         }
+        else
+        {
+            await SendConfirmationEmailAsync(user, registerDto.Email);
+        }
 
         await Mediator.Send(new CreateBasketCommand { UserId = user.Id });
         await _signInManager.UserManager.AddToRoleAsync(user, "Member");

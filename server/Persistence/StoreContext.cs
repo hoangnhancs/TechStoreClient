@@ -22,6 +22,7 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
     public required DbSet<Review> Reviews { get; set; }
     public required DbSet<FilterTag> FilterTags { get; set; }
     public required DbSet<FilterTagValue> FilterTagValues { get; set; }
+    public required DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -70,6 +71,13 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
             .HasOne(ptf => ptf.FilterTagValue)
             .WithMany()
             .HasForeignKey(ptf => ptf.FilterTagValueId)
-            .OnDelete(DeleteBehavior.NoAction); 
+            .OnDelete(DeleteBehavior.NoAction);
+        builder.Entity<RefreshToken>()
+            .HasKey(r => r.Id);
+        builder.Entity<RefreshToken>()
+            .HasOne(r => r.User)
+            .WithMany(u => u.RefreshTokens)
+            .HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

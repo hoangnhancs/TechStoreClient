@@ -5,7 +5,7 @@ import { Outlet, useLocation } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "./hooks"
 import LoadingOverlay from "./components/LoadingOverlay"
 import { useEffect } from "react"
-import { setCurrentUser } from "./features/user/userSlice"
+import { clearCurrentUser, setCurrentUser } from "./features/user/userSlice"
 
 
 function App() {
@@ -15,6 +15,7 @@ function App() {
   const location = useLocation()
   const shouldHideNav = hideNavRoutes.includes(location.pathname);
   const dispatch = useAppDispatch();
+
   useEffect(() => {
     const raw = document.cookie.split(";").find(c => c.trim().startsWith("user="));
     if (raw) {
@@ -26,6 +27,9 @@ function App() {
       } catch {
         // invalid cookie format
       }
+    }
+    else {
+      dispatch(clearCurrentUser());
     }
   }, [dispatch]);
   const theme = createTheme({

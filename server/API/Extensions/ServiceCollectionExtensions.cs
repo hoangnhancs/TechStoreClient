@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication;
+using Newtonsoft.Json;
 
 namespace API.Extensions;
 
@@ -19,9 +20,11 @@ public static class ServiceCollectionExtensions
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(options =>
         {
+            options.SaveToken = true;
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
@@ -32,8 +35,45 @@ public static class ServiceCollectionExtensions
                 ValidAudience = config["Jwt:Audience"],
                 IssuerSigningKey = signingKey
             };
-        });
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    context.Request.Cookies.TryGetValue("access_token", out var accessToken);
+                    if (!string.IsNullOrEmpty(accessToken))
+                    {
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                },
+                OnAuthenticationFailed = context =>
+                {
+                    if (context.Exception is SecurityTokenExpiredException)
+                    {
+                        // Chỉ append khi request CÓ token và token bị hết hạn
+                        // var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
+                        // if (!string.IsNullOrEmpty(authHeader))
+                        // {
+                        //     context.Response.Headers.Append("token-expired2", "true");
+                        // }
+                        // Console.WriteLine("token_expired");
+                        // context.Response.StatusCode = 401;
+                        // context.Response.ContentType = "application/json";
+                        // return context.Response.WriteAsync(JsonConvert.SerializeObject(new
+                        // {
+                        //     error = "token_expired2",
+                        //     message = "Access token is expired"
+                        // }));
+                        if (context.Request.Cookies.TryGetValue("access_token", out var _))
+                            context.Response.Headers.Append("token-expired", "true");
+                        context.Response.StatusCode = 401;
+                    }
 
+                        return Task.CompletedTask;
+                }
+            };
+
+        });
         return services;
     }
     public static IServiceCollection AddAppCookiePolicy(this IServiceCollection services)

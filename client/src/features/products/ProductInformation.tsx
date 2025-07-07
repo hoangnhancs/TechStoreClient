@@ -1,15 +1,15 @@
 import { Box, Button, Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import LoginPromptDialog from "../../components/LoginPromptDialog";
-import { useGetCurrentUserQuery } from "../user/userApi";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation, Thumbs } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';  
 import ProductAttributesPrompt from "../../components/ProductAttributesPrompt";
 import type { Swiper as SwiperType } from 'swiper';
 import { useAddBasketItemMutation } from "../../app/api/basketApi";
-import { Product } from "../../lib/types";
+import { Product, User } from "../../lib/types";
 import LoadingComponent from "../../components/LoadingComponent";
+import { toast } from "react-toastify";
 
 // Import modules
 
@@ -22,22 +22,31 @@ interface ColorOptions {
 
 type Props = {
     product: Product | undefined;
+    currentUser: User | null;
 }
 
-export default function ProductInformation({product}: Props) { 
+export default function ProductInformation({product, currentUser}: Props) { 
     const [openAttributesDetails, setOpenAttributesDetails] = useState(false);
-    const {data} = useGetCurrentUserQuery();
+    // const {data} = useGetCurrentUserQuery();
     const [addItem] = useAddBasketItemMutation();
     const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
     const [quantity, setQuantity] = useState(1);
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
     const handleAddToCart = () => {
-        if (!data?.id) {
+        if (!currentUser?.id) {
             setOpenLoginPrompt(true); 
         }
         else{
             if (product) {
-                addItem({product: product, quantity: quantity});
+                addItem({product: product, quantity: quantity})
+                .unwrap()
+                .then(() => {
+                    toast.success(`Đã thêm ${quantity} sản phẩm ${product.name} vào giỏ hàng.`);
+                })
+                .catch(error => {
+                    console.error('Error adding item to cart:', error);
+                    toast.error('Could not add item to cart. Please try again.');
+                });
             }
         }
     }

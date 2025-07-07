@@ -30,7 +30,7 @@ import { addressApi } from "../api/addressApi";
 import { filterTagValueApi } from "../api/filterTagValueApi";
 import { filterTagApi } from "../api/filterTagApi";
 
-// ✅ Root reducer with ALL slices
+//Root reducer with ALL slices
 export const rootReducer = combineReducers({
   [productApi.reducerPath]: productApi.reducer,
   [errorApi.reducerPath]: errorApi.reducer,
@@ -50,17 +50,17 @@ export const rootReducer = combineReducers({
   filter: filterReducer,
 });
 
-// ✅ Persist config: chỉ persist basket và filter
+//Persist config: chỉ persist basket và filter
 const persistConfig = {
   key: "root",
   storage: storageSession,
   whitelist: ["basket", "filter"],
 };
 
-// ✅ Create persistedReducer (wrapped version of rootReducer)
+//Create persistedReducer (wrapped version of rootReducer)
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// ✅ Store setup
+//Store setup
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
@@ -81,5 +81,5 @@ export const store = configureStore({
     ),
 });
 
-// ✅ Persistor instance
+//Persistor instance
 export const persistor = persistStore(store);

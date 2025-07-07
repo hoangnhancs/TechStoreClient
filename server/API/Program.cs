@@ -12,6 +12,7 @@ using Infrastructure.Email;
 using Infrastructure.Helper;
 using Infrastructure.Security;
 using Infrastructure.Service;
+using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -82,6 +83,11 @@ builder.Services.AddIdentityApiEndpoints<User>(opt =>
 })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<StoreContext>();
+// builder.Services.Configure<BearerTokenOptions>(options =>
+// {
+//     options.BearerTokenExpiration = TimeSpan.FromMinutes(3); // access token sống 3 phút
+//     options.RefreshTokenExpiration = TimeSpan.FromDays(7);   // refresh token sống 7 ngày
+// });
 builder.Services.AddAuthorization(opt =>
 {
     opt.AddPolicy("SecurityStampRequirement", policy =>
@@ -143,7 +149,8 @@ app.UseCors(options =>
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials()
-        .WithOrigins("https://localhost:3000");
+        .WithOrigins("https://localhost:3000")
+        .WithExposedHeaders("token-expired", "token-expired2", "token-expired3");
 });
 
 // app.Use(async (context, next) =>

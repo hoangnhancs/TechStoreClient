@@ -29,7 +29,7 @@ export default function ProductCard({product}: Props) {
         })
         .unwrap()
         .then(() => {
-            toast.success(`Added ${product.name} to your cart`);
+            toast.success(`Đã thêm sản phẩm ${product.name} vào giỏ hàng.`);
         })
         .catch(error => {
             console.error('Error adding item to cart:', error);

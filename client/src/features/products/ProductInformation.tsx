@@ -22,7 +22,7 @@ interface ColorOptions {
 
 type Props = {
     product: Product | undefined;
-    currentUser: User | null;
+    currentUser: User | undefined;
 }
 
 export default function ProductInformation({product, currentUser}: Props) { 

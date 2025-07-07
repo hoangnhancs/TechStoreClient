@@ -2,10 +2,9 @@
 import { Box, Container, createTheme, CssBaseline, ThemeProvider } from "@mui/material"
 import NavBar from "./layouts/NavBar"
 import { Outlet, useLocation } from "react-router-dom"
-import { useAppDispatch, useAppSelector } from "./hooks"
+import { useAppSelector } from "./hooks"
 import LoadingOverlay from "./components/LoadingOverlay"
-import { useEffect } from "react"
-import { clearCurrentUser, setCurrentUser } from "./features/user/userSlice"
+
 
 
 function App() {
@@ -14,24 +13,24 @@ function App() {
   const palletteType = isDarkMode ? 'dark' : 'light'
   const location = useLocation()
   const shouldHideNav = hideNavRoutes.includes(location.pathname);
-  const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    const raw = document.cookie.split(";").find(c => c.trim().startsWith("user="));
-    if (raw) {
-      try {
-        const decoded = decodeURIComponent(raw.replace("user=", ""));
-        const userObj = JSON.parse(decoded);
-        dispatch(setCurrentUser(userObj));
-        console.log(userObj);
-      } catch {
-        // invalid cookie format
-      }
-    }
-    else {
-      dispatch(clearCurrentUser());
-    }
-  }, [dispatch]);
+
+  // useEffect(() => {
+  //   const raw = document.cookie.split(";").find(c => c.trim().startsWith("user="));
+  //   if (raw) {
+  //     try {
+  //       const decoded = decodeURIComponent(raw.replace("user=", ""));
+  //       const userObj = JSON.parse(decoded);
+  //       dispatch(setCurrentUser(userObj));
+  //       console.log(userObj);
+  //     } catch {
+  //       // invalid cookie format
+  //     }
+  //   }
+  //   else {
+  //     dispatch(clearCurrentUser());
+  //   }
+  // }, [dispatch]);
   const theme = createTheme({
     palette: {
       mode: palletteType,

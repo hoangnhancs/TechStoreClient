@@ -11,7 +11,7 @@ import ReviewItem from "../../components/ReviewItem"
 
 type Props = {
     productName: string
-    currentUser: User | null
+    currentUser: User | undefined | null
 }
 
 export default function ReviewList({ productName, currentUser }: Props) {

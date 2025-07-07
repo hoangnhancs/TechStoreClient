@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { passwordRules } from "../../../lib/util/util";
 
-export const resetPwSchema = z
+export const changePasswordSchema = z
   .object({
+    currentPassword: passwordRules("Current Password"),
     password: passwordRules("Password"),
     confirmPassword: passwordRules("Confirm Password"),
   })
@@ -11,4 +12,4 @@ export const resetPwSchema = z
     path: ["confirmPassword"], 
   });
 
-export type ResetPwSchema = z.infer<typeof resetPwSchema>;
+export type ChangePasswordSchema = z.infer<typeof changePasswordSchema>;

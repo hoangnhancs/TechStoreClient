@@ -8,7 +8,7 @@ export const registerSchema = z.object({
     password: passwordRules("Password"),
     confirmPassword: passwordRules("Confirm Password")
 }).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: "Passwords do not match",
     path: ["confirmPassword"],
 })
 

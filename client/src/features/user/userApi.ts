@@ -6,6 +6,9 @@ export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: baseQueryWithErrorHandling,
   tagTypes: ["User", "Basket"],
+  refetchOnMountOrArgChange: true, // Khi tải lại trang/chuyển trang
+  refetchOnFocus: true, // Khi quay lại tab
+  refetchOnReconnect: true, // Khi có kết nối mạng trở lại
   endpoints: (builder) => ({
     getCurrentUser: builder.query<User, void>({
       query: () => ({ url: "/account/user-info", method: "GET" }),
@@ -24,7 +27,15 @@ export const userApi = createApi({
       query: () => ({ url: "/account/logout", method: "POST" }),
       invalidatesTags: ["User", "Basket"],
     }),
-    register: builder.mutation<User,{email: string;displayName: string;password: string;confirmPassword: string;}>({
+    register: builder.mutation<
+      User,
+      {
+        email: string;
+        displayName: string;
+        password: string;
+        confirmPassword: string;
+      }
+    >({
       query: (credentials) => ({
         url: "/account/register",
         method: "POST",
@@ -32,7 +43,10 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User", "Basket"],
     }),
-    resendConfirmEmail: builder.mutation<void, { email?: string, userId?: string | null }>({
+    resendConfirmEmail: builder.mutation<
+      void,
+      { email?: string; userId?: string | null }
+    >({
       query: (credentials) => ({
         url: "/account/resendConfirmEmail",
         method: "POST",
@@ -45,20 +59,23 @@ export const userApi = createApi({
         method: "GET",
       }),
     }),
-    forgotPassword: builder.mutation<void, {email: string}>({
+    forgotPassword: builder.mutation<void, { email: string }>({
       query: (credentials) => ({
         url: "/forgotPassword",
         method: "POST",
         body: credentials,
       }),
     }),
-    resetPassword: builder.mutation<void, {email: string; newPassword: string; resetCode: string; }>({
+    resetPassword: builder.mutation<
+      void,
+      { email: string; newPassword: string; resetCode: string }
+    >({
       query: (credentials) => ({
         url: "/resetPassword",
         method: "POST",
         body: credentials,
       }),
-    })
+    }),
   }),
 });
 

@@ -14,8 +14,6 @@ import { useGetCurrentUserQuery } from "../features/user/userApi";
 
 
 
-
-
 const midLinks = [
     {title: 'products', path: '/products'},
     {title: 'about', path: '/about'},
@@ -31,32 +29,13 @@ const rightLinks = [
 export default function NavBar() {
 
   const {isLoading, isDarkMode} = useAppSelector(state => state.ui)
-  // const [userInfoJson, setUserInfoJson] = useState<BasicUser | null>(null)
-  // const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
+  // const currentUser = useAppSelector(state => state.user.currentUser);
   const {data: currentUser} = useGetCurrentUserQuery()
   const {data: basket} = useFetchBasketQuery(undefined, {
     skip: !currentUser})
   const dispatch = useAppDispatch()
   const theme = useTheme();
-  // const userInfoCookie = document.cookie.split(';').find(c => c.trim().startsWith('user='))?.replace('user=', '');
-  
-  
-  // const {data: currentUser} = useGetCurrentUserQuery();
-  // const currentUser = useAppSelector(state => state.user.currentUser);
-  
-  // useEffect(() => {
-  //   if (userInfoCookie) {
-  //     const decode = decodeURIComponent(userInfoCookie)
-  //     const userInfo = JSON.parse(decode)
-  //     console.log(userInfo)
-  //     console.log(userInfoCookie)
-  //     setUserInfoJson(userInfo);
-  //   } else {
-  //     setUserInfoJson(null);
-  //   }
-  // }, [userInfoCookie])
-
-  
+   
 
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);

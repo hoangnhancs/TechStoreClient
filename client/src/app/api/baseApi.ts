@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { router } from "../../router/Routes";
 import { LoadingPriority, startLoading, stopLoading } from "../../layouts/uiSlice";
 import { clearCurrentUser } from "../../features/user/userSlice";
+import { userApi } from "../../features/user/userApi";
 
 type CustomError = | string | {message: string} | {errors: string [], title: string}
 
@@ -52,6 +53,7 @@ export const baseQueryWithErrorHandling = async (
       } else {
         console.log("refresh not ok", refresh.data);
         api.dispatch(clearCurrentUser());
+        api.dispatch(userApi.util.invalidateTags(["User"]));
         return refresh;
       }
     }

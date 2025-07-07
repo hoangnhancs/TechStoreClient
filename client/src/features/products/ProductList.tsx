@@ -2,9 +2,11 @@ import { Box, Grid } from "@mui/material"
 import ProductCard from "./ProductCard"
 import { useFetchTop10ProductsQuery,   } from "../../app/api/productApi"
 import LoadingComponent from "../../components/LoadingComponent"
+import { useGetCurrentUserQuery } from "../user/userApi"
 
 export default function ProductList() {
     const {data, isLoading} = useFetchTop10ProductsQuery()
+    const {data: currentUser} = useGetCurrentUserQuery()
     // const {data, isLoading} = useFetchProductsQuery()
 
     if (isLoading || !data) 
@@ -22,7 +24,7 @@ export default function ProductList() {
                         size={{ xs: 1, sm: 3, md: 3 }} 
                         key={product.id}
                     >
-                        <ProductCard product={product} />
+                        <ProductCard product={product} currentUser={currentUser}/>
                     </Grid>
                 ))}
             </Grid>

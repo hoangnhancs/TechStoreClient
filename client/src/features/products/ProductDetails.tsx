@@ -4,15 +4,16 @@ import ReviewList from "../review/ReviewList";
 import ProductInformation from "./ProductInformation";
 import { useFetchProductByIdQuery } from "../../app/api/productApi";
 import LoadingComponent from "../../components/LoadingComponent";
-import { useAppSelector } from "../../hooks";
+import { useGetCurrentUserQuery } from "../user/userApi";
+
 
 
 export default function ProductDetails() {
     const { id } = useParams();
-    const {data: product, isLoading: isLoading} = useFetchProductByIdQuery(id ?? '')
-    // const {data: currentUser} = useGetCurrentUserQuery()
-    const currentUser = useAppSelector(state => state.user.currentUser)
-    if (isLoading || !product) {
+    const {data: product, isLoading: isLoadingProduct} = useFetchProductByIdQuery(id ?? '')
+    const {data: currentUser, isLoading: isLoadingCurrentUser} = useGetCurrentUserQuery()
+    // const currentUser = useAppSelector(state => state.user.currentUser)
+    if (isLoadingProduct || isLoadingCurrentUser || !product) {
         return (
             <LoadingComponent />
         );

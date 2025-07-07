@@ -1,20 +1,21 @@
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
-import {  Product } from "../../lib/types";
+import {  Product, User } from "../../lib/types";
 import { Link } from "react-router-dom";
 import discount from '../../assets/discount.png';
 import { useState } from "react";
 import LoginPromptDialog from "../../components/LoginPromptDialog";
 import { toast } from "react-toastify";
 import { useAddBasketItemMutation } from "../../app/api/basketApi";
-import { useAppSelector } from "../../hooks";
+import { useGetCurrentUserQuery } from "../user/userApi";
 
 type Props = {
-    product: Product
+    product: Product;
+    currentUser:User | undefined | null;
 }
 
 export default function ProductCard({product}: Props) {
     const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
-    const currentUser = useAppSelector(state => state.user.currentUser);
+    const {data: currentUser} = useGetCurrentUserQuery()
     const [addBasketItem] = useAddBasketItemMutation()
     const handleAddToCart = () => {
         console.log(currentUser)

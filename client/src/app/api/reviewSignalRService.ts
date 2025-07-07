@@ -25,7 +25,7 @@ class ReviewSignalRServiceClass {
       this.hubConnection.state === signalR.HubConnectionState.Connected &&
       this.activeProductId == productId
     ) {
-      console.log(`Reviews hub already connected to product ${productId}`);
+      // console.log(`Reviews hub already connected to product ${productId}`);
       return Promise.resolve();
     }
 
@@ -34,9 +34,9 @@ class ReviewSignalRServiceClass {
       this.hubConnection.state === signalR.HubConnectionState.Connected &&
       this.activeProductId != productId
     ) {
-      console.log(
-        `Reviews hub switching from product ${this.activeProductId} to product ${productId}`
-      );
+      // console.log(
+      //   `Reviews hub switching from product ${this.activeProductId} to product ${productId}`
+      // );
       await this.hubConnection.stop();
     }
 
@@ -50,7 +50,6 @@ class ReviewSignalRServiceClass {
           skipNegotiation: true,
         })
         .withAutomaticReconnect([0, 2000, 5000, 10000, 20000])
-        .configureLogging(signalR.LogLevel.Debug)
         .build();
 
       newConnection.off("ReceiveReview");
@@ -64,9 +63,9 @@ class ReviewSignalRServiceClass {
       while (retries > 0) {
         try {
           await newConnection.start();
-          console.log(
-            "Reviews hub SignalR connected successfully after retries"
-          );
+          // console.log(
+          //   "Reviews hub SignalR connected successfully after retries"
+          // );
           this.activeProductId = productId;
           this.hubConnection = newConnection;
 
@@ -117,7 +116,7 @@ class ReviewSignalRServiceClass {
           }
         }
         await this.hubConnection.stop();
-        console.log("SignalR connection stopped");
+        // console.log("SignalR connection stopped");
       }
     } catch (err) {
       console.error("Error while stopping connection: ", err);

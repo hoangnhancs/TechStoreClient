@@ -194,7 +194,7 @@ public class AccountController : BaseApiController
             PhoneNumber = user.PhoneNumber ?? string.Empty,
             Gender = user.Gender.ToString(),
             TotalSpent = user.TotalSpent,
-        }, options); //set cookies nnhung thong tin co ban cua user
+        }, options); //set cookies nhung thong tin co ban cua user
         Response.Cookies.Append("user", userInforJson, new CookieOptions
         {
             HttpOnly = false, // cho phep FE doc cookies
@@ -234,10 +234,7 @@ public class AccountController : BaseApiController
         var ipAddress = _httpContextAccessorHelper.GetClientIp();
         var newRefreshToken = _tokenServices.CreateRefreshToken(user, ipAddress);
 
-        tokenInDb.Revoked = DateTime.UtcNow;
-        tokenInDb.RevokedByIp = ipAddress;
-        tokenInDb.ReasonRevoked = "refresh";
-        tokenInDb.ReplacedByToken = newRefreshToken.Token;
+        await _refreshTokenRepository.RevokeAsync(refreshToken, ipAddress, "refresh"); //revoke refresh token cu
 
         //b3: cap nhat rf token moi vao db va update token cu
         await _refreshTokenRepository.AddAsync(newRefreshToken);
@@ -275,7 +272,7 @@ public class AccountController : BaseApiController
             PhoneNumber = user.PhoneNumber ?? string.Empty,
             Gender = user.Gender.ToString(),
             TotalSpent = user.TotalSpent,
-        }, options); //set cookies nnhung thong tin co ban cua user
+        }, options); //set cookies nhung thong tin co ban cua user
         Response.Cookies.Append("user", userInforJson, new CookieOptions
         {
             HttpOnly = false, // cho phep FE doc cookies
@@ -284,7 +281,11 @@ public class AccountController : BaseApiController
             Expires = newAccessToken.Expires,
             IsEssential = true
         });
-        return Ok();
+        var response = new
+        {
+            accessTokenExpiration = newAccessToken.Expires
+        };
+        return Ok(response);
     }
 
     [AllowAnonymous]

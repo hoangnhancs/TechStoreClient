@@ -16,7 +16,7 @@ class CommentSignalRServiceClass {
   ): Promise<void> => {
     // Nếu đang kết nối, đợi cho đến khi hoàn tất
     if (this.isConnecting) {
-      console.log("Connection already in progress, waiting...");
+      // console.log("Connection already in progress, waiting...");
       await new Promise((resolve) => setTimeout(resolve, 100));
       return this.createHubConnection(productId, isAdmin);
     }
@@ -27,7 +27,7 @@ class CommentSignalRServiceClass {
       this.hubConnection.state === signalR.HubConnectionState.Connected &&
       this.activeProductId === productId
     ) {
-      console.log(`Already connected to product ${productId}`);
+      // console.log(`Already connected to product ${productId}`);
       return Promise.resolve();
     }
 
@@ -37,9 +37,9 @@ class CommentSignalRServiceClass {
       this.hubConnection.state === signalR.HubConnectionState.Connected &&
       this.activeProductId !== productId
     ) {
-      console.log(
-        `Switching from product ${this.activeProductId} to ${productId}`
-      );
+      // console.log(
+      //   `Switching from product ${this.activeProductId} to ${productId}`
+      // );
       await this.stopConnection();
     }
 
@@ -54,7 +54,7 @@ class CommentSignalRServiceClass {
           skipNegotiation: true,
         })
         .withAutomaticReconnect([0, 2000, 5000, 10000, 20000])
-        .configureLogging(signalR.LogLevel.Debug)
+        // .configureLogging(signalR.LogLevel.Debug)
         .build();
 
       // Lưu connection vào biến tạm thời, không gán vào this.hubConnection ngay
@@ -74,7 +74,7 @@ class CommentSignalRServiceClass {
         try {
           // Start connection trên biến tạm thời
           await newConnection.start();
-          console.log("SignalR connected successfully after retries");
+          // console.log("SignalR connected successfully after retries");
 
           // CHỈ sau khi kết nối thành công mới gán vào this.hubConnection
           this.hubConnection = newConnection;
@@ -130,7 +130,7 @@ class CommentSignalRServiceClass {
 
         // Dừng kết nối
         await this.hubConnection.stop();
-        console.log("SignalR disconnected");
+        // console.log("SignalR disconnected");
       }
     } catch (err) {
       console.error("Error stopping SignalR connection:", err);

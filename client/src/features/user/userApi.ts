@@ -1,6 +1,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithErrorHandling } from "../../app/api/baseApi";
 import { BasicUser, User } from "../../lib/types";
+import { basketApi } from "../../app/api/basketApi";
 
 export const userApi = createApi({
   reducerPath: "userApi",
@@ -25,17 +26,18 @@ export const userApi = createApi({
     }),
     logout: builder.mutation<void, void>({
       query: () => ({ url: "/account/logout", method: "POST" }),
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(userApi.util.resetApiState());
+          dispatch(basketApi.util.resetApiState());
+        } catch (error) {
+          console.error("Logout failed:", error);
+        }
+      },
       invalidatesTags: ["User", "Basket"],
     }),
-    register: builder.mutation<
-      User,
-      {
-        email: string;
-        displayName: string;
-        password: string;
-        confirmPassword: string;
-      }
-    >({
+    register: builder.mutation<User, {email: string; displayName: string; password: string; confirmPassword: string;}>({
       query: (credentials) => ({
         url: "/account/register",
         method: "POST",
@@ -43,10 +45,15 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User", "Basket"],
     }),
-    resendConfirmEmail: builder.mutation<
-      void,
-      { email?: string; userId?: string | null }
-    >({
+    changePasword: builder.mutation<void, { currentPassword: string, newPassword: string, confirmPassword: string }>({
+      query: (credentials) => ({
+        url: "/account/change-password",
+        method: "POST",
+        body: credentials,
+      }),
+      invalidatesTags: ["User", "Basket"],
+    }),
+    resendConfirmEmail: builder.mutation<void, { email?: string; userId?: string | null }>({
       query: (credentials) => ({
         url: "/account/resendConfirmEmail",
         method: "POST",
@@ -66,10 +73,7 @@ export const userApi = createApi({
         body: credentials,
       }),
     }),
-    resetPassword: builder.mutation<
-      void,
-      { email: string; newPassword: string; resetCode: string }
-    >({
+    resetPassword: builder.mutation<void, { email: string; newPassword: string; resetCode: string }>({
       query: (credentials) => ({
         url: "/resetPassword",
         method: "POST",
@@ -88,4 +92,5 @@ export const {
   useVerifyEmailMutation,
   useForgotPasswordMutation,
   useResetPasswordMutation,
+  useChangePaswordMutation,
 } = userApi

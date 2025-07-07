@@ -22,6 +22,7 @@ import ForgotPasswordForm from "../features/user/ForgotPasswordForm";
 import VerifyEmail from "../features/user/VerifyEmail";
 import ResetPasswordForm from "../features/user/ResetPasswordForm";
 import RequireAuth from "./RequireAuth";
+import ChangePasswordForm from "../features/user/ChangePasswordForm";
 
 export const router = createBrowserRouter([
     {
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
                 {path: '/order-success', element: <OrderSuccessPage />},
                 {path: '/my-orders', element: <MyOrdersPage />},
                 {path: '/my-orders/:orderId', element: <OrderDetailsPage />},
+                {path: '/change-password', element: <ChangePasswordForm />}
             ]},
             {path: '', element: <HomePage />},
             {path: '/products', element: <ProductCatalog />},

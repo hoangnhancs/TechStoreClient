@@ -11,6 +11,7 @@ import { useFetchFilterTagsQuery } from "../../app/api/filterTagApi";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { clearAllFilters, clearFilterByTagId, setFilter } from "../filter/filterSlice";
 import LoadingComponent from "../../components/LoadingComponent";
+import { useGetCurrentUserQuery } from "../user/userApi";
 
 
 
@@ -315,12 +316,13 @@ type Props = {
 };
 
 const ProductGrid = React.memo(function ProductGrid({ products }: Props) {
+    const {data: currentUser} = useGetCurrentUserQuery()
     return (
         <Grid container spacing={{ xs: 2, sm: 3, md: 4 }} columns={{ xs: 2, sm: 9, md: 12 }}>
             {(products && products.length > 0) ?
                 (products.map((product) => (
                     <Grid size={{ xs: 1, sm: 3, md: 3 }} key={product.id}>
-                        <ProductCard product={product} />
+                        <ProductCard product={product} currentUser={currentUser} />
                     </Grid>
                 ))) 
                 : 

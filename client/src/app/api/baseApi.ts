@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { router } from "../../router/Routes";
 import { LoadingPriority, startLoading, stopLoading } from "../../layouts/uiSlice";
 import { clearCurrentUser } from "../../features/user/userSlice";
-import { userApi } from "../../features/user/userApi";
+
 
 type CustomError = | string | {message: string} | {errors: string [], title: string}
 
@@ -46,14 +46,12 @@ export const baseQueryWithErrorHandling = async (
         api,
         extraOptions
       );
-      console.log("refresh", refresh);
-      if (!refresh.error) {
+      if (!refresh.error && api.endpoint !== "refreshToken") {
         console.log("refresh ok", refresh.data);
-        return customBaseQuery(args, api, extraOptions);//retry request trước đó bị 401
+        return customBaseQuery(args, api, extraOptions); //retry request trước đó bị 401
       } else {
         console.log("refresh not ok", refresh.data);
         api.dispatch(clearCurrentUser());
-        api.dispatch(userApi.util.invalidateTags(["User"]));
         return refresh;
       }
     }

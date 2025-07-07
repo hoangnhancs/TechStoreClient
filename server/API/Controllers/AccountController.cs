@@ -130,16 +130,30 @@ public class AccountController : BaseApiController
     [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<ActionResult> ChangePassword(ChangePasswordDto passwordDto)
     {
+        //b1: check user
         var user = await _signInManager.UserManager.GetUserAsync(User);
-
         if (user == null) return Unauthorized();
 
+        //b2: doi mat khau
         var result = await _signInManager.UserManager
             .ChangePasswordAsync(user, passwordDto.CurrentPassword, passwordDto.NewPassword);
 
-        if (result.Succeeded) return Ok("Change password successfully for user " + user.UserName);
+        if (!result.Succeeded) return BadRequest(result.Errors.First().Description);
 
-        return BadRequest(result.Errors.First().Description);
+        //b3: revoke token
+        var ipAddress = _httpContextAccessorHelper.GetClientIp();
+        await _refreshTokenRepository.RevokeAllAsync(user.Id, ipAddress, "pwchanged");
+        await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+
+        //b4: xoa cookies
+        Response.Cookies.Delete("access_token");
+        Response.Cookies.Delete("refresh_token");
+        Response.Cookies.Delete("user");
+
+        //b5: logout
+        await _signInManager.SignOutAsync();
+
+        return Ok("Change password successfully for user " + user.UserName);
     }
 
     [AllowAnonymous]

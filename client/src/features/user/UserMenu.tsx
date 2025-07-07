@@ -5,13 +5,13 @@ import MenuItem from '@mui/material/MenuItem';
 import { useState } from 'react';
 import { Avatar, Box, Divider, ListItemIcon, ListItemText } from '@mui/material';
 
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Add, Logout, Password, Person, Receipt } from '@mui/icons-material';
-import { useLogoutMutation, userApi } from './userApi';
+import { useLogoutMutation } from './userApi';
 import { useDispatch } from 'react-redux';
-import { basketApi } from '../../app/api/basketApi';
 import { BasicUser } from '../../lib/types';
 import { clearCurrentUser } from './userSlice';
+import LoadingComponent from '../../components/LoadingComponent';
 
 type Props = {
     currentUser: BasicUser
@@ -20,9 +20,7 @@ type Props = {
 export default function UserMenu({currentUser}: Props) {
     const dispatch = useDispatch();
     // const {data: currentUser} = useGetCurrentUserQuery()
-    const location = useLocation()
-    const navigate = useNavigate()
-    const [logoutUser, {isSuccess}] = useLogoutMutation()
+    const [logoutUser, {isLoading}] = useLogoutMutation()
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -32,17 +30,15 @@ export default function UserMenu({currentUser}: Props) {
         setAnchorEl(null);
     };
 
-    React.useEffect(() => {
-    if (isSuccess && location.pathname === '/basket') {
-        navigate('/login');
-    }
-    }, [isSuccess, location.pathname, navigate]);
-
     const handleLogout = () => {
         logoutUser()
-        dispatch(clearCurrentUser())
-        dispatch(userApi.util.resetApiState()); //reset api de reset slice
-        dispatch(basketApi.util.resetApiState());        
+        dispatch(clearCurrentUser())       
+    }
+
+    if (isLoading) {
+        return (
+            <LoadingComponent />
+        )
     }
 
     return (

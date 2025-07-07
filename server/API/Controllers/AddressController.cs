@@ -1,5 +1,6 @@
 using System;
 using System.Security.Claims;
+using API.DTOs;
 using Application.Command.Address;
 using Application.DTOs;
 using Application.Queries.Address;
@@ -45,6 +46,16 @@ public class AddressController(IConfiguration configuration) : BaseApiController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
         return HandleResult(await Mediator.Send(new GetAddressByIdQuery { AddressId = id }));
+    }
+
+    [HttpDelete("delete-address")]
+    [Authorize(Policy = "SecurityStampRequirement")]
+    public async Task<IActionResult> DeleteAddress([FromBody] DeleteAddressDto dto)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User not authenticated");
+        return HandleResult(await Mediator.Send(new DeleteAddressCommand { AddressId = dto.AddressId, UserId = userId }));
     }
 
 

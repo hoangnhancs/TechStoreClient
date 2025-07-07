@@ -10,4 +10,5 @@ public interface IAddressRepository
     Task<List<Address>> GetAddressesByUserIdAsync(string userId, CancellationToken cancellationToken);
     Task<Address> GetAddressByIdAsync(string addressId, CancellationToken cancellationToken);
     Task SetOtherAddressNotDefaultAsync(string userId, CancellationToken cancellationToken);
+    Task DeleteAddressAsync(string addressId, string userId, CancellationToken cancellationToken);
 }

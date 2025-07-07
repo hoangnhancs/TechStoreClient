@@ -56,7 +56,7 @@ public class AddressRepository(StoreContext context) : IAddressRepository
     public async Task<List<Address>> GetAddressesByUserIdAsync(string userId, CancellationToken cancellationToken)
     {
         return await _context.Addresses
-            .Where(a => a.UserId == userId)
+            .Where(a => a.UserId == userId && !a.IsDeleted)
             .ToListAsync(cancellationToken);
     }
 
@@ -78,5 +78,15 @@ public class AddressRepository(StoreContext context) : IAddressRepository
         return await _context.Addresses
             .Where(a => a.Id == addressId)
             .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Address not found");
+    }
+
+    public async Task DeleteAddressAsync(string addressId, string userId, CancellationToken cancellationToken)
+    {
+        var address = await _context.Addresses.FirstOrDefaultAsync(a => a.Id == addressId && a.UserId == userId, cancellationToken);
+        if (address == null)
+        {
+            throw new Exception("Address not found");
+        }
+        address.IsDeleted = true;  
     }
 }

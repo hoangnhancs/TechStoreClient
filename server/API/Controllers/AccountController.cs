@@ -86,7 +86,7 @@ public class AccountController : BaseApiController
 
         var user = await _signInManager.UserManager.GetUserAsync(User);
 
-        if (user == null) return Unauthorized();
+        if (user == null) return Unauthorized("User not found");
 
         var roles = await _signInManager.UserManager.GetRolesAsync(user);
         List<string> listRoles = new List<string>(roles);
@@ -103,8 +103,7 @@ public class AccountController : BaseApiController
     [HttpPost("logout")]
 
     public async Task<ActionResult> Logout()
-    {
-        await _signInManager.SignOutAsync();
+    {       
         var token = Request.Cookies["refresh_token"];
         string ipAddress = _httpContextAccessorHelper.GetClientIp();
         if (!string.IsNullOrEmpty(token))
@@ -119,6 +118,7 @@ public class AccountController : BaseApiController
         Response.Cookies.Delete("access_token");
         Response.Cookies.Delete("refresh_token");
         Response.Cookies.Delete("user");
+        await _signInManager.SignOutAsync();
         return NoContent();
     }
 
@@ -156,12 +156,12 @@ public class AccountController : BaseApiController
 
         var roles = await _signInManager.UserManager.GetRolesAsync(user);
         var accessToken = await _tokenServices.CreateAccessTokenAsync(user);
-        Response.Cookies.Append("access_token", accessToken, new CookieOptions
+        Response.Cookies.Append("access_token", accessToken.Token, new CookieOptions
         {
             HttpOnly = true, //httponly, k cho phep FE doc cookies
             Secure = true,
             SameSite = SameSiteMode.None,
-            Expires = DateTime.Now.AddHours(1)
+            Expires = accessToken.Expires
         });
         var ipAddress = _httpContextAccessorHelper.GetClientIp();
         var refreshToken = _tokenServices.CreateRefreshToken(user, ipAddress);
@@ -196,6 +196,8 @@ public class AccountController : BaseApiController
             HttpOnly = false, // cho phep FE doc cookies
             Secure = true,
             SameSite = SameSiteMode.None,
+            Expires = accessToken.Expires,
+            IsEssential = true
         });
         return Ok(new UserDto
         {
@@ -229,6 +231,8 @@ public class AccountController : BaseApiController
         var newRefreshToken = _tokenServices.CreateRefreshToken(user, ipAddress);
 
         tokenInDb.Revoked = DateTime.UtcNow;
+        tokenInDb.RevokedByIp = ipAddress;
+        tokenInDb.ReasonRevoked = "refresh";
         tokenInDb.ReplacedByToken = newRefreshToken.Token;
 
         //b3: cap nhat rf token moi vao db va update token cu
@@ -236,12 +240,12 @@ public class AccountController : BaseApiController
         await _unitOfWork.SaveChangesAsync(CancellationToken.None);
 
         //b4: gan vao response
-        Response.Cookies.Append("access_token", newAccessToken, new CookieOptions
+        Response.Cookies.Append("access_token", newAccessToken.Token, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
-            Expires = DateTime.Now.AddHours(1)
+            Expires = newAccessToken.Expires
         });
 
         Response.Cookies.Append("refresh_token", newRefreshToken.Token, new CookieOptions
@@ -251,7 +255,31 @@ public class AccountController : BaseApiController
             SameSite = SameSiteMode.None,
             Expires = newRefreshToken.Expires
         });
-        
+
+        var roles = await _signInManager.UserManager.GetRolesAsync(user);
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+        var userInforJson = JsonSerializer.Serialize(new UserDto
+        {
+            DisplayName = user.DisplayName ?? string.Empty,
+            Id = user.Id,
+            ImageUrl = user.ImageUrl ?? string.Empty,
+            Roles = roles.ToList(),
+            DateOfBirth = user.DateOfBirth,
+            PhoneNumber = user.PhoneNumber ?? string.Empty,
+            Gender = user.Gender.ToString(),
+            TotalSpent = user.TotalSpent,
+        }, options); //set cookies nnhung thong tin co ban cua user
+        Response.Cookies.Append("user", userInforJson, new CookieOptions
+        {
+            HttpOnly = false, // cho phep FE doc cookies
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = newAccessToken.Expires,
+            IsEssential = true
+        });
         return Ok();
     }
 

@@ -10,6 +10,7 @@ import { toggleDarkMode } from "./uiSlice";
 import UserMenu from "../features/user/UserMenu";
 import LoginPromptDialog from "../components/LoginPromptDialog";
 import { useFetchBasketQuery } from "../app/api/basketApi";
+import { useGetCurrentUserQuery } from "../features/user/userApi";
 
 
 
@@ -32,10 +33,9 @@ export default function NavBar() {
   const {isLoading, isDarkMode} = useAppSelector(state => state.ui)
   // const [userInfoJson, setUserInfoJson] = useState<BasicUser | null>(null)
   // const isAuthenticated = useAppSelector(state => state.auth.isAuthenticated);
-  const currentUser = useAppSelector(state => state.user.currentUser);
+  const {data: currentUser} = useGetCurrentUserQuery()
   const {data: basket} = useFetchBasketQuery(undefined, {
-    skip: !currentUser
-  })
+    skip: !currentUser})
   const dispatch = useAppDispatch()
   const theme = useTheme();
   // const userInfoCookie = document.cookie.split(';').find(c => c.trim().startsWith('user='))?.replace('user=', '');

@@ -14,12 +14,13 @@ public class User : IdentityUser
     public List<Address> Addresses { get; set; } = [];
     public List<Order> Ordereds { get; set; } = [];
     public List<Payment> Payments { get; set; } = [];
+    public List<RefreshToken> RefreshTokens { get; set; } = [];
     public enum UserGender
     {
         None,
         Male,
         Female,
-        Other,   
+        Other,
     }
 }
 

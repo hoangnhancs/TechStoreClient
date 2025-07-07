@@ -6,6 +6,7 @@ import {
 import { toast } from "react-toastify";
 import { router } from "../../router/Routes";
 import { LoadingPriority, startLoading, stopLoading } from "../../layouts/uiSlice";
+import { clearCurrentUser } from "../../features/user/userSlice";
 
 type CustomError = | string | {message: string} | {errors: string [], title: string}
 
@@ -36,11 +37,28 @@ export const baseQueryWithErrorHandling = async (
       console.log(result.error);
       console.log(originalStatus, responseData);
     }
-  
+    //neu request truoc do bi 401, thuc hien refresh token
+    // nếu không có lỗi thì sẽ retry request trước đó
+    if (originalStatus === 401) {
+      const refresh = await customBaseQuery(
+        { url: "/account/refreshToken", method: "POST" },
+        api,
+        extraOptions
+      );
+      console.log("refresh", refresh);
+      if (!refresh.error) {
+        console.log("refresh ok", refresh.data);
+        return customBaseQuery(args, api, extraOptions);//retry request trước đó bị 401
+      } else {
+        console.log("refresh not ok", refresh.data);
+        api.dispatch(clearCurrentUser());
+        return refresh;
+      }
+    }
     switch (originalStatus) {
       case 400:
         if (typeof responseData === "string") {
-          if (isDev) toast.error(responseData || "Bad request c");
+          if (isDev) toast.error(responseData || "Bad request");
         }
         else if ('errors' in responseData) {
           if (isDev) toast.error(responseData.title);
@@ -49,6 +67,7 @@ export const baseQueryWithErrorHandling = async (
         break;
       case 401:
         if (isDev) toast.error((responseData as string) || "Unauthorized");
+
         break;
       case 404:
         if (isDev) toast.error((responseData as string) || "Not found");
@@ -56,7 +75,7 @@ export const baseQueryWithErrorHandling = async (
         break;
       case 500:
         if (typeof responseData !== "string" && 'message' in responseData) {
-          if (isDev) toast.error((responseData.message) || "Server error c");
+          if (isDev) toast.error((responseData.message) || "Server error");
           router.navigate('/server-error', {state: {error: responseData}});
         }
         break;

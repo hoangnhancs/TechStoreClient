@@ -1,8 +1,11 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using Application.DTOs;
 using Application.Interface;
+using Azure.Core;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +24,7 @@ public class TokenServices : ITokenServices
         _userManager = userManager;
     }
 
-    public async Task<string> CreateTokenAsync(User user)
+    public async Task<AccessTokenResult> CreateAccessTokenAsync(User user)
     {
         var authClaims = new List<Claim>
         {
@@ -47,11 +50,30 @@ public class TokenServices : ITokenServices
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],
             audience: _config["Jwt:Audience"],
-            expires: DateTime.UtcNow.AddMinutes(30),
+            expires: DateTime.UtcNow.AddMinutes(1),
             claims: authClaims,
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
         );
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        return new AccessTokenResult
+        {
+            Token = new JwtSecurityTokenHandler().WriteToken(token),
+            Expires = token.ValidTo
+        };
+    }
+
+    public RefreshToken CreateRefreshToken(User user, string ipAddress)
+    {
+        var randomBytes = new byte[64];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomBytes);
+        return new RefreshToken
+        {
+            UserId = user.Id,
+            Token = Convert.ToBase64String(randomBytes),
+            Expires = DateTime.UtcNow.AddDays(7),
+            Created = DateTime.UtcNow,
+            IpAddress = ipAddress
+        };
     }
 }

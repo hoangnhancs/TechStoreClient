@@ -34,11 +34,11 @@ public class BasketRepository(StoreContext context) : IBasketRepository
     public async Task<Basket?> GetBasketByUserIdAsync(string userId, CancellationToken cancellationToken)
     {
         return await _context.Baskets
-
+            .Where(b => b.UserId == userId)
             .Include(x => x.Items)
             .ThenInclude(x => x.Product)
             .ThenInclude(x => x!.Category)
-            .FirstOrDefaultAsync(b => b.UserId == userId, cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Basket> RemoveItemFromBasketAsync(string userId, string productId, int quantity, CancellationToken cancellationToken)

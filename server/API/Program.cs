@@ -10,6 +10,7 @@ using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Infrastructure.Email;
 using Infrastructure.Helper;
+using Infrastructure.Photo;
 using Infrastructure.Security;
 using Infrastructure.Service;
 using Microsoft.AspNetCore.Authentication.BearerToken;
@@ -71,6 +72,8 @@ builder.Services.AddScoped<ITokenServices, TokenServices>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IHttpContextAccessorHelper, HttpContextAccessorHelper>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IPhotoRepository, PhotoRepository>();
+builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
@@ -111,6 +114,8 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
     options.TokenLifespan = TimeSpan.FromMinutes(15);
 });
+builder.Services.Configure<CloudinarySetting>(builder.Configuration
+    .GetSection("CloudinarySettings"));
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAppCookiePolicy();
 builder.Services.AddAppAuthorization();

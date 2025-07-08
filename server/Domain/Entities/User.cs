@@ -6,7 +6,7 @@ namespace Domain.Entities;
 public class User : IdentityUser
 {
     public string? DisplayName { get; set; }
-    public string? ImageUrl { get; set; }
+    public UserImage? Image { get; set; }
     public Basket? Basket { get; set; }
     public long TotalSpent { get; set; }
     public UserGender Gender { get; set; } = UserGender.None;

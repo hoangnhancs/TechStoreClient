@@ -20,7 +20,7 @@ const CommentItem: React.FC<Props> = React.memo(({
   onSendReply,
   onDraftChange,
 }) => {
-
+  // console.log("current user img:", currentUser?.imageUrl, "comment user img:", comment.user?.imageUrl);
   const [replyContent, setReplyContent] = useState('');
   const [isOpenReply, setOpenReply] = useState<boolean>(false);
   const [openLoginPrompt, setOpenLoginPrompt] = useState(false);

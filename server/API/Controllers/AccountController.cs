@@ -27,9 +27,10 @@ public class AccountController : BaseApiController
     private readonly IRefreshTokenRepository _refreshTokenRepository;
     private readonly IHttpContextAccessorHelper _httpContextAccessorHelper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserAccessor _userAccessor;
 
     public AccountController(SignInManager<User> signInManager, ITokenServices tokenServices, IConfiguration config, IEmailSender<User> emailSender,
-                            IRefreshTokenRepository refreshTokenRepository, IHttpContextAccessorHelper httpContextAccessorHelper, IUnitOfWork unitOfWork)
+                            IRefreshTokenRepository refreshTokenRepository, IHttpContextAccessorHelper httpContextAccessorHelper, IUnitOfWork unitOfWork, IUserAccessor userAccessor)
     {
         _signInManager = signInManager;
         _tokenServices = tokenServices;
@@ -38,6 +39,7 @@ public class AccountController : BaseApiController
         _refreshTokenRepository = refreshTokenRepository;
         _httpContextAccessorHelper = httpContextAccessorHelper;
         _unitOfWork = unitOfWork;
+        _userAccessor = userAccessor;
     }
     [AllowAnonymous]
     [HttpPost("register")]
@@ -75,7 +77,7 @@ public class AccountController : BaseApiController
             DisplayName = user.DisplayName ?? string.Empty,
             Email = user.Email ?? string.Empty,
             Id = user.Id,
-            ImageUrl = user.ImageUrl ?? string.Empty,
+            ImageUrl = user.Image?.Url ?? string.Empty,
             TotalSpent = user.TotalSpent,
             Roles = ["Member"],
             // user.Photos,
@@ -88,7 +90,7 @@ public class AccountController : BaseApiController
     {
         if (User.Identity?.IsAuthenticated == false) return NoContent();
 
-        var user = await _signInManager.UserManager.GetUserAsync(User);
+        var user = await _userAccessor.GetUserAsync();
 
         if (user == null) return Unauthorized("User not found");
 
@@ -99,8 +101,12 @@ public class AccountController : BaseApiController
         {
             DisplayName = user.DisplayName ?? string.Empty,
             Id = user.Id,
-            ImageUrl = user.ImageUrl ?? string.Empty,
+            ImageUrl = user.Image?.Url ?? string.Empty,
             Roles = listRoles,
+            DateOfBirth = user.DateOfBirth,
+            PhoneNumber = user.PhoneNumber ?? string.Empty,
+            Gender = user.Gender.ToString(),
+            Email = user.Email ?? string.Empty,
         });
     }
 
@@ -168,7 +174,7 @@ public class AccountController : BaseApiController
 
         if (!result.Succeeded) return Unauthorized();
 
-        var user = await _signInManager.UserManager.FindByEmailAsync(loginDto.Email);
+        var user = await _userAccessor.GetUserAsync();
 
         if (user == null) return Unauthorized();
 
@@ -202,7 +208,7 @@ public class AccountController : BaseApiController
         {
             DisplayName = user.DisplayName ?? string.Empty,
             Id = user.Id,
-            ImageUrl = user.ImageUrl ?? string.Empty,
+            ImageUrl = user.Image?.Url ?? string.Empty,
             Roles = roles.ToList(),
             DateOfBirth = user.DateOfBirth,
             PhoneNumber = user.PhoneNumber ?? string.Empty,
@@ -221,7 +227,7 @@ public class AccountController : BaseApiController
         {
             DisplayName = user.DisplayName ?? string.Empty,
             Id = user.Id,
-            ImageUrl = user.ImageUrl ?? string.Empty,
+            ImageUrl = user.Image?.Url ?? string.Empty,
             Roles = roles.ToList(),
             // user.Photos,
         });
@@ -280,7 +286,7 @@ public class AccountController : BaseApiController
         {
             DisplayName = user.DisplayName ?? string.Empty,
             Id = user.Id,
-            ImageUrl = user.ImageUrl ?? string.Empty,
+            ImageUrl = user.Image?.Url ?? string.Empty,
             Roles = roles.ToList(),
             DateOfBirth = user.DateOfBirth,
             PhoneNumber = user.PhoneNumber ?? string.Empty,

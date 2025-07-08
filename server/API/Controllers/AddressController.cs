@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-[Authorize]
 public class AddressController(IConfiguration configuration) : BaseApiController
 {
     [HttpPost("create-address")]
+    [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<IActionResult> CreateAddress([FromBody] AddressDto dto)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -22,6 +22,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
     }
 
     [HttpPut("update-address/{id}")]
+    [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<IActionResult> UpdateAddress(string id, [FromBody] AddressDto address)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -31,6 +32,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
     }
 
     [HttpGet("myaddresses")]
+    [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<IActionResult> GetAddresses()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -40,6 +42,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
     }
 
     [HttpGet("myaddresses/{id}")]
+    [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<IActionResult> GetAddressById(string id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

@@ -11,6 +11,7 @@ public class AccountRepository(StoreContext context) : IAccountRepository
     public async Task<User?> GetUserByIdAsync(string userId, CancellationToken cancellationToken)
     {
         return await _context.Users
+            .Include(u => u.Image)
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
     }
 }

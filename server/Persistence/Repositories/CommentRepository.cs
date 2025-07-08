@@ -48,9 +48,10 @@ public class CommentRepository(StoreContext context) : ICommentRepository
     public async Task<Comment?> GetCommentById(string commentId, CancellationToken cancellationToken)
     {
         return await _context.Comments
+            .Where(c => c.Id == commentId && c.IsVisible)
             .Include(c => c.User)
             .Include(c => c.Product)
-            .FirstOrDefaultAsync(c => c.Id == commentId, cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<List<Comment>> GetCommentsByProductId(string productId, CancellationToken cancellationToken)
@@ -58,6 +59,7 @@ public class CommentRepository(StoreContext context) : ICommentRepository
         return await _context.Comments
             .Where(c => c.ProductId == productId && c.IsVisible)
             .Include(c => c.User)
+            .ThenInclude(c => c!.Image)
             .Include(c => c.Replies)
             .OrderBy(c => c.CreatedAt)
             .ToListAsync(cancellationToken);

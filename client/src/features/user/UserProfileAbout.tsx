@@ -1,14 +1,20 @@
-import { Avatar, Box, Button, Divider, Stack, Typography } from "@mui/material"
+import { Avatar, Box, Button, CircularProgress, Divider, Stack, Typography } from "@mui/material"
 import { User } from "../../lib/types"
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useUpdatePhotoMutation } from "../../app/api/photoApi";
+import { toast } from "react-toastify";
 
 type Props = {
   profile: User
 }
 
 export default function UserProfileAbout({ profile }: Props) {
+  
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  // const [tmpAvatar, setTmpAvatar] = useState<File | null>(null);
+  const [updateUserImage, { isLoading }] = useUpdatePhotoMutation();
   const inputRef = useRef<HTMLInputElement>(null);
+
   const hiddenPhoneNumber = profile.phoneNumber.slice(0, profile.phoneNumber.length - 2).replace(/./g, '*') + profile.phoneNumber.slice(profile.phoneNumber.length - 2)
   const hiddenDateOfBirth = profile.dateOfBirth ? (() => {
     if (profile.dateOfBirth) {
@@ -37,6 +43,27 @@ export default function UserProfileAbout({ profile }: Props) {
     }
   };
 
+  const handleCancel = () => {
+    setSelectedImage(null);
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
+  };
+
+  const handleUpdateImage = async () => {
+    if (!selectedImage) return;
+    try {
+      await updateUserImage(selectedImage).unwrap();
+      toast.success("Cập nhật ảnh đại diện thành công");
+    } catch (error) {
+      toast.error("Cập nhật ảnh đại diện thất bại");
+      console.error("Error updating image:", error);
+    }
+  }
+
+  useEffect(() => {
+      setSelectedImage(null);
+  }, [profile.imageUrl]);
   
   return (
     <Box padding={1} display={'flex'}>
@@ -113,15 +140,39 @@ export default function UserProfileAbout({ profile }: Props) {
           alt={`${profile.displayName} image`} 
           sx={{width: 150, height: 150}}
         />
-        <Button variant="outlined" sx={{mt: 2}} onClick={() => inputRef.current?.click()}>
-          Chọn ảnh
-          <input 
-            hidden 
-            type="file" 
-            ref={inputRef}
-            onChange={handleFileChange}
-          />
-        </Button>
+        {selectedImage ? 
+          (
+            <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={handleUpdateImage}
+                disabled={isLoading}
+              >
+                {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Lưu'}
+              </Button>
+              <Button 
+                variant="outlined" 
+                color="secondary" 
+                onClick={handleCancel}
+                disabled={isLoading}
+              >
+                Hủy
+              </Button>
+            </Box>
+          )
+        : 
+        (
+          <Button variant="outlined" sx={{mt: 2}} onClick={() => inputRef.current?.click()}>
+            Chọn ảnh
+            <input 
+              hidden 
+              type="file" 
+              ref={inputRef}
+              onChange={handleFileChange}
+            />
+          </Button>
+        )}
       </Box>
     </Box>
   )

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Application.Interface;
 using Domain.Entities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Infrastructure.Security;
@@ -12,7 +13,8 @@ public class UserAccessor(IHttpContextAccessor httpContextAccessor, StoreContext
     public async Task<User> GetUserAsync()
     {
         return await context.Users
-            .FindAsync(GetUserId()) ?? throw new UnauthorizedAccessException("User not found");
+            .Include(u => u.Image)
+            .FirstOrDefaultAsync(u => u.Id == GetUserId()) ?? throw new UnauthorizedAccessException("User not found");
     }
 
     public string GetUserId()

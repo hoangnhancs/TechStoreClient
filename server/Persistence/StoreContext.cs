@@ -23,6 +23,7 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
     public required DbSet<FilterTag> FilterTags { get; set; }
     public required DbSet<FilterTagValue> FilterTagValues { get; set; }
     public required DbSet<RefreshToken> RefreshTokens { get; set; }
+    public required DbSet<UserImage> UserImages { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

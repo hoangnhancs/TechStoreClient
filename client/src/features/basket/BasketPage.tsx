@@ -3,14 +3,15 @@ import { Box, Button, Container, Divider, Grid, Paper, Typography, Checkbox, Ico
 import { Category, Item } from "../../lib/types";
 import { useEffect, useState } from "react";
 import { Add, Delete, Remove } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useGetCurrentUserQuery } from "../user/userApi";
 import OrderSummary from "../order/OrderSummary";
 import { useDispatch } from "react-redux";
-import { setBasketStates } from "./basketSlice";
+import { setBasket, setBasketStates } from "./basketSlice";
 import { useAppSelector } from "../../hooks";
-import { useFetchBasketQuery, useRemoveBasketItemMutation } from "../../app/api/basketApi";
+import { useAddBasketItemMutation, useFetchBasketQuery, useRemoveBasketItemMutation } from "../../app/api/basketApi";
 import LoadingComponent from "../../components/LoadingComponent";
+import { useDebounce } from "../../app/hooks/useDebounce";
 
 
 
@@ -18,16 +19,30 @@ type GroupedItems = Record<number, { category: Category, productItems: Item[] }>
 
 export default function BasketPage() {
     const { selectedItems: reduxSelectedItems } = useAppSelector(state => state.basket);
-    const {data: basket, isLoading} = useFetchBasketQuery()
-    const [removeItemFromBasket] = useRemoveBasketItemMutation()
+    const {data: basket, isLoading, isFetching} = useFetchBasketQuery()
+    const [addBasketItem] = useAddBasketItemMutation()
+    const [removeBasketItem] = useRemoveBasketItemMutation()
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const [groupedItems, setGroupedItems] = useState<GroupedItems>({})
     const [selectedItems, setSelectedItems] = useState<Array<Item>>([])
     const {data: currentUser} = useGetCurrentUserQuery()
+    const [localQuantities, setLocalQuantities] = useState<Record<string, number>>({})
+    const debouncedQuantities = useDebounce(localQuantities, 400);
+
+    useEffect(() => {
+        dispatch(setBasket(basket || {id: "", userId: "", items: []}))
+        const initQuantities = basket?.items.reduce((acc, item) => {
+            acc[item.productId] = item.quantity;
+            return acc;
+        }, {} as Record<string, number>)
+        setLocalQuantities(initQuantities || {})
+    }, [basket, dispatch])
+
     useEffect(() => {
         setSelectedItems(reduxSelectedItems || []);
     }, [reduxSelectedItems]);
+
     useEffect(() => {
         if (basket?.items) {
             const groups: GroupedItems = {}
@@ -48,9 +63,44 @@ export default function BasketPage() {
     }, [basket])
 
     useEffect(() => {
+        if (Object.entries(debouncedQuantities).length == 0 || !basket) return;
+
+        if (isFetching) return;
+
+        Object.entries(debouncedQuantities).forEach(([productId, newQuantity]) => {
+            const originalItem = basket.items.find(item => item.productId === productId)
+            if (originalItem && originalItem.quantity !== newQuantity) {
+                const diff = newQuantity - originalItem.quantity;
+                if (diff > 0) {
+                    addBasketItem({productId: productId, quantity: diff})
+
+                }
+                if (diff < 0) {
+                    removeBasketItem({productId, quantity: -diff})
+
+                }
+            }
+        })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedQuantities])
+
+
+    useEffect(() => {
         if (!currentUser)
             navigate('/products')
     }, [currentUser, navigate])
+
+
+    const handleLocalQuantitiesChange = (productId: string, change: number) => {
+        setLocalQuantities(prev => {
+            const currentQuantity = prev[productId] || 0
+            const newQuantity = Math.max(1, currentQuantity + change); //khong cho ve 0
+            return {
+                ...prev,
+                [productId]: newQuantity
+            }
+        })
+    }
 
 
     const toogleSelectItem = (item: Item) => {
@@ -105,8 +155,8 @@ export default function BasketPage() {
         }   
     }
 
-    const handleRemoveItem = (productId: string, quantity: number) => {
-        removeItemFromBasket({productId, quantity})
+    const handleRemoveItem = async (productId: string, quantity: number) => {
+        await removeBasketItem({productId, quantity})
         const tmpSelecteditems = selectedItems.filter(item => item.productId !== productId)
         setSelectedItems(tmpSelecteditems)
         dispatch(setBasketStates({selectedItems: tmpSelecteditems, basket: basket || {id: "", userId: "", items: []}}))
@@ -267,6 +317,7 @@ export default function BasketPage() {
                                             p: 0.5,
                                         }}
                                     >
+                                        
                                         <Typography sx={{textAlign: 'left'}}>{items.category.name}</Typography>
                                     </Grid>                        
                                 </Grid>
@@ -322,7 +373,21 @@ export default function BasketPage() {
                                                 p: 0.5,
                                             }}
                                         >
-                                            <Typography sx={{textAlign: 'left'}}>{item.productName}</Typography>
+                                            <Typography 
+                                                component={Link} 
+                                                to={`/products/${item.productId}`} 
+                                                color="#000000"
+                                                sx={{
+
+                                                    textAlign: 'left', 
+                                                    textDecoration: 'none', 
+                                                    "&:hover": {
+                                                        color: 'primary.main',
+                                                    }
+                                                }}
+                                            >
+                                                {item.productName}
+                                            </Typography>
                                         </Grid>
                                         <Grid
                                             size={1}
@@ -347,6 +412,7 @@ export default function BasketPage() {
                                         >
                                             <Box display={'flex'} alignItems={'center'} justifyContent={'center'} sx={{width: '100%',}}>
                                                 <IconButton 
+                                                onClick={() => handleLocalQuantitiesChange(item.productId, -1)}
                                                     size="small" 
                                                     sx={{ 
                                                         border: '1px solid', 
@@ -371,12 +437,14 @@ export default function BasketPage() {
                                                         fontSize: '0.95rem',
                                                     }}
                                                 >
-                                                    {item.quantity}                                            
+                                                    {localQuantities[item.productId]}                                            
                                                 </Typography>
                                                 
                                                 <IconButton 
-                                                    size="small" 
+                                                    size="small"
+                                                    onClick = {() => handleLocalQuantitiesChange(item.productId, 1)}
                                                     sx={{ 
+                    
                                                         border: '1px solid',
                                                         borderColor: 'divider', 
                                                         borderRadius: 0,

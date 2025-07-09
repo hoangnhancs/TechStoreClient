@@ -47,7 +47,7 @@ public class BasketController() : BaseApiController
         return HandleResult(await Mediator.Send(new AddItemToBasketCommand
         {
             UserId = userId,
-            ProductId = addItemDto.Product.Id,
+            ProductId = addItemDto.ProductId,
             Quantity = addItemDto.Quantity
         }));
     }

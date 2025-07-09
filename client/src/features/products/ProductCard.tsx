@@ -1,5 +1,5 @@
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
-import {  Product, User } from "../../lib/types";
+import {  Item, Product, User } from "../../lib/types";
 import { Link } from "react-router-dom";
 import discount from '../../assets/discount.png';
 import { useState } from "react";
@@ -7,6 +7,10 @@ import LoginPromptDialog from "../../components/LoginPromptDialog";
 import { toast } from "react-toastify";
 import { useAddBasketItemMutation } from "../../app/api/basketApi";
 import { useGetCurrentUserQuery } from "../user/userApi";
+import { useAppDispatch } from "../../hooks";
+import { addItem } from "../basket/basketSlice";
+
+// import { useAppSelector } from "../../hooks";
 
 type Props = {
     product: Product;
@@ -16,8 +20,10 @@ type Props = {
 export default function ProductCard({product}: Props) {
     const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
     const {data: currentUser} = useGetCurrentUserQuery()
-    const [addBasketItem] = useAddBasketItemMutation()
+    const [addBasketItem, {isLoading}] = useAddBasketItemMutation()
+    const dispatch = useAppDispatch();
     const handleAddToCart = () => {
+        
         console.log(currentUser)
         if (!currentUser?.id) {
             setOpenLoginPrompt(true); 
@@ -25,12 +31,20 @@ export default function ProductCard({product}: Props) {
         }
 
         addBasketItem({
-            product: product,
+            productId: product.id,
             quantity: 1
         })
         .unwrap()
         .then(() => {
             toast.success(`Đã thêm sản phẩm ${product.name} vào giỏ hàng.`);
+            dispatch(addItem({
+                productId: product.id,
+                productName: product.name,
+                imageUrl: product.imageUrl,
+                price: product.price,
+                quantity: 1,
+                brand: product.brand,
+                category: product.category} as Item))
         })
         .catch(error => {
             console.error('Error adding item to cart:', error);
@@ -149,7 +163,7 @@ export default function ProductCard({product}: Props) {
                 paddingTop: 0,
             }}
         >
-            <Button onClick={handleAddToCart} >Add to cart</Button>
+            <Button onClick={handleAddToCart} disabled={isLoading}>Add to cart</Button>
             <Button component={Link} to={`/products/${product.id}`}>View</Button>
         </CardActions>
         <LoginPromptDialog 

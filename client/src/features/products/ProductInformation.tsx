@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 import LoginPromptDialog from "../../components/LoginPromptDialog";
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -7,9 +7,11 @@ import 'swiper/swiper-bundle.css';
 import ProductAttributesPrompt from "../../components/ProductAttributesPrompt";
 import type { Swiper as SwiperType } from 'swiper';
 import { useAddBasketItemMutation } from "../../app/api/basketApi";
-import { Product, User } from "../../lib/types";
+import { Item, Product, User } from "../../lib/types";
 import LoadingComponent from "../../components/LoadingComponent";
 import { toast } from "react-toastify";
+import { useAppDispatch } from "../../hooks";
+import { addItem } from "../basket/basketSlice";
 
 // Import modules
 
@@ -28,7 +30,8 @@ type Props = {
 export default function ProductInformation({product, currentUser}: Props) { 
     const [openAttributesDetails, setOpenAttributesDetails] = useState(false);
     // const {data} = useGetCurrentUserQuery();
-    const [addItem] = useAddBasketItemMutation();
+    const dispatch = useAppDispatch();
+    const [addItemMutation, {isLoading}] = useAddBasketItemMutation();
     const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
     const [quantity, setQuantity] = useState(1);
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
@@ -38,10 +41,18 @@ export default function ProductInformation({product, currentUser}: Props) {
         }
         else{
             if (product) {
-                addItem({product: product, quantity: quantity})
+                addItemMutation({productId: product.id, quantity: quantity})
                 .unwrap()
                 .then(() => {
                     toast.success(`Đã thêm ${quantity} sản phẩm ${product.name} vào giỏ hàng.`);
+                    dispatch(addItem({
+                        productId: product.id,
+                        productName: product.name,
+                        imageUrl: product.imageUrl,
+                        price: product.price,
+                        quantity: quantity,
+                        brand: product.brand,
+                        category: product.category} as Item));
                 })
                 .catch(error => {
                     console.error('Error adding item to cart:', error);
@@ -502,8 +513,9 @@ export default function ProductInformation({product, currentUser}: Props) {
                             fullWidth
                             sx={{ mt: 2 }}
                             onClick={handleAddToCart} 
+                            disabled={isLoading}
                         >
-                            Add to Basket
+                            {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Add to Basket'}
                         </Button>
                     </Grid>
                 </Grid>     

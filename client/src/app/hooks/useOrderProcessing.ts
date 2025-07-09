@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 
-import { Address, Basket, PaymentInfor } from "../../lib/types";
+import { Address, Basket, Item, PaymentInfor } from "../../lib/types";
 import { setBasketStates } from "../../features/basket/basketSlice";
 import { toast } from "react-toastify";
 import { useCreateOrderMutation } from "../api/orderApi";
@@ -37,7 +37,7 @@ export const useOrderProcessing = () => {
 
   const getTotalPrice = () => {
     let total = 0;
-    selectedItems.forEach((item) => {
+    selectedItems.forEach((item: Item) => {
       total += item.price * item.quantity;
     });
     return total;
@@ -46,12 +46,12 @@ export const useOrderProcessing = () => {
   // Order parameters
   const createOrderParas = {
     items: (basket?.items || [])
-      .filter((item) =>
+      .filter((item: Item) =>
         selectedItems.find(
-          (selectedItem) => selectedItem.productId === item.productId
+          (selectedItem: Item) => selectedItem.productId === item.productId
         )
       )
-      .map((item) => ({
+      .map((item: Item) => ({
         productId: item.productId,
         productName: item.productName,
         imageUrl: item.imageUrl,
@@ -140,7 +140,7 @@ export const useOrderProcessing = () => {
             paymentMethod: currentPaymentInfor.paymentMethod,
           });
 
-          const productIds = selectedItems.map((item) => item.productId);
+          const productIds = selectedItems.map((item: Item) => item.productId);
           const newBasket = await removePermanentlyBasketItems({
             productIds: productIds,
           });
@@ -172,7 +172,7 @@ export const useOrderProcessing = () => {
                 ? currentPaymentInfor.walletType
                 : currentPaymentInfor.paymentMethod,
           });
-          const productIds = selectedItems.map((item) => item.productId);
+          const productIds = selectedItems.map((item: Item) => item.productId);
           const newBasket = await removePermanentlyBasketItems({
             productIds: productIds,
           });

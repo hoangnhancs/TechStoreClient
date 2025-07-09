@@ -37,7 +37,7 @@ public class AddItemToBasketHandler : IRequestHandler<AddItemToBasketCommand, Re
 
         if (product == null) return Result<BasketDto>.Failure("Product not found", 404);
 
-        var newBasket = await _basketRepository.AddItemToBasketAsync(request.UserId, product, request.Quantity, cancellationToken);
+        var newBasket = await _basketRepository.AddItemToBasketAsync(request.UserId, request.ProductId, request.Quantity, cancellationToken);
 
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
 

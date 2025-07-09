@@ -488,6 +488,7 @@ $RECYCLE.BIN/
 .env.local
 .env.*.local
 
-
-server/API/appsettings.json
 server/API/appsettings.Development.json
+
+note_TS_syntax.xlsx
+note_TS_syntax.xlsx

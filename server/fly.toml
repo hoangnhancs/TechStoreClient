@@ -7,6 +7,7 @@ app = 'server-spring-water-441'
 primary_region = 'syd'
 
 [build]
+  dockerfile = "Dockerfile"
 
 [http_service]
   internal_port = 8080

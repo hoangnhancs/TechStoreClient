@@ -47,8 +47,14 @@ class CommentSignalRServiceClass {
       this.isConnecting = true;
 
       // Tạo kết nối mới
+      const commentHubUrl = import.meta.env.VITE_REVIEW_URL;
+      if (!commentHubUrl) {
+        throw new Error(
+          "VITE_REVIEW_URL is not defined in the environment variables."
+        );
+      }
       const newConnection = new signalR.HubConnectionBuilder()
-        .withUrl("https://localhost:5001/commentHub", {
+        .withUrl(commentHubUrl, {
           withCredentials: true,
           transport: signalR.HttpTransportType.WebSockets,
           skipNegotiation: true,

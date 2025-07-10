@@ -42,9 +42,14 @@ class ReviewSignalRServiceClass {
 
     try {
       this.isConnecting = true;
-
+      const reviewHubUrl = import.meta.env.VITE_REVIEW_URL;
+      if (!reviewHubUrl) {
+        throw new Error(
+          "VITE_REVIEW_URL is not defined in the environment variables."
+        );
+      }
       const newConnection = new signalR.HubConnectionBuilder()
-        .withUrl("https://localhost:5001/reviewHub", {
+        .withUrl(reviewHubUrl, {
           withCredentials: true,
           transport: signalR.HttpTransportType.WebSockets,
           skipNegotiation: true,

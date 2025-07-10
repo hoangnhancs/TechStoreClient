@@ -1,14 +1,13 @@
-# fly.toml app configuration file generated for server-spring-water-441 on 2025-07-11T04:18:51+07:00
+# fly.toml app configuration file generated for server-dark-water-3755 on 2025-07-11T06:12:14+07:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'server-spring-water-441'
+app = 'server-dark-water-3755'
 primary_region = 'syd'
 
 [build]
   dockerfile = "Dockerfile"
-
 [http_service]
   internal_port = 8080
   force_https = true

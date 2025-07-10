@@ -47,7 +47,7 @@ class CommentSignalRServiceClass {
       this.isConnecting = true;
 
       // Tạo kết nối mới
-      const commentHubUrl = import.meta.env.VITE_REVIEW_URL;
+      const commentHubUrl = import.meta.env.VITE_COMMENT_URL;
       if (!commentHubUrl) {
         throw new Error(
           "VITE_REVIEW_URL is not defined in the environment variables."

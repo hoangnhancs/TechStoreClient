@@ -32,7 +32,7 @@ var builder = WebApplication.CreateBuilder(args);
 // {
 //     builder.WebHost.UseUrls("http://0.0.0.0:8080"); //product moi dung cai nay, con khong thi mac dinh 5001
 // }
-builder.WebHost.UseUrls("http://0.0.0.0:8080")
+builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
 // Add services to the container.
 

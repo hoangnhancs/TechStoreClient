@@ -169,7 +169,7 @@ app.UseCors(options =>
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials()
-        .WithOrigins("https://localhost:3000")
+        .WithOrigins("https://localhost:3000", "https://e-commerce-store-five-azure.vercel.app/")
         .WithExposedHeaders("token-expired", "token-expired2", "token-expired3");
 });
 

@@ -27,6 +27,7 @@ using Resend;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseUrls("http://0.0.0.0:8080");//5001 for local test, 8080 for fly.io
 
 // Add services to the container.
 
@@ -42,7 +43,7 @@ builder.Services.AddControllers(opt =>
 builder.Services.AddDbContext<StoreContext>(options =>
 {
     var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseNpgsql(connStr);
+    options.UseNpgsql(connStr); // ✅ Dùng Npgsql cho PostgreSQL
 });
 
 builder.Services.AddTransient<ExceptionMiddleware>();
@@ -59,8 +60,8 @@ builder.Services.Configure<ResendClientOptions>(o =>
 {
     o.ApiToken = builder.Configuration["Resend:ApiKey"]!;        // appsettings.json
 });
-builder.Services.AddTransient<IResend, ResendClient>();      
-builder.Services.AddTransient<IEmailSender<User>, EmailSender>(); 
+builder.Services.AddTransient<IResend, ResendClient>();
+builder.Services.AddTransient<IEmailSender<User>, EmailSender>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetProductDetailsHandler>());
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -119,7 +120,7 @@ builder.Services.Configure<SecurityStampValidatorOptions>(opt =>
 });
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
-    options.TokenLifespan = TimeSpan.FromMinutes(15);
+    options.TokenLifespan = TimeSpan.FromMinutes(15); //email song 15'
 });
 builder.Services.Configure<CloudinarySetting>(builder.Configuration
     .GetSection("CloudinarySettings"));
@@ -127,6 +128,7 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAppCookiePolicy();
 builder.Services.AddAppAuthorization();
 builder.Services.AddAuditLogging();
+
 
 
 var app = builder.Build();

@@ -80,9 +80,12 @@ export const store = configureStore({
       addressApi.middleware,
       filterTagValueApi.middleware,
       filterTagApi.middleware,
-      photoApi.middleware,
+      photoApi.middleware
     ),
 });
 
 //Persistor instance
 export const persistor = persistStore(store);
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

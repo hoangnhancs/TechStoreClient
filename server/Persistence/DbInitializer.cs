@@ -27,7 +27,9 @@ public class DbInitializer
         }
         var categoriesInDb = context.Categories.ToList();
 
-        string jsonContent = File.ReadAllText("D:/E-Commerce Store/ProductData/Json_data/tags_dict.json");
+
+        var basePath = Path.Combine(AppContext.BaseDirectory, "SeedData");
+        string jsonContent = File.ReadAllText(Path.Combine(basePath, "tags_dict.json"));
         var tagsDict = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, List<string>>>>(jsonContent);
 
         if (!context.FilterTags.Any())
@@ -79,7 +81,8 @@ public class DbInitializer
         List<dynamic> items = new List<dynamic>();
         foreach (var cat in categories)
         {
-            var json = File.ReadAllText($"D:/E-Commerce Store/ProductData/Json_data/{cat}_final_data.json");
+            // var json = File.ReadAllText($"D:/E-Commerce Store/ProductData/Json_data/{cat}_final_data.json");
+            var json = File.ReadAllText(Path.Combine(basePath, $"{cat}_final_data.json"));
             var arr = JsonConvert.DeserializeObject<List<dynamic>>(json);
             if (arr != null)
             {

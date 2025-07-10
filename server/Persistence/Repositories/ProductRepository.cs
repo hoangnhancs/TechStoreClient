@@ -45,8 +45,8 @@ public class ProductRepository(StoreContext context) : IProductRepository
         var sqlQuery = @"
             SELECT *
             FROM (
-                SELECT *, ROW_NUMBER() OVER (PARTITION BY CategoryId ORDER BY CreatedAt DESC) as rn
-                FROM Products
+                SELECT *, ROW_NUMBER() OVER (PARTITION BY category_id ORDER BY created_at DESC) as rn
+                FROM products
             ) as topProducts
             WHERE rn <= 10
         ";

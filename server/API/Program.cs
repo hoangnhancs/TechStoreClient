@@ -47,7 +47,8 @@ builder.Services.AddControllers(opt =>
 builder.Services.AddDbContext<StoreContext>(options =>
 {
     var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseNpgsql(connStr); // ✅ Dùng Npgsql cho PostgreSQL
+    options.UseNpgsql(connStr) // Dùng Npgsql cho PostgreSQL
+        .UseSnakeCaseNamingConvention(); //name convert theo chuan postgres
 });
 
 builder.Services.AddTransient<ExceptionMiddleware>();

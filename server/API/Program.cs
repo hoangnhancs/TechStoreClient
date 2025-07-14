@@ -49,7 +49,7 @@ builder.Services.AddDbContext<StoreContext>(options =>
 {
     var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
     options.UseNpgsql(connStr) // Dùng Npgsql cho PostgreSQL
-        .UseSnakeCaseNamingConvention(); //name convert theo chuan postgres
+        .UseSnakeCaseNamingConvention(); //name convert theo chuan postgres  
 });
 
 builder.Services.AddTransient<ExceptionMiddleware>();
@@ -87,6 +87,7 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IHttpContextAccessorHelper, HttpContextAccessorHelper>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IPhotoRepository, PhotoRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 

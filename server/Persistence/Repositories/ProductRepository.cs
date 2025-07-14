@@ -65,4 +65,9 @@ public class ProductRepository(StoreContext context) : IProductRepository
             .Include(p => p.ProductTagFilters)
             .ToListAsync(cancellationToken);
     }
+
+    public Task<Product> AddNewProduct(Product product, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }

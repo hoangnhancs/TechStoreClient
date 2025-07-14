@@ -15,12 +15,12 @@ import { addItem } from "../basket/basketSlice";
 
 // Import modules
 
-interface StorageOptions {
-    [key: string]: number;
-}
-interface ColorOptions {
-    [key: string]: number;
-}
+// interface StorageOptions {
+//     [key: string]: number;
+// }
+// interface ColorOptions {
+//     [key: string]: number;
+// }
 
 type Props = {
     product: Product | undefined;
@@ -62,23 +62,23 @@ export default function ProductInformation({product, currentUser}: Props) {
         }
     }
 
-    const dungluong: StorageOptions = {
-        '1TB': 1000,
-        '2TB': 2000,
-        '4TB': 4000,
-        '8TB': 4000,
-    };
+    // const dungluong: StorageOptions = {
+    //     '1TB': 1000,
+    //     '2TB': 2000,
+    //     '4TB': 4000,
+    //     '8TB': 4000,
+    // };
 
-    const mausac : ColorOptions = {
-        'Black': 1000,
-        'White': 2000,
-        'Red': 4000,
-        'Blue': 4000,
-        'Pink': 4000,
-        'Yellow': 4000,
-    };
+    // const mausac : ColorOptions = {
+    //     'Black': 1000,
+    //     'White': 2000,
+    //     'Red': 4000,
+    //     'Blue': 4000,
+    //     'Pink': 4000,
+    //     'Yellow': 4000,
+    // };
 
-    const isSelected = true; 
+    // const isSelected = true; 
 
     const formatPrice = (price: number) => {
         return price.toLocaleString('vi-VN') + 'đ';
@@ -106,6 +106,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                 flexDirection: 'column',
                 width: '100%',
                 margin: '0 auto',
+                mb: 2,
             }}
         >
             <Box sx={{ mt: 0, mb: 1 }}>
@@ -317,7 +318,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                         </Swiper>
                     </Box>
                       
-                    <Grid container spacing={{ xs: 1, md: 1.5 }} columns={{ xs: 4, sm: 8, md: 12 }}>
+                    {/* <Grid container spacing={{ xs: 1, md: 1.5 }} columns={{ xs: 4, sm: 8, md: 12 }}>
                         {Object.entries(dungluong).map(([label, value]) => (
                             <Grid sx={{borderRadius: '10px'}} key={label} size={{ xs: 2, sm: 4, md: 4 }}>
                                 <Box
@@ -363,8 +364,8 @@ export default function ProductInformation({product, currentUser}: Props) {
                                 </Box> 
                             </Grid>
                         ))}
-                    </Grid>
-                    <Divider sx={{mt: 2, mb: 1}} />
+                    </Grid> */}
+                    {/* <Divider sx={{mt: 2, mb: 1}} />
                     <Typography>Chọn màu để xem giá và chi nhánh có hàng</Typography>
                     <Grid container spacing={{ xs: 1, md: 1.5 }} columns={{ xs: 4, sm: 8, md: 12 }}>
                         {Object.entries(mausac).map(([label, value]) => (
@@ -453,7 +454,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                             </Box>                  
                             </Grid>
                         ))}
-                    </Grid>
+                    </Grid> */}
                     <Box 
                         display={'inline-flex'} 
                         flexDirection={'column'} 
@@ -497,7 +498,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                     </TableContainer>
                     <Grid container spacing={2} sx={{ mt: 3 }}>
                         <TextField
-                            label="Quantity in basket"
+                            label="Quantity add to basket"
                             variant="outlined"
                             type="number"
                             value={quantity}

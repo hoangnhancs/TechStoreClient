@@ -30,6 +30,7 @@ import { addressApi } from "../api/addressApi";
 import { filterTagValueApi } from "../api/filterTagValueApi";
 import { filterTagApi } from "../api/filterTagApi";
 import { photoApi } from "../api/photoApi";
+import { categoryApi } from "../api/categoryApi";
 
 //Root reducer with ALL slices
 export const rootReducer = combineReducers({
@@ -43,6 +44,7 @@ export const rootReducer = combineReducers({
   [filterTagValueApi.reducerPath]: filterTagValueApi.reducer,
   [filterTagApi.reducerPath]: filterTagApi.reducer,
   [photoApi.reducerPath]: photoApi.reducer,
+  [categoryApi.reducerPath]: categoryApi.reducer,
 
   counter: counterReducer,
   ui: uiReducer,
@@ -80,7 +82,8 @@ export const store = configureStore({
       addressApi.middleware,
       filterTagValueApi.middleware,
       filterTagApi.middleware,
-      photoApi.middleware
+      photoApi.middleware,
+      categoryApi.middleware,
     ),
 });
 

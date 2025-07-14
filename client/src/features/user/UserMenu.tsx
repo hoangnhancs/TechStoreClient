@@ -81,7 +81,7 @@ export default function UserMenu({currentUser}: Props) {
                 }}
             >
                 {(currentUser?.roles.includes('Admin')) && (
-                    <MenuItem component={Link} to='/createActivity' onClick={handleClose}>
+                    <MenuItem component={Link} to='/add-new-product' onClick={handleClose}>
                     <ListItemIcon>
                         <Add />
                     </ListItemIcon>

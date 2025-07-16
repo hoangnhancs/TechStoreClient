@@ -20,7 +20,7 @@ type Props = {
 
 export default function AddNewAddressDialog({ open, onClose, mode, selectedAddress, inputProvinces, 
     inputDistricts, inputWards, canDisableDefaultAddress, onClearDialogData}: Props ) {
-
+    const API_URL = import.meta.env.VITE_API_URL;
     const [form, setForm] = useState<Address>({
         fullName: "",
         phoneNumber: "",
@@ -41,11 +41,12 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
     const [addAddress] = useCreateAddressMutation();
 
     useEffect(() => {
-        axios.get("https://localhost:5001/api/address/provinces", 
+        axios.get(`${API_URL}/address/provinces`, 
                 {withCredentials: true,}) //important to get the data from the API GHN
             .then((response) => {
             setProvinces(response.data.data);
         });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
 
@@ -109,7 +110,7 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
 
     const fetchDistricts = (provinceId: string) => {
         try {
-            axios.get(`https://localhost:5001/api/address/districts?provinceId=${provinceId}`, 
+            axios.get(`${API_URL}/address/districts?provinceId=${provinceId}`, 
                         {withCredentials: true,}) 
                 .then((response) => {
                 setDistricts(response.data.data)});
@@ -122,7 +123,7 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
 
     const fetchWards = (districtId: string) => {
     try {
-        axios.get(`https://localhost:5001/api/address/wards?districtId=${districtId}`, 
+        axios.get(`${API_URL}/address/wards?districtId=${districtId}`, 
                         {withCredentials: true,}) 
                 .then((response) => {
                 setWards(response.data.data)});

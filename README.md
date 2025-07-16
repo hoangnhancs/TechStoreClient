@@ -78,6 +78,7 @@ E-Commerce Store is a full-stack web application built with ASP.NET Core + React
 - **External Services:**
   - **Cloudinary:** Image hosting and optimization
   - **Resend:** Transactional email delivery
+  - **Stripe** Payment gateway
 
 ### **Frontend**
 

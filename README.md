@@ -2,9 +2,11 @@
 
 E-Commerce Store is a full-stack web application built with ASP.NET Core + ReactJS, service-oriented e-commerce platform with a clean, maintainable codebase and modern tech stack.
 
-![Architecture Diagram](docs/architecture.png)
+**[Live Demo](https://server-solitary-wildflower-2933.fly.dev/products)**
 
 **Account demo:** - Account: admin@gmail.com - Password: Pa$$w0rd
+
+![Demo image for Reactivities](docs/images/ecommercestore_demo.png)
 
 ## ► Key Features
 
@@ -45,29 +47,22 @@ E-Commerce Store is a full-stack web application built with ASP.NET Core + React
 - **GHN API** integration for getting Provinces / Districts / Wards
 - **CRUD**: users can create new/update/remove addresses. It's used for Order feature. Users can use this feature at Order step or at user's profile
 
-### 8. Validation & Error Handling
+### 7. Validation & Error Handling
 
 - **Client-Side**: Zod schemas + React Hook Form + `@hookform/resolvers/zod`
 - Centralized **API Error Wrapper** (`HandleResult`)
 
-### 9. Architecture & Patterns
+### 8. Architecture & Patterns
 
 - **Clean Architecture**: API ↔ Application ↔ Domain ↔ Infrastructure
 - **CQRS** with MediatR: separate Commands & Queries
 - **Repository Pattern** & **Unit of Work** for data access
 - **AutoMapper**: easy for mapping between entity and DTO
 
-### 10. Photo Management
+### 9. Photo Management
 
 - **Cloudinary Integration**: All uploaded images (e.g., avatars) are stored, optimized, and served via Cloudinary.
 - **Profile Photos**: Users can upload photo to set avatar.
-
-### 10. DevOps & Deployment
-
-- **Docker** & **docker-compose** for local dev
-- **Fly.io** for backend hosting
-- **Vercel** for frontend SPA
-- **GitHub Actions** CI/CD pipelines for build, test, and deploy
 
 ---
 
@@ -102,7 +97,7 @@ E-Commerce Store is a full-stack web application built with ASP.NET Core + React
 
 ---
 
-![Database Schema for E-Commerce Sttore](docs/images/reactivities_diagram.png)
+![Database Schema for E-Commerce Sttore](docs/images/ecommerce_diagram.png)
 
 ## ► Getting Started Locally
 

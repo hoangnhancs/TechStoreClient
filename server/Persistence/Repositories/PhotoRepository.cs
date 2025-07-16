@@ -30,8 +30,9 @@ public class PhotoRepository : IPhotoRepository
         else
         {
             oldImage.Url = newImageUrl;
+            oldImage.PublicId = publicId;
         }
-        
+
         return newImageUrl;
     }
 }

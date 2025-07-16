@@ -8,7 +8,7 @@ export default defineConfig({
     port: 3000,
   },
   build: {
-    outDir: "../API/wwwroot",
+    outDir: "../server/API/wwwroot", // FE build ra wwwroot của BE
     emptyOutDir: true,
   },
   plugins: [react(), mkcert()],

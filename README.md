@@ -109,7 +109,7 @@ E-Commerce Store is a full-stack web application built with ASP.NET Core + React
 - An account and secret key on [Stripe](https://stripe.com/)
 - An API Token for geting address on [GHN](https://api.ghn.vn/home/docs/detail?id=78)
 - Accounts for [Cloudinary](https://cloudinary.com/), [Resend](https://resend.com/).
-- JWT key
+- JWT key for Auth
 
 ### **1. Backend Setup**
 

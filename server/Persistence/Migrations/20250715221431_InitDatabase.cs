@@ -308,6 +308,7 @@ namespace Persistence.Migrations
                     category_id = table.Column<int>(type: "integer", nullable: false),
                     brand = table.Column<string>(type: "text", nullable: false),
                     main_image_url = table.Column<string>(type: "text", nullable: false),
+                    main_image_public_id = table.Column<string>(type: "text", nullable: true),
                     quantity_in_stock = table.Column<int>(type: "integer", nullable: false),
                     url_slug = table.Column<string>(type: "text", nullable: true),
                     meta_title = table.Column<string>(type: "text", nullable: true),
@@ -508,6 +509,7 @@ namespace Persistence.Migrations
                 {
                     id = table.Column<string>(type: "text", nullable: false),
                     image_url = table.Column<string>(type: "text", nullable: false),
+                    public_id = table.Column<string>(type: "text", nullable: true),
                     product_id = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>

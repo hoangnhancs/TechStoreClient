@@ -507,6 +507,10 @@ namespace Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_on_sale");
 
+                    b.Property<string>("MainImagePublicId")
+                        .HasColumnType("text")
+                        .HasColumnName("main_image_public_id");
+
                     b.Property<string>("MainImageUrl")
                         .IsRequired()
                         .HasColumnType("text")
@@ -620,6 +624,10 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("product_id");
+
+                    b.Property<string>("PublicId")
+                        .HasColumnType("text")
+                        .HasColumnName("public_id");
 
                     b.HasKey("Id")
                         .HasName("pk_product_images");

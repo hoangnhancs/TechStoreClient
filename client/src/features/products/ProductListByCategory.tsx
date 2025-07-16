@@ -7,7 +7,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import CloseIcon from "@mui/icons-material/Close";
 import { Product } from "../../lib/types";
 import React from "react";
-import { useFetchFilterTagsQuery } from "../../app/api/filterTagApi";
+import { useFetchFilterTagsByCatIdQuery } from "../../app/api/filterTagApi";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { clearAllFilters, clearFilterByTagId, setFilter } from "../filter/filterSlice";
 import LoadingComponent from "../../components/LoadingComponent";
@@ -19,7 +19,7 @@ export default function ProductListByCategory() {
     const dispatch = useAppDispatch();
     const {id} = useParams();
     const categoryIdNumber = id ? Number(id) : undefined;
-    const {data: filterTags, isLoading: isLoadingFilterTagValueLoading} = useFetchFilterTagsQuery(
+    const {data: filterTags, isLoading: isLoadingFilterTagValueLoading} = useFetchFilterTagsByCatIdQuery(
         categoryIdNumber as number
     );
     const { data: productByCat, isLoading: isProductLoading } = useFetchProductsByCatQuery(
@@ -27,7 +27,7 @@ export default function ProductListByCategory() {
     );
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openTagId, setOpenTagId] = useState<number | null>(null);
-    const selectedFilters = useAppSelector((state) => state.filter.filter);
+    const selectedFilters = useAppSelector((state) => state.filter.filter);//type Record<number, number[]>: {filtertagId: [filterTagValueIds]}
     const [tmpSelectedFilters, setTmpSelectedFilters] = useState<Record<number, number[]>>(selectedFilters);
     console.log(selectedFilters)
     useEffect(() => {
@@ -92,7 +92,7 @@ export default function ProductListByCategory() {
         for (const key in selectedFilters) {
             const filterTagId = Number(key);
             const filterTagValues = selectedFilters[filterTagId];
-            tmp = tmp.filter(product => (product.productTagFilters.some(
+            tmp = tmp.filter(product => (product.productTagFilters.some(//bất kì ptf nào của sp, thỏa mãn nằm trong mảng filterTagValues  
                 ptf => {
                     const valueId = ptf.filterTagValueId;
                     return filterTagValues.includes(valueId);
@@ -103,24 +103,29 @@ export default function ProductListByCategory() {
         return tmp;
     }, [productByCat, selectedFilters]);
 
-    const filterTextMapping: Record<string, string> = React.useMemo(() => {
-        const mapping: Record<string, string> = {};
+    //mappingFilterTags: mapping filter tags. Eg: {1: "Độ phân giải", 2: "Kích thước"}
+    //mappingFilterTagValues: mapping filter tag values. Eg: {1: "2K", 2: "4K", 3: "24 inch", 4: "36 inch"}
+    const filterTextMapping: {mappingFilterTags: Record<number, string>, mappingFilterTagValues: Record<number, string>} = React.useMemo(() => {
+        const mappingFilterTags: Record<number, string> = {};
+        const mappingFilterTagValues: Record<number, string> = {};
         filterTags?.forEach(tag => {
-            mapping[tag.id] = tag.name ?? "";
+            mappingFilterTags[tag.id] = tag.name ?? "";
             const values = tag.values;
             values.forEach(value => {
-                mapping[value.id] = value.value;
+                mappingFilterTagValues[value.id] = value.value;
             })
         })
-        return mapping;
+        console.log(mappingFilterTags, mappingFilterTagValues)
+        return {mappingFilterTags, mappingFilterTagValues};
     }, [filterTags])
 
+    //filtertexts được dùng để hiện text giá trị đang được lọc. ví dụ: phân giải: 2k | 4k
     const filterTexts: Record<string, string> = React.useMemo(() => {
         if (selectedFilters == null || Object.keys(selectedFilters).length === 0) return {};
         const texts: Record<string, string> = {};
-        for (const tag in selectedFilters) {
-            const tagId = tag;
-            const values = selectedFilters[tag].map((valueId: number) => filterTextMapping[valueId]);
+        for (const tagId in selectedFilters) {
+            // const tagName = filterTextMapping.mappingFilterTags[Number(tagId)] ?? "";
+            const values = selectedFilters[Number(tagId)].map((valueId: number) => filterTextMapping.mappingFilterTagValues[valueId]);
             texts[tagId] = values.join(' | ');
         }
         return texts;
@@ -271,7 +276,7 @@ export default function ProductListByCategory() {
                                     >
                                         <CloseIcon sx={{mr: 0.5}} color="error" fontSize="small" />
                                         <Typography textAlign={"center"} variant="subtitle2">
-                                            {filterTextMapping[tagId]}: {filterTexts[tagId]}
+                                            {filterTextMapping.mappingFilterTags[Number(tagId)]}: {filterTexts[tagId]}
                                         </Typography>
                                     </Button>
                                     

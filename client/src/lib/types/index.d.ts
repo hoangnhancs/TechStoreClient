@@ -39,6 +39,7 @@ export type ProductTagFilter = {
 export type Images = {
     id: string;
     imageUrl: string;
+    publicId: string | null; // chỉ dùng khi ảnh lưu trên Cloudinary
     productId: string
 }
 
@@ -225,4 +226,26 @@ export type Review = {
   comment: string;
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type CreateProductInput = {
+  name: string,
+  description: string,
+  oldPrice: number,
+  discount: number,
+  categoryId: string,
+  brand: string,
+  quantityInStock: number,
+  mainImageFile: File,
+  detailImageFiles: File[],
+  filterTags: Record<number, string>,
+  attributeGroups: InputAttributeGroup[],
+}
+export type InputAttributeGroup = {
+  groupName: string;
+  attributes: InputAttribute[];
+};
+export type InputAttribute = {
+  key: string,
+  value: string;
 };

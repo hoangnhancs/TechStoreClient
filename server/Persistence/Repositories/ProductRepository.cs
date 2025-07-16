@@ -66,8 +66,9 @@ public class ProductRepository(StoreContext context) : IProductRepository
             .ToListAsync(cancellationToken);
     }
 
-    public Task<Product> AddNewProduct(Product product, CancellationToken cancellationToken)
+    public async Task<Product> AddNewProduct(Product product, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        await _context.Products.AddAsync(product, cancellationToken);
+        return product;
     }
 }

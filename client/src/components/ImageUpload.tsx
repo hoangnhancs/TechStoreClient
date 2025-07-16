@@ -5,13 +5,17 @@ import ClearIcon from '@mui/icons-material/Clear';
 
 type Props = {
     onImagesChange: (images: File[]) => void;
+    maxImages?: number
 }
 
-const ImageUpload: React.FC<Props> = React.memo(({onImagesChange}) => {
+const ImageUpload: React.FC<Props> = React.memo(({onImagesChange, maxImages}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<File[]>([]);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length) {
+
+    if (!e.target.files?.length) return;
+
+    if (e.target.files?.length ) {
       const newImages = Array.from(e.target.files);
       const newImagesList = [...images, ...newImages];
       setImages(newImagesList);
@@ -83,7 +87,13 @@ const ImageUpload: React.FC<Props> = React.memo(({onImagesChange}) => {
           borderColor: "#ccc",
         }}
         startIcon={<PhotoCamera />}
-        onClick={() => inputRef.current?.click()}
+        onClick={() => {
+          if (maxImages && images.length >= maxImages) {
+            alert(`Bạn chỉ có thể upload tối đa ${maxImages} hình ảnh cho mục này. Nếu muốn upload hình ảnh khác, hãy xóa bớt hình ảnh đã upload trước đó.`);
+            return;
+          }
+          inputRef.current?.click()
+        }}
       >
         Thêm hình ảnh
         <input

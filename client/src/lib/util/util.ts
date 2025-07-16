@@ -6,22 +6,22 @@ export function formatDate(date: DateArg<Date>) {
 }
 
 export const requiredString = (fieldName: string) => {
-  return z.string({ required_error: `${fieldName} is required` }).min(1, {
-    message: `${fieldName} is required`,
+  return z.string({ required_error: `${fieldName} là bắt buộc` }).min(1, {
+    message: `${fieldName} là bắt buộc`,
   });
 };
 
 export const passwordRules = (fieldName: string) => {
-  return z.string({ required_error: `${fieldName} is required` })
-    .min(1, { message: `${fieldName} is required` })
-    .min(6, "Password must contain at least 6 characters")
-    .max(32, "Password cannot exceed 32 characters")
-    .regex(/[A-Z]/, "Must contain at least 1 uppercase letter (A-Z)")
-    .regex(/[a-z]/, "Must contain at least 1 lowercase letter (a-z)")
-    .regex(/[0-9]/, "Must contain at least 1 digit (0-9)")
+  return z.string({ required_error: `${fieldName} là bắt buộc` })
+    .min(1, { message: `${fieldName} là bắt buộc` })
+    .min(6, "Mật khẩu phải chứa ít nhất 6 ký tự")
+    .max(32, "Mật khẩu không được vượt quá 32 ký tự")
+    .regex(/[A-Z]/, "Phải chứa ít nhất 1 chữ cái viết hoa (A-Z)")
+    .regex(/[a-z]/, "Phải chứa ít nhất 1 chữ cái viết thường (a-z)")
+    .regex(/[0-9]/, "Phải chứa ít nhất 1 chữ số (0-9)")
     .regex(
       /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/,
-      "Must contain at least 1 special character (!@#$...)"
+      "Phải chứa ít nhất 1 ký tự đặc biệt (!@#$...)"
     )
-    .refine((val) => !/\s/.test(val), "Password cannot contain whitespace");
+    .refine((val) => !/\s/.test(val), "Mật khẩu không được chứa khoảng trắng");
 };

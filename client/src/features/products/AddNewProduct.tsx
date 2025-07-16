@@ -1,19 +1,29 @@
-import { useForm, useWatch } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { AddProductSchema, addProductSchema } from "./schema/addProductSchema"
-
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Paper, TextField, Typography } from "@mui/material";
+import { useForm, Controller, useWatch, FieldError, FieldErrors } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AddProductFormValues, addProductSchema } from "./schema/addProductSchema";
+import { Box, Button, Paper, Typography, Accordion, AccordionSummary, AccordionDetails, TextField } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TextInput from "../../components/TextInput";
-import { useFetchCategoriesQuery } from "../../app/api/categoryApi";
-import LoadingComponent from "../../components/LoadingComponent";
 import SelectInput from "../../components/SelectInput";
-import { useMemo } from "react";
+import ImageUpload from "../../components/ImageUpload";
+import AttributeGroups from "./AttributeGroups";
+import LoadingComponent from "../../components/LoadingComponent";
+import { useFetchCategoriesQuery } from "../../app/api/categoryApi";
+import { useFetchAllFilterTagsQuery } from "../../app/api/filterTagApi";
+import { useGetCurrentUserQuery } from "../user/userApi";
+import { useSnackbar } from "notistack";
+import { useEffect, useState } from "react";
+import { CreateProductInput, FilterTag } from "../../lib/types";
+import { useCreateProductMutation } from "../../app/api/productApi";
 
 export default function AddNewProduct() {
-  const { data: categories, isLoading } = useFetchCategoriesQuery();
+  const { data: categories, isLoading: isCategoryLoading } = useFetchCategoriesQuery();
+  const { data: allFilterTags, isLoading: isFilterTagLoading } = useFetchAllFilterTagsQuery();
+  const { data: currentUser } = useGetCurrentUserQuery();
+  const [ createProduct ] = useCreateProductMutation();
+  const { enqueueSnackbar } = useSnackbar();
   
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, setValue } = useForm<AddProductFormValues>({
     mode: "onTouched",
     resolver: zodResolver(addProductSchema),
     defaultValues: {
@@ -21,80 +31,271 @@ export default function AddNewProduct() {
       description: "",
       category: "",
       brand: "",
-      oldPrice: undefined, 
-      discount: undefined,
+      oldPrice: 0,
+      discount: 0,
       mainImage: "",
-      detailImages: [],       // đúng key và kiểu
-      quantityInStock: undefined
+      mainImageFile: undefined,
+      detailImages: [],
+      detailImageFiles: [],
+      quantityInStock: 0,
+      attributeGroups: [],
+      filterTags: {},
     }
-  })
+  });
 
-  const onSubmit = async (data: AddProductSchema) => {
-    console.log("Submitted data:", data);
-  }
+  // Lấy category đang chọn
+  const selectedCategoryId = useWatch({ control, name: "category" });
 
+  // Lọc filter tags theo category
+  const [filters, setFilters] = useState<FilterTag[]>([]);
+  useEffect(() => {
+    if (selectedCategoryId && allFilterTags) {
+      const filteredTags = allFilterTags.filter(
+        tag => tag.categoryId.toString() === selectedCategoryId
+      );
+      setFilters(filteredTags);
+      // Reset filterTags khi đổi category
+      setValue("filterTags", {});
+    }
+  }, [selectedCategoryId, allFilterTags, setValue]);
+  useEffect(() => {
+    // Khi đổi category, reset filterTags về {}
+    setValue("filterTags", {});
+  }, [selectedCategoryId, setValue]);
+
+  // Tính giá sau giảm giá
   const oldPrice = useWatch({ control, name: "oldPrice" }) ?? 0;
   const discount = useWatch({ control, name: "discount" }) ?? 0;
-  const priceAfterDiscount = useMemo(() => {
-    if (oldPrice && discount) {
-      return oldPrice - (oldPrice * discount / 100);
-    }
-    return oldPrice;
-  }, [oldPrice, discount]);
+  const priceAfterDiscount = oldPrice && discount
+    ? oldPrice - (oldPrice * discount / 100)
+    : oldPrice;
 
-  if (!categories || isLoading) {
-    return (
-      <LoadingComponent />
-    )
+  // Xử lý lỗi
+  const flattenErrors = (errObj: FieldErrors<AddProductFormValues>): string[] => {
+  let msgs: string[] = [];
+  
+  if (Array.isArray(errObj)) {
+    errObj.forEach(item => {
+      if (item) msgs = msgs.concat(flattenErrors(item));
+    });
+  } else {
+    Object.values(errObj).forEach(val => {
+      if (val && typeof (val as FieldError).message === "string") {
+        const msg = (val as FieldError).message;
+        if (msg !== undefined) {
+          msgs.push(msg);
+        }
+      } else if (val && typeof val === "object") {
+        msgs = msgs.concat(
+          flattenErrors(val as FieldErrors<AddProductFormValues>)
+        );
+      }
+    });
   }
+  return msgs;
+};
+
+  const onSubmit = async (data: AddProductFormValues) => {
+    
+    console.log("Submitted data:", data);
+    createProduct({
+      categoryId: data.category,
+      name: data.name,
+      description: data.description,
+      category: data.category,
+      brand: data.brand,
+      oldPrice: data.oldPrice,
+      discount: data.discount,
+      mainImage: data.mainImage,
+      mainImageFile: data.mainImageFile,
+      detailImages: data.detailImages,
+      detailImageFiles: data.detailImageFiles,
+      quantityInStock: data.quantityInStock,
+      attributeGroups: (data.attributeGroups ?? []).map((group) => ({
+        groupName: group.groupName,
+        attributes: group.attributes,
+      })),
+      filterTags: data.filterTags,
+    } as CreateProductInput)
+    // TODO: upload images, call API
+  };
+
+  const onError = (errors: FieldErrors<AddProductFormValues>) => {
+    
+   
+    const allMessages = flattenErrors(errors);
+    allMessages.forEach(msg => enqueueSnackbar(msg, { variant: 'error' }));
+    console.error("Form errors:", errors);
+  };
+
+  if (!categories || isCategoryLoading || isFilterTagLoading) {
+    return <LoadingComponent />;
+  }
+
+  if (!currentUser || !currentUser.roles.includes("Admin")) {
+    return (
+      <Paper sx={{ padding: 3, borderRadius: 2 }}>
+        <Typography variant="h5" color="error">
+          Bạn không có quyền truy cập vào trang này.
+        </Typography>
+      </Paper>
+    );
+  }
+
   return (
     <Paper sx={{ borderRadius: 3, padding: 3, gap: 3, display: 'flex', flexDirection: 'column' }}>
       <Typography variant="h5" gutterBottom color="primary">
-        Create new product
+        Tạo sản phẩm mới
       </Typography>
-      <Box component='form' onSubmit={handleSubmit(onSubmit)} display='flex' flexDirection='column' gap={3}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit(onSubmit, onError)}
+        display="flex"
+        flexDirection="column"
+        gap={3}
+      >
+        {/* Thông tin cơ bản */}
         <Accordion defaultExpanded>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6">Basic Info</Typography>
+            <Typography variant="h5">Thông tin cơ bản</Typography>
           </AccordionSummary>
           <AccordionDetails sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextInput label="Name" name="name" control={control}/>
-            <TextInput label="Description" name="description" control={control}/>
+            <TextInput label="Tên sản phẩm" name="name" control={control} />
+            <TextInput label="Mô tả" name="description" control={control} />
             <Box display="flex" gap={1}>
-              <TextInput label="Old Price" name="oldPrice" control={control} type="number" sx={{flex: 7}} />
-              <TextInput label="Discount" name="discount" control={control} type="number" sx={{flex: 3}} />
+              <TextInput
+                label="Giá gốc"
+                name="oldPrice"
+                control={control}
+                type="number"
+                sx={{ flex: 7 }}
+              />
+              <TextInput
+                label="Giảm giá"
+                name="discount"
+                control={control}
+                type="number"
+                sx={{ flex: 3 }}
+              />
             </Box>
-            <Box display={"flex"} alignItems={"center"} gap={1}>
-              <Box display={"flex"} gap={2} sx={{flex: 7}} alignItems={"center"}>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Box display="flex" gap={2} sx={{ flex: 7 }} alignItems="center">
                 <Typography variant="subtitle1">
-                  Price after discount
+                  Giá sau khi giảm:
                 </Typography>
-                <TextField sx={{flexGrow: 1}} disabled value={priceAfterDiscount}/>
+                <TextField sx={{ flexGrow: 1 }} disabled value={priceAfterDiscount} />
               </Box>
-              <Box display={"flex"} sx={{flex: 3}}>
-                <TextInput label="Quantity" name="quantityInStock" control={control} type="number"/>
+              <Box display="flex" sx={{ flex: 3 }}>
+                <TextInput
+                  label="Số lượng"
+                  name="quantityInStock"
+                  control={control}
+                  type="number"
+                />
               </Box>
             </Box>
           </AccordionDetails>
         </Accordion>
+
+        {/* Danh mục và bộ lọc */}
         <Accordion defaultExpanded>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6">Category</Typography>
+            <Typography variant="h5">Danh mục và Bộ lọc</Typography>
           </AccordionSummary>
           <AccordionDetails sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <TextInput label="Brand" name="brand" control={control} />
-            <SelectInput 
-              items={categories.map(category => ({ text: category.name, value: category.id.toString() }))}
-              label={"Category"}
+            <SelectInput
+              items={categories.map(category => ({
+                text: category.name,
+                value: category.id.toString()
+              }))}
+              label="Danh mục"
               name="category"
               control={control}
-            />          
+            />
+            <TextInput label="Thương hiệu" name="brand" control={control} />
+            <Typography variant="h6" mt={2}>Bộ lọc</Typography>
+            {filters.length > 0 ? (
+              filters.map((filterTag) => (
+                <Box
+                  display="flex"
+                  key={filterTag.id}
+                  alignItems="center"
+                  gap={1}
+                >
+                  <Typography variant="subtitle1" sx={{ minWidth: 150 }} textTransform={"capitalize"}>
+                    {filterTag.name || "Không có tên bộ lọc"}
+                  </Typography>
+                  <SelectInput
+                    items={filterTag.values.map(attr => ({
+                      text: attr.value,
+                      value: attr.id.toString()
+                    }))}
+                    label="Thuộc tính"
+                    name={`filterTags.${String(filterTag.id)}`}
+                    control={control}
+                    sx={{ flexGrow: 1 }}
+                  />
+                </Box>
+              ))
+            ) : (
+              <Typography color="text.secondary">
+                Chọn danh mục để hiển thị bộ lọc
+              </Typography>
+            )}
           </AccordionDetails>
         </Accordion>
-        <Button type="submit" variant="contained" color="primary">
-          Create
+
+        {/* Thông số kỹ thuật */}
+        <Accordion defaultExpanded>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h5">Thông số kỹ thuật</Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <AttributeGroups control={control} />
+          </AccordionDetails>
+        </Accordion>
+
+        {/* Hình ảnh */}
+        <Accordion defaultExpanded>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h5">Hình ảnh</Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box display="flex" flexDirection="column" gap={1} marginLeft={1}>
+              <Typography variant="subtitle1">Hình ảnh chính</Typography>
+              <Controller
+                name="mainImageFile"
+                control={control}
+                defaultValue={undefined}
+                render={({ field: { onChange } }) => (
+                  <ImageUpload
+                    maxImages={1}
+                    onImagesChange={(images) => onChange(images[0] || undefined)}
+                  />
+                )}
+              />
+              <Typography variant="subtitle1" mt={2}>Hình ảnh chi tiết</Typography>
+              <Controller
+                name="detailImageFiles"
+                control={control}
+                defaultValue={[]}
+                render={({ field: { onChange } }) => (
+                  <ImageUpload onImagesChange={onChange} />
+                )}
+              />
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          size="large"
+        >
+          Tạo sản phẩm
         </Button>
       </Box>
     </Paper>
-  )
+  );
 }

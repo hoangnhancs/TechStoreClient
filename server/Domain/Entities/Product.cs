@@ -14,6 +14,8 @@ public class Product
     public Category? Category { get; set; }
     public required string Brand { get; set; }
     public required string MainImageUrl { get; set; }
+    // chỉ dùng khi ảnh lưu trên Cloudinary
+    public string? MainImagePublicId { get; set; }
     public required int QuantityInStock { get; set; }
     public string? UrlSlug { get; set; } 
     public string? MetaTitle { get; set; }

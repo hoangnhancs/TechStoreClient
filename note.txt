@@ -180,3 +180,69 @@ Khi bạn gọi await deleteAddress(addressToDeleteId).unwrap(), nó sẽ trả 
 Nếu mutation thành công, Promise sẽ resolve.
 Nếu mutation thất bại, Promise sẽ reject và ném ra một lỗi (throw an error).
 Điều này cho phép bạn bọc nó trong một khối try...catch quen thuộc:
+
+
+&:hover → là selector áp dụng cho bản thân component khi bị hover.
+
+Nếu bạn muốn style một component con khi component cha bị hover, thì cần dùng selector kiểu lồng nhau.
+ví dụ:
+Grid
+  sx={{
+    '&:hover .hoverText': {
+      color: 'primary.main',
+      textDecoration: 'underline',
+    },
+  }}
+>
+  <Typography className="hoverText" sx={{ color: '#000000' }}>
+    Văn bản này sẽ đổi màu khi hover vào Grid
+  </Typography>
+</Grid>
+
+deloy lên fly.io, trước tiên phải có file dockerfile
+sau : fly launch 
+sau : flyctl deploy
+
+{groups.map((group, gi) => (
+        <AttributeGroupItem
+          key={group.id} 
+          control={control}
+          groupIndex={gi}
+          removeGroup={removeGroup}
+        />
+      ))}
+
+Vấn đề ở đây là khi bạn xài group.id làm key trong vòng lặp của AttributeGroups, React sẽ “giữ lại” component AttributeGroupItem cũ khi thứ tự groupIndex thay đổi (ví dụ bạn xóa G1, G2 đẩy lên thành index 0), nên hook [useFieldArray({ name: ](http://_vscodecontentref_/3)attributeGroups.${groupIndex}.attributes` })` trong AttributeGroupItem không khởi tạo lại với name mới, dẫn đến bạn không thể nhập liệu được.
+Cách đơn giản để khắc phục là ép React unmount/remount AttributeGroupItem bất cứ khi nào groupIndex thay đổi. Ví dụ đổi key thành bao gồm cả index:
+
+{groups.map((group, gi) => (
+  <AttributeGroupItem
+    key={`${group.id}-${gi}`}      // ← include gi để remount khi index thay đổi
+    control={control}
+    groupIndex={gi}
+    removeGroup={removeGroup}
+  />
+))}
+
+ex:
+fields = [
+  { id: "a1x", … }, // G1
+  { id: "b2y", … }, // G2
+  { id: "c3z", … }  // G3
+]
+Dù bạn xóa G1, thì b2y và c3z vẫn giữ nguyên id của chúng.
+
+Tuy nhiên khi bạn dùng key là ${group.id}-${gi} thì key kết hợp cả id và index (gi). Ví dụ:
+
+– Trước khi xóa G1:
+– G1 key = "a1x-0"
+– G2 key = "b2y-1"
+– G3 key = "c3z-2"
+
+– Xóa G1 → fields trở thành [ {id:"b2y"}, {id:"c3z"} ] nên:
+– G2 key = "b2y-0" (thay vì "b2y-1")
+– G3 key = "c3z-1"
+
+React thấy key đã thay đổi (chứ không chỉ id) nên sẽ unmount component cũ và mount lại với key mới, giúp useFieldArray hook trong từng AttributeGroupItem được chạy lại với đúng groupIndex (0, 1, …). Nếu bạn chỉ dùng key={group.id}, React sẽ reuse instance (vì id không đổi) và hook bên trong sẽ không “restart” khi index của nó thay đổi, dẫn đến việc useFieldArray({ name: \attributeGroups.${groupIndex}…` })` không bắt đúng mảng mới.
+
+lib: notistack: bat toan bo error

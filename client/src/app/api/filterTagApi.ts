@@ -7,13 +7,20 @@ export const filterTagApi = createApi({
     baseQuery: baseQueryWithErrorHandling,
     tagTypes: ["FilterTag"],
     endpoints: (builder) => ({
-        fetchFilterTags: builder.query<FilterTag[], number>({
+        fetchFilterTagsByCatId: builder.query<FilterTag[], number>({
             query: (categoryId) => ({
                 url: `/filtertag/filtertags?catId=${categoryId}`,
                 method: "GET",
             }),
         }),
+        fetchAllFilterTags: builder.query<FilterTag[], void>({
+            query: () => ({
+                url: `/filtertag/filtertags/all_filter_tags`,
+                method: "GET",
+            }),
+     
+        }),
     }),
 })
 
-export const { useFetchFilterTagsQuery } = filterTagApi;
+export const { useFetchFilterTagsByCatIdQuery, useFetchAllFilterTagsQuery } = filterTagApi;

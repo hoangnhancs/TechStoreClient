@@ -18,7 +18,7 @@ export default function TextInput<T extends FieldValues> ({control, ...props}: P
         <TextField
             {...props}
             {...field}
-            value={field.value || ""}
+            value={field.value ?? ""}
             error={!!fieldState?.error}
             fullWidth
             helperText={fieldState.error?.message}

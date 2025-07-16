@@ -16,5 +16,11 @@ namespace API.Controllers
                 CategoryId = catId
             }));
         }
+        [HttpGet("filtertags/all_filter_tags")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllFilterTags()
+        {
+            return HandleResult(await Mediator.Send(new GetAllFilterTagQuery()));
+        }
     }
 }

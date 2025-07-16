@@ -19,6 +19,14 @@ export default function ProductAttributesPrompt({ attributes, open, onClose }: P
         return acc;
     }, {} as Record<string, Attribute[]>);
 
+    if (Object.keys(groupedAttributes).length === 0) {
+        return (
+            <Typography variant="body2" sx={{ textAlign: "center", color: "text.secondary" }}>
+                Không có thông số kỹ thuật cho sản phẩm này.
+            </Typography>
+        ); // No attributes to display
+    }
+
     return (
         <Dialog 
             open={open} 

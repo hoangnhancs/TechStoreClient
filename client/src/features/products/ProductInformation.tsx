@@ -79,7 +79,7 @@ export default function ProductInformation({product, currentUser}: Props) {
     // };
 
     // const isSelected = true; 
-
+    console.log('Product Information:', product?.attributes);
     const formatPrice = (price: number) => {
         return price.toLocaleString('vi-VN') + 'đ';
     }

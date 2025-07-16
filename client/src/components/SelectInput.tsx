@@ -20,7 +20,7 @@ export default function SelectInput<T extends FieldValues> (props: Props<T>) {
                 onChange={field.onChange}
             >
                 {props.items.map(item => (
-                    <MenuItem key={item.value} value={item.value}>{item.text}</MenuItem>
+                    <MenuItem key={item.value} value={item.value} sx={{textTransform: 'capitalize'}}>{item.text.toUpperCase()}</MenuItem>
                 ))}
             </Select>
             <FormHelperText>{fieldState.error?.message}</FormHelperText>

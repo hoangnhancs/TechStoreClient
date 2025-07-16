@@ -1,12 +1,12 @@
 using System;
 using Application.DTOs;
 using Domain.Entities;
-
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 
 namespace Application.Mappers;
 
-using AutoMapper;
-using Microsoft.CodeAnalysis;
 
 public class MappingProfile : Profile
 {
@@ -50,11 +50,13 @@ public class MappingProfile : Profile
         CreateMap<ProductDto, Product>()
             .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
             .ForMember(dest => dest.DetailImages, opt => opt.MapFrom(src => src.Images))
-            .ForMember(dest => dest.DisplayTags, opt => opt.MapFrom(src => src.Tags));
+            .ForMember(dest => dest.DisplayTags, opt => opt.MapFrom(src => src.Tags))
+            .ForMember(dest => dest.MainImagePublicId, opt => opt.MapFrom(src => src.ImagePublicId));
         CreateMap<Product, ProductDto>()
             .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.MainImageUrl))
             .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.DetailImages))
-            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.DisplayTags));
+            .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.DisplayTags))
+            .ForMember(dest => dest.ImagePublicId, opt => opt.MapFrom(src => src.MainImagePublicId));
 
         CreateMap<FilterTag, FilterTagDto>();
         CreateMap<FilterTagDto, FilterTag>();
@@ -68,5 +70,7 @@ public class MappingProfile : Profile
         CreateMap<ProductTag, ProductTagDto>();
         CreateMap<Review, ReviewDto>();
         CreateMap<ReviewDto, Review>();
+
+
     }
 }

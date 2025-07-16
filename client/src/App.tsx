@@ -4,7 +4,7 @@ import NavBar from "./layouts/NavBar"
 import { Outlet, useLocation } from "react-router-dom"
 import { useAppSelector } from "./hooks"
 import LoadingOverlay from "./components/LoadingOverlay"
-
+import { SnackbarProvider } from 'notistack';
 
 
 function App() {
@@ -78,30 +78,32 @@ function App() {
 
   return (
     <>
-      <LoadingOverlay />
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {shouldHideNav  ? null : <NavBar />}
-        <Box
-          sx={{
-            background: isDarkMode 
-              ? 'linear-gradient(to bottom, #1a237e 0%, #121212 100%)' 
-              : 'linear-gradient(to bottom, #bbdefb 0%, #f5f5f5 100%)',
-            minHeight: '100vh',
-            
-            display: 'flex',
-            flexDirection: 'column',
-            
-            
-          }}
-        >
-          <Container maxWidth="xl" sx={{ 
-            mt: 12  // marginTop responsive
-          }}>
-            <Outlet /> 
-          </Container> 
-        </Box>
-      </ThemeProvider> 
+      <SnackbarProvider maxSnack={5}>
+        <LoadingOverlay />
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          {shouldHideNav  ? null : <NavBar />}
+          <Box
+            sx={{
+              background: isDarkMode 
+                ? 'linear-gradient(to bottom, #1a237e 0%, #121212 100%)' 
+                : 'linear-gradient(to bottom, #bbdefb 0%, #f5f5f5 100%)',
+              minHeight: '100vh',
+              
+              display: 'flex',
+              flexDirection: 'column',
+              
+              
+            }}
+          >
+            <Container maxWidth="xl" sx={{ 
+              mt: 12  // marginTop responsive
+            }}>
+              <Outlet /> 
+            </Container> 
+          </Box>
+        </ThemeProvider> 
+      </SnackbarProvider>
     </>    
     // Outlet sẽ hiển thị những gì nằm trong children của Route hiện tại. Để nó hoạt động
   )

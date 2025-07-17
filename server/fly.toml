@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for server-nameless-breeze-5180 on 2025-07-17T15:25:34+07:00
+# fly.toml app configuration file generated for server-twilight-firefly-7658 on 2025-07-17T15:31:24+07:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'server-nameless-breeze-5180'
+app = 'server-twilight-firefly-7658'
 primary_region = 'syd'
 
 [build]

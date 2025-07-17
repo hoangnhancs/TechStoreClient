@@ -5,6 +5,7 @@ import { Outlet, useLocation } from "react-router-dom"
 import { useAppSelector } from "./hooks"
 import LoadingOverlay from "./components/LoadingOverlay"
 import { SnackbarProvider } from 'notistack';
+import HomePage from "./pages/HomePage"
 
 
 function App() {
@@ -96,11 +97,15 @@ function App() {
               
             }}
           >
-            <Container maxWidth="xl" sx={{ 
-              mt: 12  // marginTop responsive
-            }}>
-              <Outlet /> 
-            </Container> 
+            {location.pathname === '/' ? 
+              <HomePage /> 
+                : 
+              <Container maxWidth="xl" sx={{ 
+                mt: 10  // marginTop responsive
+              }}>
+                <Outlet /> 
+              </Container> 
+            }
           </Box>
         </ThemeProvider> 
       </SnackbarProvider>

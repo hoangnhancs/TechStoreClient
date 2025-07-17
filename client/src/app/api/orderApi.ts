@@ -2,11 +2,12 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithErrorHandling } from "./baseApi";
 import { CreateOrderInput, Order } from "../../lib/types";
 import { LoadingPriority } from "../../layouts/uiSlice";
+import { productApi } from "./productApi";
 
 export const orderApi = createApi({
   reducerPath: "orderApi",
   baseQuery: baseQueryWithErrorHandling,
-  tagTypes: ["Order"],
+  tagTypes: ["Product", "Order"],
   endpoints: (builder) => ({
     fetchOrder: builder.query<Order[], void>({
       query: () => ({ url: "/order/myorders", method: "GET" }),
@@ -29,6 +30,20 @@ export const orderApi = createApi({
       }),
       invalidatesTags: [{ type: "Order", id: "LIST" }],
       extraOptions: { loadingPriority: LoadingPriority.HIGH }, // Set loading priority for this mutation
+      async onQueryStarted(arg, {dispatch, queryFulfilled}) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data.orderStatus === "Completed") {
+            const productIds = arg.items.map((item) => item.productId);
+            dispatch(
+            productApi.util.invalidateTags([
+              ...productIds.map((id) => ({ type: "Product" as const, id })),
+            ]));
+          }
+        } catch (error) {
+          console.error("Error creating order:", error);
+        }
+      }
     }),
     getOrderDetails: builder.query<Order, string>({
       query: (orderId) => ({

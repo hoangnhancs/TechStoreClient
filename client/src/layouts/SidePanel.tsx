@@ -35,19 +35,15 @@ const categories: Category[] = [
 
 const bannerItems = [
     {
-        image: "/images/banner1.jpg",
+        image: "https://res.cloudinary.com/dukhvtyr7/image/upload/v1752750848/banner3_fjl7xa.png",
         title: "Summer Sale"
     },
     {
-        image: "/images/banner2.jpg",
+        image: "https://res.cloudinary.com/dukhvtyr7/image/upload/v1752750848/banner2_w5valv.png",
         title: "New Arrivals"
     },
     {
-        image: "/images/banner3.jpg",
-        title: "Hot deals weekend"
-    },
-    {
-        image: "/images/banner3.jpg",
+        image: "https://res.cloudinary.com/dukhvtyr7/image/upload/v1752750848/banner1_osh2sf.png",
         title: "Hot deals weekend"
     },
     // ...thêm các banner khác
@@ -64,6 +60,7 @@ export default function SidePanel() {
                 flexDirection: 'row', // Đặt Categories và Carousel ngang hàng
                 gap: 2,
                 mb: 3,
+                mt: 2,
             }}
         >
             <Paper 
@@ -205,7 +202,8 @@ export default function SidePanel() {
                                 sx={{
                                     width: '100%',
                                     height: '100%',
-                                    objectFit: 'cover'
+                                    objectFit: 'contain', // 👈 giữ nguyên tỉ lệ ảnh
+                                    backgroundColor: '#f5f5f5' // Tùy chọn nếu có khoảng trắng
                                 }}
                             />
                         </SwiperSlide>

@@ -58,10 +58,10 @@ export const baseQueryWithErrorHandling = async (
     switch (originalStatus) {
       case 400:
         if (typeof responseData === "string") {
-          if (isDev) toast.error(responseData || "Bad request");
+          toast.error(responseData || "Bad request");
         }
         else if ('errors' in responseData) {
-          if (isDev) toast.error(responseData.title);
+          toast.error(responseData.title);
           throw Object.values(responseData.errors).flat().join(', ');
         }
         break;

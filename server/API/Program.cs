@@ -28,11 +28,11 @@ using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// if (builder.Environment.IsProduction())
-// {
-//     builder.WebHost.UseUrls("http://0.0.0.0:8080"); //product moi dung cai nay, con khong thi mac dinh 5001
-// }
-builder.WebHost.UseUrls("http://0.0.0.0:8080");
+if (builder.Environment.IsProduction())
+{
+    builder.WebHost.UseUrls("http://0.0.0.0:8080"); //product moi dung cai nay, con khong thi mac dinh 5001
+}
+// builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
 // Add services to the container.
 

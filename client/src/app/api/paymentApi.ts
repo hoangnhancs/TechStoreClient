@@ -44,6 +44,7 @@ export const paymentApi = createApi({
         method: "PUT",
       }),
       invalidatesTags: ["Payment"],
+
       extraOptions: { loadingPriority: LoadingPriority.HIGH },
     }),
   }),

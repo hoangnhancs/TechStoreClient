@@ -514,7 +514,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                             fullWidth
                             sx={{ mt: 2 }}
                             onClick={handleAddToCart} 
-                            disabled={isLoading}
+                            disabled={isLoading || product.quantityInStock <= 0}
                         >
                             {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Add to Basket'}
                         </Button>

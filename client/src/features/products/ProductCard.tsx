@@ -110,7 +110,7 @@ export default function ProductCard({product}: Props) {
             component="img"
             sx={{
                 height: 230,
-                width: 230,
+                width: "100%",
                 backgroundSize: 'cover',
                 objectFit: 'contain',  
                 mx: 'auto',  // Căn giữa hình ảnh

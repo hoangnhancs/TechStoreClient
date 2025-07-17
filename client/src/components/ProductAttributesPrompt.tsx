@@ -21,7 +21,7 @@ export default function ProductAttributesPrompt({ attributes, open, onClose }: P
 
     if (Object.keys(groupedAttributes).length === 0) {
         return (
-            <Typography variant="body2" sx={{ textAlign: "center", color: "text.secondary" }}>
+            <Typography variant="body2" sx={{ textAlign: "center", color: "text.secondary", mt: 2 }}>
                 Không có thông số kỹ thuật cho sản phẩm này.
             </Typography>
         ); // No attributes to display

@@ -1,6 +1,6 @@
 import { Box, Grid } from "@mui/material"
 import ProductCard from "./ProductCard"
-import { useFetchTop10ProductsQuery,   } from "../../app/api/productApi"
+import { useFetchTop10ProductsQuery } from "../../app/api/productApi"
 import LoadingComponent from "../../components/LoadingComponent"
 import { useGetCurrentUserQuery } from "../user/userApi"
 

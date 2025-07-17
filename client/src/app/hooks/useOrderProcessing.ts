@@ -83,13 +83,16 @@ export const useOrderProcessing = () => {
 
   const handleCreateOrder = async () => {
     try {
-      dispatch(setBasketStates({ selectedItems, basket }));
-      await createOrUpdateOrder(createOrderParas);
-
-      navigate("/order");
+      try {
+        await createOrUpdateOrder(createOrderParas).unwrap();
+        navigate("/order");
+      } catch (error) {
+        console.error("Error creating order:", error);
+        toast.error("Không thể tạo đơn hàng.");
+      }
     } catch (error) {
       console.error("Error creating order:", error);
-      toast.error("Không thể tạo đơn hàng. Vui lòng thử lại." + error);
+      toast.error("Không thể tạo đơn hàng. Vui lòng thử lại.");
     }
   };
 

@@ -71,4 +71,64 @@ public class ProductRepository(StoreContext context) : IProductRepository
         await _context.Products.AddAsync(product, cancellationToken);
         return product;
     }
+
+    public async Task UpdateProductAsync(Product product, DateTime? UpdatedAt, CancellationToken cancellationToken)
+    {
+        var existProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == product.Id, cancellationToken);
+        if (existProduct == null)
+        {
+            throw new Exception("Product not found");
+        }
+
+        existProduct.Name = product.Name;
+        existProduct.Description = product.Description;
+        existProduct.Price = product.Price;
+        existProduct.QuantityInStock = product.QuantityInStock;
+        existProduct.CategoryId = product.CategoryId;
+        if (UpdatedAt.HasValue)
+        {
+            existProduct.UpdatedAt = UpdatedAt.Value;
+        }
+        existProduct.MainImageUrl = product.MainImageUrl;
+        existProduct.MainImagePublicId = product.MainImagePublicId;
+        existProduct.DetailImages = product.DetailImages;
+        // existProduct = product;
+    }
+
+    public async Task UpdateProductQuantityAsync(string productId, int quantity, string Mode, CancellationToken cancellationToken)
+    {
+        var existProduct = await _context.Products.FirstOrDefaultAsync(p => p.Id == productId, cancellationToken);
+        if (existProduct == null)
+        {
+            throw new Exception("Product not found");
+        }
+
+        if (Mode == "add")
+        {
+            existProduct.QuantityInStock += quantity;
+        }
+        else if (Mode == "sub")
+        {
+            existProduct.QuantityInStock -= quantity;
+        }
+    }
+
+    public async Task<List<string>> InventoryCheckAsync(List<OrderItem> orderItems, CancellationToken cancellationToken)
+    {
+        var messages = new List<string>();
+        foreach (var item in orderItems)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId, cancellationToken);
+            if (product == null)
+            {
+                messages.Add($"Sản phẩm với ID {item.ProductId} không tồn tại.");
+                continue;
+            }
+            if (product.QuantityInStock < item.Quantity)
+            {
+                messages.Add($"Sản phẩm '{product.Name}' chỉ còn {product.QuantityInStock} cái trong kho.");
+            }
+        }
+        return messages;
+    }
 }

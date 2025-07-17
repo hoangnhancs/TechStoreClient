@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for server-solitary-wildflower-2933 on 2025-07-17T02:15:06+07:00
+# fly.toml app configuration file generated for server-nameless-breeze-5180 on 2025-07-17T15:25:34+07:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'server-solitary-wildflower-2933'
+app = 'server-nameless-breeze-5180'
 primary_region = 'syd'
 
 [build]

@@ -112,6 +112,10 @@ builder.Services.AddAuthorization(opt =>
     {
         policy.Requirements.Add(new SecurityStampRequirement());
     });
+    opt.AddPolicy("IsAdminRequirement", policy =>
+    {
+        policy.Requirements.Add(new IsAdminRequirement());
+    });
 });
 builder.Services.AddTransient<IAuthorizationHandler, SecurityStampRequirementHandler>();
 builder.Services.ConfigureApplicationCookie(options =>

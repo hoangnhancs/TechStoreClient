@@ -32,7 +32,8 @@ public class MappingProfile : Profile
         CreateMap<CommentDto, Comment>();
 
         CreateMap<OrderItemDto, OrderItem>();
-        CreateMap<OrderItem, OrderItemDto>();
+        CreateMap<OrderItem, OrderItemDto>()
+            .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Product!.MainImageUrl));
         CreateMap<Order, OrderDto>();
         CreateMap<OrderDto, Order>()
             .ForMember(dest => dest.Total, opt => opt.MapFrom(src => src.Items.Sum(x => x.UnitPrice * x.Quantity) + src.ShippingCost - src.Discount));

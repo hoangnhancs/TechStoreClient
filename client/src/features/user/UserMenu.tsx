@@ -4,7 +4,6 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { useState } from 'react';
 import { Avatar, Box, Divider, ListItemIcon, ListItemText } from '@mui/material';
-
 import { Link } from 'react-router-dom';
 import { Add, Logout, Password, Person, Receipt } from '@mui/icons-material';
 import { useLogoutMutation } from './userApi';
@@ -12,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { BasicUser } from '../../lib/types';
 import { clearCurrentUser } from './userSlice';
 import LoadingComponent from '../../components/LoadingComponent';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 
 type Props = {
     currentUser: BasicUser
@@ -80,14 +80,22 @@ export default function UserMenu({currentUser}: Props) {
                     },
                 }}
             >
-                {(currentUser?.roles.includes('Admin')) && (
-                    <MenuItem component={Link} to='/add-new-product' onClick={handleClose}>
-                    <ListItemIcon>
-                        <Add />
-                    </ListItemIcon>
-                    <ListItemText>Add product</ListItemText>
-                </MenuItem>
-                )}
+                {(currentUser?.roles.includes('Admin')) && 
+                    [
+                        <MenuItem key={'add-new-product'} component={Link} to='/add-new-product' onClick={handleClose}>
+                            <ListItemIcon>
+                                <Add />
+                            </ListItemIcon>
+                            <ListItemText>Add product</ListItemText>
+                        </MenuItem>,
+                        <MenuItem key={'dashboard'} component={Link} to='/dashboard' onClick={handleClose}>
+                            <ListItemIcon>
+                                <DashboardIcon />
+                            </ListItemIcon>
+                            <ListItemText>Dashboard</ListItemText>
+                        </MenuItem>
+                    ]
+                }
                 
                 <MenuItem component={Link} to={'/profile'} onClick={handleClose}>
                     <ListItemIcon>

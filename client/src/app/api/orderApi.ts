@@ -52,6 +52,17 @@ export const orderApi = createApi({
       }),
       providesTags: (_, __, orderId) => [{ type: "Order", id: orderId }],
     }),
+    getListOrdersInDateRange: builder.query<Order[], { startDate: string; endDate: string }>({
+      query: ({ startDate, endDate }) => ({
+        url: "/order/list-orders?startDate=" + startDate + "&endDate=" + endDate,
+        method: "GET",
+      }),
+      providesTags: (result) => result ? 
+        [...result.map((order) => 
+          ({ type: "Order" as const, id: order.id })),
+          { type: "Order", id: "LIST" }
+        ] : [{ type: "Order", id: "LIST" }]
+    }),
   }),
 });
 
@@ -59,4 +70,5 @@ export const {
   useFetchOrderQuery,
   useCreateOrderMutation,
   useGetOrderDetailsQuery,
+  useLazyGetListOrdersInDateRangeQuery,
 } = orderApi;

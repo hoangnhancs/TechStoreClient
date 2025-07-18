@@ -1,8 +1,10 @@
 using System;
 using System.Security.Claims;
+using API.DTOs;
 using Application.Command.Order;
 using Application.DTOs;
 using Application.Queries.Order;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,5 +44,14 @@ public class OrderController : BaseApiController
             return Unauthorized("User not authenticated");
 
         return HandleResult(await Mediator.Send(new GetOrderDetailsByOrderIdQuery { OrderId = orderId }));
+    }
+    [Authorize(Roles = "Admin")]
+    [HttpGet("list-orders")]
+    public async Task<IActionResult> GetAllOrders([FromQuery] OrderRangeDate orderRangeDate)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User not authenticated");
+        return HandleResult(await Mediator.Send(new GetListOrdersInRangeDateQuery { StartDate = orderRangeDate.StartDate, EndDate = orderRangeDate.EndDate }));
     }
 }

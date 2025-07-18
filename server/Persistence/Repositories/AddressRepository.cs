@@ -34,7 +34,7 @@ public class AddressRepository(StoreContext context) : IAddressRepository
     public async Task<Address> UpdateAddressAsync(string addressId, Address address, CancellationToken cancellationToken)
     {
         var currentAddress = await _context.Addresses
-            .Where(a => a.Id == addressId)
+            .Where(a => a.Id == addressId && !a.IsDeleted)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (currentAddress != null)
@@ -63,7 +63,7 @@ public class AddressRepository(StoreContext context) : IAddressRepository
     public async Task SetOtherAddressNotDefaultAsync(string userId, CancellationToken cancellationToken)
     {
         var addressesDefault = await _context.Addresses
-            .Where(a => a.UserId == userId && a.IsDefault)
+            .Where(a => a.UserId == userId && a.IsDefault && !a.IsDeleted)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (addressesDefault != null)
@@ -76,7 +76,7 @@ public class AddressRepository(StoreContext context) : IAddressRepository
     public async Task<Address> GetAddressByIdAsync(string addressId, CancellationToken cancellationToken)
     {
         return await _context.Addresses
-            .Where(a => a.Id == addressId)
+            .Where(a => a.Id == addressId && !a.IsDeleted)
             .FirstOrDefaultAsync(cancellationToken) ?? throw new Exception("Address not found");
     }
 

@@ -285,7 +285,7 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
                         <Checkbox
                             checked={!canDisableDefaultAddress ? true : form.isDefault} 
                             onChange={toogleDefaultAddress}   
-                            disabled={!canDisableDefaultAddress || form.isDefault}
+                            disabled={!canDisableDefaultAddress || selectedAddress?.isDefault}
                         />
                         <Typography variant="subtitle1" sx={{ ml: 1 }}>                       
                             Đặt làm địa chỉ mặc định

@@ -89,6 +89,7 @@ export type Payment = {
 export type Order = {
   id: string;
   userId: string;
+  user: User;
   shippingAddressId: string;
   billingAddressId: string;
   subToTal: number;
@@ -98,7 +99,7 @@ export type Order = {
   orderStatus: string;
   paymentMethod: string;
   paymentStatus: string;
-  updateAt: Date;
+  updatedAt: Date;
 };
 
 export type CreateOrderInput = {

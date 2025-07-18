@@ -121,8 +121,8 @@ export default function UserProfileAddress() {
       <Box display={"flex"} flexDirection="column" gap={2}>
         {(addresses && addresses.length > 0) && 
           (addresses.map((address, idx) => (
-            <Box display={"flex"} flexDirection={"column"}>
-              <Box key={address.id}>
+            <Box display={"flex"} flexDirection={"column"} key={address.id}>
+              <Box>
                 {idx === 0 ? null :<Divider sx={{width: "100%", margin: 0}}></Divider>}
                 <Grid container sx={{mt: 1}}>
                   <Grid size={9}>

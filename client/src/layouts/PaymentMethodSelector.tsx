@@ -339,7 +339,7 @@ export default function PaymentMethodSelector({ onPaymentInforChange }: Props) {
                               <Box display="flex" flexDirection="column" alignItems="center">
                                 <Box 
                                   component="img" 
-                                  src="../src/assets/logo_momo.png" 
+                                  src="https://res.cloudinary.com/dukhvtyr7/image/upload/v1752835775/logo_momo_rllcbg.png" 
                                   alt="Momo" 
                                   sx={{ width: 48, height: 48, objectFit: 'contain' }}
                                 />
@@ -366,7 +366,7 @@ export default function PaymentMethodSelector({ onPaymentInforChange }: Props) {
                               <Box display="flex" flexDirection="column" alignItems="center">
                                 <Box 
                                   component="img" 
-                                  src="../src/assets/logo_vnpay.png" 
+                                  src="https://res.cloudinary.com/dukhvtyr7/image/upload/v1752835775/logo_vnpay_wybxv5.webp" 
                                   alt="VNpay" 
                                   sx={{ width: 48, height: 48, objectFit: 'contain' }}
                                 />

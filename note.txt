@@ -246,3 +246,6 @@ Tuy nhiên khi bạn dùng key là ${group.id}-${gi} thì key kết hợp cả i
 React thấy key đã thay đổi (chứ không chỉ id) nên sẽ unmount component cũ và mount lại với key mới, giúp useFieldArray hook trong từng AttributeGroupItem được chạy lại với đúng groupIndex (0, 1, …). Nếu bạn chỉ dùng key={group.id}, React sẽ reuse instance (vì id không đổi) và hook bên trong sẽ không “restart” khi index của nó thay đổi, dẫn đến việc useFieldArray({ name: \attributeGroups.${groupIndex}…` })` không bắt đúng mảng mới.
 
 lib: notistack: bat toan bo error
+
+
+alignItems != flexdirection

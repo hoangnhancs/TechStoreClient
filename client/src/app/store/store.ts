@@ -18,6 +18,7 @@ import basketReducer from "../../features/basket/basketSlice";
 import filterReducer from "../../features/filter/filterSlice";
 import authReducer from "../slice/authSlice";
 import userReducer from "../../features/user/userSlice";
+import orderReducer from "../../features/order/orderSlice";
 
 // RTK Query APIs
 import { productApi } from "../api/productApi";
@@ -52,13 +53,14 @@ export const rootReducer = combineReducers({
   user: userReducer,
   basket: basketReducer,
   filter: filterReducer,
+  order: orderReducer
 });
 
-//Persist config: chỉ persist basket và filter
+//Persist config: chỉ persist nhung store trong whitelist
 const persistConfig = {
   key: "root",
   storage: storageSession,
-  whitelist: ["basket", "filter"],
+  whitelist: ["basket", "filter", "order"],
 };
 
 //Create persistedReducer (wrapped version of rootReducer)

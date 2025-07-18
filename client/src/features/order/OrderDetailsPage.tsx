@@ -158,7 +158,7 @@ return (
             </Box>
             
             <Typography variant="body2" color="text.secondary">
-                Đặt hàng lúc: {order.updateAt ? formatDate(order.updateAt.toString()) : 'N/A'}
+                Đặt hàng lúc: {order.updatedAt ? formatDate(order.updatedAt.toString()) : 'N/A'}
             </Typography>
         </Box>
 

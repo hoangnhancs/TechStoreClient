@@ -156,7 +156,7 @@ export default function MyOrdersPage() {
                                     subheader={
                                         <Box display="flex" justifyContent="space-between" alignItems="center">
                                             <Typography variant="body2" color="text.secondary">
-                                                {format(new Date(order.updateAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                                                {format(new Date(order.updatedAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
                                             </Typography>
                                         </Box>
                                     }
@@ -172,7 +172,7 @@ export default function MyOrdersPage() {
                                     <List disablePadding>
                                         {order.items.map(item => (
                                             <ListItem key={item.productId} disablePadding sx={{ mb: 1 }}>
-                                                <ListItemAvatar>
+                                                <ListItemAvatar sx={{ mr: 2}}>
                                                     <ProductImage 
                                                         src={item.imageUrl || '/placeholder.png'}
                                                         alt={item.productName}
@@ -250,3 +250,4 @@ export default function MyOrdersPage() {
         )
     );
 }
+

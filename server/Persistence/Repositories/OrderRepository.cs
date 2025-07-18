@@ -19,9 +19,9 @@ public class OrderRepository(StoreContext context) : IOrderRepository
     public async Task<List<Order>> GetOrdersByUserIdAsync(string userId)
     {
         var orders = await _context.Orders
-            .Include(o => o.Items)
-            .ThenInclude(o => o.Product)
             .Where(o => o.UserId == userId)
+            .Include(o => o.Items)
+            .ThenInclude(o => o.Product) 
             .ToListAsync();
         return orders;
     }
@@ -96,6 +96,18 @@ public class OrderRepository(StoreContext context) : IOrderRepository
             .FirstOrDefaultAsync(o => o.Id == orderId);
         if (orderDetails == null) throw new InvalidOperationException("Order not found");
         return orderDetails;
+    }
+
+    public async Task<List<Order>> GetOrdersInRangeDateAsync(DateTime startDate, DateTime endDate)
+    {
+        var startDateUtc = startDate.ToUniversalTime();
+        var endDateUtc = endDate.ToUniversalTime();
+        var orders = await _context.Orders
+            .Where(o => o.UpdatedAt >= startDateUtc && o.UpdatedAt <= endDateUtc)
+            .Include(o => o.Items)
+            .Include(o => o.User)
+            .ToListAsync();
+        return orders;
     }
 }
 

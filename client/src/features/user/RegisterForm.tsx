@@ -17,7 +17,7 @@ export default function RegisterForm() {
     const handleSubmit = async (data: RegisterSchema) => {
             try {
                 register(data).unwrap()
-                toast.success("Register successful, now you can login.")
+                toast.success("Register successful. Please check your email to confirm your account.")
                 navigate("/login")
             } catch (error) {
                 console.error("Register failed: ", error)

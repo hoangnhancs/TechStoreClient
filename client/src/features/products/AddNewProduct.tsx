@@ -10,7 +10,7 @@ import AttributeGroups from "./AttributeGroups";
 import LoadingComponent from "../../components/LoadingComponent";
 import { useFetchCategoriesQuery } from "../../app/api/categoryApi";
 import { useFetchAllFilterTagsQuery } from "../../app/api/filterTagApi";
-import { useGetCurrentUserQuery } from "../user/userApi";
+// import { useGetCurrentUserQuery } from "../user/userApi";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 import { CreateProductInput, FilterTag } from "../../lib/types";
@@ -19,7 +19,7 @@ import { useCreateProductMutation } from "../../app/api/productApi";
 export default function AddNewProduct() {
   const { data: categories, isLoading: isCategoryLoading } = useFetchCategoriesQuery();
   const { data: allFilterTags, isLoading: isFilterTagLoading } = useFetchAllFilterTagsQuery();
-  const { data: currentUser } = useGetCurrentUserQuery();
+  // const { data: currentUser } = useGetCurrentUserQuery();
   const [ createProduct ] = useCreateProductMutation();
   const { enqueueSnackbar } = useSnackbar();
   
@@ -132,15 +132,15 @@ export default function AddNewProduct() {
     return <LoadingComponent />;
   }
 
-  if (!currentUser || !currentUser.roles.includes("Admin")) {
-    return (
-      <Paper sx={{ padding: 3, borderRadius: 2 }}>
-        <Typography variant="h5" color="error">
-          Bạn không có quyền truy cập vào trang này.
-        </Typography>
-      </Paper>
-    );
-  }
+  // if (!currentUser || !currentUser.roles.includes("Admin")) {
+  //   return (
+  //     <Paper sx={{ padding: 3, borderRadius: 2 }}>
+  //       <Typography variant="h5" color="error">
+  //         Bạn không có quyền truy cập vào trang này.
+  //       </Typography>
+  //     </Paper>
+  //   );
+  // }
 
   return (
     <Paper sx={{ borderRadius: 3, padding: 3, gap: 3, display: 'flex', flexDirection: 'column' }}>

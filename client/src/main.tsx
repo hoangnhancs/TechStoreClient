@@ -13,25 +13,29 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PersistGate } from 'redux-persist/integration/react';
 import { Box, CircularProgress } from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <Provider store={store}>
-      <PersistGate 
-        loading={ 
-            <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100vh" // Chiều cao toàn trang
-            >
-                <CircularProgress />
-            </Box>
-        } 
-          persistor={persistor}>
-      </PersistGate>
-      <ToastContainer position='bottom-right' hideProgressBar theme='colored'/>
-      <RouterProvider router={router} />
-    </Provider>  
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <Provider store={store}>
+        <PersistGate 
+          loading={ 
+              <Box
+                  display="flex"
+                  justifyContent="center"
+                  alignItems="center"
+                  height="100vh" // Chiều cao toàn trang
+              >
+                  <CircularProgress />
+              </Box>
+          } 
+            persistor={persistor}>
+        </PersistGate>
+        <ToastContainer position='bottom-right' hideProgressBar theme='colored'/>
+        <RouterProvider router={router} />
+      </Provider>  
+    </LocalizationProvider>
   </StrictMode>,
 )

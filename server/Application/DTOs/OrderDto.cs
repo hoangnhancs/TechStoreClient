@@ -6,6 +6,7 @@ public class OrderDto
 {
     public string Id { get; set; } = null!;
     public string? UserId { get; set; }
+    public UserDto? User { get; set; }
     public string? ShippingAddressId { get; set; }
     public string? BillingAddressId { get; set; }
     public long SubToTal { get; set; }
@@ -15,5 +16,5 @@ public class OrderDto
     public string PaymentMethod { get; set; } = null!;
     public string PaymentStatus { get; set; } = null!;
     public string OrderStatus { get; set; } = null!;
-    public DateTime? UpdateAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

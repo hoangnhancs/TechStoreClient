@@ -12,4 +12,5 @@ public interface IOrderRepository
     Task<Order> CreateOrderAsync(List<OrderItem> items, string userId, string? shippingAddressId, string? billingingAddressId, long shippingCost, long discount);
     Task<Order> UpdateOrderAsync(string orderId, List<OrderItem> items, string? shippingAddressId, string? billingingAddressId, long shippingcost, long discount, string orderStatus, string paymentMethod, string paymentStatus);
     void AttachProduct(Product product);
+    Task<List<Order>> GetOrdersInRangeDateAsync(DateTime startDate, DateTime endDate);
 }

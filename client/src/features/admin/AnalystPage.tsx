@@ -9,8 +9,8 @@
     import { Order, User } from "../../lib/types";
     import { setEndDate, setStartDate } from "../order/orderSlice";
     import { useCountUp } from "../../app/hooks/useCountUp";
-    import { format } from "date-fns";
     import AnalystCard from "./AnalystCard";
+    import TopProductsandCustommers from "./TopProductsandCustommers";
 
     export default function AnalystPage() {
         const dispatch = useAppDispatch();
@@ -27,7 +27,17 @@
             }, []);
             setCustommers(tmpCustommers);
         }, [orders]);
-        const formatRevune = (value: number) => {
+        // const calculateRevenueByProductId = (productId: string) => {
+        //     return orders.reduce((total, order) => {
+        //         order.items.forEach(item => {
+        //             if (item.productId === productId) {
+        //                 total += item.unitPrice * item.quantity;
+        //             }
+        //         });
+        //         return total;
+        //     }, 0);
+        // }
+        const formatRevenue = (value: number) => {
             return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
             currency: 'VND',
@@ -57,6 +67,7 @@
             },
             { totalQuantity: 0, totalRevenue: 0 }
         );
+        
     return (
         <Box>
             {/* Time select section */}
@@ -92,12 +103,12 @@
                     </Stack>
 
                     <Button
-                    variant="contained"
-                    sx={{ mt: { xs: 2, sm: 3 }, height: 40, px: 4 }}
-                    onClick={handleSeeResults}
-                    disabled={!startDate || !endDate || new Date(startDate) > new Date(endDate)}
+                        variant="contained"
+                        sx={{ mt: { xs: 2, sm: 3 }, height: 40, px: 4 }}
+                        onClick={handleSeeResults}
+                        disabled={!startDate || !endDate || new Date(startDate) > new Date(endDate)}
                     >
-                    XEM KẾT QUẢ
+                        XEM KẾT QUẢ
                     </Button>
                     {(!startDate || !endDate || new Date(startDate) > new Date(endDate)) && (
                     <Typography variant="body2" color="error">
@@ -109,32 +120,33 @@
             {/* Dashboard cards section*/}
             <Box display={"flex"} alignItems={"center"} justifyContent={"space-between"} sx={{ mb: 2, gap: 2 }}>
                 <AnalystCard
-                icon={<PieChartIcon />}
-                value={useCountUp(salesCount, 1500)} // Replace with the actual sales count from your data source, 1500)}
-                label="Số lượng đơn hàng"
-                color="#FF7A59" 
+                    icon={<PieChartIcon />}
+                    value={useCountUp(salesCount, 1500)} // Replace with the actual sales count from your data source, 1500)}
+                    label="Số lượng đơn hàng"
+                    color="#FF7A59" 
                 />
                 <AnalystCard
-                icon={<AccountCircleIcon />}
-                value={useCountUp(custommers.length, 1500)}
-                label="Số lượng khách hàng"
-                color="#3688FA" 
+                    icon={<AccountCircleIcon />}
+                    value={useCountUp(custommers.length, 1500)}
+                    label="Số lượng khách hàng"
+                    color="#3688FA" 
                 />
                 <AnalystCard
-                icon={<PieChartIcon />}
-                value={useCountUp(totalSold.totalQuantity, 1500)}
-                label="Số lượng sản phẩm bán ra"
-                color="#FFAE1F"
+                    icon={<PieChartIcon />}
+                    value={useCountUp(totalSold.totalQuantity, 1500)}
+                    label="Số lượng sản phẩm bán ra"
+                    color="#FFAE1F"
                 />
                 <AnalystCard
-                icon={<PieChartIcon />}
-                value={formatRevune(useCountUp(totalSold.totalRevenue, 1500))}
-                label="Doanh thu"
-                color="#26BA4F" 
+                    icon={<PieChartIcon />}
+                    value={formatRevenue(useCountUp(totalSold.totalRevenue, 1500))}
+                    label="Doanh thu"
+                    color="#26BA4F" 
                 />
             </Box>
             <SalesChart orders={orders} />
-            {orders.length > 0 ? (
+            <TopProductsandCustommers orders={orders} />
+            {/* {orders.length > 0 ? (
                 <Box>
                 {orders.map(order => (
                     <Box key={order.id}>
@@ -145,7 +157,7 @@
                     </Box>
                 ))}
                 </Box>
-            ) : null}  
+            ) : null}   */}
         </Box>
     )
 }

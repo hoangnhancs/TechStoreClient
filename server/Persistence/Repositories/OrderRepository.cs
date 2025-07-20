@@ -105,6 +105,7 @@ public class OrderRepository(StoreContext context) : IOrderRepository
         var orders = await _context.Orders
             .Where(o => o.UpdatedAt >= startDateUtc && o.UpdatedAt <= endDateUtc)
             .Include(o => o.Items)
+            .ThenInclude(o => o.Product)
             .Include(o => o.User)
             .ToListAsync();
         return orders;

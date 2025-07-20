@@ -60,9 +60,6 @@ export default function NavBar() {
       <Box sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
         <StoreMallDirectory sx={{ fontSize: '2rem' }} />
         <Typography variant="h6" sx={{ ml: 1 }}>RE-STORE</Typography>
-        <IconButton onClick={() => dispatch(toggleDarkMode())}>
-          {!isDarkMode ? <LightMode sx={{color: 'yellow'}} /> : <DarkMode />}
-        </IconButton>
       </Box>
       <List>
         {midLinks.map(({title, path}) => (

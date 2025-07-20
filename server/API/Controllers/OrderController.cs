@@ -54,4 +54,15 @@ public class OrderController : BaseApiController
             return Unauthorized("User not authenticated");
         return HandleResult(await Mediator.Send(new GetListOrdersInRangeDateQuery { StartDate = orderRangeDate.StartDate, EndDate = orderRangeDate.EndDate }));
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("create-virtual-order")]
+    public async Task<IActionResult> CreateVirtualOrder()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User not authenticated");
+
+        return HandleResult(await Mediator.Send(new CreateVirtualOrder.Command()));
+    }
 }

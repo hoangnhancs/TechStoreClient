@@ -1,7 +1,7 @@
 import { useForm, Controller, useWatch, FieldError, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AddProductFormValues, addProductSchema } from "./schema/addProductSchema";
-import { Box, Button, Paper, Typography, Accordion, AccordionSummary, AccordionDetails, TextField } from "@mui/material";
+import { Box, Button, Paper, Typography, Accordion, AccordionSummary, AccordionDetails, TextField, CircularProgress } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TextInput from "../../components/TextInput";
 import SelectInput from "../../components/SelectInput";
@@ -16,14 +16,16 @@ import { useEffect, useState } from "react";
 import { CreateProductInput, FilterTag } from "../../lib/types";
 import { useCreateProductMutation } from "../../app/api/productApi";
 
+
+
 export default function AddNewProduct() {
   const { data: categories, isLoading: isCategoryLoading } = useFetchCategoriesQuery();
   const { data: allFilterTags, isLoading: isFilterTagLoading } = useFetchAllFilterTagsQuery();
   // const { data: currentUser } = useGetCurrentUserQuery();
-  const [ createProduct ] = useCreateProductMutation();
+  const [ createProduct, { isLoading: isLoadingCreateProduct } ] = useCreateProductMutation();
   const { enqueueSnackbar } = useSnackbar();
   
-  const { control, handleSubmit, setValue } = useForm<AddProductFormValues>({
+  const { control, handleSubmit, setValue, reset } = useForm<AddProductFormValues>({
     mode: "onTouched",
     resolver: zodResolver(addProductSchema),
     defaultValues: {
@@ -117,7 +119,16 @@ export default function AddNewProduct() {
       })),
       filterTags: data.filterTags,
     } as CreateProductInput)
-    // TODO: upload images, call API
+      .unwrap()
+      .then(() => {
+        enqueueSnackbar("Tạo sản phẩm thành công", { variant: "success" });
+        reset();
+      })
+      .catch((error) => {
+        console.error("Error creating product:", error);
+        enqueueSnackbar("Lỗi khi tạo sản phẩm", { variant: "error" });
+      });
+    reset();
   };
 
   const onError = (errors: FieldErrors<AddProductFormValues>) => {
@@ -147,6 +158,24 @@ export default function AddNewProduct() {
       <Typography variant="h5" gutterBottom color="primary">
         Tạo sản phẩm mới
       </Typography>
+      {isLoadingCreateProduct && <Box
+        sx={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(255, 255, 255, 0.6)',
+          backdropFilter: 'blur(3px)',
+          WebkitBackdropFilter: 'blur(3px)',
+          zIndex: 10,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <CircularProgress />
+      </Box>}
       <Box
         component="form"
         onSubmit={handleSubmit(onSubmit, onError)}

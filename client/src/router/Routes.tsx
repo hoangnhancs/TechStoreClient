@@ -24,8 +24,9 @@ import ResetPasswordForm from "../features/user/ResetPasswordForm";
 import RequireAuth from "./RequireAuth";
 import ChangePasswordForm from "../features/user/ChangePasswordForm";
 import AddNewProduct from "../features/products/AddNewProduct";
-import DashboardPage from "../features/order/DashboardPage";
+import DashboardPage from "../features/admin/DashboardPage";
 import RequireAdmin from "./RequireAdmin";
+import AnalystPage from "../features/admin/AnalystPage";
 
 export const router = createBrowserRouter([
     {
@@ -42,7 +43,13 @@ export const router = createBrowserRouter([
                 {path: '/change-password', element: <ChangePasswordForm />},
                 {element: <RequireAdmin />, children: [
                     {path: '/add-new-product', element: <AddNewProduct />},
-                    {path: '/dashboard', element: <DashboardPage />},
+                    {
+                        path: '/dashboard', 
+                        element: <DashboardPage />,
+                        children: [
+                            {path: 'analytics', element: <AnalystPage />}
+                        ]
+                    },
                 ]}
                 
             ]},

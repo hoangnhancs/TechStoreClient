@@ -1,4 +1,5 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
+
 import {
   persistStore,
   persistReducer,
@@ -10,6 +11,7 @@ import {
   REGISTER,
 } from "redux-persist";
 import storageSession from "redux-persist/lib/storage/session";
+import { createAction } from "@reduxjs/toolkit";
 
 // Local reducers
 import counterReducer from "../../features/counter/counterSlice";
@@ -33,6 +35,8 @@ import { filterTagApi } from "../api/filterTagApi";
 import { photoApi } from "../api/photoApi";
 import { categoryApi } from "../api/categoryApi";
 
+export const resetState = createAction("app/reset-state");
+
 //Root reducer with ALL slices
 export const rootReducer = combineReducers({
   [productApi.reducerPath]: productApi.reducer,
@@ -55,6 +59,7 @@ export const rootReducer = combineReducers({
   filter: filterReducer,
   order: orderReducer
 });
+
 
 //Persist config: chỉ persist nhung store trong whitelist
 const persistConfig = {

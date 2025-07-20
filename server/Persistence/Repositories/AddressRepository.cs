@@ -89,4 +89,11 @@ public class AddressRepository(StoreContext context) : IAddressRepository
         }
         address.IsDeleted = true;  
     }
+
+    public async Task<Address?> GetDefaultAddressAsync(string userId, CancellationToken cancellationToken)
+    {
+        return await _context.Addresses
+            .Where(a => a.UserId == userId && a.IsDefault && !a.IsDeleted)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

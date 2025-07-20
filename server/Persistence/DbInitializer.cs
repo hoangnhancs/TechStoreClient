@@ -92,17 +92,21 @@ public class DbInitializer
 
         if (!userManager.Users.Any())
         {
-            var user = new User
-            {
-                DisplayName = "Bob",
-                UserName = "bob@gmail.com",
-                Email = "bob@gmail.com"
-            };
+            var userNames = new List<string>() { "Bob", "Jane", "Tom", "Erik", "Philip", "Ralph", "Join", "Sam", "Ken", "Timmy" };
 
-            await userManager.CreateAsync(user, "Pa$$w0rd");
-            await userManager.AddToRoleAsync(user, "Member");
-            var bobBasket = new Basket { UserId = user.Id };
-            context.Baskets.Add(bobBasket);
+            foreach (var userName in userNames)
+            {
+                var user = new User
+                {
+                    DisplayName = userName,
+                    UserName = $"{userName.ToLower()}@gmail.com",
+                    Email = $"{userName.ToLower()}@gmail.com"
+                };
+                await userManager.CreateAsync(user, "Pa$$w0rd");
+                await userManager.AddToRoleAsync(user, "Member");
+                var basket = new Basket { UserId = user.Id };
+                context.Baskets.Add(basket);
+            }
 
             var admin = new User
             {
@@ -203,7 +207,7 @@ public class DbInitializer
                 CategoryId = matchedCategory.Id,
                 Brand = item.brand,
                 MainImageUrl = item.image_url,
-                QuantityInStock = 100,
+                QuantityInStock = 1000,
                 UrlSlug = item.urlslug,
                 MetaTitle = item.metatitle,
                 MetaDescription = item.metadescription,
@@ -217,7 +221,7 @@ public class DbInitializer
             products.Add(product);
         }
         await context.Products.AddRangeAsync(products);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync();       
     }
 
 }

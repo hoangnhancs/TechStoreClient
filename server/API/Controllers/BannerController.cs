@@ -10,17 +10,19 @@ namespace API.Controllers
     public class BannerController : BaseApiController
     {
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllBannerImages()
         {
             return HandleResult(await Mediator.Send(new GetAllBannerImagesQuery()));
         }
         [HttpPost("create-banner")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateNewBannerImage([FromForm] List<IFormFile> files)
         {
             return HandleResult(await Mediator.Send(new CreateNewBannerImageCommand { NewImages = files }));
         }
         [HttpPost("delete-banner")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteBannerImage([FromBody] List<int> bannerImageIds)
         {
             return HandleResult(await Mediator.Send(new DeleteBannerImageCommand { BannerImageIds = bannerImageIds }));

@@ -74,4 +74,10 @@ public class ProductsController : BaseApiController
                   ?? [],
         }));
     }
+    [HttpDelete]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> DeleteProduct([FromQuery] string id)
+    {
+        return HandleResult(await Mediator.Send(new DeleteProductCommand { ProductId = id }));
+    }
 }

@@ -107,7 +107,7 @@ export default function TopProductsandCustommers({ orders }: Props) {
                             </StyledGridItem>
                             <StyledGridItem size={3.5} >
                                 <Typography>
-                                    {product.productId}
+                                    {product.productId.toUpperCase()}
                                 </Typography>
                             </StyledGridItem>
                             <StyledGridItem size={1.5} >
@@ -172,7 +172,7 @@ export default function TopProductsandCustommers({ orders }: Props) {
                             </StyledGridItem>
                             <StyledGridItem size={3.5} >
                                 <Typography>
-                                    {topCustommer.custommer.id}
+                                    {topCustommer.custommer.id.toUpperCase()}
                                 </Typography>
                             </StyledGridItem>
                             <StyledGridItem size={1.5} >

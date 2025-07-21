@@ -48,20 +48,20 @@ export default function OrdersPage() {
 
   return (
     <Paper sx={{ p: 2, minHeight: "calc(100vh - 80px)"}}>
-      <StyledTypography variant="h5" gutterBottom>
+      <Typography variant="h5" gutterBottom>
         Lịch sử mua hàng
-      </StyledTypography>
+      </Typography>
 
       <Divider sx={{ mt: 2, mb: 2 }}/>
 
-      <StyledTypography variant="h6" gutterBottom>
+      <Typography variant="h6" gutterBottom>
         Chọn khoảng thời gian
-      </StyledTypography>
+      </Typography>
       <Stack direction={"row"} spacing={3} alignItems="center" flexWrap="wrap">
         <Stack direction="row" spacing={1} alignItems="center">
-        <StyledTypography variant="body2" >
+        <Typography variant="body2" >
             Ngày bắt đầu:
-        </StyledTypography>
+        </Typography>
         <DatePicker
             format="dd/MM/yyyy"
             slotProps={{ textField: { size: 'small' } }}
@@ -70,9 +70,9 @@ export default function OrdersPage() {
         />
         </Stack>
         <Stack direction={"row"} spacing={1} alignItems="center">
-        <StyledTypography variant="body2" >
-            Ngày kết thúc:
-        </StyledTypography>
+        <Typography variant="body2" >
+          Ngày kết thúc:
+        </Typography>
         <DatePicker
             format="dd/MM/yyyy"
             slotProps={{ textField: { size: 'small' } }}

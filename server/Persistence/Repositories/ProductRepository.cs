@@ -25,6 +25,7 @@ public class ProductRepository(StoreContext context) : IProductRepository
     public async Task<List<Product>> GetAllProducts(CancellationToken cancellationToken)
     {
         return await _context.Products
+            .Where(p => p.IsActive)
             .Include(p => p.Category)
             .ToListAsync(cancellationToken);
     }

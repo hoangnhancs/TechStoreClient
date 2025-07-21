@@ -78,7 +78,15 @@ export const productApi = createApi({
           body: formData,
         };
       },
+      invalidatesTags: [{ type: "Product", id: "LIST" }],
     }),
+    deleteProduct: builder.mutation<void, string>({
+      query: (id) => ({
+        url: `/products?id=${id}`,
+        method: "DELETE",
+      }),
+      // invalidatesTags: [{ type: "Product", id: "LIST" }],
+    })
   }),
 });
 
@@ -88,4 +96,5 @@ export const {
   useFetchTop10ProductsQuery,
   useFetchProductsByCatQuery,
   useCreateProductMutation,
+  useDeleteProductMutation
 } = productApi;

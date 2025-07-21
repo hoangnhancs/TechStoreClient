@@ -45,7 +45,12 @@ public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCom
             {
                 foreach (var item in newOrder.Items)
                 {
-                    await _productRepository.UpdateProductQuantityAsync(item.ProductId, item.Quantity, "sub", cancellationToken);
+                    var product = await _productRepository.GetProductByIdAsync(item.ProductId, cancellationToken);
+                    if (product == null) throw new Exception("Product not found");
+                    product.QuantityInStock -= item.Quantity;
+                    product.UnitSold += item.Quantity;
+                    await _productRepository.UpdateProductAsync(product, null, cancellationToken);
+                    // await _productRepository.UpdateProductQuantityAsync(item.ProductId, item.Quantity, "sub", cancellationToken);
                 }
             }
 

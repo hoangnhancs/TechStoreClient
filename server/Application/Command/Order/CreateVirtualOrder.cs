@@ -41,7 +41,7 @@ public class CreateVirtualOrder
             var fromDate = toDate.AddDays(-365);
             var range = (toDate - fromDate).TotalSeconds;
             var products = await _context.Products.ToListAsync(cancellationToken);
-            //tao 500 don hang ao
+            //tao 600 don hang ao
             for (int i = 0; i < 600; i++)
             {
                 
@@ -88,6 +88,9 @@ public class CreateVirtualOrder
                         UnitPrice = product.Price
                     });
                     total += (long)(product.Price * quantity);
+                    //update product unit_sold
+                    product.UnitSold += quantity;
+                    await _productRepository.UpdateProductAsync(product, null, cancellationToken);
                 }
                 newOrder.Items = items;
                 newOrder.Total = total;

@@ -69,7 +69,7 @@ export default function Sidebar() {
                     </ListItemButton>
                     <Collapse in={openProduct} timeout="auto" unmountOnExit>
                         <List component="div" disablePadding>
-                        <ListItemButton sx={{ pl: 4 }}>
+                        <ListItemButton sx={{ pl: 4 }} component={Link} to="/dashboard/orders">
                             <ListItemIcon><History /></ListItemIcon>
                             <ListItemText primary="Order History" />
                         </ListItemButton>

@@ -1,12 +1,13 @@
 import { Box, Paper, Typography } from "@mui/material";
 import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Order } from "../../lib/types";
+import React from "react";
 
 type SalesChartProps = {
   orders: Order[];
 };
 
-export function SalesChart({ orders }: SalesChartProps) {
+const SalesChart = React.memo(function SalesChart({ orders }: SalesChartProps) {
   const formatRevenue = (amount: number) => {
     if (amount >= 1_000_000_000) {
       return (amount / 1_000_000_000).toFixed(1).replace(/\.0$/, '') + 'B';
@@ -120,4 +121,6 @@ export function SalesChart({ orders }: SalesChartProps) {
     </Paper>
     
   );
-}
+})
+
+export default SalesChart

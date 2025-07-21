@@ -1,4 +1,4 @@
-import { Avatar, Box, Grid, Paper, styled, Typography } from "@mui/material";
+import { Avatar, Box, Divider, Grid, Paper, styled, Typography } from "@mui/material";
 import { Order, User } from "../../lib/types";
 
 type Props = {
@@ -82,7 +82,8 @@ export default function TopProductsandCustommers({ orders }: Props) {
                                 Tổng doanh thu
                             </Typography>
                         </StyledGridItem>
-                    </Grid>  
+                    </Grid> 
+                    <Divider sx={{ borderBottomWidth: 3 }} /> 
                     {topProducts().map((product, index) => (
                         <Grid container key={index} 
                             sx={{ 
@@ -104,17 +105,17 @@ export default function TopProductsandCustommers({ orders }: Props) {
                                     {product.productName}
                                 </Typography>
                             </StyledGridItem>
-                            <StyledGridItem size={3.5} key={index} >
+                            <StyledGridItem size={3.5} >
                                 <Typography>
                                     {product.productId}
                                 </Typography>
                             </StyledGridItem>
-                            <StyledGridItem size={1.5} key={index} >
+                            <StyledGridItem size={1.5} >
                                 <Typography>
                                     {product.totalQuantity}
                                 </Typography>
                             </StyledGridItem>
-                            <StyledGridItem size={1.5} key={index} >
+                            <StyledGridItem size={1.5} >
                                 <Typography>
                                     {formatRevenue(product.revenue)}
                                 </Typography>
@@ -152,6 +153,7 @@ export default function TopProductsandCustommers({ orders }: Props) {
                             </Typography>
                         </StyledGridItem>
                     </Grid>  
+                    <Divider sx={{ borderBottomWidth: 3 }} /> 
                     {topCustommers().map((topCustommer, index) => (
                         <Grid container key={index} 
                             sx={{ 
@@ -168,17 +170,17 @@ export default function TopProductsandCustommers({ orders }: Props) {
                                     {topCustommer.custommer.displayName}
                                 </Typography>
                             </StyledGridItem>
-                            <StyledGridItem size={3.5} key={index} >
+                            <StyledGridItem size={3.5} >
                                 <Typography>
                                     {topCustommer.custommer.id}
                                 </Typography>
                             </StyledGridItem>
-                            <StyledGridItem size={1.5} key={index} >
+                            <StyledGridItem size={1.5} >
                                 <Typography>
                                     {topCustommer.totalOrders}
                                 </Typography>
                             </StyledGridItem>
-                            <StyledGridItem size={1.5} key={index} >
+                            <StyledGridItem size={1.5} >
                                 <Typography>
                                     {formatRevenue(topCustommer.totalSpent)}
                                 </Typography>

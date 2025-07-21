@@ -28,6 +28,7 @@ import DashboardPage from "../features/admin/DashboardPage";
 import RequireAdmin from "./RequireAdmin";
 import AnalystPage from "../features/admin/AnalystPage";
 import BannerPage from "../features/admin/BannerPage";
+import OrdersPage from "../features/admin/OrdersPage";
 
 export const router = createBrowserRouter([
     {
@@ -49,7 +50,9 @@ export const router = createBrowserRouter([
                         element: <DashboardPage />,
                         children: [
                             {path: 'analytics', element: <AnalystPage />},
-                            {path: 'banners', element: <BannerPage />}
+                            {path: 'banners', element: <BannerPage />},
+                            {path: 'orders', element: <OrdersPage />},
+                            {path: 'orders/:orderId', element: <OrderDetailsPage />}
                         ]
                     },
                 ]}

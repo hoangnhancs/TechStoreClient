@@ -1,22 +1,30 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-    endDate: new Date(Date.now()).toISOString(), 
-    startDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), 
+    orderStartDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    orderEndDate: new Date(Date.now()).toISOString(),
+    analysEndDate: new Date(Date.now()).toISOString(), 
+    analysStartDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), 
 }
 
 export const orderSlice = createSlice({
     initialState,
     name: 'order',
     reducers: {
-        setStartDate: (state, action: { payload: { startDate: string } }) => {
-            state.startDate = action.payload.startDate;
+        setAnalysStartDate: (state, action: { payload: { startDate: string } }) => {
+            state.analysStartDate = action.payload.startDate;
         },
-        setEndDate: (state, action: { payload: { endDate: string } }) => {
-            state.endDate = action.payload.endDate;
+        setAnalysEndDate: (state, action: { payload: { endDate: string } }) => {
+            state.analysEndDate = action.payload.endDate;
+        },
+        setOrderStartDate: (state, action: { payload: { startDate: string } }) => {
+            state.orderStartDate = action.payload.startDate;
+        },
+        setOrderEndDate: (state, action: { payload: { endDate: string } }) => {
+            state.orderEndDate = action.payload.endDate;
         },
     }
 })
 
-export const { setStartDate, setEndDate } = orderSlice.actions;
+export const { setAnalysStartDate, setAnalysEndDate, setOrderStartDate, setOrderEndDate } = orderSlice.actions;
 export default orderSlice.reducer;

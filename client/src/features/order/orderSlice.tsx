@@ -1,11 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
+import dayjs from 'dayjs';
 
 const initialState = {
-    orderStartDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    orderEndDate: new Date(Date.now()).toISOString(),
-    analysEndDate: new Date(Date.now()).toISOString(), 
-    analysStartDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), 
-}
+  orderStartDate: dayjs().subtract(7, 'day').startOf('day').toISOString(), // YYYY-MM-DDT00:00:00.000Z
+  orderEndDate: dayjs().endOf('day').toISOString(), // YYYY-MM-DDT23:59:59.999Z
+  analysStartDate: dayjs().subtract(7, 'day').startOf('day').toISOString(),
+  analysEndDate: dayjs().endOf('day').toISOString(),
+};
 
 export const orderSlice = createSlice({
     initialState,

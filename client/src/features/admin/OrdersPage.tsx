@@ -34,6 +34,7 @@ export default function OrdersPage() {
   const navigate = useNavigate();
   const { data: orders } = useGetListOrdersInDateRangeQuery({ startDate: startDate, endDate: endDate}, { skip: !startDate || !endDate });
   const handleSeeResults = async () => {
+    console.log("selectedStartDate", selectedStartDate, "selectedEndDate", selectedEndDate);
     dispatch(setOrderStartDate({startDate: selectedStartDate}));
     dispatch(setOrderEndDate({endDate: selectedEndDate}));
   }

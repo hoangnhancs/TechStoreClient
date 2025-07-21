@@ -47,6 +47,8 @@ export default function AddNewProduct() {
 
   // Lấy category đang chọn
   const selectedCategoryId = useWatch({ control, name: "category" });
+  const mainImageFile = useWatch({ control, name: "mainImageFile" });
+  const detailImageFiles = useWatch({ control, name: "detailImageFiles" });
 
   // Lọc filter tags theo category
   const [filters, setFilters] = useState<FilterTag[]>([]);
@@ -128,7 +130,6 @@ export default function AddNewProduct() {
         console.error("Error creating product:", error);
         enqueueSnackbar("Lỗi khi tạo sản phẩm", { variant: "error" });
       });
-    reset();
   };
 
   const onError = (errors: FieldErrors<AddProductFormValues>) => {
@@ -299,6 +300,7 @@ export default function AddNewProduct() {
                 render={({ field: { onChange } }) => (
                   <ImageUpload
                     maxImages={1}
+                    resetKey = {!mainImageFile}
                     onImagesChange={(images) => onChange(images[0] || undefined)}
                   />
                 )}
@@ -309,7 +311,7 @@ export default function AddNewProduct() {
                 control={control}
                 defaultValue={[]}
                 render={({ field: { onChange } }) => (
-                  <ImageUpload onImagesChange={onChange} />
+                  <ImageUpload onImagesChange={onChange} resetKey={detailImageFiles?.length === 0} />
                 )}
               />
             </Box>

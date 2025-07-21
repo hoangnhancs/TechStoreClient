@@ -23,6 +23,8 @@ import {
 } from "@mui/icons-material";
 import { useState } from "react";
 import { Link } from "react-router";
+import CollectionsIcon from '@mui/icons-material/Collections';
+
 
 export default function Sidebar() {
     const [openProduct, setOpenProduct] = useState(true);
@@ -47,10 +49,16 @@ export default function Sidebar() {
 
             <Box sx={{ width: "100%", bgcolor: "#e3f2fd", height: "100%" }}>
                 <List component="nav">
-                {/* Dashboards */}
+                    {/* Dashboards */}
                     <ListItemButton component={Link} to="/dashboard/analytics">
                         <ListItemIcon><Dashboard /></ListItemIcon>
                         <ListItemText primary="Analytics" />
+                    </ListItemButton>
+
+                    {/*Banner section*/}
+                    <ListItemButton component={Link} to="/dashboard/banners">
+                        <ListItemIcon><CollectionsIcon /></ListItemIcon>
+                        <ListItemText primary="Banners" />
                     </ListItemButton>
 
                     {/* Product Section */}

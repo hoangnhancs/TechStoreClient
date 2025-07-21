@@ -107,6 +107,7 @@ public class OrderRepository(StoreContext context) : IOrderRepository
             .Include(o => o.Items)
             .ThenInclude(o => o.Product)
             .Include(o => o.User)
+            .ThenInclude(u => u!.Image)
             .ToListAsync();
         return orders;
     }

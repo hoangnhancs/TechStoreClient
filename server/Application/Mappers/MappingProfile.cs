@@ -72,6 +72,7 @@ public class MappingProfile : Profile
         CreateMap<Review, ReviewDto>();
         CreateMap<ReviewDto, Review>();
 
-
+        CreateMap<BannerImage, BannerImageDto>();
+        CreateMap<BannerImageDto, BannerImage>();
     }
 }

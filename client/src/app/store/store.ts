@@ -34,6 +34,7 @@ import { filterTagValueApi } from "../api/filterTagValueApi";
 import { filterTagApi } from "../api/filterTagApi";
 import { photoApi } from "../api/photoApi";
 import { categoryApi } from "../api/categoryApi";
+import { bannerApi } from "../api/bannerApi";
 
 export const resetState = createAction("app/reset-state");
 
@@ -50,6 +51,7 @@ export const rootReducer = combineReducers({
   [filterTagApi.reducerPath]: filterTagApi.reducer,
   [photoApi.reducerPath]: photoApi.reducer,
   [categoryApi.reducerPath]: categoryApi.reducer,
+  [bannerApi.reducerPath]: bannerApi.reducer,
 
   counter: counterReducer,
   ui: uiReducer,
@@ -91,6 +93,7 @@ export const store = configureStore({
       filterTagApi.middleware,
       photoApi.middleware,
       categoryApi.middleware,
+      bannerApi.middleware,
     ),
 });
 

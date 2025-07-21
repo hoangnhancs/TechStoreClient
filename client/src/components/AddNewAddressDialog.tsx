@@ -37,8 +37,8 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
     const [wards, setWards] = useState<Ward[]>(inputWards || []);
 
 
-    const [updateAddress] = useUpdateAddressMutation();
-    const [addAddress] = useCreateAddressMutation();
+    const [updateAddress, { isLoading: isLoadingUpdateAddress }] = useUpdateAddressMutation();
+    const [addAddress, { isLoading: isLoadingAddAddress }] = useCreateAddressMutation();
 
     useEffect(() => {
         axios.get(`${API_URL}/address/provinces`, 
@@ -68,6 +68,12 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
             setTracking(1);
         };
     }, [mode, selectedAddress, provinces, districts, wards, tracking]);
+
+    useEffect(() => {
+        if (open && !canDisableDefaultAddress) {
+            setForm(prev => ({ ...prev, isDefault: true }));
+        }
+    }, [open, mode, canDisableDefaultAddress]);
 
     const canSubmit = Boolean(
         form.fullName &&
@@ -156,7 +162,7 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
     }
 
     const handleAddNewAddress = () => {  
-        
+        console.log(form);
         addAddress({
             fullName: form.fullName,
             phoneNumber: form.phoneNumber?.toString(),
@@ -180,6 +186,7 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
         }}).unwrap().then(() => {if (onClearDialogData){onClearDialogData();};onClose()})
         console.log(mode, form.province, form.district, form.ward, form.detailAddress, form.isDefault, form.fullName, form.phoneNumber)
     }
+
 
 
     return (
@@ -299,8 +306,8 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
                     color="secondary">
                     Hủy
                 </Button>
-                <Button disabled={!canSubmit} onClick={(mode == "add") ? handleAddNewAddress : handleUpdateAddress} variant="contained" color="primary">
-                    Lưu địa chỉ
+                <Button disabled={!canSubmit || isLoadingAddAddress || isLoadingUpdateAddress} onClick={(mode == "add") ? handleAddNewAddress : handleUpdateAddress} variant="contained" color="primary">
+                    {isLoadingAddAddress || isLoadingUpdateAddress ? "Đang lưu..." : "Lưu địa chỉ"}
                 </Button>
             </DialogActions>
         </Dialog>

@@ -250,3 +250,10 @@ export type InputAttribute = {
   key: string,
   value: string;
 };
+
+export type BannerImage = {
+  id: number;
+  url: string;
+  publicId: string;
+  title?: string;
+}

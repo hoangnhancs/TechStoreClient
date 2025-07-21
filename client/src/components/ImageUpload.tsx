@@ -1,14 +1,16 @@
-import React, { useRef, useState } from 'react';
-import { Box, Button, IconButton } from '@mui/material';
+import React, { useEffect, useRef, useState } from 'react';
+import { Box, BoxProps, Button, IconButton } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import ClearIcon from '@mui/icons-material/Clear';
 
 type Props = {
     onImagesChange: (images: File[]) => void;
-    maxImages?: number
-}
+    maxImages?: number,
+    resetKey?: boolean
+} & BoxProps
 
-const ImageUpload: React.FC<Props> = React.memo(({onImagesChange, maxImages}) => {
+const ImageUpload: React.FC<Props> = React.memo(( props: Props) => {
+  const { onImagesChange, maxImages, ...rest } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<File[]>([]);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,7 +19,7 @@ const ImageUpload: React.FC<Props> = React.memo(({onImagesChange, maxImages}) =>
 
     if (e.target.files?.length ) {
       const newImages = Array.from(e.target.files);
-      const newImagesList = [...images, ...newImages];
+      const newImagesList = [...images, ...newImages].slice(0, maxImages);
       setImages(newImagesList);
       onImagesChange(newImagesList); 
     }
@@ -29,18 +31,25 @@ const ImageUpload: React.FC<Props> = React.memo(({onImagesChange, maxImages}) =>
     onImagesChange(updatedImages);
   }
 
+  useEffect(() => {
+    if (props.resetKey) {
+      setImages([]);
+    }
+  }, [props.resetKey]);
+
   return (
     <Box display="flex" alignItems="center" gap={1} flexWrap={'wrap'}>
       {images.map((img, idx) => (
         <Box 
           key={idx}
           sx={{
-            width: 68,
-            height: 68,
+            width:  68,
+            height:  68,
             position: 'relative',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
+            ...rest,
           }}
         >
           <Box
@@ -51,7 +60,7 @@ const ImageUpload: React.FC<Props> = React.memo(({onImagesChange, maxImages}) =>
               width: '100%',
               height: '100%',
               borderRadius: 1,
-              objectFit: 'cover',
+              objectFit: 'contain',
               border: '1px solid #ccc',
             }}
           />

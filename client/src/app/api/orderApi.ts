@@ -70,5 +70,6 @@ export const {
   useFetchOrderQuery,
   useCreateOrderMutation,
   useGetOrderDetailsQuery,
+  useGetListOrdersInDateRangeQuery,
   useLazyGetListOrdersInDateRangeQuery,
 } = orderApi;

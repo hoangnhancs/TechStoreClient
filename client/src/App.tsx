@@ -90,11 +90,8 @@ function App() {
                 ? 'linear-gradient(to bottom, #1a237e 0%, #121212 100%)' 
                 : 'linear-gradient(to bottom, #bbdefb 0%, #f5f5f5 100%)',
               minHeight: '100vh',
-              
               display: 'flex',
               flexDirection: 'column',
-              
-              
             }}
           >
             {location.pathname === '/' ? 

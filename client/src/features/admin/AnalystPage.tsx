@@ -1,31 +1,32 @@
     import { Box, Button, Paper, Stack, Typography } from "@mui/material";
-    import { SalesChart } from "./SalesChart";
     import PieChartIcon from '@mui/icons-material/PieChart';
     import AccountCircleIcon from '@mui/icons-material/AccountCircle';
     import { DatePicker } from "@mui/x-date-pickers";
     import { useEffect, useState } from "react";
-    import { useLazyGetListOrdersInDateRangeQuery } from "../../app/api/orderApi";
+    import { useGetListOrdersInDateRangeQuery } from "../../app/api/orderApi";
     import { useAppDispatch, useAppSelector } from "../../hooks";
-    import { Order, User } from "../../lib/types";
-    import { setEndDate, setStartDate } from "../order/orderSlice";
+    import { User } from "../../lib/types";
+    import { setAnalysStartDate, setAnalysEndDate } from "../order/orderSlice";
     import { useCountUp } from "../../app/hooks/useCountUp";
     import AnalystCard from "./AnalystCard";
     import TopProductsandCustommers from "./TopProductsandCustommers";
+import SalesChart from "./SalesChart";
 
     export default function AnalystPage() {
         const dispatch = useAppDispatch();
-        const { startDate, endDate } = useAppSelector(state => state.order);
-        const [orders, setOrders] = useState<Order[]>([]); // Placeholder for orders data
+        const { analysStartDate: startDate, analysEndDate: endDate } = useAppSelector(state => state.order);
+        const [ selectedStartDate, setSelectedStartDate ] = useState(startDate);
+        const [ selectedEndDate, setSelectedEndDate ] = useState(endDate);
         const [ custommers, setCustommers ] = useState<User[]>([]); // Placeholder for customers data
-        const [ fetchedOrders ] = useLazyGetListOrdersInDateRangeQuery();
+        const { data: orders} = useGetListOrdersInDateRangeQuery({ startDate: startDate, endDate: endDate});
         useEffect(() => {
-            const tmpCustommers = orders.reduce((acc: User[], order) => {
+            const tmpCustommers = orders?.reduce((acc: User[], order) => {
             if (order.user && !acc.some(u => u.id === order.user.id)) {
                 acc.push(order.user);
             }
             return acc;
             }, []);
-            setCustommers(tmpCustommers);
+            setCustommers(tmpCustommers || []);
         }, [orders]);
         // const calculateRevenueByProductId = (productId: string) => {
         //     return orders.reduce((total, order) => {
@@ -44,20 +45,22 @@
             }).format(value);
         }
         const handleSeeResults = async () => {
-            const result = await fetchedOrders({ startDate: startDate, endDate: endDate});
-            if (result?.data) {
-            setOrders(result.data);
-            console.log("Fetched orders:", result.data);
-            } else {
-            // handle error if needed
-            console.error("Failed to fetch orders", result.error);
-            }
+            // const result = await fetchedOrders({ startDate: startDate, endDate: endDate});
+            // if (result?.data) {
+            // setOrders(result.data);
+            // console.log("Fetched orders:", result.data);
+            // } else {
+            // // handle error if needed
+            // console.error("Failed to fetch orders", result.error);
+            // }
+            dispatch(setAnalysStartDate({startDate: selectedStartDate}));
+            dispatch(setAnalysEndDate({endDate: selectedEndDate}));
         }
-        const salesCount = orders.reduce((total, order) => {
+        const salesCount = orders?.reduce((total, order) => {
             return order.orderStatus === "Completed" ? total + 1 : total;
         }, 0);
 
-        const totalSold = orders.reduce(
+        const totalSold = orders?.reduce(
             (acc, order) => {
             order.items.forEach(item => {
                 acc.totalQuantity += item.quantity;
@@ -84,8 +87,8 @@
                     <DatePicker
                         format="dd/MM/yyyy"
                         slotProps={{ textField: { size: 'small' } }}
-                        value={new Date(startDate)}
-                        onChange={value => dispatch(setStartDate({startDate: value!.toISOString()}))}
+                        value={new Date(selectedStartDate)}
+                        onChange={value => setSelectedStartDate(value!.toISOString())}
                     />
                     </Stack>
         
@@ -97,8 +100,8 @@
                     <DatePicker
                         format="dd/MM/yyyy"
                         slotProps={{ textField: { size: 'small' } }}
-                        value={new Date(endDate)}
-                        onChange={value => dispatch(setEndDate({endDate: value!.toISOString()}))}
+                        value={new Date(selectedEndDate)}
+                        onChange={value => setSelectedEndDate(value!.toISOString())}
                     />
                     </Stack>
 
@@ -110,7 +113,7 @@
                     >
                         XEM KẾT QUẢ
                     </Button>
-                    {(!startDate || !endDate || new Date(startDate) > new Date(endDate)) && (
+                    {(!selectedStartDate || !selectedEndDate || new Date(selectedStartDate) > new Date(selectedEndDate)) && (
                     <Typography variant="body2" color="error">
                         Vui lòng chọn khoảng thời gian hợp lệ
                     </Typography>
@@ -121,7 +124,7 @@
             <Box display={"flex"} alignItems={"center"} justifyContent={"space-between"} sx={{ mb: 2, gap: 2 }}>
                 <AnalystCard
                     icon={<PieChartIcon />}
-                    value={useCountUp(salesCount, 1500)} // Replace with the actual sales count from your data source, 1500)}
+                    value={useCountUp(salesCount || 0, 1500)} // Replace with the actual sales count from your data source, 1500)}
                     label="Số lượng đơn hàng"
                     color="#FF7A59" 
                 />
@@ -133,19 +136,19 @@
                 />
                 <AnalystCard
                     icon={<PieChartIcon />}
-                    value={useCountUp(totalSold.totalQuantity, 1500)}
+                    value={useCountUp(totalSold ? totalSold.totalQuantity : 0, 1500)}
                     label="Số lượng sản phẩm bán ra"
                     color="#FFAE1F"
                 />
                 <AnalystCard
                     icon={<PieChartIcon />}
-                    value={formatRevenue(useCountUp(totalSold.totalRevenue, 1500))}
+                    value={formatRevenue(useCountUp(totalSold? totalSold.totalRevenue : 0, 1500))}
                     label="Doanh thu"
                     color="#26BA4F" 
                 />
             </Box>
-            <SalesChart orders={orders} />
-            <TopProductsandCustommers orders={orders} />
+            <SalesChart orders={orders || []} />
+            <TopProductsandCustommers orders={orders || []} />
             {/* {orders.length > 0 ? (
                 <Box>
                 {orders.map(order => (

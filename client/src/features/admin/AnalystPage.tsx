@@ -10,7 +10,9 @@
     import { useCountUp } from "../../app/hooks/useCountUp";
     import AnalystCard from "./AnalystCard";
     import TopProductsandCustommers from "./TopProductsandCustommers";
-import SalesChart from "./SalesChart";
+    import Inventory2Icon from '@mui/icons-material/Inventory2';
+    import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+    import SalesChart from "./SalesChart";
 
     export default function AnalystPage() {
         const dispatch = useAppDispatch();
@@ -18,7 +20,7 @@ import SalesChart from "./SalesChart";
         const [ selectedStartDate, setSelectedStartDate ] = useState(startDate);
         const [ selectedEndDate, setSelectedEndDate ] = useState(endDate);
         const [ custommers, setCustommers ] = useState<User[]>([]); // Placeholder for customers data
-        const { data: orders} = useGetListOrdersInDateRangeQuery({ startDate: startDate, endDate: endDate});
+        const { data: orders, isLoading: isLoadingGetOrders } = useGetListOrdersInDateRangeQuery({ startDate: startDate, endDate: endDate});
         useEffect(() => {
             const tmpCustommers = orders?.reduce((acc: User[], order) => {
             if (order.user && !acc.some(u => u.id === order.user.id)) {
@@ -109,9 +111,9 @@ import SalesChart from "./SalesChart";
                         variant="contained"
                         sx={{ mt: { xs: 2, sm: 3 }, height: 40, px: 4 }}
                         onClick={handleSeeResults}
-                        disabled={!startDate || !endDate || new Date(startDate) > new Date(endDate)}
+                        disabled={!startDate || !endDate || new Date(startDate) > new Date(endDate) || isLoadingGetOrders}
                     >
-                        XEM KẾT QUẢ
+                        {isLoadingGetOrders ? "Đang tải..." : "XEM KẾT QUẢ"}
                     </Button>
                     {(!selectedStartDate || !selectedEndDate || new Date(selectedStartDate) > new Date(selectedEndDate)) && (
                     <Typography variant="body2" color="error">
@@ -135,13 +137,13 @@ import SalesChart from "./SalesChart";
                     color="#3688FA" 
                 />
                 <AnalystCard
-                    icon={<PieChartIcon />}
+                    icon={<Inventory2Icon />}
                     value={useCountUp(totalSold ? totalSold.totalQuantity : 0, 1500)}
                     label="Số lượng sản phẩm bán ra"
                     color="#FFAE1F"
                 />
                 <AnalystCard
-                    icon={<PieChartIcon />}
+                    icon={<MonetizationOnIcon />}
                     value={formatRevenue(useCountUp(totalSold? totalSold.totalRevenue : 0, 1500))}
                     label="Doanh thu"
                     color="#26BA4F" 

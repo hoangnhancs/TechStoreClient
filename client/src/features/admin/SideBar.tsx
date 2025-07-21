@@ -73,7 +73,7 @@ export default function Sidebar() {
                             <ListItemIcon><History /></ListItemIcon>
                             <ListItemText primary="Order History" />
                         </ListItemButton>
-                        <ListItemButton sx={{ pl: 4 }}>
+                        <ListItemButton sx={{ pl: 4 }} component={Link} to="/dashboard/products">
                             <ListItemIcon><ShoppingCart /></ListItemIcon>
                             <ListItemText primary="Products" />
                         </ListItemButton>

@@ -47,18 +47,39 @@ const SalesChart = React.memo(function SalesChart({ orders }: SalesChartProps) {
     <Paper sx={{ p: 2, display: "flex"}} >
       <Box display={"flex"} flexDirection={"column"} flex={1} sx={{mt: 2}} justifyContent={"center"} gap={2.5}>
         <Box display={"flex"} alignItems={"left"} flexDirection={"column"} gap={1} >
-          <Typography>
-            Số lượng trung bình:
-          </Typography>
-          <Typography sx={{ ml: 0.5}}>
+          <Box display={"flex"} gap={1} alignItems={"center"}>
+            <Box
+              sx={{
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                bgcolor: '#FFAE1F',
+              }}
+            />
+            <Typography>
+              Số lượng trung bình:
+            </Typography>
+          </Box>
+          <Typography sx={{ ml: 2}}>
             {overallQuantity}
           </Typography>
         </Box>
         <Box display={"flex"} alignItems={"left"} flexDirection={"column"} gap={1}>
-          <Typography>
-            Doanh thu trung bình:
-          </Typography>
-          <Typography sx={{ ml: 0.5}}>
+          <Box display={"flex"} gap={1} alignItems={"center"}>
+            <Box
+              sx={{
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                bgcolor: '#26BA4F', 
+              }}
+            />
+            <Typography>
+              Doanh thu trung bình:
+            </Typography>
+          </Box>
+          
+          <Typography sx={{ ml: 2}}>
             {new Intl.NumberFormat('vi-VN', {
               style: 'currency',
               currency: 'VND',

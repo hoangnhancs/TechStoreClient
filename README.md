@@ -99,6 +99,10 @@ E-Commerce Store is a full-stack web application built with ASP.NET Core + React
 
 ---
 
+## ► Database Schema
+
+The diagram below illustrates the structure and key relationships between entities in the application's PostgreSQL database.
+
 ![Database Schema for E-Commerce Sttore](docs/images/ecommerce_diagram.png)
 
 ## ► Getting Started Locally

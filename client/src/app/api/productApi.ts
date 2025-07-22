@@ -95,6 +95,7 @@ export const {
   useFetchProductByIdQuery,
   useFetchTop10ProductsQuery,
   useFetchProductsByCatQuery,
+  useLazyFetchProductsByCatQuery,
   useCreateProductMutation,
   useDeleteProductMutation
 } = productApi;

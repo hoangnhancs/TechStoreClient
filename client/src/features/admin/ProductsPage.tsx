@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { InputAdornment } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import TablePagination from '@mui/material/TablePagination';
-import { useDeleteProductMutation, useFetchProductsQuery, useLazyFetchProductsByCatQuery } from "../../app/api/productApi";
+import { useDeleteProductMutation, useFetchProductsQuery } from "../../app/api/productApi";
 import LoadingComponent from "../../components/LoadingComponent";
 import { Category, Product } from "../../lib/types";
 import { toast } from "react-toastify";
@@ -15,6 +15,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
 import { useFetchCategoriesQuery } from "../../app/api/categoryApi";
+import { useLocation, useNavigate } from "react-router";
 
 const StyledGridItem = styled(Grid)(() => ({
     justifyContent: "center", 
@@ -30,8 +31,9 @@ const StyledTypography = styled(Typography)(() => ({
 
 export default function ProductsPage() {
     const { data: categories } = useFetchCategoriesQuery()
-    const [lazyFetchProducts, { isLoading: isLoadingLazyFetch }] = useLazyFetchProductsByCatQuery()
     const {data: products} = useFetchProductsQuery()
+    const navigate = useNavigate()
+    const location = useLocation()
     const [localProducts, setLocalProducts] = useState<Product[] | undefined>(products)
     const [ deleteProduct, { isLoading: isLoadingDelete }] = useDeleteProductMutation()
     const [selectedProduct, setSelectedProduct] = useState<{id: string, name: string} | null>(null);
@@ -136,15 +138,14 @@ export default function ProductsPage() {
             toast.error("Xoá sản phẩm thất bại");
         })
     }
-    const handleSeeResult = async () => {
+    const handleSeeResult = () => {
         setPage(0);
         if (selectedCategory.id === -1) {
             setLocalProducts(products)
         }
         else {
-            const result = await lazyFetchProducts(selectedCategory.id);
-            if (!result || !result.data) return;
-            setLocalProducts(result.data)
+            const result = products.filter((p) => p.categoryId === selectedCategory.id);
+            setLocalProducts(result)
         }
     }
     return (
@@ -187,7 +188,7 @@ export default function ProductsPage() {
                     sx={{ height : 26 }}
                     onClick={handleSeeResult}
                 >
-                    {isLoadingLazyFetch ? "Đang tải..." : "Xem kết quả"}
+                    Xem kết quả
                 </Button>
             </Box>
             
@@ -375,6 +376,7 @@ export default function ProductsPage() {
                                 variant="contained"
                                 color="primary"
                                 startIcon={<UpdateIcon sx={{ml: -0.75}} />}
+                                onClick={() => navigate(`/dashboard/products/manage/${product.id}`, { state: {prevPath: location.pathname} })}
                             >
                                 <StyledTypography sx={{ fontSize: "12px"}}>Cập nhật</StyledTypography>
                             </Button>

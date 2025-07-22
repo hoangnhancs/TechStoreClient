@@ -14,7 +14,9 @@ import { useFetchAllFilterTagsQuery } from "../../app/api/filterTagApi";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 import { CreateProductInput, FilterTag } from "../../lib/types";
-import { useCreateProductMutation } from "../../app/api/productApi";
+import { useCreateProductMutation, useFetchProductByIdQuery } from "../../app/api/productApi";
+import { Link, useLocation, useParams } from "react-router";
+import { ArrowBack } from "@mui/icons-material";
 
 
 
@@ -22,9 +24,12 @@ export default function AddNewProduct() {
   const { data: categories, isLoading: isCategoryLoading } = useFetchCategoriesQuery();
   const { data: allFilterTags, isLoading: isFilterTagLoading } = useFetchAllFilterTagsQuery();
   // const { data: currentUser } = useGetCurrentUserQuery();
+  const location = useLocation()
   const [ createProduct, { isLoading: isLoadingCreateProduct } ] = useCreateProductMutation();
   const { enqueueSnackbar } = useSnackbar();
-  
+  const { id } = useParams();
+  const { data: updatedProduct } = useFetchProductByIdQuery(id || "", {skip: !id});
+  console.log("id", id, "updatedProduct", updatedProduct);
   const { control, handleSubmit, setValue, reset } = useForm<AddProductFormValues>({
     mode: "onTouched",
     resolver: zodResolver(addProductSchema),
@@ -66,7 +71,25 @@ export default function AddNewProduct() {
     // Khi đổi category, reset filterTags về {}
     setValue("filterTags", {});
   }, [selectedCategoryId, setValue]);
-
+  useEffect(() => {
+    if (updatedProduct) {
+      reset({
+        name: updatedProduct.name,
+        description: updatedProduct.description.join("\n"),
+        category: updatedProduct.categoryId.toString(),
+        brand: updatedProduct.brand,
+        oldPrice: updatedProduct.oldPrice,
+        discount: updatedProduct.discountPercentage,
+        mainImage: updatedProduct.imageUrl,
+        mainImageFile: updatedProduct.imageUrl,
+        detailImages: updatedProduct.images.map(image => image.imageUrl),
+        detailImageFiles: updatedProduct.images.map(image => image.imageUrl),
+        quantityInStock: updatedProduct.quantityInStock,
+        attributeGroups: [],
+        filterTags: {}
+      })
+    }
+  }, [updatedProduct, reset])
   // Tính giá sau giảm giá
   const oldPrice = useWatch({ control, name: "oldPrice" }) ?? 0;
   const discount = useWatch({ control, name: "discount" }) ?? 0;
@@ -156,9 +179,19 @@ export default function AddNewProduct() {
 
   return (
     <Paper sx={{ borderRadius: 3, padding: 3, gap: 3, display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="h5" gutterBottom color="primary">
-        Tạo sản phẩm mới
-      </Typography>
+      
+      <Box display={"flex"}>
+        <Button 
+          component={Link} 
+          to={location.state?.prevPath || "/products"}
+          startIcon={<ArrowBack sx={{ fontSize: 20, width: 20, m: 0, p: 0}} />} 
+          sx={{ mb: 2 }}
+        >
+        </Button>
+        <Typography variant="h5" gutterBottom color="primary">
+          {id ? "Cập nhật sản phẩm" : "Tạo sản phẩm mới"}
+        </Typography>
+      </Box>
       {isLoadingCreateProduct && <Box
         sx={{
           position: 'fixed',
@@ -311,7 +344,11 @@ export default function AddNewProduct() {
                 control={control}
                 defaultValue={[]}
                 render={({ field: { onChange } }) => (
-                  <ImageUpload onImagesChange={onChange} resetKey={detailImageFiles?.length === 0} />
+                  <ImageUpload 
+                    onImagesChange={onChange} 
+                    resetKey={detailImageFiles?.length === 0} 
+                    defaultDetailImageUrls={updatedProduct?.images.map(image => image.imageUrl) || undefined} 
+                  />
                 )}
               />
             </Box>

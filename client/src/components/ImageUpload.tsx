@@ -6,13 +6,18 @@ import ClearIcon from '@mui/icons-material/Clear';
 type Props = {
     onImagesChange: (images: File[]) => void;
     maxImages?: number,
-    resetKey?: boolean
+    resetKey?: boolean,
+    defaultDetailImageUrls?: string[]
 } & BoxProps
 
 const ImageUpload: React.FC<Props> = React.memo(( props: Props) => {
-  const { onImagesChange, maxImages, ...rest } = props;
+  const { onImagesChange, maxImages, defaultDetailImageUrls, ...rest } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<File[]>([]);
+  const [defaultDetailImgUrls, setDefaultDetailImgUrls] = useState<string[]>(defaultDetailImageUrls ?? []);
+  useEffect(() => {
+    setDefaultDetailImgUrls(defaultDetailImageUrls ?? []);
+  }, [defaultDetailImageUrls, props.resetKey]);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
     if (!e.target.files?.length) return;
@@ -29,6 +34,13 @@ const ImageUpload: React.FC<Props> = React.memo(( props: Props) => {
     const updatedImages = images.filter((_, idx) => idx !== index);
     setImages(updatedImages);
     onImagesChange(updatedImages);
+  }
+
+  const handleRemoveDefaultImage = (index: number) => {
+    console.log("delete index", index);
+    const updatedImages = defaultDetailImgUrls.filter((_, idx) => idx !== index);
+    setDefaultDetailImgUrls(updatedImages);
+    console.log("updatedImages", updatedImages);
   }
 
   useEffect(() => {
@@ -75,6 +87,47 @@ const ImageUpload: React.FC<Props> = React.memo(( props: Props) => {
               p: '1px',
             }}
             onClick={() => handleRemoveImage(idx)}
+          >
+            <ClearIcon fontSize="inherit" sx={{fontSize: 16}} />
+          </IconButton>
+        </Box>
+      ))}
+      {defaultDetailImageUrls?.map((url, idx) => (
+        <Box 
+          key={idx}
+          sx={{
+            width:  68,
+            height:  68,
+            position: 'relative',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            ...rest,
+          }}
+        >
+          <Box
+            component="img"
+            src={url}
+            alt={`preview-${idx}`}
+            sx={{
+              width: '100%',
+              height: '100%',
+              borderRadius: 1,
+              objectFit: 'contain',
+              border: '1px solid #ccc',
+            }}
+          />
+          <IconButton
+            size="small"
+            sx={{
+              position: 'absolute',
+              top: 2,
+              right: 2,
+              background: 'rgba(255,255,255,0.8)',
+              '&:hover': { background: 'rgba(255,255,255,1)' },
+              p: '1px',
+            }}
+            onClick={() => handleRemoveDefaultImage(idx)}
           >
             <ClearIcon fontSize="inherit" sx={{fontSize: 16}} />
           </IconButton>

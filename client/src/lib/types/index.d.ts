@@ -8,6 +8,7 @@ export type Product = {
   price: number;
   discountPercentage: number;
   category: Category;
+  categoryId: number,
   brand: string;
   quantityInStock: number;
   imageUrl: string;

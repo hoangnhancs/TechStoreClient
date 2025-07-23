@@ -33,6 +33,7 @@ export type Product = {
 
 export type ProductTagFilter = {
     id: number;
+    filterTagId: number;
     filterTagValueId: number;
     productId: string;
 };

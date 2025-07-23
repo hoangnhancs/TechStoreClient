@@ -94,8 +94,12 @@ export default function AddNewProduct() {
           }
           return acc;
         }, []), //mapping from fetched template to submit template(add product schema)
-        filterTags: {}
+        filterTags: updatedProduct.productTagFilters.reduce<Record<number, string>>((acc, filter) => {
+          acc[filter.filterTagId] = filter.filterTagValueId.toString();
+          return acc;
+        }, {}),
       })
+      console.log("form data", reset);
     }
   }, [updatedProduct, reset])
   // Tính giá sau giảm giá
@@ -288,10 +292,7 @@ export default function AddNewProduct() {
             <Typography variant="h6" mt={2}>Bộ lọc</Typography>
             {filters.length > 0 ? (
               filters.map((filterTag) => { 
-                const listFilterTagValuesOfProduct = updatedProduct?.productTagFilters.map(ptf => ptf.filterTagValueId)
-                const defaultValue = filterTag.values.find(val =>
-                  listFilterTagValuesOfProduct?.includes(val.id)
-                )?.id.toString() ?? "";
+                
                 return (
                   <Box
                     display="flex"
@@ -303,7 +304,7 @@ export default function AddNewProduct() {
                       {filterTag.name || "Không có tên bộ lọc"}
                     </Typography>
                     <SelectInput
-                      defaultValue={defaultValue}
+                      
                       items={filterTag.values.map(attr => ({
                         text: attr.value,
                         value: attr.id.toString()
@@ -377,16 +378,9 @@ export default function AddNewProduct() {
           variant="contained"
           color="primary"
           size="large"
+          disabled={!!id}
         >
-          Tạo sản phẩm
-        </Button>
-        <Button
-          onClick={() => console.log(detailImageFiles)}
-          variant="contained"
-          color="primary"
-          size="large"
-        >
-          test
+          {id ? "Cập nhật" : "Tạo sản phẩm"}
         </Button>
       </Box>
     </Paper>

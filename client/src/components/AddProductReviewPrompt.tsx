@@ -125,7 +125,13 @@ export default function AddProductReviewPrompt({ open, onClose, productName, pro
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
             />
-            <ImageUpload onImagesChange={setImages} maxImages={5} resetKey={images.length===0} />
+            <ImageUpload onImagesChange={(images) => {
+                const filesOnly = images.filter((img): img is File => img instanceof File);
+                setImages(filesOnly);
+              }} 
+              maxImages={5} 
+              resetKey={images.length===0} 
+            />
         </Box>
         </DialogContent>
         <DialogActions>

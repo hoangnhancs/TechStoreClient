@@ -26,7 +26,7 @@ export default function BannerPage() {
   const [ addBannerImages , { isLoading: loadingAddBannerImages }] = useAddNewBannerMutation()
   const {data: bannerImages, isLoading: isLoadingFetchBanners } = useFetchBannersQuery()
   const [ deleteBannerImages , { isLoading: loadingDeleteBannerImages }] = useDeleteBannerMutation()
-  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [newFiles, setNewFiles] = useState<(File)[]>([]);
   const [banners, setBanners] = useState<BannerImage[]>([]);
   const [selectedBanners, setSelectedBanners] = useState<number[]>([]);
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
@@ -36,7 +36,7 @@ export default function BannerPage() {
       setBanners(bannerImages);
     }
   }, [bannerImages])
-  useEffect(() => {
+  useEffect(() => { 
     console.log(newFiles)
   }, [newFiles])
 
@@ -128,7 +128,14 @@ export default function BannerPage() {
 
 
       {/* Upload */}
-      <ImageUpload onImagesChange={setNewFiles} height={90} width={190} resetKey={newFiles.length === 0} />
+      <ImageUpload onImagesChange={(images) => {
+          const filesOnly = images.filter((img): img is File => img instanceof File);
+          setNewFiles(filesOnly);
+        }}
+        height={90} 
+        width={190} 
+        resetKey={newFiles.length === 0} 
+      />
 
       <Divider sx={{ mt: 2, mb: 2 }}></Divider>
 

@@ -29,7 +29,7 @@ export default function AddNewProduct() {
   const { enqueueSnackbar } = useSnackbar();
   const { id } = useParams();
   const { data: updatedProduct } = useFetchProductByIdQuery(id || "", {skip: !id});
-  console.log("id", id, "updatedProduct", updatedProduct);
+  console.log("updatedProduct", updatedProduct);
   const { control, handleSubmit, setValue, reset } = useForm<AddProductFormValues>({
     mode: "onTouched",
     resolver: zodResolver(addProductSchema),
@@ -80,12 +80,20 @@ export default function AddNewProduct() {
         brand: updatedProduct.brand,
         oldPrice: updatedProduct.oldPrice,
         discount: updatedProduct.discountPercentage,
-        mainImage: updatedProduct.imageUrl,
+        mainImage: "",
         mainImageFile: updatedProduct.imageUrl,
-        detailImages: updatedProduct.images.map(image => image.imageUrl),
+        detailImages: [],
         detailImageFiles: updatedProduct.images.map(image => image.imageUrl),
         quantityInStock: updatedProduct.quantityInStock,
-        attributeGroups: [],
+        attributeGroups: updatedProduct.attributes.reduce<{groupName: string, attributes:{key: string, value: string}[]}[]>((acc, attribute) => {
+          const group = acc.find(group => group.groupName === attribute.attributeType);
+          if (group) {
+            group.attributes.push({ key: attribute.name, value: attribute.value });
+          } else {
+            acc.push({ groupName: attribute.attributeType, attributes: [{ key: attribute.name, value: attribute.value }] });
+          }
+          return acc;
+        }, []), //mapping from fetched template to submit template(add product schema)
         filterTags: {}
       })
     }
@@ -267,6 +275,7 @@ export default function AddNewProduct() {
           </AccordionSummary>
           <AccordionDetails sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <SelectInput
+              defaultValue={updatedProduct?.categoryId.toString()}
               items={categories.map(category => ({
                 text: category.name,
                 value: category.id.toString()
@@ -278,28 +287,35 @@ export default function AddNewProduct() {
             <TextInput label="Thương hiệu" name="brand" control={control} />
             <Typography variant="h6" mt={2}>Bộ lọc</Typography>
             {filters.length > 0 ? (
-              filters.map((filterTag) => (
-                <Box
-                  display="flex"
-                  key={filterTag.id}
-                  alignItems="center"
-                  gap={1}
-                >
-                  <Typography variant="subtitle1" sx={{ minWidth: 150 }} textTransform={"capitalize"}>
-                    {filterTag.name || "Không có tên bộ lọc"}
-                  </Typography>
-                  <SelectInput
-                    items={filterTag.values.map(attr => ({
-                      text: attr.value,
-                      value: attr.id.toString()
-                    }))}
-                    label="Thuộc tính"
-                    name={`filterTags.${String(filterTag.id)}`}
-                    control={control}
-                    sx={{ flexGrow: 1 }}
-                  />
-                </Box>
-              ))
+              filters.map((filterTag) => { 
+                const listFilterTagValuesOfProduct = updatedProduct?.productTagFilters.map(ptf => ptf.filterTagValueId)
+                const defaultValue = filterTag.values.find(val =>
+                  listFilterTagValuesOfProduct?.includes(val.id)
+                )?.id.toString() ?? "";
+                return (
+                  <Box
+                    display="flex"
+                    key={filterTag.id}
+                    alignItems="center"
+                    gap={1}
+                  >
+                    <Typography variant="subtitle1" sx={{ minWidth: 150 }} textTransform={"capitalize"}>
+                      {filterTag.name || "Không có tên bộ lọc"}
+                    </Typography>
+                    <SelectInput
+                      defaultValue={defaultValue}
+                      items={filterTag.values.map(attr => ({
+                        text: attr.value,
+                        value: attr.id.toString()
+                      }))}
+                      label="Thuộc tính"
+                      name={`filterTags.${String(filterTag.id)}`}
+                      control={control}
+                      sx={{ flexGrow: 1 }}
+                    />
+                  </Box>
+                )
+              })
             ) : (
               <Typography color="text.secondary">
                 Chọn danh mục để hiển thị bộ lọc
@@ -335,6 +351,7 @@ export default function AddNewProduct() {
                     maxImages={1}
                     resetKey = {!mainImageFile}
                     onImagesChange={(images) => onChange(images[0] || undefined)}
+                    defaultImages={updatedProduct?.imageUrl ? [updatedProduct.imageUrl] : undefined}
                   />
                 )}
               />
@@ -347,7 +364,7 @@ export default function AddNewProduct() {
                   <ImageUpload 
                     onImagesChange={onChange} 
                     resetKey={detailImageFiles?.length === 0} 
-                    defaultDetailImageUrls={updatedProduct?.images.map(image => image.imageUrl) || undefined} 
+                    defaultImages={updatedProduct?.images.map(image => image.imageUrl) || []} 
                   />
                 )}
               />
@@ -362,6 +379,14 @@ export default function AddNewProduct() {
           size="large"
         >
           Tạo sản phẩm
+        </Button>
+        <Button
+          onClick={() => console.log(detailImageFiles)}
+          variant="contained"
+          color="primary"
+          size="large"
+        >
+          test
         </Button>
       </Box>
     </Paper>

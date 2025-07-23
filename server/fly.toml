@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for server-little-sun-6817 on 2025-07-17T15:43:46+07:00
+# fly.toml app configuration file generated for ecommercestore-be on 2025-07-23T10:33:08+07:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'server-little-sun-6817'
-primary_region = 'syd'
+app = 'ecommercestore-be'
+primary_region = 'sin'
 
 [build]
 
@@ -17,6 +17,4 @@ primary_region = 'syd'
   processes = ['app']
 
 [[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
-  cpus = 1
+  size = 'shared-cpu-1x'

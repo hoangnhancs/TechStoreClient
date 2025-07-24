@@ -1,10 +1,10 @@
-# fly.toml app configuration file generated for ecommercestore-be on 2025-07-23T10:33:08+07:00
+# fly.toml app configuration file generated for server-proud-fire-4566 on 2025-07-24T20:12:55+07:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'ecommercestore-be'
-primary_region = 'sin'
+app = 'server-proud-fire-4566'
+primary_region = 'syd'
 
 [build]
 
@@ -17,4 +17,6 @@ primary_region = 'sin'
   processes = ['app']
 
 [[vm]]
-  size = 'shared-cpu-1x'
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1

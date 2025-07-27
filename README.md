@@ -2,7 +2,7 @@
 
 E-Commerce Store is a full-stack web application built with ASP.NET Core + ReactJS, service-oriented e-commerce platform with a clean, maintainable codebase and modern tech stack.
 
-**[Live Demo](https://server-proud-fire-4566.fly.dev/)**
+**[Live Demo](https://server-proud-fire-4566.fly.dev/products)**
 
 **Account demo:** - Account: admin@gmail.com - Password: Pa$$w0rd
 

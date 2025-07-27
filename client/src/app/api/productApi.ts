@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { CreateProductInput, Product } from "../../lib/types";
+import { CreateAndUpdateProductInput, Product } from "../../lib/types";
 import { baseQueryWithErrorHandling } from "./baseApi";
 
 export const productApi = createApi({
@@ -38,7 +38,7 @@ export const productApi = createApi({
       query: (id) => ({ url: `/products/${id}`, method: "GET" }),
       providesTags: (_, __, id) => [{ type: "Product", id }],
     }),
-    createProduct: builder.mutation<Product, CreateProductInput>({
+    createProduct: builder.mutation<Product, CreateAndUpdateProductInput>({
       query: (product) => {
         const formData = new FormData();
         formData.append("name", product.name);
@@ -80,13 +80,61 @@ export const productApi = createApi({
       },
       invalidatesTags: [{ type: "Product", id: "LIST" }],
     }),
+    updateProduct: builder.mutation<Product,{ props: CreateAndUpdateProductInput; id: string }>({
+      query: ({ props, id }) => {
+        const formData = new FormData();
+        formData.append("name", props.name);
+        formData.append("description", props.description);
+        formData.append("oldPrice", props.oldPrice.toString());
+        formData.append("discount", props.discount.toString());
+        formData.append("categoryId", props.categoryId);
+        formData.append("brand", props.brand);
+        formData.append("quantityInStock", props.quantityInStock.toString());
+
+        // Main image
+        if (props.mainImageFile && typeof props.mainImageFile === "string") {
+          formData.append("mainImageUrl", props.mainImageFile); // là URL
+        } else {
+          formData.append("mainImageFile", props.mainImageFile); // là File
+        }
+
+        // Detail images
+        if (props.detailImageFiles && props.detailImageFiles.length > 0) {
+          props.detailImageFiles.forEach((fileOrUrl) => {
+            if (typeof fileOrUrl === "string") {
+              formData.append("detailImageUrls", fileOrUrl);
+            } else {
+              formData.append("detailImageFiles", fileOrUrl);
+            }
+          });
+        }
+
+        // Filter tags (object)
+        Object.entries(props.filterTags).forEach(([key, value]) => {
+          formData.append(`filterTags[${key}]`, value);
+        });
+
+        // Attribute groups (array of objects)
+        formData.append(
+          "attributeGroupsJson",
+          JSON.stringify(props.attributeGroups)
+        );
+
+        return {
+          url: `/products/manage/${id}`,
+          method: "PUT",
+          body: formData,
+        };
+      },
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Product", id }],
+    }),
     deleteProduct: builder.mutation<void, string>({
       query: (id) => ({
         url: `/products?id=${id}`,
         method: "DELETE",
       }),
       // invalidatesTags: [{ type: "Product", id: "LIST" }],
-    })
+    }),
   }),
 });
 
@@ -97,5 +145,6 @@ export const {
   useFetchProductsByCatQuery,
   useLazyFetchProductsByCatQuery,
   useCreateProductMutation,
+  useUpdateProductMutation,
   useDeleteProductMutation
 } = productApi;

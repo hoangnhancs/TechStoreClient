@@ -30,6 +30,7 @@ export default function BannerPage() {
   const [banners, setBanners] = useState<BannerImage[]>([]);
   const [selectedBanners, setSelectedBanners] = useState<number[]>([]);
   const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = useState(false);
+  const [resetKey, setResetKey] = useState(false);
 
   useEffect(() => {
     if (bannerImages) {
@@ -44,6 +45,7 @@ export default function BannerPage() {
     addBannerImages(newFiles).unwrap()
     .then((data) => {
       toast.success("Thêm banner thành công");
+      setResetKey(true)
       setBanners((prev) => [...prev, ...data]);
       setNewFiles([]);
     })
@@ -132,9 +134,10 @@ export default function BannerPage() {
           const filesOnly = images.filter((img): img is File => img instanceof File);
           setNewFiles(filesOnly);
         }}
+        onChangeResetkey={setResetKey}
         height={90} 
         width={190} 
-        resetKey={newFiles.length === 0} 
+        resetKey={resetKey} 
       />
 
       <Divider sx={{ mt: 2, mb: 2 }}></Divider>

@@ -65,25 +65,24 @@ public class CreateNewProductHandler : IRequestHandler<CreateNewProductCommand, 
         //Handle product attributes
         var productAttributes = new List<ProductAttribute>();
         var displayOrder = 0;
-        if (request.AttributeGroups == null || request.AttributeGroups.Count == 0)
+        if (request.AttributeGroups != null && request.AttributeGroups.Count > 0)
         {
-            return Result<ProductDto>.Failure("No attributes provided", 400);
-        }
-        foreach (var attributeGroup in request.AttributeGroups)
-        {
-            foreach (var attribute in attributeGroup.Attributes)
+            foreach (var attributeGroup in request.AttributeGroups)
             {
-                productAttributes.Add(new ProductAttribute
+                foreach (var attribute in attributeGroup.Attributes)
                 {
-                    Name = attribute.Key,
-                    Value = attribute.Value,
-                    DisplayOrder = displayOrder,
-                    AttributeType = attributeGroup.GroupName, // Assuming all attributes are text type for simplicity
-                });
-                displayOrder++;
+                    productAttributes.Add(new ProductAttribute
+                    {
+                        Name = attribute.Key,
+                        Value = attribute.Value,
+                        DisplayOrder = displayOrder,
+                        AttributeType = attributeGroup.GroupName, // Assuming all attributes are text type for simplicity
+                    });
+                    displayOrder++;
+                }
             }
         }
-
+        
         //handle filter tags
         var filterTags = new List<ProductTagFilter>();
         foreach (var filterTag in request.FilterTags)

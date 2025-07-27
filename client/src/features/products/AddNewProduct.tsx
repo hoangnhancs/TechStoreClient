@@ -13,8 +13,8 @@ import { useFetchAllFilterTagsQuery } from "../../app/api/filterTagApi";
 // import { useGetCurrentUserQuery } from "../user/userApi";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
-import { CreateProductInput, FilterTag } from "../../lib/types";
-import { useCreateProductMutation, useFetchProductByIdQuery } from "../../app/api/productApi";
+import { CreateAndUpdateProductInput, FilterTag } from "../../lib/types";
+import { useCreateProductMutation, useFetchProductByIdQuery, useUpdateProductMutation } from "../../app/api/productApi";
 import { Link, useLocation, useParams } from "react-router";
 import { ArrowBack } from "@mui/icons-material";
 
@@ -26,9 +26,11 @@ export default function AddNewProduct() {
   // const { data: currentUser } = useGetCurrentUserQuery();
   const location = useLocation()
   const [ createProduct, { isLoading: isLoadingCreateProduct } ] = useCreateProductMutation();
+  const [ updateProduct, { isLoading: isLoadingUpdateProduct } ] = useUpdateProductMutation();
   const { enqueueSnackbar } = useSnackbar();
   const { id } = useParams();
-  const { data: updatedProduct } = useFetchProductByIdQuery(id || "", {skip: !id});
+  const [ resetKey, setResetkey ] = useState(false);
+  const { data: updatedProduct,  } = useFetchProductByIdQuery(id || "", {skip: !id});
   console.log("updatedProduct", updatedProduct);
   const { control, handleSubmit, setValue, reset } = useForm<AddProductFormValues>({
     mode: "onTouched",
@@ -45,6 +47,7 @@ export default function AddNewProduct() {
       detailImages: [],
       detailImageFiles: [],
       quantityInStock: 0,
+      stockIn: id ? 0 : undefined,
       attributeGroups: [],
       filterTags: {},
     }
@@ -52,8 +55,9 @@ export default function AddNewProduct() {
 
   // Lấy category đang chọn
   const selectedCategoryId = useWatch({ control, name: "category" });
-  const mainImageFile = useWatch({ control, name: "mainImageFile" });
-  const detailImageFiles = useWatch({ control, name: "detailImageFiles" });
+  // const mainImageFile = useWatch({ control, name: "mainImageFile" });
+  // const detailImageFiles = useWatch({ control, name: "detailImageFiles" });
+
 
   // Lọc filter tags theo category
   const [filters, setFilters] = useState<FilterTag[]>([]);
@@ -73,6 +77,9 @@ export default function AddNewProduct() {
   }, [selectedCategoryId, setValue]);
   useEffect(() => {
     if (updatedProduct) {
+      const now = new Date()
+      console.log("updatedProduct has been changed, update new value: ", updatedProduct)
+      console.log("updatedProduct at", now)
       reset({
         name: updatedProduct.name,
         description: updatedProduct.description.join("\n"),
@@ -80,6 +87,7 @@ export default function AddNewProduct() {
         brand: updatedProduct.brand,
         oldPrice: updatedProduct.oldPrice,
         discount: updatedProduct.discountPercentage,
+        stockIn: id ? 0 : undefined,
         mainImage: "",
         mainImageFile: updatedProduct.imageUrl,
         detailImages: [],
@@ -99,9 +107,8 @@ export default function AddNewProduct() {
           return acc;
         }, {}),
       })
-      console.log("form data", reset);
     }
-  }, [updatedProduct, reset])
+  }, [updatedProduct, reset, id])
   // Tính giá sau giảm giá
   const oldPrice = useWatch({ control, name: "oldPrice" }) ?? 0;
   const discount = useWatch({ control, name: "discount" }) ?? 0;
@@ -111,60 +118,97 @@ export default function AddNewProduct() {
 
   // Xử lý lỗi
   const flattenErrors = (errObj: FieldErrors<AddProductFormValues>): string[] => {
-  let msgs: string[] = [];
-  
-  if (Array.isArray(errObj)) {
-    errObj.forEach(item => {
-      if (item) msgs = msgs.concat(flattenErrors(item));
-    });
-  } else {
-    Object.values(errObj).forEach(val => {
-      if (val && typeof (val as FieldError).message === "string") {
-        const msg = (val as FieldError).message;
-        if (msg !== undefined) {
-          msgs.push(msg);
+    let msgs: string[] = [];
+    
+    if (Array.isArray(errObj)) {
+      errObj.forEach(item => {
+        if (item) msgs = msgs.concat(flattenErrors(item));
+      });
+    } else {
+      Object.values(errObj).forEach(val => {
+        if (val && typeof (val as FieldError).message === "string") {
+          const msg = (val as FieldError).message;
+          if (msg !== undefined) {
+            msgs.push(msg);
+          }
+        } else if (val && typeof val === "object") {
+          msgs = msgs.concat(
+            flattenErrors(val as FieldErrors<AddProductFormValues>)
+          );
         }
-      } else if (val && typeof val === "object") {
-        msgs = msgs.concat(
-          flattenErrors(val as FieldErrors<AddProductFormValues>)
-        );
-      }
-    });
-  }
-  return msgs;
-};
+      });
+    }
+    return msgs;
+  };
 
   const onSubmit = async (data: AddProductFormValues) => {
     
     console.log("Submitted data:", data);
-    createProduct({
-      categoryId: data.category,
-      name: data.name,
-      description: data.description,
-      category: data.category,
-      brand: data.brand,
-      oldPrice: data.oldPrice,
-      discount: data.discount,
-      mainImage: data.mainImage,
-      mainImageFile: data.mainImageFile,
-      detailImages: data.detailImages,
-      detailImageFiles: data.detailImageFiles,
-      quantityInStock: data.quantityInStock,
-      attributeGroups: (data.attributeGroups ?? []).map((group) => ({
-        groupName: group.groupName,
-        attributes: group.attributes,
-      })),
-      filterTags: data.filterTags,
-    } as CreateProductInput)
-      .unwrap()
-      .then(() => {
-        enqueueSnackbar("Tạo sản phẩm thành công", { variant: "success" });
-        reset();
-      })
-      .catch((error) => {
-        console.error("Error creating product:", error);
-        enqueueSnackbar("Lỗi khi tạo sản phẩm", { variant: "error" });
-      });
+    console.log("stockIn", data.stockIn, typeof data.stockIn);
+    console.log("quantityInStock", data.quantityInStock, typeof data.quantityInStock);
+    if (id) {
+      updateProduct({
+        props: {
+          categoryId: data.category,
+          name: data.name,
+          description: data.description,
+          category: data.category,
+          brand: data.brand,
+          oldPrice: data.oldPrice,
+          discount: data.discount,
+          mainImage: data.mainImage,
+          mainImageFile: data.mainImageFile,
+          detailImages: data.detailImages,
+          detailImageFiles: data.detailImageFiles,
+          quantityInStock: data.quantityInStock + (data.stockIn || 0),
+          attributeGroups: (data.attributeGroups ?? []).map((group) => ({
+            groupName: group.groupName,
+            attributes: group.attributes})),
+          filterTags: data.filterTags
+          } as CreateAndUpdateProductInput,
+          id: id
+        })
+        .unwrap()
+        .then(() => {
+          enqueueSnackbar("Cập nhật sản phẩm thành công", { variant: "success" });
+        })
+        .catch((error) => {
+          console.error("Error creating product:", error);
+          enqueueSnackbar("Lỗi khi cập nhật sản phẩm", { variant: "error" });
+        });
+    }
+    else {
+      createProduct({
+        categoryId: data.category,
+        name: data.name,
+        description: data.description,
+        category: data.category,
+        brand: data.brand,
+        oldPrice: data.oldPrice,
+        discount: data.discount,
+        mainImage: data.mainImage,
+        mainImageFile: data.mainImageFile,
+        detailImages: data.detailImages,
+        detailImageFiles: data.detailImageFiles,
+        quantityInStock: data.quantityInStock,
+        attributeGroups: (data.attributeGroups ?? []).map((group) => ({
+          groupName: group.groupName,
+          attributes: group.attributes,
+        })),
+        filterTags: data.filterTags,
+      } as CreateAndUpdateProductInput)
+        .unwrap()
+        .then(() => {
+          enqueueSnackbar("Tạo sản phẩm thành công", { variant: "success" });
+          reset();
+          setResetkey(true);
+          setFilters([])
+        })
+        .catch((error) => {
+          console.error("Error creating product:", error);
+          enqueueSnackbar("Lỗi khi tạo sản phẩm", { variant: "error" });
+        });
+    }
   };
 
   const onError = (errors: FieldErrors<AddProductFormValues>) => {
@@ -204,7 +248,7 @@ export default function AddNewProduct() {
           {id ? "Cập nhật sản phẩm" : "Tạo sản phẩm mới"}
         </Typography>
       </Box>
-      {isLoadingCreateProduct && <Box
+      {(isLoadingCreateProduct || isLoadingUpdateProduct) && <Box
         sx={{
           position: 'fixed',
           top: 0,
@@ -264,6 +308,15 @@ export default function AddNewProduct() {
                 <TextInput
                   label="Số lượng"
                   name="quantityInStock"
+                  control={control}
+                  type="number"
+                  slotProps={{ input: { readOnly: !!id }}}
+                />
+              </Box>
+              <Box display="flex" sx={{ flex: 3 }}>
+                <TextInput
+                  label="Nhập kho"
+                  name="stockIn"
                   control={control}
                   type="number"
                 />
@@ -350,7 +403,8 @@ export default function AddNewProduct() {
                 render={({ field: { onChange } }) => (
                   <ImageUpload
                     maxImages={1}
-                    resetKey = {!mainImageFile}
+                    resetKey = {resetKey}
+                    onChangeResetkey={setResetkey}
                     onImagesChange={(images) => onChange(images[0] || undefined)}
                     defaultImages={updatedProduct?.imageUrl ? [updatedProduct.imageUrl] : undefined}
                   />
@@ -363,8 +417,9 @@ export default function AddNewProduct() {
                 defaultValue={[]}
                 render={({ field: { onChange } }) => (
                   <ImageUpload 
+                    resetKey = {resetKey}     
+                    onChangeResetkey={setResetkey}               
                     onImagesChange={onChange} 
-                    resetKey={detailImageFiles?.length === 0} 
                     defaultImages={updatedProduct?.images.map(image => image.imageUrl) || []} 
                   />
                 )}
@@ -378,7 +433,7 @@ export default function AddNewProduct() {
           variant="contained"
           color="primary"
           size="large"
-          disabled={!!id}
+          // disabled={!!id}
         >
           {id ? "Cập nhật" : "Tạo sản phẩm"}
         </Button>

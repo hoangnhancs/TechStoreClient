@@ -4,6 +4,7 @@ using Application.Command.Product;
 using Application.DTOs;
 using Application.Queries.Products;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Stripe;
@@ -74,6 +75,55 @@ public class ProductsController : BaseApiController
                   ?? [],
         }));
     }
+
+    [HttpPut("manage/{id}")]
+    public async Task<IActionResult> UpdateProduct([FromRoute] string id, [FromForm] UpdateProductDto updateProductDto)
+    {
+        var mainImageInput = new SingleImageInput
+        {
+            File = updateProductDto.MainImageFile,
+            Url = updateProductDto.MainImageUrl
+        };
+
+        var detailImageInput = new ListImageInput
+        {
+            Files = updateProductDto.DetailImageFiles,
+            Urls = updateProductDto.DetailImageUrls
+        };
+
+        return HandleResult(await Mediator.Send(new UpdateProductCommand
+        {
+            ProductDto = new ProductDto
+            {
+                Id = id,
+                Name = updateProductDto.Name,
+                Description = new List<string> { updateProductDto.Description },
+                OldPrice = updateProductDto.OldPrice,
+                DiscountPercentage = updateProductDto.Discount,
+                Price = updateProductDto.OldPrice * (100 - updateProductDto.Discount) / 100,
+                CategoryId = int.TryParse(updateProductDto.CategoryId, out var catId) ? catId : 0,
+                Brand = updateProductDto.Brand,
+                QuantityInStock = updateProductDto.QuantityInStock,
+            },
+            MainImageInput = mainImageInput,
+            DetailImageInputs =  detailImageInput,
+            FilterTags = updateProductDto.FilterTags,
+            // AttributeGroups = createProductDto.AttributeGroups
+            //     .Select(create_ag => new Application.Command.Product.ProductAttributeGroupDto
+            //     {
+            //         GroupName = create_ag.GroupName,
+            //         Attributes = create_ag.Attributes
+            //             .Select(a => new Application.Command.Product.ProductAttributeDto
+            //             {
+            //                 Key = a.Key,
+            //                 Value = a.Value
+            //             }).ToList()
+            //     }).ToList()
+            AttributeGroups = JsonConvert.DeserializeObject<List<Application.Command.Product.ProductAttributeGroupDto>>(updateProductDto.AttributeGroupsJson)
+                  ?? [],
+        }));
+    }
+
     [HttpDelete]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteProduct([FromQuery] string id)

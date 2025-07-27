@@ -15,7 +15,8 @@ public class ProductRepository(StoreContext context) : IProductRepository
             .Where(p => p.Id == productId)
             .Include(p => p.Category)
             .Include(p => p.DisplayTags)
-            .Include(p => p.ProductTagFilters)
+            .Include(p => p.ProductTagFilters!)
+            .ThenInclude(p => p.FilterTagValue)
             .Include(p => p.Reviews)
             .Include(p => p.DetailImages)
             .Include(p => p.Attributes)
@@ -86,6 +87,8 @@ public class ProductRepository(StoreContext context) : IProductRepository
         existProduct.Name = product.Name;
         existProduct.Description = product.Description;
         existProduct.Price = product.Price;
+        existProduct.OldPrice = product.OldPrice;
+        existProduct.DiscountPercentage = product.DiscountPercentage;
         existProduct.QuantityInStock = product.QuantityInStock;
         existProduct.CategoryId = product.CategoryId;
         if (UpdatedAt.HasValue)
@@ -95,6 +98,8 @@ public class ProductRepository(StoreContext context) : IProductRepository
         existProduct.MainImageUrl = product.MainImageUrl;
         existProduct.MainImagePublicId = product.MainImagePublicId;
         existProduct.DetailImages = product.DetailImages;
+        existProduct.Attributes = product.Attributes;
+        existProduct.ProductTagFilters = product.ProductTagFilters;   
         // existProduct = product;
     }
 

@@ -6,12 +6,13 @@ import ClearIcon from '@mui/icons-material/Clear';
 type Props = {
     onImagesChange: (images: (File | string)[]) => void;
     maxImages?: number,
-    resetKey?: boolean,
     defaultImages?: string[] 
+    resetKey?: boolean,
+    onChangeResetkey?: (resetKey: boolean) => void
 } & BoxProps
 
 const ImageUpload: React.FC<Props> = React.memo(( props: Props) => {
-  const { onImagesChange, maxImages, defaultImages, ...rest } = props;
+  const { onImagesChange, maxImages, defaultImages, onChangeResetkey, ...rest } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<(string | File)[]>([]);
 
@@ -53,10 +54,11 @@ const ImageUpload: React.FC<Props> = React.memo(( props: Props) => {
   }
 
   useEffect(() => {
-    if (props.resetKey) {
+    if (props.resetKey && onChangeResetkey) {
       setImages([]);
+      onChangeResetkey(false);
     }
-  }, [props.resetKey]);
+  }, [props.resetKey, onChangeResetkey]);
 
   return (
     <Box display="flex" alignItems="center" gap={1} flexWrap={'wrap'}>

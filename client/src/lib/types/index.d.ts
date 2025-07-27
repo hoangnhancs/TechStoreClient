@@ -231,7 +231,7 @@ export type Review = {
   updatedAt: Date;
 };
 
-export type CreateProductInput = {
+export type CreateAndUpdateProductInput = {
   name: string,
   description: string,
   oldPrice: number,
@@ -239,7 +239,7 @@ export type CreateProductInput = {
   categoryId: string,
   brand: string,
   quantityInStock: number,
-  mainImageFile: File,
+  mainImageFile: File | string,
   detailImageFiles: File[],
   filterTags: Record<number, string>,
   attributeGroups: InputAttributeGroup[],

@@ -2,7 +2,7 @@
 
 E-Commerce Store is a full-stack web application built with ASP.NET Core + ReactJS, service-oriented e-commerce platform with a clean, maintainable codebase and modern tech stack.
 
-**[Live Demo](https://server-little-sun-6817.fly.dev/products)**
+**[Live Demo](https://server-proud-fire-4566.fly.dev)**
 
 **Account demo:** - Account: admin@gmail.com - Password: Pa$$w0rd
 
@@ -98,6 +98,10 @@ E-Commerce Store is a full-stack web application built with ASP.NET Core + React
 - **Model:** Unified deployment – the ASP.NET Core backend serves both the API and the React frontend (from the `wwwroot` folder)
 
 ---
+
+## ► Database Schema
+
+The diagram below illustrates the structure and key relationships between entities in the application's PostgreSQL database.
 
 ![Database Schema for E-Commerce Sttore](docs/images/ecommerce_diagram.png)
 

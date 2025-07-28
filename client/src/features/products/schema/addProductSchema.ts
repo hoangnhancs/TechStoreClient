@@ -19,10 +19,16 @@ export const addProductSchema = z.object({
     (v) => (v === "" ? undefined : v),
     z.string().url("Hình ảnh chính không hợp lệ").optional()
   ),
-  detailImages: z.array(z.string().url("Hình ảnh chi tiết không hợp lệ")).default([]),
+  detailImages: z
+    .array(z.string().url("Hình ảnh chi tiết không hợp lệ"))
+    .default([]),
   quantityInStock: z.coerce
     .number()
     .min(1, "Số lượng trong kho phải là một số dương"),
+  stockIn: z.coerce
+    .number()
+    .min(0, "Số lượng nhập kho phải là một số không âm")
+    .optional(),
   attributeGroups: z
     .array(
       z.object({
@@ -42,15 +48,19 @@ export const addProductSchema = z.object({
     )
     .optional()
     .default([]),
-  filterTags: z.record(z.string(), z.string())
-    .refine(obj => Object.keys(obj).length > 0, {
-    message: "Bộ lọc không hợp lệ",
-    }).default({}),
+  filterTags: z
+    .record(z.string(), z.string())
+    .refine(
+      (val) =>
+        Object.values(val).filter((v) => v && v.trim() !== "").length > 0,
+      { message: "Vui lòng chọn ít nhất một bộ lọc sản phẩm." }
+    )
+    .default({}),
   mainImageFile: z
     .any({
       required_error: "Bạn phải upload một ảnh chính",
     })
-    .refine((v) => v instanceof File, {
+    .refine((v) => v !== undefined && v !== null && v !== "", {
       message: "Bạn phải upload một ảnh chính",
     }),
   detailImageFiles: z.array(z.any()).default([]),

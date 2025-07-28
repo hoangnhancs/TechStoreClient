@@ -30,6 +30,7 @@ import AnalystPage from "../features/admin/AnalystPage";
 import BannerPage from "../features/admin/BannerPage";
 import OrdersPage from "../features/admin/OrdersPage";
 import ProductsPage from "../features/admin/ProductsPage";
+import InventoryPage from "../features/admin/InventoryPage";
 
 export const router = createBrowserRouter([
     {
@@ -45,7 +46,7 @@ export const router = createBrowserRouter([
                 {path: '/my-orders/:orderId', element: <OrderDetailsPage />},
                 {path: '/change-password', element: <ChangePasswordForm />},
                 {element: <RequireAdmin />, children: [
-                    {path: '/add-new-product', element: <AddNewProduct />},
+                    {path: '/add-new-product', element: <AddNewProduct key={"create"} />},
                     {
                         path: '/dashboard', 
                         element: <DashboardPage />,
@@ -55,6 +56,8 @@ export const router = createBrowserRouter([
                             {path: 'orders', element: <OrdersPage />},
                             {path: 'orders/:orderId', element: <OrderDetailsPage />},
                             {path: 'products', element: <ProductsPage />},
+                            {path: 'products/manage/:id', element: <AddNewProduct />},
+                            {path: 'inventory', element: <InventoryPage />}
                         ]
                     },
                 ]}

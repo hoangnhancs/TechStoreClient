@@ -15,7 +15,8 @@ public class ProductRepository(StoreContext context) : IProductRepository
             .Where(p => p.Id == productId)
             .Include(p => p.Category)
             .Include(p => p.DisplayTags)
-            .Include(p => p.ProductTagFilters)
+            .Include(p => p.ProductTagFilters!)
+            .ThenInclude(p => p.FilterTagValue)
             .Include(p => p.Reviews)
             .Include(p => p.DetailImages)
             .Include(p => p.Attributes)
@@ -48,6 +49,7 @@ public class ProductRepository(StoreContext context) : IProductRepository
             FROM (
                 SELECT *, ROW_NUMBER() OVER (PARTITION BY category_id ORDER BY created_at DESC) as rn
                 FROM products
+                WHERE is_active = true
             ) as topProducts
             WHERE rn <= 10
         ";
@@ -60,6 +62,7 @@ public class ProductRepository(StoreContext context) : IProductRepository
     public async Task<List<Product>> GetProductsByCategory(int categoryId, CancellationToken cancellationToken)
     {
         return await _context.Products
+            .Where(p => p.IsActive)
             .Include(p => p.Category)
             .Where(p => p.CategoryId == categoryId)
             .Include(p => p.DisplayTags)
@@ -84,6 +87,8 @@ public class ProductRepository(StoreContext context) : IProductRepository
         existProduct.Name = product.Name;
         existProduct.Description = product.Description;
         existProduct.Price = product.Price;
+        existProduct.OldPrice = product.OldPrice;
+        existProduct.DiscountPercentage = product.DiscountPercentage;
         existProduct.QuantityInStock = product.QuantityInStock;
         existProduct.CategoryId = product.CategoryId;
         if (UpdatedAt.HasValue)
@@ -93,6 +98,8 @@ public class ProductRepository(StoreContext context) : IProductRepository
         existProduct.MainImageUrl = product.MainImageUrl;
         existProduct.MainImagePublicId = product.MainImagePublicId;
         existProduct.DetailImages = product.DetailImages;
+        existProduct.Attributes = product.Attributes;
+        existProduct.ProductTagFilters = product.ProductTagFilters;   
         // existProduct = product;
     }
 
@@ -119,7 +126,7 @@ public class ProductRepository(StoreContext context) : IProductRepository
         var messages = new List<string>();
         foreach (var item in orderItems)
         {
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId, cancellationToken);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId && p.IsActive, cancellationToken);
             if (product == null)
             {
                 messages.Add($"Sản phẩm với ID {item.ProductId} không tồn tại.");

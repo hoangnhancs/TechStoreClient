@@ -25,13 +25,13 @@ public class Product
     public bool IsFeatured { get; set; } = false;
     public bool IsNewArrival { get; set; } = false;
     public bool IsOnSale { get; set; } = false;
-    public List<ProductTag>? DisplayTags { get; set; } 
-    public List<ProductTagFilter>? ProductTagFilters { get; set; } 
+    public List<ProductTag> DisplayTags { get; set; } = [];
+    public List<ProductTagFilter> ProductTagFilters { get; set; } = [];
     public decimal AverageRating { get; set; } = 0;
     public int RatingCount { get; set; } = 0;
-    public List<Review>? Reviews { get; set; }
-    public List<ProductImage>? DetailImages { get; set; }
-    public List<ProductAttribute>? Attributes { get; set; }
+    public List<Review> Reviews { get; set; } = [];
+    public List<ProductImage> DetailImages { get; set; } = [];
+    public List<ProductAttribute> Attributes { get; set; } = [];
     public int UnitSold { get; set; } = 0;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

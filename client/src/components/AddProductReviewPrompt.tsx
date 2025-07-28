@@ -26,12 +26,14 @@ export default function AddProductReviewPrompt({ open, onClose, productName, pro
   });
   const [content, setContent] = useState('');
   const [images, setImages] = useState<File[]>([]);
+  const [ resetKey, setResetKey ] = useState(false);
 
 
 
   const handleSubmit = () => {
     if (content.length < 15) return;
     onSubmit(productId, content, overallRating || 1);
+    setResetKey(true)
     console.log({
       overallRating,
       experienceRatings,
@@ -125,7 +127,14 @@ export default function AddProductReviewPrompt({ open, onClose, productName, pro
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
             />
-            <ImageUpload onImagesChange={setImages} maxImages={5} resetKey={images.length===0} />
+            <ImageUpload onImagesChange={(images) => {
+                const filesOnly = images.filter((img): img is File => img instanceof File);
+                setImages(filesOnly);
+              }} 
+              maxImages={5} 
+              onChangeResetkey={setResetKey}
+              resetKey={resetKey} 
+            />
         </Box>
         </DialogContent>
         <DialogActions>

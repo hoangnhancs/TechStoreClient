@@ -13,8 +13,10 @@ import { useFetchAllFilterTagsQuery } from "../../app/api/filterTagApi";
 // import { useGetCurrentUserQuery } from "../user/userApi";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
-import { CreateProductInput, FilterTag } from "../../lib/types";
-import { useCreateProductMutation } from "../../app/api/productApi";
+import { CreateAndUpdateProductInput, FilterTag } from "../../lib/types";
+import { useCreateProductMutation, useFetchProductByIdQuery, useUpdateProductMutation } from "../../app/api/productApi";
+import { Link, useLocation, useParams } from "react-router";
+import { ArrowBack } from "@mui/icons-material";
 
 
 
@@ -22,9 +24,14 @@ export default function AddNewProduct() {
   const { data: categories, isLoading: isCategoryLoading } = useFetchCategoriesQuery();
   const { data: allFilterTags, isLoading: isFilterTagLoading } = useFetchAllFilterTagsQuery();
   // const { data: currentUser } = useGetCurrentUserQuery();
+  const location = useLocation()
   const [ createProduct, { isLoading: isLoadingCreateProduct } ] = useCreateProductMutation();
+  const [ updateProduct, { isLoading: isLoadingUpdateProduct } ] = useUpdateProductMutation();
   const { enqueueSnackbar } = useSnackbar();
-  
+  const { id } = useParams();
+  const [ resetKey, setResetkey ] = useState(false);
+  const { data: updatedProduct,  } = useFetchProductByIdQuery(id || "", {skip: !id});
+  console.log("updatedProduct", updatedProduct);
   const { control, handleSubmit, setValue, reset } = useForm<AddProductFormValues>({
     mode: "onTouched",
     resolver: zodResolver(addProductSchema),
@@ -40,6 +47,7 @@ export default function AddNewProduct() {
       detailImages: [],
       detailImageFiles: [],
       quantityInStock: 0,
+      stockIn: id ? 0 : undefined,
       attributeGroups: [],
       filterTags: {},
     }
@@ -47,8 +55,9 @@ export default function AddNewProduct() {
 
   // Lấy category đang chọn
   const selectedCategoryId = useWatch({ control, name: "category" });
-  const mainImageFile = useWatch({ control, name: "mainImageFile" });
-  const detailImageFiles = useWatch({ control, name: "detailImageFiles" });
+  // const mainImageFile = useWatch({ control, name: "mainImageFile" });
+  // const detailImageFiles = useWatch({ control, name: "detailImageFiles" });
+
 
   // Lọc filter tags theo category
   const [filters, setFilters] = useState<FilterTag[]>([]);
@@ -66,7 +75,40 @@ export default function AddNewProduct() {
     // Khi đổi category, reset filterTags về {}
     setValue("filterTags", {});
   }, [selectedCategoryId, setValue]);
-
+  useEffect(() => {
+    if (updatedProduct) {
+      const now = new Date()
+      console.log("updatedProduct has been changed, update new value: ", updatedProduct)
+      console.log("updatedProduct at", now)
+      reset({
+        name: updatedProduct.name,
+        description: updatedProduct.description.join("\n"),
+        category: updatedProduct.categoryId.toString(),
+        brand: updatedProduct.brand,
+        oldPrice: updatedProduct.oldPrice,
+        discount: updatedProduct.discountPercentage,
+        stockIn: id ? 0 : undefined,
+        mainImage: "",
+        mainImageFile: updatedProduct.imageUrl,
+        detailImages: [],
+        detailImageFiles: updatedProduct.images.map(image => image.imageUrl),
+        quantityInStock: updatedProduct.quantityInStock,
+        attributeGroups: updatedProduct.attributes.reduce<{groupName: string, attributes:{key: string, value: string}[]}[]>((acc, attribute) => {
+          const group = acc.find(group => group.groupName === attribute.attributeType);
+          if (group) {
+            group.attributes.push({ key: attribute.name, value: attribute.value });
+          } else {
+            acc.push({ groupName: attribute.attributeType, attributes: [{ key: attribute.name, value: attribute.value }] });
+          }
+          return acc;
+        }, []), //mapping from fetched template to submit template(add product schema)
+        filterTags: updatedProduct.productTagFilters.reduce<Record<number, string>>((acc, filter) => {
+          acc[filter.filterTagId] = filter.filterTagValueId.toString();
+          return acc;
+        }, {}),
+      })
+    }
+  }, [updatedProduct, reset, id])
   // Tính giá sau giảm giá
   const oldPrice = useWatch({ control, name: "oldPrice" }) ?? 0;
   const discount = useWatch({ control, name: "discount" }) ?? 0;
@@ -76,60 +118,97 @@ export default function AddNewProduct() {
 
   // Xử lý lỗi
   const flattenErrors = (errObj: FieldErrors<AddProductFormValues>): string[] => {
-  let msgs: string[] = [];
-  
-  if (Array.isArray(errObj)) {
-    errObj.forEach(item => {
-      if (item) msgs = msgs.concat(flattenErrors(item));
-    });
-  } else {
-    Object.values(errObj).forEach(val => {
-      if (val && typeof (val as FieldError).message === "string") {
-        const msg = (val as FieldError).message;
-        if (msg !== undefined) {
-          msgs.push(msg);
+    let msgs: string[] = [];
+    
+    if (Array.isArray(errObj)) {
+      errObj.forEach(item => {
+        if (item) msgs = msgs.concat(flattenErrors(item));
+      });
+    } else {
+      Object.values(errObj).forEach(val => {
+        if (val && typeof (val as FieldError).message === "string") {
+          const msg = (val as FieldError).message;
+          if (msg !== undefined) {
+            msgs.push(msg);
+          }
+        } else if (val && typeof val === "object") {
+          msgs = msgs.concat(
+            flattenErrors(val as FieldErrors<AddProductFormValues>)
+          );
         }
-      } else if (val && typeof val === "object") {
-        msgs = msgs.concat(
-          flattenErrors(val as FieldErrors<AddProductFormValues>)
-        );
-      }
-    });
-  }
-  return msgs;
-};
+      });
+    }
+    return msgs;
+  };
 
   const onSubmit = async (data: AddProductFormValues) => {
     
     console.log("Submitted data:", data);
-    createProduct({
-      categoryId: data.category,
-      name: data.name,
-      description: data.description,
-      category: data.category,
-      brand: data.brand,
-      oldPrice: data.oldPrice,
-      discount: data.discount,
-      mainImage: data.mainImage,
-      mainImageFile: data.mainImageFile,
-      detailImages: data.detailImages,
-      detailImageFiles: data.detailImageFiles,
-      quantityInStock: data.quantityInStock,
-      attributeGroups: (data.attributeGroups ?? []).map((group) => ({
-        groupName: group.groupName,
-        attributes: group.attributes,
-      })),
-      filterTags: data.filterTags,
-    } as CreateProductInput)
-      .unwrap()
-      .then(() => {
-        enqueueSnackbar("Tạo sản phẩm thành công", { variant: "success" });
-        reset();
-      })
-      .catch((error) => {
-        console.error("Error creating product:", error);
-        enqueueSnackbar("Lỗi khi tạo sản phẩm", { variant: "error" });
-      });
+    console.log("stockIn", data.stockIn, typeof data.stockIn);
+    console.log("quantityInStock", data.quantityInStock, typeof data.quantityInStock);
+    if (id) {
+      updateProduct({
+        props: {
+          categoryId: data.category,
+          name: data.name,
+          description: data.description,
+          category: data.category,
+          brand: data.brand,
+          oldPrice: data.oldPrice,
+          discount: data.discount,
+          mainImage: data.mainImage,
+          mainImageFile: data.mainImageFile,
+          detailImages: data.detailImages,
+          detailImageFiles: data.detailImageFiles,
+          quantityInStock: data.quantityInStock + (data.stockIn || 0),
+          attributeGroups: (data.attributeGroups ?? []).map((group) => ({
+            groupName: group.groupName,
+            attributes: group.attributes})),
+          filterTags: data.filterTags
+          } as CreateAndUpdateProductInput,
+          id: id
+        })
+        .unwrap()
+        .then(() => {
+          enqueueSnackbar("Cập nhật sản phẩm thành công", { variant: "success" });
+        })
+        .catch((error) => {
+          console.error("Error creating product:", error);
+          enqueueSnackbar("Lỗi khi cập nhật sản phẩm", { variant: "error" });
+        });
+    }
+    else {
+      createProduct({
+        categoryId: data.category,
+        name: data.name,
+        description: data.description,
+        category: data.category,
+        brand: data.brand,
+        oldPrice: data.oldPrice,
+        discount: data.discount,
+        mainImage: data.mainImage,
+        mainImageFile: data.mainImageFile,
+        detailImages: data.detailImages,
+        detailImageFiles: data.detailImageFiles,
+        quantityInStock: data.quantityInStock,
+        attributeGroups: (data.attributeGroups ?? []).map((group) => ({
+          groupName: group.groupName,
+          attributes: group.attributes,
+        })),
+        filterTags: data.filterTags,
+      } as CreateAndUpdateProductInput)
+        .unwrap()
+        .then(() => {
+          enqueueSnackbar("Tạo sản phẩm thành công", { variant: "success" });
+          reset();
+          setResetkey(true);
+          setFilters([])
+        })
+        .catch((error) => {
+          console.error("Error creating product:", error);
+          enqueueSnackbar("Lỗi khi tạo sản phẩm", { variant: "error" });
+        });
+    }
   };
 
   const onError = (errors: FieldErrors<AddProductFormValues>) => {
@@ -156,10 +235,20 @@ export default function AddNewProduct() {
 
   return (
     <Paper sx={{ borderRadius: 3, padding: 3, gap: 3, display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="h5" gutterBottom color="primary">
-        Tạo sản phẩm mới
-      </Typography>
-      {isLoadingCreateProduct && <Box
+      
+      <Box display={"flex"}>
+        <Button 
+          component={Link} 
+          to={location.state?.prevPath || "/products"}
+          startIcon={<ArrowBack sx={{ fontSize: 20, width: 20, m: 0, p: 0}} />} 
+          sx={{ mb: 2 }}
+        >
+        </Button>
+        <Typography variant="h5" gutterBottom color="primary">
+          {id ? "Cập nhật sản phẩm" : "Tạo sản phẩm mới"}
+        </Typography>
+      </Box>
+      {(isLoadingCreateProduct || isLoadingUpdateProduct) && <Box
         sx={{
           position: 'fixed',
           top: 0,
@@ -221,6 +310,15 @@ export default function AddNewProduct() {
                   name="quantityInStock"
                   control={control}
                   type="number"
+                  slotProps={{ input: { readOnly: !!id }}}
+                />
+              </Box>
+              <Box display="flex" sx={{ flex: 3 }}>
+                <TextInput
+                  label="Nhập kho"
+                  name="stockIn"
+                  control={control}
+                  type="number"
                 />
               </Box>
             </Box>
@@ -234,6 +332,7 @@ export default function AddNewProduct() {
           </AccordionSummary>
           <AccordionDetails sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <SelectInput
+              defaultValue={updatedProduct?.categoryId.toString()}
               items={categories.map(category => ({
                 text: category.name,
                 value: category.id.toString()
@@ -245,28 +344,32 @@ export default function AddNewProduct() {
             <TextInput label="Thương hiệu" name="brand" control={control} />
             <Typography variant="h6" mt={2}>Bộ lọc</Typography>
             {filters.length > 0 ? (
-              filters.map((filterTag) => (
-                <Box
-                  display="flex"
-                  key={filterTag.id}
-                  alignItems="center"
-                  gap={1}
-                >
-                  <Typography variant="subtitle1" sx={{ minWidth: 150 }} textTransform={"capitalize"}>
-                    {filterTag.name || "Không có tên bộ lọc"}
-                  </Typography>
-                  <SelectInput
-                    items={filterTag.values.map(attr => ({
-                      text: attr.value,
-                      value: attr.id.toString()
-                    }))}
-                    label="Thuộc tính"
-                    name={`filterTags.${String(filterTag.id)}`}
-                    control={control}
-                    sx={{ flexGrow: 1 }}
-                  />
-                </Box>
-              ))
+              filters.map((filterTag) => { 
+                
+                return (
+                  <Box
+                    display="flex"
+                    key={filterTag.id}
+                    alignItems="center"
+                    gap={1}
+                  >
+                    <Typography variant="subtitle1" sx={{ minWidth: 150 }} textTransform={"capitalize"}>
+                      {filterTag.name || "Không có tên bộ lọc"}
+                    </Typography>
+                    <SelectInput
+                      
+                      items={filterTag.values.map(attr => ({
+                        text: attr.value,
+                        value: attr.id.toString()
+                      }))}
+                      label="Thuộc tính"
+                      name={`filterTags.${String(filterTag.id)}`}
+                      control={control}
+                      sx={{ flexGrow: 1 }}
+                    />
+                  </Box>
+                )
+              })
             ) : (
               <Typography color="text.secondary">
                 Chọn danh mục để hiển thị bộ lọc
@@ -300,8 +403,10 @@ export default function AddNewProduct() {
                 render={({ field: { onChange } }) => (
                   <ImageUpload
                     maxImages={1}
-                    resetKey = {!mainImageFile}
+                    resetKey = {resetKey}
+                    onChangeResetkey={setResetkey}
                     onImagesChange={(images) => onChange(images[0] || undefined)}
+                    defaultImages={updatedProduct?.imageUrl ? [updatedProduct.imageUrl] : undefined}
                   />
                 )}
               />
@@ -311,7 +416,12 @@ export default function AddNewProduct() {
                 control={control}
                 defaultValue={[]}
                 render={({ field: { onChange } }) => (
-                  <ImageUpload onImagesChange={onChange} resetKey={detailImageFiles?.length === 0} />
+                  <ImageUpload 
+                    resetKey = {resetKey}     
+                    onChangeResetkey={setResetkey}               
+                    onImagesChange={onChange} 
+                    defaultImages={updatedProduct?.images.map(image => image.imageUrl) || []} 
+                  />
                 )}
               />
             </Box>
@@ -323,8 +433,9 @@ export default function AddNewProduct() {
           variant="contained"
           color="primary"
           size="large"
+          // disabled={!!id}
         >
-          Tạo sản phẩm
+          {id ? "Cập nhật" : "Tạo sản phẩm"}
         </Button>
       </Box>
     </Paper>

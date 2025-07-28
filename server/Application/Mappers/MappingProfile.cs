@@ -65,7 +65,8 @@ public class MappingProfile : Profile
         CreateMap<FilterTagValue, FilterTagValueDto>();
         CreateMap<FilterTagValueDto, FilterTagValue>();
 
-        CreateMap<ProductTagFilter, ProductTagFilterDto>();
+        CreateMap<ProductTagFilter, ProductTagFilterDto>()
+            .ForMember(dest => dest.FilterTagId, opt => opt.MapFrom(src => src.FilterTagValue!.FilterTagId));
         CreateMap<ProductTagFilterDto, ProductTagFilter>();
 
         CreateMap<ProductTag, ProductTagDto>();

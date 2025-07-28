@@ -163,7 +163,12 @@ app.Use(async (context, next) =>
 });
 
 app.UseCookiePolicy();
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 
 
 

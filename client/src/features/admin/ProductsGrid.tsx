@@ -6,6 +6,7 @@ import UpdateIcon from '@mui/icons-material/Update';
 import DeleteIcon from "@mui/icons-material/Delete";
 import YesNoDialog from "../../components/YesNoDialog";
 
+
 const StyledGridItem = styled(Grid)(() => ({
     justifyContent: "center", 
     alignItems: "center" ,
@@ -94,7 +95,7 @@ function ProductsGrid( {paginatedProducts, onDeleteProduct, isLoading}: Props) {
                             }}
                         >
                         </Box>
-                        <Box width={200}> 
+                        <Box width={300}> 
                             <StyledTypography>
                             {product.name}
                             </StyledTypography>
@@ -105,14 +106,14 @@ function ProductsGrid( {paginatedProducts, onDeleteProduct, isLoading}: Props) {
                         <StyledTypography variant="body1">
                             {product.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                         </StyledTypography>
-                        <StyledTypography 
+                        {product.oldPrice != product.price && <StyledTypography 
                             variant="body1" 
                             fontSize={'12px'} 
                             color="#a1a1aa"
                             sx={{ textDecoration: "line-through" }}
                         >
                             {product.oldPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                        </StyledTypography>
+                        </StyledTypography>}
                     </StyledGridItem>
                     <StyledGridItem size={1.5}>
                     <StyledTypography>

@@ -4,15 +4,37 @@ import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import ClearIcon from '@mui/icons-material/Clear';
 
 type Props = {
-    onImagesChange: (images: File[]) => void;
+    onImagesChange: (images: (File | string)[]) => void;
     maxImages?: number,
-    resetKey?: boolean
+    defaultImages?: string[] 
+    resetKey?: boolean,
+    onChangeResetkey?: (resetKey: boolean) => void
 } & BoxProps
 
 const ImageUpload: React.FC<Props> = React.memo(( props: Props) => {
-  const { onImagesChange, maxImages, ...rest } = props;
+  const { onImagesChange, maxImages, defaultImages, onChangeResetkey, ...rest } = props;
   const inputRef = useRef<HTMLInputElement>(null);
-  const [images, setImages] = useState<File[]>([]);
+  const [images, setImages] = useState<(string | File)[]>([]);
+
+  useEffect(() => {
+    console.log("Images changed:", images);
+  }, [images]);
+
+  const hasInitialized = useRef(false);
+
+  useEffect(() => {
+    if (defaultImages && defaultImages.length > 0 && !hasInitialized.current) {
+      setImages([...defaultImages]);
+      onImagesChange([...defaultImages]);
+      hasInitialized.current = true;
+    }
+  }, [defaultImages, onImagesChange]);
+
+  //defaultimage được truyền từ updatedProduct là bất đồng bộ, ban đầu chưa có data
+  //neu không dùng ref thì sẽ bị gì đó, dẫn đến liên tục setimages là defaultImages
+  //nên xác định khi nào có value mới gán, và chỉ gán đúng 1 gần
+
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
     if (!e.target.files?.length) return;
@@ -32,10 +54,11 @@ const ImageUpload: React.FC<Props> = React.memo(( props: Props) => {
   }
 
   useEffect(() => {
-    if (props.resetKey) {
+    if (props.resetKey && onChangeResetkey) {
       setImages([]);
+      onChangeResetkey(false);
     }
-  }, [props.resetKey]);
+  }, [props.resetKey, onChangeResetkey]);
 
   return (
     <Box display="flex" alignItems="center" gap={1} flexWrap={'wrap'}>
@@ -54,7 +77,7 @@ const ImageUpload: React.FC<Props> = React.memo(( props: Props) => {
         >
           <Box
             component="img"
-            src={URL.createObjectURL(img)}
+            src={typeof img === 'string' ? img : URL.createObjectURL(img)}
             alt={`preview-${idx}`}
             sx={{
               width: '100%',

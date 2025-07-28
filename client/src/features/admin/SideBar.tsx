@@ -24,6 +24,7 @@ import {
 import { useState } from "react";
 import { Link } from "react-router";
 import CollectionsIcon from '@mui/icons-material/Collections';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
 
 
 export default function Sidebar() {
@@ -75,10 +76,11 @@ export default function Sidebar() {
                         </ListItemButton>
                         <ListItemButton sx={{ pl: 4 }} component={Link} to="/dashboard/products">
                             <ListItemIcon><ShoppingCart /></ListItemIcon>
-                            <ListItemText primary="Products" />
+                            <ListItemText primary="Quản lý sản phẩm" />
                         </ListItemButton>
-                        <ListItemButton sx={{ pl: 4 }}>
-                            <ListItemText primary="Shopping Cart" />
+                        <ListItemButton sx={{ pl: 4 }} component={Link} to="/dashboard/inventory">
+                            <ListItemIcon><Inventory2Icon /></ListItemIcon>
+                            <ListItemText primary="Nhập kho" />
                         </ListItemButton>
                         <ListItemButton sx={{ pl: 4 }}>
                             <ListItemText primary="Billing Details" />

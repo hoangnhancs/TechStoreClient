@@ -1,2 +1,32 @@
 dtb: https://console.neon.tech/
 be: render.com
+fly tokens create deploy tạo fly token cho GitHub auth actions
+Vào GitHub → Repo → Settings → Secrets and variables → Actions
+
+Tạo secret mới:
+
+Name: FLY_API_TOKEN
+
+Value: (dán token vừa copy)
+
+D:\E-Commerce Store\.github\workflows\fly-deploy.yml
+# .github/workflows/fly-deploy.yml
+name: Fly Deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    name: Deploy app
+    runs-on: ubuntu-latest
+    concurrency: deploy-group
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only --config ./server/fly.toml --app server-little-sun-6817
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+
+chỗ - run: flyctl deploy --remote-only --config ./server/fly.toml --app server-little-sun-6817 chỉ rõ file fly.tomlở đâu

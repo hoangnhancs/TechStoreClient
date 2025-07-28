@@ -105,6 +105,5 @@ public class CreateNewProductHandler : IRequestHandler<CreateNewProductCommand, 
             return Result<ProductDto>.Success(productDtoResult);
         }
         return Result<ProductDto>.Failure("Failed to create new product", 500);
-
     }
 }

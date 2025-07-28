@@ -4,7 +4,7 @@ namespace Domain.Entities;
 
 public class Notification
 {
-    public string Id = new Guid().ToString();
+    public string Id { get; set; } = new Guid().ToString();
     public required string Tittle { get; set; }
     public required string Message { get; set; }
     public string? Link { get; set; }

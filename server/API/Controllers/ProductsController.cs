@@ -119,7 +119,7 @@ public class ProductsController : BaseApiController
             //                 Value = a.Value
             //             }).ToList()
             //     }).ToList()
-            AttributeGroups = JsonConvert.DeserializeObject<List<Application.Command.Product.ProductAttributeGroupDto>>(updateProductDto.AttributeGroupsJson)
+            AttributeGroups = JsonConvert.DeserializeObject<List<ProductAttributeGroupDto>>(updateProductDto.AttributeGroupsJson)
                   ?? [],
         }));
     }

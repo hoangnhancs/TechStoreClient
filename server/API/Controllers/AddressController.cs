@@ -1,9 +1,9 @@
 using System;
 using System.Security.Claims;
 using API.DTOs;
-using Application.Command.Address;
+using Application.Commands.Addresses;
 using Application.DTOs;
-using Application.Queries.Address;
+using Application.Queries.Addresses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

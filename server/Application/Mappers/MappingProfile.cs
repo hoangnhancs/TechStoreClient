@@ -75,5 +75,8 @@ public class MappingProfile : Profile
 
         CreateMap<BannerImage, BannerImageDto>();
         CreateMap<BannerImageDto, BannerImage>();
+
+        CreateMap<Notification, NotificationDto>();
+        CreateMap<NotificationDto, Notification>();
     }
 }

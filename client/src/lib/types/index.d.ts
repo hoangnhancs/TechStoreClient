@@ -259,3 +259,12 @@ export type BannerImage = {
   publicId: string;
   title?: string;
 }
+
+export type Notification = {
+  id: string;
+  title: string;
+  message: string;
+  link: string;
+  receivedId: string;
+  createdAt: Date;
+}

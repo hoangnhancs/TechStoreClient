@@ -334,6 +334,48 @@ namespace Persistence.Migrations
                     b.ToTable("filter_tag_values", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Notification", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_read");
+
+                    b.Property<string>("Link")
+                        .HasColumnType("text")
+                        .HasColumnName("link");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("message");
+
+                    b.Property<string>("ReceivedId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("received_id");
+
+                    b.Property<string>("ReceiverId")
+                        .HasColumnType("text")
+                        .HasColumnName("receiver_id");
+
+                    b.Property<string>("Tittle")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tittle");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notifications");
+
+                    b.HasIndex("ReceiverId")
+                        .HasDatabaseName("ix_notifications_receiver_id");
+
+                    b.ToTable("notifications", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Order", b =>
                 {
                     b.Property<string>("Id")
@@ -1232,6 +1274,16 @@ namespace Persistence.Migrations
                         .HasConstraintName("fk_filter_tag_values_filter_tags_filter_tag_id");
 
                     b.Navigation("FilterTag");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("Domain.Entities.User", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .HasConstraintName("fk_notifications_users_receiver_id");
+
+                    b.Navigation("Receiver");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>

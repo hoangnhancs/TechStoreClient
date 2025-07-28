@@ -1,4 +1,4 @@
-using Application.Queries.FilterTagValue;
+using Application.Queries.FilterTagValues;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

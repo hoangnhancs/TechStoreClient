@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using Application.Command.Payment;
+using Application.Commands.Payments;
 using Microsoft.AspNetCore.Authorization;
-using Application.Queries.Payment;
+using Application.Queries.Payments;
 using Stripe;
 using Domain.Entities;
 

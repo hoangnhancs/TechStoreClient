@@ -1,13 +1,13 @@
 using System;
 using API.DTOs;
-using Application.Command.Product;
+using Application.Commands.Products;
 using Application.DTOs;
 using Application.Queries.Products;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Stripe;
+
 
 namespace API.Controllers;
 
@@ -71,7 +71,7 @@ public class ProductsController : BaseApiController
             //                 Value = a.Value
             //             }).ToList()
             //     }).ToList()
-            AttributeGroups = JsonConvert.DeserializeObject<List<Application.Command.Product.ProductAttributeGroupDto>>(createProductDto.AttributeGroupsJson)
+            AttributeGroups = JsonConvert.DeserializeObject<List<ProductAttributeGroupDto>>(createProductDto.AttributeGroupsJson)
                   ?? [],
         }));
     }

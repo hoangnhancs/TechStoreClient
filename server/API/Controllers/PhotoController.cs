@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Application.Command.Image;
+using Application.Commands.Images;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

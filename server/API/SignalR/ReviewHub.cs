@@ -1,7 +1,7 @@
 using System;
 using System.Security.Claims;
-using Application.Command.Review;
-using Application.Queries.Review;
+using Application.Commands.Reviews;
+using Application.Queries.Reviews;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 

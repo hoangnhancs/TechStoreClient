@@ -1,5 +1,5 @@
-using Application.Command.Banner;
-using Application.Queries.Banner;
+using Application.Commands.Banners;
+using Application.Queries.Banners;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

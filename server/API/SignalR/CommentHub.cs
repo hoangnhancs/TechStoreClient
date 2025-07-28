@@ -1,7 +1,7 @@
 using System;
 using System.Security.Claims;
-using Application.Command.Comment;
-using Application.Queries.Comment;
+using Application.Commands.Comments;
+using Application.Queries.Comments;
 using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

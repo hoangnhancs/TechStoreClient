@@ -1,9 +1,9 @@
 using System;
 using System.Security.Claims;
 using API.DTOs;
-using Application.Command.Order;
+using Application.Commands.Orders;
 using Application.DTOs;
-using Application.Queries.Order;
+using Application.Queries.Orders;
 using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

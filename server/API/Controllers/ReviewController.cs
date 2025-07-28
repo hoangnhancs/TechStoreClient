@@ -1,9 +1,6 @@
-using System.Reflection.Metadata;
 using System.Security.Claims;
 using API.DTOs;
-using Application.Command.Comment;
-using Application.Command.Review;
-using Microsoft.AspNetCore.Http;
+using Application.Commands.Reviews;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers

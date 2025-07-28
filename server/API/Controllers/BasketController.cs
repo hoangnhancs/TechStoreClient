@@ -1,7 +1,7 @@
 using System;
 using System.Security.Claims;
 using API.DTOs;
-using Application.Command.Baskets;
+using Application.Commands.Baskets;
 using Application.DTOs;
 using Application.Queries.Baskets;
 using Microsoft.AspNetCore.Authorization;

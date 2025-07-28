@@ -1,4 +1,4 @@
-using Application.Queries.Category;
+using Application.Queries.Categories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

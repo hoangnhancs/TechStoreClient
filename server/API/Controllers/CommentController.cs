@@ -1,6 +1,6 @@
 using API.DTOs;
-using Application.Command.Comment;
-using Application.Queries.Comment;
+using Application.Commands.Comments;
+using Application.Queries.Comments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;

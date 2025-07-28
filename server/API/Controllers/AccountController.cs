@@ -3,7 +3,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using API.DTOs;
-using Application.Command.Baskets;
+using Application.Commands.Baskets;
 using Application.DTOs;
 using Application.Interface;
 using Domain.Entities;

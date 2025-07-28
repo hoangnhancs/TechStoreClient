@@ -8,6 +8,7 @@ import { SnackbarProvider } from 'notistack';
 import HomePage from "./pages/HomePage"
 
 
+
 function App() {
   const hideNavRoutes = ['/', '/login', '/register', '/forgot-password', '/confirm-email', '/reset-password'];
   const isDarkMode = useAppSelector(state => state.ui.isDarkMode) 

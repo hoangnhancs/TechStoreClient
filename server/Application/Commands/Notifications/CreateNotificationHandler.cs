@@ -22,7 +22,13 @@ public class CreateNotificationHandler : IRequestHandler<CreateNotificationComma
     }
     public async Task<Result<NotificationDto>> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
     {
-        var notification = _mapper.Map<Notification>(request.NotificationDto);
+        var notification = new Notification()
+        {
+            Tittle = request.NotificationDto.Tittle ?? string.Empty,
+            Message = request.NotificationDto.Message ?? string.Empty,
+            Link = request.NotificationDto.Link,
+            ReceivedId = request.NotificationDto.ReceivedId ?? string.Empty,
+        };
         await _notificationRepository.CreateNotification(notification, cancellationToken);
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
         if (!result) return Result<NotificationDto>.Failure("Problem when create notification", 400);

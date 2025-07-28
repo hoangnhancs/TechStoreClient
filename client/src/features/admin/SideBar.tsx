@@ -82,8 +82,8 @@ export default function Sidebar() {
                             <ListItemIcon><Inventory2Icon /></ListItemIcon>
                             <ListItemText primary="Nhập kho" />
                         </ListItemButton>
-                        <ListItemButton sx={{ pl: 4 }}>
-                            <ListItemText primary="Billing Details" />
+                        <ListItemButton sx={{ pl: 4 }} component={Link} to="/dashboard/notifications">
+                            <ListItemText primary="Thông báo" />
                         </ListItemButton>
                         <ListItemButton sx={{ pl: 4 }}>
                             <ListItemIcon><People /></ListItemIcon>

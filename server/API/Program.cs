@@ -201,6 +201,7 @@ app.MapControllers();
 app.MapGroup("api").MapIdentityApi<User>(); //chuyen tu api/account thanh api
 app.MapHub<CommentHub>("/commentHub");
 app.MapHub<ReviewHub>("/reviewHub");
+app.MapHub<NotificationHub>("/notificationHub");
 app.MapFallbackToController("Index", "Fallback");
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;

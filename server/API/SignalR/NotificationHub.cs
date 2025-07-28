@@ -23,6 +23,7 @@ public class NotificationHub : Hub
             await Clients.Caller.SendAsync("ReviewError", "User not authenticated");
             return;
         }
+        var roles = Context.User?.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
         var command = new CreateNotificationCommand
         {
             NotificationDto = new NotificationDto
@@ -33,7 +34,16 @@ public class NotificationHub : Hub
                 ReceivedId = receivedId,
             }
         };
-        await _mediator.Send(command);
+        var result = await _mediator.Send(command);
+        if (roles?.Contains("Admin") == true)
+        {
+            await Clients.Group("admin-notifications").SendAsync("ReceiveNotification", result.Value);
+        }
+        else
+        {
+            await Clients.Group($"{userId}-notifications").SendAsync("ReceiveNotification", result);
+        }
+        
     }
     public async Task LoadAllNotifications()
     {
@@ -62,6 +72,7 @@ public class NotificationHub : Hub
         if (string.IsNullOrEmpty(userId))
         {
             await Clients.Caller.SendAsync("ReviewError", "User not authenticated");
+            Console.WriteLine("User not authenticated");
             return;
         }
 

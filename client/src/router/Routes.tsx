@@ -31,6 +31,7 @@ import BannerPage from "../features/admin/BannerPage";
 import OrdersPage from "../features/admin/OrdersPage";
 import ProductsPage from "../features/admin/ProductsPage";
 import InventoryPage from "../features/admin/InventoryPage";
+import NotificationPage from "../features/notification/NotificationPage";
 
 export const router = createBrowserRouter([
     {
@@ -57,7 +58,8 @@ export const router = createBrowserRouter([
                             {path: 'orders/:orderId', element: <OrderDetailsPage />},
                             {path: 'products', element: <ProductsPage />},
                             {path: 'products/manage/:id', element: <AddNewProduct />},
-                            {path: 'inventory', element: <InventoryPage />}
+                            {path: 'inventory', element: <InventoryPage />},
+                            {path: 'notifications', element: <NotificationPage />}
                         ]
                     },
                 ]}

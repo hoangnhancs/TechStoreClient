@@ -15,6 +15,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { Box, CircularProgress } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { NotificationProvider } from './app/context/NotificationProvider.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -34,7 +35,9 @@ createRoot(document.getElementById('root')!).render(
             persistor={persistor}>
         </PersistGate>
         <ToastContainer position='bottom-right' hideProgressBar theme='colored'/>
-        <RouterProvider router={router} />
+        <NotificationProvider>
+          <RouterProvider router={router} />
+        </NotificationProvider>
       </Provider>  
     </LocalizationProvider>
   </StrictMode>,

@@ -4,7 +4,7 @@ import * as signalR from "@microsoft/signalr";
 type NotificationCallback = (notification: Notification) => void;
 type NotificationsCallback = (notifications: Notification[]) => void;
 
-class NotificationSignalRService {
+class NotificationSignalRServiceClass {
     private hubConnection: signalR.HubConnection | null = null;
     private notificationCallback: NotificationCallback | null = null;
     private isConnecting: boolean = false; 
@@ -37,6 +37,7 @@ class NotificationSignalRService {
             newConnection.off("ReceiveNotification");
             newConnection.on("ReceiveNotification", (notification: Notification) => {
                 if (this.notificationCallback) {
+                    // console.log("Received notification: ", notification);
                     this.notificationCallback(notification);
                 }
             })
@@ -47,6 +48,7 @@ class NotificationSignalRService {
                     await newConnection.start();
                     this.hubConnection = newConnection;
                     await this.hubConnection.invoke("JoinNotificationGroup");
+                    // console.log("Joined notification group");
                     break;
                 } catch (error) {
                     retries--;
@@ -77,6 +79,7 @@ class NotificationSignalRService {
                 if (this.hubConnection.state === signalR.HubConnectionState.Connected) {  
                     try {
                         await this.hubConnection.invoke("LeaveNotificationGroup");
+                        // console.log("Left notification group");
                     } catch (error) {
                         console.log("Error when leaving notification group", error);
                     }
@@ -98,10 +101,12 @@ class NotificationSignalRService {
         }
         this.hubConnection.off("ReceiveAllNotifications");
         this.hubConnection.on("ReceiveAllNotifications", (notifications: Notification[]) => {
+            // console.log("Received all notifications: ", notifications);
             callback(notifications);
         })
         this.hubConnection
             .invoke("LoadAllNotifications")
+            // .then(() => console.log("Notifications loaded"))
             .catch((err) => console.error("Error loading notifications: ", err));;
     }
 
@@ -109,15 +114,16 @@ class NotificationSignalRService {
         this.notificationCallback = callback;
     }
 
-    public sendNotification = async (title: string, message: string, link: string, receivedId: string): Promise<void> => {
+    public sendNotification = async (title: string, message: string, link: string | undefined, receivedId: string): Promise<void> => {
         if (!this.hubConnection || this.hubConnection.state != signalR.HubConnectionState.Connected) {
             console.warn("Notifications hub not connected");
             return
         }
         this.hubConnection
             .invoke("SendNotification", title, message, link, receivedId)
+            // .then(() => console.log("Notification sent"))
             .catch((err) => console.error("Error sending notification: ", err));;
     }
 }
 
-export const ReviewSignalRService = new NotificationSignalRService();
+export const NotificationSignalRService = new NotificationSignalRServiceClass();

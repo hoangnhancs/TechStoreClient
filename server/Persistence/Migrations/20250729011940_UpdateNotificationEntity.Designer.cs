@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Persistence;
@@ -12,9 +13,11 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    partial class StoreContextModelSnapshot : ModelSnapshot
+    [Migration("20250729011940_UpdateNotificationEntity")]
+    partial class UpdateNotificationEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -357,8 +360,12 @@ namespace Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("message");
 
-                    b.Property<string>("ReceiverId")
+                    b.Property<string>("ReceivedId")
                         .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("received_id");
+
+                    b.Property<string>("ReceiverId")
                         .HasColumnType("text")
                         .HasColumnName("receiver_id");
 
@@ -1289,8 +1296,6 @@ namespace Persistence.Migrations
                     b.HasOne("Domain.Entities.User", "Receiver")
                         .WithMany()
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
                         .HasConstraintName("fk_notifications_users_receiver_id");
 
                     b.HasOne("Domain.Entities.User", "Sender")

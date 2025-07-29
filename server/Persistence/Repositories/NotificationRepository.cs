@@ -21,6 +21,6 @@ public class NotificationRepository(StoreContext context) : INotificationReposit
 
     public async Task<List<Notification>> GetNotificationsByUserId(string userId, CancellationToken cancellationToken)
     {
-        return await _context.Notifications.Where(n => n.ReceivedId == userId).ToListAsync(cancellationToken);
+        return await _context.Notifications.Where(n => n.ReceiverId == userId).ToListAsync(cancellationToken);
     }
 }

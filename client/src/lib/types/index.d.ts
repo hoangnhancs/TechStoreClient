@@ -265,6 +265,8 @@ export type Notification = {
   title: string;
   message: string;
   link: string;
+  isRead: boolean;
   receivedId: string;
+  senderId: string;
   createdAt: Date;
 }

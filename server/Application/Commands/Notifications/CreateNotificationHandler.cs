@@ -27,7 +27,8 @@ public class CreateNotificationHandler : IRequestHandler<CreateNotificationComma
             Tittle = request.NotificationDto.Tittle ?? string.Empty,
             Message = request.NotificationDto.Message ?? string.Empty,
             Link = request.NotificationDto.Link,
-            ReceivedId = request.NotificationDto.ReceivedId ?? string.Empty,
+            ReceiverId = request.NotificationDto.ReceiverId ?? string.Empty,
+            SenderId = request.NotificationDto.SenderId ?? string.Empty
         };
         await _notificationRepository.CreateNotification(notification, cancellationToken);
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);

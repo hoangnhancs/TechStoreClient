@@ -15,7 +15,7 @@ public class NotificationHub : Hub
     {
         _mediator = mediator;
     }
-    public async Task SendNotification(string title, string message, string? link, string receivedId)
+    public async Task SendNotification(string title, string message, string? link, string receivedId, string senderId)
     {
         var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
@@ -31,7 +31,8 @@ public class NotificationHub : Hub
                 Tittle = title,
                 Message = message,
                 Link = link,
-                ReceivedId = receivedId,
+                ReceiverId = receivedId,
+                SenderId = senderId
             }
         };
         var result = await _mediator.Send(command);

@@ -9,6 +9,9 @@ public class Notification
     public required string Message { get; set; }
     public string? Link { get; set; }
     public bool IsRead { get; set; } = false;
-    public required string ReceivedId { get; set; }
+    public required string ReceiverId { get; set; }
     public User? Receiver { get; set; }
+    public required string SenderId { get; set; }
+    public User? Sender { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

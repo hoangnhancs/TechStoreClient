@@ -7,12 +7,12 @@ import LoadingComponent from "../../components/LoadingComponent";
 import { useGetCurrentUserQuery } from "../user/userApi";
 
 
-
 export default function ProductDetails() {
     const { id } = useParams();
     const {data: product, isLoading: isLoadingProduct} = useFetchProductByIdQuery(id ?? '')
     const {data: currentUser, isLoading: isLoadingCurrentUser} = useGetCurrentUserQuery()
     // const currentUser = useAppSelector(state => state.user.currentUser)
+    
     if (isLoadingProduct || isLoadingCurrentUser || !product) {
         return (
             <LoadingComponent />

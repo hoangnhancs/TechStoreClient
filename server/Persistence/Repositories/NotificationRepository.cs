@@ -19,6 +19,11 @@ public class NotificationRepository(StoreContext context) : INotificationReposit
         return await _context.Notifications.FirstOrDefaultAsync(n => n.Id == id, cancellationToken) ?? throw new Exception("Notification not found");
     }
 
+    public async Task<List<Notification>> GetNotificationsByGroupId(string groupId, CancellationToken cancellationToken)
+    {
+        return await _context.Notifications.Where(n => n.GroupId == groupId).ToListAsync(cancellationToken);
+    }
+
     public async Task<List<Notification>> GetNotificationsByUserId(string userId, CancellationToken cancellationToken)
     {
         return await _context.Notifications.Where(n => n.ReceiverId == userId).ToListAsync(cancellationToken);

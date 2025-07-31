@@ -31,9 +31,6 @@ export const bannerApi = createApi({
             formData.append("files", file); //files chinh la fromfrom o controller
           });
         }
-
-        console.log(formData);
-
         return {
           url: "/banner/create-banner",
           method: "POST",

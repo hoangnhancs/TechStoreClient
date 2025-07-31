@@ -162,7 +162,6 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
     }
 
     const handleAddNewAddress = () => {  
-        console.log(form);
         addAddress({
             fullName: form.fullName,
             phoneNumber: form.phoneNumber?.toString(),
@@ -184,7 +183,6 @@ export default function AddNewAddressDialog({ open, onClose, mode, selectedAddre
             detailAddress: form.detailAddress,
             isDefault: form.isDefault                
         }}).unwrap().then(() => {if (onClearDialogData){onClearDialogData();};onClose()})
-        console.log(mode, form.province, form.district, form.ward, form.detailAddress, form.isDefault, form.fullName, form.phoneNumber)
     }
 
 

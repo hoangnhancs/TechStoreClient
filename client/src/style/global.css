@@ -1,0 +1,13 @@
+.highlight-comment {
+    animation: flashHighlight 3s ease-in-out;
+}
+
+@keyframes flashHighlight {
+    0% {
+        background-color: #fff3cd;
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}

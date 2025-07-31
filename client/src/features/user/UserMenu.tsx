@@ -103,6 +103,12 @@ export default function UserMenu({currentUser}: Props) {
                     </ListItemIcon>
                     <ListItemText>My Profile</ListItemText>
                 </MenuItem>
+                <MenuItem component={Link} to={'/notifications'} onClick={handleClose}>
+                    <ListItemIcon>
+                        <Person />
+                    </ListItemIcon>
+                    <ListItemText>Thông báo</ListItemText>
+                </MenuItem>
                 <MenuItem component={Link} to={`/my-orders`} onClick={handleClose}>
                     <ListItemIcon>
                         <Receipt />

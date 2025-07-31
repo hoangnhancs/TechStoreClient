@@ -77,11 +77,6 @@ export default function PaymentMethodSelector({ onPaymentInforChange }: Props) {
         cardElement: method === 'CreditCard' ? cardElement : null,
       }
       onPaymentInforChange(paymentInfor);
-      console.log("Updating payment info:", {
-    method,
-    hasCardElement: !!cardElement,
-    isValid
-  });
   }, [elements, stripe, onPaymentInforChange])
 
 

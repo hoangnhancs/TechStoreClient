@@ -6,7 +6,8 @@ import { useAppSelector } from "./hooks"
 import LoadingOverlay from "./components/LoadingOverlay"
 import { SnackbarProvider } from 'notistack';
 import HomePage from "./pages/HomePage"
-
+import { NotificationContainer } from "./features/notification/NotificationContainer"
+import "./style/global.css"
 
 
 function App() {
@@ -101,6 +102,7 @@ function App() {
               <Container maxWidth="xl" sx={{ 
                 mt: 10  // marginTop responsive
               }}>
+                <NotificationContainer />
                 <Outlet /> 
               </Container> 
             }

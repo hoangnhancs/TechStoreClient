@@ -28,9 +28,11 @@ public class AccountController : BaseApiController
     private readonly IHttpContextAccessorHelper _httpContextAccessorHelper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserAccessor _userAccessor;
+    private readonly INotificationGroupRepository _notificationGroupRepository;
 
     public AccountController(SignInManager<User> signInManager, ITokenServices tokenServices, IConfiguration config, IEmailSender<User> emailSender,
-                            IRefreshTokenRepository refreshTokenRepository, IHttpContextAccessorHelper httpContextAccessorHelper, IUnitOfWork unitOfWork, IUserAccessor userAccessor)
+                            IRefreshTokenRepository refreshTokenRepository, IHttpContextAccessorHelper httpContextAccessorHelper, IUnitOfWork unitOfWork,
+                            IUserAccessor userAccessor, INotificationGroupRepository notificationGroupRepository)
     {
         _signInManager = signInManager;
         _tokenServices = tokenServices;
@@ -40,6 +42,7 @@ public class AccountController : BaseApiController
         _httpContextAccessorHelper = httpContextAccessorHelper;
         _unitOfWork = unitOfWork;
         _userAccessor = userAccessor;
+        _notificationGroupRepository = notificationGroupRepository;
     }
     [AllowAnonymous]
     [HttpPost("register")]
@@ -96,7 +99,7 @@ public class AccountController : BaseApiController
 
         var roles = await _signInManager.UserManager.GetRolesAsync(user);
         List<string> listRoles = new List<string>(roles);
-
+        var listNotiGrs = await _notificationGroupRepository.GetNotificationGroupByUserId(user.Id);
         return Ok(new UserDto
         {
             DisplayName = user.DisplayName ?? string.Empty,
@@ -107,6 +110,8 @@ public class AccountController : BaseApiController
             PhoneNumber = user.PhoneNumber ?? string.Empty,
             Gender = user.Gender.ToString(),
             Email = user.Email ?? string.Empty,
+            NotificationGroupIds = listNotiGrs.Select(x => x.Id).ToList(),
+            IsAdmin = user.IsAdmin
         });
     }
 

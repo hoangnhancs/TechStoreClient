@@ -7,5 +7,7 @@ namespace Application.Commands.Notifications;
 
 public class CreateNotificationCommand : IRequest<Result<NotificationDto>>
 {
+    public string? CommentResultId { get; set; }
+    public string? ReviewResultId { get; set; }
     public required NotificationDto NotificationDto { get; set; }
 }

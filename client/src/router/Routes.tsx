@@ -46,6 +46,7 @@ export const router = createBrowserRouter([
                 {path: '/my-orders', element: <MyOrdersPage />},
                 {path: '/my-orders/:orderId', element: <OrderDetailsPage />},
                 {path: '/change-password', element: <ChangePasswordForm />},
+                {path: 'notifications', element: <NotificationPage />},
                 {element: <RequireAdmin />, children: [
                     {path: '/add-new-product', element: <AddNewProduct key={"create"} />},
                     {

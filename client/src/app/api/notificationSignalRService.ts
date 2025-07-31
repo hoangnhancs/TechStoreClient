@@ -114,14 +114,13 @@ class NotificationSignalRServiceClass {
         this.notificationCallback = callback;
     }
 
-    public sendNotification = async (title: string, message: string, link: string | undefined, receivedId: string, senderId: string): Promise<void> => {
+    public sendNotification = async (title: string, message: string, link: string | undefined, receivedId: string | undefined, groupId: string | undefined, senderId: string, commentResultId: string | undefined, reviewResultId: string | undefined): Promise<void> => {
         if (!this.hubConnection || this.hubConnection.state != signalR.HubConnectionState.Connected) {
             console.warn("Notifications hub not connected");
             return
         }
         this.hubConnection
-            .invoke("SendNotification", title, message, link, receivedId, senderId)
-            // .then(() => console.log("Notification sent"))
+            .invoke("SendNotification", title, message, link, receivedId, groupId, senderId, commentResultId, reviewResultId)
             .catch((err) => console.error("Error sending notification: ", err));;
     }
 }

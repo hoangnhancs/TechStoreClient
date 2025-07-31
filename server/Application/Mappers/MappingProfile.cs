@@ -15,6 +15,7 @@ public class MappingProfile : Profile
         CreateMap<User, UserDto>()
             .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image != null ? src.Image.Url : string.Empty));
 
+
         CreateMap<Address, AddressDto>();
         CreateMap<AddressDto, Address>();
 
@@ -28,7 +29,9 @@ public class MappingProfile : Profile
         CreateMap<Category, CategoryDto>();
         CreateMap<CategoryDto, Category>();
 
-        CreateMap<Comment, CommentDto>();
+        // CreateMap<Comment, CommentDto>();
+        CreateMap<Comment, CommentDto>()
+            .ForMember(dest => dest.IsAdminComment, opt => opt.MapFrom(src => src.User == null ? false : src.User.IsAdmin));
         CreateMap<CommentDto, Comment>();
 
         CreateMap<OrderItemDto, OrderItem>();
@@ -76,7 +79,11 @@ public class MappingProfile : Profile
         CreateMap<BannerImage, BannerImageDto>();
         CreateMap<BannerImageDto, BannerImage>();
 
-        CreateMap<Notification, NotificationDto>();
+        CreateMap<Notification, NotificationDto>()
+            .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Sender == null ? string.Empty : src.Sender.DisplayName));
         CreateMap<NotificationDto, Notification>();
+
+        CreateMap<NotificationGroup, NotificationGroupDto>();
+        CreateMap<NotificationGroupDto, NotificationGroup>();
     }
 }

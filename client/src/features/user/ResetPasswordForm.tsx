@@ -30,10 +30,8 @@ export default function ResetPasswordForm() {
     if (!email) return <Typography>Invalid reset password email</Typography>
 
     const handleSubmit = async (data: FieldValues) => {
-        console.log({"email": data.password, "newPassword": data.confirmPassword, "resetCode": code})
         try {
             resetPassword({"email": email, "newPassword": data.confirmPassword, "resetCode": code})
-            console.log(data.password, data.confirmPassword)
         } catch (error) {
             console.log(error)
         }

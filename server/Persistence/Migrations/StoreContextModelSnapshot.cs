@@ -344,6 +344,10 @@ namespace Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("GroupId")
+                        .HasColumnType("text")
+                        .HasColumnName("group_id");
+
                     b.Property<bool>("IsRead")
                         .HasColumnType("boolean")
                         .HasColumnName("is_read");
@@ -358,7 +362,6 @@ namespace Persistence.Migrations
                         .HasColumnName("message");
 
                     b.Property<string>("ReceiverId")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("receiver_id");
 
@@ -367,13 +370,16 @@ namespace Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("sender_id");
 
-                    b.Property<string>("Tittle")
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("tittle");
+                        .HasColumnName("title");
 
                     b.HasKey("Id")
                         .HasName("pk_notifications");
+
+                    b.HasIndex("GroupId")
+                        .HasDatabaseName("ix_notifications_group_id");
 
                     b.HasIndex("ReceiverId")
                         .HasDatabaseName("ix_notifications_receiver_id");
@@ -382,6 +388,55 @@ namespace Persistence.Migrations
                         .HasDatabaseName("ix_notifications_sender_id");
 
                     b.ToTable("notifications", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.NotificationGroup", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_groups");
+
+                    b.ToTable("notification_groups", (string)null);
+                });
+
+            modelBuilder.Entity("Domain.Entities.NotificationGroupMember", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("joined_at");
+
+                    b.Property<string>("NotificationGroupId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("notification_group_id");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_group_members");
+
+                    b.HasIndex("NotificationGroupId")
+                        .HasDatabaseName("ix_notification_group_members_notification_group_id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_notification_group_members_user_id");
+
+                    b.ToTable("notification_group_members", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
@@ -918,6 +973,10 @@ namespace Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("gender");
 
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_admin");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")
                         .HasColumnName("lockout_enabled");
@@ -1286,11 +1345,15 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Notification", b =>
                 {
+                    b.HasOne("Domain.Entities.NotificationGroup", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .HasConstraintName("fk_notifications_notification_groups_group_id");
+
                     b.HasOne("Domain.Entities.User", "Receiver")
                         .WithMany()
                         .HasForeignKey("ReceiverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
+                        .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("fk_notifications_users_receiver_id");
 
                     b.HasOne("Domain.Entities.User", "Sender")
@@ -1300,9 +1363,32 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_notifications_users_sender_id");
 
+                    b.Navigation("Group");
+
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("Domain.Entities.NotificationGroupMember", b =>
+                {
+                    b.HasOne("Domain.Entities.NotificationGroup", "NotificationGroup")
+                        .WithMany("Members")
+                        .HasForeignKey("NotificationGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notification_group_members_notification_groups_notification");
+
+                    b.HasOne("Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notification_group_members_users_user_id");
+
+                    b.Navigation("NotificationGroup");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
@@ -1566,6 +1652,11 @@ namespace Persistence.Migrations
             modelBuilder.Entity("Domain.Entities.FilterTag", b =>
                 {
                     b.Navigation("Values");
+                });
+
+            modelBuilder.Entity("Domain.Entities.NotificationGroup", b =>
+                {
+                    b.Navigation("Members");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>

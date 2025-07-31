@@ -1,10 +1,11 @@
 import { Box, Button } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { CommentSignalRService } from "../../app/api/commentSignalRService";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Comment, User } from "../../lib/types";
 import CommentItem from "../../components/CommentItem";
 import AddNewComment from "../../components/AddNewComment";
+
 
 type Props = {
   currentUser: User | undefined;
@@ -14,13 +15,34 @@ export default function CommentList({currentUser}: Props) {
   const { id } = useParams();
   const [comments, setComments] = useState<Comment[]>([]);
   const [draftCount, setDraftCount] = useState(0);
+  const [searchParams] = useSearchParams();
+    const commentId = searchParams.get("commentId");
+
+    useEffect(() => {
+      console.log("commentId:", commentId);
+      console.log("list comments:", comments)
+  if (commentId && comments.length > 0) {
+    // Delay nhẹ để đợi DOM render xong
+    requestAnimationFrame(() => {
+      const element = document.getElementById(commentId);
+      console.log("element:", element);
+
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.classList.add("highlight-comment");
+        // setTimeout(() => {
+        //   element.classList.remove("highlight-comment");
+        // }, 6000);
+      }
+    });
+  }
+}, [commentId, comments]);
 
 
   function insertCommentToTree(commentTree: Comment[],newComment: Comment): Comment[] {
-    console.log(commentTree)
+    // console.log(commentTree)
     const tmpComments = structuredClone(commentTree);
     if (newComment.parentCommentId == null) {
-      console.log("comments:", [...tmpComments, newComment]);
       return [...tmpComments, newComment];
     }
     const insertRecursive = (comments: Comment[]): boolean => {
@@ -81,20 +103,26 @@ export default function CommentList({currentUser}: Props) {
     };
   }, [id]); 
 
-  const handleSendComment = (content: string, parentId?: string) => {
+  const handleSendComment = async (content: string, parentId?: string) => {
     if (id && content.trim()) {
-      console.log("Sending comment:", content, "Product ID:", id);
+      // console.log("Sending comment:", content, "Product ID:", id);
       if (!parentId) {
-        CommentSignalRService.sendComment(id, content);
+        const result = await CommentSignalRService.sendComment(id, content);
+        //send noti to admin group
+        //send noti to personal user id (not me)
+        //will check and send in commentitem (has parent comment id, and user that commented)
+        return result as string;
       }
       else{
-        CommentSignalRService.sendComment(id, content, parentId);
+        const result = await CommentSignalRService.sendComment(id, content, parentId);
+        return result as string;
       }
     }
     else {
       console.error("Some errors occurred while sending comment");
       console.log("Product ID:", id);
       console.log("Comment content:", content);
+      return "";
     }
   }
 

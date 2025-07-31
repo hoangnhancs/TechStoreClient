@@ -29,7 +29,6 @@ export default function ProductListByCategory() {
     const [openTagId, setOpenTagId] = useState<number | null>(null);
     const selectedFilters = useAppSelector((state) => state.filter.filter);//type Record<number, number[]>: {filtertagId: [filterTagValueIds]}
     const [tmpSelectedFilters, setTmpSelectedFilters] = useState<Record<number, number[]>>(selectedFilters);
-    console.log(selectedFilters)
     useEffect(() => {
         setTmpSelectedFilters(selectedFilters);
     }, [selectedFilters]);
@@ -115,7 +114,7 @@ export default function ProductListByCategory() {
                 mappingFilterTagValues[value.id] = value.value;
             })
         })
-        console.log(mappingFilterTags, mappingFilterTagValues)
+
         return {mappingFilterTags, mappingFilterTagValues};
     }, [filterTags])
 

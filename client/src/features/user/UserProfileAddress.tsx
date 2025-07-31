@@ -70,7 +70,6 @@ export default function UserProfileAddress() {
     try {
       setDialogMode("update");
       setEditingAddress(address);
-      console.log(address)
       
       let tempProvinces: Province[] = [];
       let tempDistricts: District[] = [];
@@ -110,7 +109,6 @@ export default function UserProfileAddress() {
           districts: tempDistricts,
           wards: tempWards
       });
-      console.log(dialogData)
       setIsDialogOpen(true)
     } catch (error) {
       console.error("Error loading address data:", error);

@@ -22,7 +22,6 @@ export default function ForgotPasswordForm() {
     const handleSubmit = async (data: FieldValues) => {
         try {
             forgotPassword({"email": data.email})
-            console.log(data.email)
         } catch (error) {
             console.log(error)
         }

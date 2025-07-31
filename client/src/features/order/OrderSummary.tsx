@@ -1,11 +1,6 @@
 import { Box, Button, Divider, Paper, Typography } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { useOrderProcessing } from "../../app/hooks/useOrderProcessing";
-import { useEffect } from "react";
-
-
-
-
 
 type Props = {
     isCanCompleteOrder?: boolean
@@ -15,10 +10,7 @@ type Props = {
 export default function OrderSummary({ isCanCompleteOrder, onPaymentOrder }: Props) {
     const location = useLocation()
     const { selectedItems, handleCreateOrder, getTotalPrice, shippingCost, discount } = useOrderProcessing()
-    useEffect(() => {
-        console.log("OrderSummary received selectedItems:", selectedItems);
-        console.log("Total price calculated:", getTotalPrice());
-    }, [selectedItems, getTotalPrice]);
+
     return (
         <Paper 
             elevation={3}

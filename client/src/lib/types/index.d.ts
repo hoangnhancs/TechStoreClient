@@ -148,6 +148,7 @@ export type BasicUser = {
   displayName: string;
   imageUrl: string;
   roles: string[];
+  isAdmin: boolean;
 };
 
 export type User = BasicUser & {
@@ -156,6 +157,7 @@ export type User = BasicUser & {
   gender: string;
   phoneNumber: string;
   dateOfBirth: Date | null;
+  notificationGroupIds: string[];
 };
 
 export type Address = {
@@ -218,7 +220,7 @@ export type Comment = {
   updatedAt: Date;
   canReply: boolean;
   replies: Comment[];
-}
+};
 
 export type Review = {
   id: string;
@@ -265,6 +267,22 @@ export type Notification = {
   title: string;
   message: string;
   link: string;
-  receivedId: string;
+  isRead: boolean;
+  receiverId: string;
+  groupId: string;
+  senderId: string;
+  senderName: string;
   createdAt: Date;
+}
+
+export type NotificationGroup = {
+  id: string,
+  name: string,
+  members: NotificationGroupMember[]
+}
+
+export type NotificationGroupMember = {
+  id: string,
+  userId: string,
+  notificationGroupId: string
 }

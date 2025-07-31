@@ -24,7 +24,6 @@ export default function ProductCard({product}: Props) {
     const dispatch = useAppDispatch();
     const handleAddToCart = () => {
         
-        console.log(currentUser)
         if (!currentUser?.id) {
             setOpenLoginPrompt(true); 
             return;

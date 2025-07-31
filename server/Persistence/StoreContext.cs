@@ -26,6 +26,8 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
     public required DbSet<UserImage> UserImages { get; set; }
     public required DbSet<BannerImage> BannerImages { get; set; }
     public required DbSet<Notification> Notifications { get; set; }
+    public required DbSet<NotificationGroup> NotificationGroups { get; set; }
+    public required DbSet<NotificationGroupMember> NotificationGroupMembers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -82,5 +84,12 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
             .WithMany(u => u.RefreshTokens)
             .HasForeignKey(r => r.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<Notification>()
+            .HasOne(n => n.Receiver)
+            .WithMany()
+            .HasForeignKey(n => n.ReceiverId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

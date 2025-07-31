@@ -77,9 +77,6 @@ export default function AddNewProduct() {
   }, [selectedCategoryId, setValue]);
   useEffect(() => {
     if (updatedProduct) {
-      const now = new Date()
-      console.log("updatedProduct has been changed, update new value: ", updatedProduct)
-      console.log("updatedProduct at", now)
       reset({
         name: updatedProduct.name,
         description: updatedProduct.description.join("\n"),
@@ -142,10 +139,6 @@ export default function AddNewProduct() {
   };
 
   const onSubmit = async (data: AddProductFormValues) => {
-    
-    console.log("Submitted data:", data);
-    console.log("stockIn", data.stockIn, typeof data.stockIn);
-    console.log("quantityInStock", data.quantityInStock, typeof data.quantityInStock);
     if (id) {
       updateProduct({
         props: {

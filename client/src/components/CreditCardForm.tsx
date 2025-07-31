@@ -37,10 +37,7 @@ export default function CreditCardForm({ onChange }: Props) {
                 && formData.expiryDate
                 && formData.cvv)
  
-            onChange(validFormData, isValid)
-
-            console.log("error", formState.errors, "FormValid: ", isValid)
-            
+            onChange(validFormData, isValid)            
         })
         return () => subdcription.unsubscribe()
     }, [watch, formState.isValid, formState.errors, onChange])

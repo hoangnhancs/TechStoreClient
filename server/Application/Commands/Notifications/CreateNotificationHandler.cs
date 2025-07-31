@@ -1,6 +1,7 @@
 using System;
 using Application.Core;
 using Application.DTOs;
+using Application.Interface;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -14,21 +15,33 @@ public class CreateNotificationHandler : IRequestHandler<CreateNotificationComma
     private readonly INotificationRepository _notificationRepository;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
-    public CreateNotificationHandler(INotificationRepository notificationRepository, IMapper mapper, IUnitOfWork unitOfWork)
+    private readonly IAccountRepository _accountRepository;
+
+    public CreateNotificationHandler(INotificationRepository notificationRepository, IMapper mapper, IUnitOfWork unitOfWork, IAccountRepository accountRepository)
     {
         _notificationRepository = notificationRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+        _accountRepository = accountRepository;
     }
     public async Task<Result<NotificationDto>> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
     {
+        var newLink = !String.IsNullOrEmpty(request.CommentResultId)
+            ? request.NotificationDto.Link + "?commentId=" + request.CommentResultId
+                : !String.IsNullOrEmpty(request.ReviewResultId)
+                    ? request.NotificationDto.Link + "?reviewId=" + request.ReviewResultId
+                        : request.NotificationDto.Link;
         var notification = new Notification()
         {
-            Tittle = request.NotificationDto.Tittle ?? string.Empty,
+            Title = request.NotificationDto.Title ?? string.Empty,
             Message = request.NotificationDto.Message ?? string.Empty,
-            Link = request.NotificationDto.Link,
-            ReceivedId = request.NotificationDto.ReceivedId ?? string.Empty,
+            Link = newLink ?? "/",
+            ReceiverId = request.NotificationDto.ReceiverId,
+            GroupId = request.NotificationDto.GroupId,
+            SenderId = request.NotificationDto.SenderId ?? string.Empty,
+            Sender = await _accountRepository.GetUserByIdAsync(request.NotificationDto.SenderId ?? string.Empty, cancellationToken) ?? throw new Exception(),
         };
+
         await _notificationRepository.CreateNotification(notification, cancellationToken);
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
         if (!result) return Result<NotificationDto>.Failure("Problem when create notification", 400);

@@ -172,7 +172,7 @@ class CommentSignalRServiceClass {
     this.commentCallback = callback;
   };
 
-  public sendComment = (
+  public sendComment = async (
     productId: string,
     content: string,
     parentCommentId?: string
@@ -185,9 +185,15 @@ class CommentSignalRServiceClass {
       return;
     }
 
-    this.hubConnection
-      .invoke("SendComment", productId, content, parentCommentId || null)
-      .catch((err) => console.error("Error sending comment:", err));
+   
+    try {
+      const result = await this.hubConnection
+        .invoke("SendComment", productId, content, parentCommentId || null);
+      console.log("comment id result:", result);
+      return result;
+    } catch (error) {
+      console.log(error)
+    }
   };
 }
 

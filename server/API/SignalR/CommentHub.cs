@@ -1,6 +1,7 @@
 using System;
 using System.Security.Claims;
 using Application.Commands.Comments;
+using Application.DTOs;
 using Application.Queries.Comments;
 using Domain.Entities;
 using MediatR;
@@ -17,13 +18,13 @@ public class CommentHub : Hub
         _mediator = mediator;
     }
 
-    public async Task SendComment(string productId, string content, string? parrentCommentId = null)
+    public async Task<string?> SendComment(string productId, string content, string? parrentCommentId = null)
     {
         var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
         {
             await Clients.Caller.SendAsync("CommentError", "User not authenticated");
-            return;
+            return null;
         }
         var command = new CreateCommentCommand
         {
@@ -37,10 +38,12 @@ public class CommentHub : Hub
         if (result.IsSuccess && result.Value != null)
         {
             await Clients.Group(productId).SendAsync("ReceiveComment", result.Value);
+            return result.Value.Id;
         }
         else
         {
             await Clients.Caller.SendAsync("CommentError", result.Error);
+            return null;
         }
         
     }

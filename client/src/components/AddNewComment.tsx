@@ -4,9 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import React from "react";
 import { User } from "../lib/types";
 import LoginPromptDialog from "./LoginPromptDialog";
+import { NotificationSignalRService } from "../app/api/notificationSignalRService";
 
 type Props = {
-    onSendComment: (content: string, parentId?: string) => void;
+    onSendComment: (content: string, parentId?: string) => Promise<string>;
     onDraftChange: (hasDraft: boolean) => void;
     currentUser: User | undefined;
 }
@@ -14,12 +15,19 @@ type Props = {
 const AddNewComment: React.FC<Props> = React.memo(({onSendComment, onDraftChange, currentUser}) => {
     const [commentContent, setCommentContent] = useState("");
     const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
-    const handleSendComment = () => {
+
+    const handleSendComment = async () => {
         if (commentContent.trim().length > 0) {
-            onSendComment(commentContent);
+            const commentId = await onSendComment(commentContent);
             setCommentContent("");
+            if (!currentUser?.isAdmin) {
+                NotificationSignalRService
+                    .sendNotification("Bình luận mới", commentContent, location.pathname, undefined, 
+                        "e605dfb1-7540-4ae7-8cda-96f8dc1525a6", currentUser?.id || "", commentId, undefined);
+            }
         }
     }
+
     const isDrafting = useRef(false);
     useEffect(() => {
         if (onDraftChange) {

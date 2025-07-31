@@ -16,6 +16,9 @@ import { Box, CircularProgress } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { NotificationProvider } from './app/context/NotificationProvider.tsx';
+import './style/global.css';
+
+// import { NotificationContainer } from './features/notification/NotificationContainer.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

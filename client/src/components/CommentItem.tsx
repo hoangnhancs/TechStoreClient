@@ -2,14 +2,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Box, Typography, Button, TextField, Avatar, Stack } from "@mui/material";
 import { Comment, User } from '../lib/types';
 import LoginPromptDialog from './LoginPromptDialog';
+import { NotificationSignalRService } from '../app/api/notificationSignalRService';
+import { useLocation } from 'react-router';
 
 
 type Props = {
   comment: Comment;
   depth: number;
   currentUser?: User;
-  onSendReply: (content: string, parent?: string) => void;
+  onSendReply: (content: string, parent?: string) => Promise<string>;
   onDraftChange: (hasDraft: boolean) => void;
+  
 }
 
 
@@ -24,13 +27,28 @@ const CommentItem: React.FC<Props> = React.memo(({
   const [replyContent, setReplyContent] = useState('');
   const [isOpenReply, setOpenReply] = useState<boolean>(false);
   const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
+  const location = useLocation();
   const dateFormatted = comment.createdAt instanceof Date 
     ? comment.createdAt.toLocaleString() 
     : new Date(comment.createdAt).toLocaleString();
   
   const isOwnComment = currentUser && currentUser.id === comment.user?.id;
-  const handleSendReply = () => {
-    onSendReply(replyContent, comment.id);
+  const handleSendReply = async () => {
+    const commentId = await onSendReply(replyContent, comment.id);
+    if (currentUser?.id.toString() !== comment.user.id.toString()) {
+      if (comment.isAdminComment) {
+        if (!currentUser?.isAdmin) {
+          NotificationSignalRService
+          .sendNotification("Bình luận mới", replyContent, location.pathname, undefined, 
+            "e605dfb1-7540-4ae7-8cda-96f8dc1525a6", currentUser?.id || "", commentId, undefined);
+        }
+      }
+      else {
+        NotificationSignalRService
+          .sendNotification("Bình luận mới", replyContent, location.pathname, comment.user.id, undefined, 
+            currentUser?.id || "", commentId, undefined);
+      }   
+    }
     setReplyContent('');
     setOpenReply(false);
   }
@@ -52,21 +70,26 @@ const CommentItem: React.FC<Props> = React.memo(({
     setOpenReply(false);
   }
   return (
-    <Box sx={{ mb: 2 }}>
+    <Box 
+      sx={{ 
+        mb: 2, 
+        borderRadius: 2,
+        border: '1px solid',
+        borderColor: 'divider'
+      }} >
       {/* Comment container với độ thụt lề theo cấp độ */}
       <Box 
+        id={comment.id}
         sx={{
           ml: depth * 3, // Thụt lề dựa theo cấp độ
           p: 2,
-          borderRadius: 2,
-          bgcolor: isOwnComment ? 'rgba(66, 165, 245, 0.05)' : 'background.paper',
-          border: '1px solid',
-          borderColor: 'divider',
+          borderRadius: "inherit",
           position: 'relative',
           '&:hover': {
             borderColor: 'primary.light',
             boxShadow: 1
-          }
+          },
+          backgroundColor: isOwnComment ? 'rgba(66, 165, 245, 0.05)' : 'background.paper',
         }}
       >
         {/* Header: Avatar + User Info */}

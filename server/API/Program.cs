@@ -90,6 +90,7 @@ builder.Services.AddScoped<IPhotoRepository, PhotoRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationGroupRepository, NotificationGroupRepository>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 
@@ -142,7 +143,7 @@ builder.Services.AddAppCookiePolicy();
 builder.Services.AddAppAuthorization();
 builder.Services.AddAuditLogging();
 
-
+builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.None);
 
 var app = builder.Build();
 
@@ -212,9 +213,10 @@ try
     //o dong nay, context đã có sẵn dữ liệu từ database, vì nó được lấy từ DI container,
     // và Entity Framework Core sẽ tự động kết nối với database mà bạn đã cấu hình.
     var userManager = services.GetRequiredService<UserManager<User>>();
+    var logger = services.GetRequiredService<ILogger<DbInitializer>>();
     await context.Database.MigrateAsync();
     //chi kiem tra schema, k kiem tra data
-    await DbInitializer.SeedData(context, userManager);
+    await DbInitializer.SeedData(context, userManager, logger);
     //thuc hien seed data trong \Persistence\DbInitializer.cs
     //data se duoc add vao db o line nay
 }

@@ -13,10 +13,11 @@ import { useFetchAllFilterTagsQuery } from "../../app/api/filterTagApi";
 // import { useGetCurrentUserQuery } from "../user/userApi";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
-import { CreateAndUpdateProductInput, FilterTag } from "../../lib/types";
+import { Brand, CreateAndUpdateProductInput, FilterTag } from "../../lib/types";
 import { useCreateProductMutation, useFetchProductByIdQuery, useUpdateProductMutation } from "../../app/api/productApi";
 import { Link, useLocation, useParams } from "react-router";
 import { ArrowBack } from "@mui/icons-material";
+import { useFetchAllBrandsQuery } from "../../app/api/brandApi";
 
 
 
@@ -24,6 +25,7 @@ export default function AddNewProduct() {
   const { data: categories, isLoading: isCategoryLoading } = useFetchCategoriesQuery();
   const { data: allFilterTags, isLoading: isFilterTagLoading } = useFetchAllFilterTagsQuery();
   // const { data: currentUser } = useGetCurrentUserQuery();
+  const { data: allBrands } = useFetchAllBrandsQuery();
   const location = useLocation()
   const [ createProduct, { isLoading: isLoadingCreateProduct } ] = useCreateProductMutation();
   const [ updateProduct, { isLoading: isLoadingUpdateProduct } ] = useUpdateProductMutation();
@@ -55,12 +57,15 @@ export default function AddNewProduct() {
 
   // Lấy category đang chọn
   const selectedCategoryId = useWatch({ control, name: "category" });
+  
   // const mainImageFile = useWatch({ control, name: "mainImageFile" });
   // const detailImageFiles = useWatch({ control, name: "detailImageFiles" });
 
 
   // Lọc filter tags theo category
   const [filters, setFilters] = useState<FilterTag[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  console.log(brands)
   useEffect(() => {
     if (selectedCategoryId && allFilterTags) {
       const filteredTags = allFilterTags.filter(
@@ -68,20 +73,34 @@ export default function AddNewProduct() {
       );
       setFilters(filteredTags);
       // Reset filterTags khi đổi category
-      setValue("filterTags", {});
+      // setValue("filterTags", {});
     }
   }, [selectedCategoryId, allFilterTags, setValue]);
+  useEffect(() => {
+    if (selectedCategoryId && allBrands) {
+      const filteredBrands = allBrands.filter(
+        brand => brand.categoryId.toString() === selectedCategoryId
+      );
+      setBrands(filteredBrands);
+      // // Reset filterTags khi đổi category
+      // setValue("brand", '');
+    }
+  }, [selectedCategoryId, allBrands, setValue]);
   useEffect(() => {
     // Khi đổi category, reset filterTags về {}
     setValue("filterTags", {});
   }, [selectedCategoryId, setValue]);
+  // useEffect(() => {
+  //   // Khi đổi category, reset filterTags về {}
+  //   setValue("brand", '');
+  // }, [selectedCategoryId, setValue]);
   useEffect(() => {
     if (updatedProduct) {
       reset({
         name: updatedProduct.name,
         description: updatedProduct.description.join("\n"),
         category: updatedProduct.categoryId.toString(),
-        brand: updatedProduct.brand,
+        brand: updatedProduct.brandId,
         oldPrice: updatedProduct.oldPrice,
         discount: updatedProduct.discountPercentage,
         stockIn: id ? 0 : undefined,
@@ -146,7 +165,7 @@ export default function AddNewProduct() {
           name: data.name,
           description: data.description,
           category: data.category,
-          brand: data.brand,
+          brandId: data.brand,
           oldPrice: data.oldPrice,
           discount: data.discount,
           mainImage: data.mainImage,
@@ -176,7 +195,7 @@ export default function AddNewProduct() {
         name: data.name,
         description: data.description,
         category: data.category,
-        brand: data.brand,
+        brandId: data.brand,
         oldPrice: data.oldPrice,
         discount: data.discount,
         mainImage: data.mainImage,
@@ -204,9 +223,7 @@ export default function AddNewProduct() {
     }
   };
 
-  const onError = (errors: FieldErrors<AddProductFormValues>) => {
-    
-   
+  const onError = (errors: FieldErrors<AddProductFormValues>) => {  
     const allMessages = flattenErrors(errors);
     allMessages.forEach(msg => enqueueSnackbar(msg, { variant: 'error' }));
     console.error("Form errors:", errors);
@@ -332,9 +349,27 @@ export default function AddNewProduct() {
               }))}
               label="Danh mục"
               name="category"
-              control={control}
+              control={control} 
             />
-            <TextInput label="Thương hiệu" name="brand" control={control} />
+
+            {/*thuong hieu*/}
+            {selectedCategoryId ? 
+              <SelectInput
+                items={brands ? brands.map(brand => ({
+                  text: brand.name,
+                  value: brand.id.toString()
+                })) : []}
+                label={"Thương hiệu"}
+                name={`brand`}
+                control={control}
+              >
+              </SelectInput> 
+            : 
+              <Typography color="text.secondary">
+                Chọn danh mục để hiển thị thương hiệu
+              </Typography>
+            }
+
             <Typography variant="h6" mt={2}>Bộ lọc</Typography>
             {filters.length > 0 ? (
               filters.map((filterTag) => { 
@@ -350,7 +385,6 @@ export default function AddNewProduct() {
                       {filterTag.name || "Không có tên bộ lọc"}
                     </Typography>
                     <SelectInput
-                      
                       items={filterTag.values.map(attr => ({
                         text: attr.value,
                         value: attr.id.toString()

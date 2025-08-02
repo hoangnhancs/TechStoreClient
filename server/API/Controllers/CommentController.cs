@@ -17,7 +17,7 @@ namespace API.Controllers
             {
                 return Unauthorized("User is not authenticated.");
             }
-            return HandleResult(await Mediator.Send(new CreateCommentCommand
+            return HandleAppResult(await Mediator.Send(new CreateCommentCommand
             {
                 ProductId = commentDto.ProductId,
                 UserId = userId,
@@ -28,12 +28,12 @@ namespace API.Controllers
         [HttpGet("comments/{commentId}")]
         public async Task<IActionResult> GetCommentById(string commentId)
         {
-            return HandleResult(await Mediator.Send(new GetCommentByIdQuery { CommentId = commentId }));
+            return HandleAppResult(await Mediator.Send(new GetCommentByIdQuery { CommentId = commentId }));
         }
         [HttpGet("comments")]
         public async Task<IActionResult> GetCommentsByProductId([FromQuery]string productId)
         {
-            return HandleResult(await Mediator.Send(new GetListCommentsByProductIdQuery { ProductId = productId }));
+            return HandleAppResult(await Mediator.Send(new GetListCommentsByProductIdQuery { ProductId = productId }));
 
         }
     }

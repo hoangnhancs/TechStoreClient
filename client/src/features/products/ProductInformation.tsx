@@ -12,6 +12,7 @@ import LoadingComponent from "../../components/LoadingComponent";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../hooks";
 import { addItem } from "../basket/basketSlice";
+import { formatCurrency } from "../../lib/util/util";
 
 // Import modules
 
@@ -51,7 +52,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                         imageUrl: product.imageUrl,
                         price: product.price,
                         quantity: quantity,
-                        brand: product.brand,
+                        brandId: product.brandId,
                         category: product.category} as Item));
                 })
                 .catch(error => {
@@ -62,28 +63,6 @@ export default function ProductInformation({product, currentUser}: Props) {
         }
     }
 
-    // const dungluong: StorageOptions = {
-    //     '1TB': 1000,
-    //     '2TB': 2000,
-    //     '4TB': 4000,
-    //     '8TB': 4000,
-    // };
-
-    // const mausac : ColorOptions = {
-    //     'Black': 1000,
-    //     'White': 2000,
-    //     'Red': 4000,
-    //     'Blue': 4000,
-    //     'Pink': 4000,
-    //     'Yellow': 4000,
-    // };
-
-    // const isSelected = true; 
-
-    const formatPrice = (price: number) => {
-        return price.toLocaleString('vi-VN') + 'đ';
-    }
-  
     if (!product) {
         return (
             <LoadingComponent />
@@ -94,7 +73,7 @@ export default function ProductInformation({product, currentUser}: Props) {
         {label: 'Name', value: product.name},
         {label: 'Description', value: product.description},
         {label: 'Category', value: product.category.name},
-        {label: 'Brand', value: product.brand},
+        {label: 'Brand', value: product.brandId},
         {label: 'Quantity in stock', value: product.quantityInStock},
     ]
 
@@ -464,8 +443,8 @@ export default function ProductInformation({product, currentUser}: Props) {
                     >
                         <Typography variant="subtitle1">Giá sản phẩm</Typography>
                         <Box sx={{display: "flex", justifyContent: "start", alignItems: "center", gap: 2}}>
-                            <Typography alignItems={'center'} variant="body2" fontWeight={'600'} fontSize={'24px'} color="#1d1d20">{formatPrice(product.price)}</Typography>
-                            <Typography alignItems={'center'} variant="body1" fontWeight={'400'} fontSize={'16px'} color="#a1a1aa" sx={{ textDecoration: 'line-through'}}>{formatPrice(product.oldPrice)}</Typography>
+                            <Typography alignItems={'center'} variant="body2" fontWeight={'600'} fontSize={'24px'} color="#1d1d20">{formatCurrency(product.price)}</Typography>
+                            <Typography alignItems={'center'} variant="body1" fontWeight={'400'} fontSize={'16px'} color="#a1a1aa" sx={{ textDecoration: 'line-through'}}>{formatCurrency(product.oldPrice)}</Typography>
                         </Box>                        
                     </Box>                    
                 </Grid>

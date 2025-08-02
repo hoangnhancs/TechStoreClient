@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.Products;
 
-public class GetProductListQuery : IRequest<Result<List<ProductDto>>>
+public class GetProductListQuery : IRequest<AppResult<List<ProductDto>>>
 {
 
 }

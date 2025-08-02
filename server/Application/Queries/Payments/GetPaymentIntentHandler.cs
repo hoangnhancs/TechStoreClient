@@ -6,7 +6,7 @@ using Stripe;
 
 namespace Application.Queries.Payments;
 
-public class GetPaymentIntentHandler : IRequestHandler<GetPaymentIntentQuery, Result<PaymentIntent>>
+public class GetPaymentIntentHandler : IRequestHandler<GetPaymentIntentQuery, AppResult<PaymentIntent>>
 {
     private readonly IPaymentService _paymentService;
     public GetPaymentIntentHandler(IPaymentService paymentService)
@@ -14,10 +14,10 @@ public class GetPaymentIntentHandler : IRequestHandler<GetPaymentIntentQuery, Re
         _paymentService = paymentService;
     }
 
-    public async Task<Result<PaymentIntent>> Handle(GetPaymentIntentQuery request, CancellationToken cancellationToken)
+    public async Task<AppResult<PaymentIntent>> Handle(GetPaymentIntentQuery request, CancellationToken cancellationToken)
     {
         var paymentIntent = await _paymentService.GetPaymentIntent(request.PaymentIntentId, cancellationToken);
-        if (paymentIntent == null) return Result<PaymentIntent>.Failure("Payment intent not found", 404);
-        return Result<PaymentIntent>.Success(paymentIntent);
+        if (paymentIntent == null) return AppResult<PaymentIntent>.Failure("Payment intent not found", 404);
+        return AppResult<PaymentIntent>.Success(paymentIntent);
     }
 }

@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Application.Commands.Products;
 
-public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result<ProductDto>>
+public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, AppResult<ProductDto>>
 {
     private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;   
@@ -24,11 +24,11 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result
         _unitOfWork = unitOfWork;
         _photoService = photoService;
     }
-    public async Task<Result<ProductDto>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<ProductDto>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
-        if (request.ProductDto.Id == null) return Result<ProductDto>.Failure("Product ID cannot be null or empty", 400);
+        if (request.ProductDto.Id == null) return AppResult<ProductDto>.Failure("Product ID cannot be null or empty", 400);
         var existingProduct = await _productRepository.GetProductByIdAsync(request.ProductDto.Id, cancellationToken);
-        if (existingProduct == null) return Result<ProductDto>.Failure("Product not found", 404);
+        if (existingProduct == null) return AppResult<ProductDto>.Failure("Product not found", 404);
         var newProduct = _mapper.Map<Domain.Entities.Product>(request.ProductDto);
 
         //main image handler
@@ -39,7 +39,7 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result
                 //neu co upload anh moi (chac chan type IFromFile, con giu nguyen thi se URL)
                 //xoa anh cu~, upload anh moi va replace
                 var imageUploadResult = await _photoService.UploadPhoto(request.MainImageInput.File);
-                if (imageUploadResult == null) return Result<ProductDto>.Failure("Image upload failed", 502);
+                if (imageUploadResult == null) return AppResult<ProductDto>.Failure("Image upload failed", 502);
                 //upload ok thi xoa anh cu~ neu anh do nam tren cloudinary
                 if (!string.IsNullOrEmpty(existingProduct.MainImagePublicId))
                 {
@@ -126,7 +126,7 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, Result
 
         await _productRepository.UpdateProductAsync(newProduct, DateTime.UtcNow, cancellationToken); 
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
-        if (!result) return Result<ProductDto>.Failure("Failed to update product", 500);
-        return Result<ProductDto>.Success(_mapper.Map<ProductDto>(newProduct));
+        if (!result) return AppResult<ProductDto>.Failure("Failed to update product", 500);
+        return AppResult<ProductDto>.Success(_mapper.Map<ProductDto>(newProduct));
     }
 }

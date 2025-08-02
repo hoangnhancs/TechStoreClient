@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Application.Commands.Banners;
 
-public class DeleteBannerImageCommand : IRequest<Result<Unit>>
+public class DeleteBannerImageCommand : IRequest<AppResult<Unit>>
 {
     public List<int> BannerImageIds { get; set; } = [];
 }

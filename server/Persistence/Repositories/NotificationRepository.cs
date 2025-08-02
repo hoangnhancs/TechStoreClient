@@ -16,16 +16,25 @@ public class NotificationRepository(StoreContext context) : INotificationReposit
 
     public async Task<Notification> GetNotificationById(string id, CancellationToken cancellationToken)
     {
-        return await _context.Notifications.FirstOrDefaultAsync(n => n.Id == id, cancellationToken) ?? throw new Exception("Notification not found");
+        return await _context.Notifications
+            .FirstOrDefaultAsync(n => n.Id == id, cancellationToken) ?? throw new Exception("Notification not found");
     }
 
     public async Task<List<Notification>> GetNotificationsByGroupId(string groupId, CancellationToken cancellationToken)
     {
-        return await _context.Notifications.Where(n => n.GroupId == groupId).ToListAsync(cancellationToken);
+        return await _context.Notifications
+            .Where(n => n.GroupId == groupId)
+            .Include(n => n.Sender)
+            .ThenInclude(n => n!.Image)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<List<Notification>> GetNotificationsByUserId(string userId, CancellationToken cancellationToken)
     {
-        return await _context.Notifications.Where(n => n.ReceiverId == userId).ToListAsync(cancellationToken);
+        return await _context.Notifications
+            .Where(n => n.ReceiverId == userId)
+            .Include(n => n.Sender)
+            .ThenInclude(n => n!.Image)
+            .ToListAsync(cancellationToken);
     }
 }

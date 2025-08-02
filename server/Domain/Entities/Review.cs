@@ -4,7 +4,7 @@ namespace Domain.Entities;
 
 public class Review
 {
-    public int Id { get; set; } 
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     public required string ProductId { get; set; } = string.Empty;
     public Product? Product { get; set; } 
     public required string UserId { get; set; } = string.Empty;

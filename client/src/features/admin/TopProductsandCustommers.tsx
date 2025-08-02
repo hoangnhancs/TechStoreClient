@@ -1,5 +1,6 @@
 import { Avatar, Box, Divider, Grid, Paper, styled, Typography } from "@mui/material";
 import { Order, User } from "../../lib/types";
+import { formatCurrency } from "../../lib/util/util";
 
 type Props = {
     orders: Order[];
@@ -14,12 +15,6 @@ const StyledGridItem = styled(Grid)(() => ({
 
 
 export default function TopProductsandCustommers({ orders }: Props) {
-    const formatRevenue = (value: number) => {
-        return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND',
-        }).format(value);
-    }
     const topProducts = () => {
         const productSales = orders.reduce((acc: Record<string, {productId: string, productName: string, imageUrl: string, totalQuantity: number, revenue: number}>, order) => {
             order.items.forEach(item => {
@@ -117,7 +112,7 @@ export default function TopProductsandCustommers({ orders }: Props) {
                             </StyledGridItem>
                             <StyledGridItem size={1.5} >
                                 <Typography>
-                                    {formatRevenue(product.revenue)}
+                                    {formatCurrency(product.revenue)}
                                 </Typography>
                             </StyledGridItem>
                         </Grid>
@@ -182,7 +177,7 @@ export default function TopProductsandCustommers({ orders }: Props) {
                             </StyledGridItem>
                             <StyledGridItem size={1.5} >
                                 <Typography>
-                                    {formatRevenue(topCustommer.totalSpent)}
+                                    {formatCurrency(topCustommer.totalSpent)}
                                 </Typography>
                             </StyledGridItem>
                         </Grid>

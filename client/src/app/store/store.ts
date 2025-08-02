@@ -35,6 +35,8 @@ import { filterTagApi } from "../api/filterTagApi";
 import { photoApi } from "../api/photoApi";
 import { categoryApi } from "../api/categoryApi";
 import { bannerApi } from "../api/bannerApi";
+import { notificationGroupApi } from "../api/notificationGroupsApi";
+import { brandApi } from "../api/brandApi";
 
 export const resetState = createAction("app/reset-state");
 
@@ -52,6 +54,8 @@ export const rootReducer = combineReducers({
   [photoApi.reducerPath]: photoApi.reducer,
   [categoryApi.reducerPath]: categoryApi.reducer,
   [bannerApi.reducerPath]: bannerApi.reducer,
+  [notificationGroupApi.reducerPath]: notificationGroupApi.reducer,
+  [brandApi.reducerPath]: brandApi.reducer,
 
   counter: counterReducer,
   ui: uiReducer,
@@ -94,6 +98,8 @@ export const store = configureStore({
       photoApi.middleware,
       categoryApi.middleware,
       bannerApi.middleware,
+      notificationGroupApi.middleware,
+      brandApi.middleware,
     ),
 });
 

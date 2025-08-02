@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Application.Commands.Addresses;
 
-public class UpdateAddressHandler : IRequestHandler<UpdateAddressCommand, Result<AddressDto>>
+public class UpdateAddressHandler : IRequestHandler<UpdateAddressCommand, AppResult<AddressDto>>
 {
     private readonly IAddressRepository _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -23,7 +23,7 @@ public class UpdateAddressHandler : IRequestHandler<UpdateAddressCommand, Result
         _mapper = mapper;
     }
 
-    public async Task<Result<AddressDto>> Handle(UpdateAddressCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<AddressDto>> Handle(UpdateAddressCommand request, CancellationToken cancellationToken)
     {
         if (request.Address.IsDefault == true)
         {
@@ -32,7 +32,7 @@ public class UpdateAddressHandler : IRequestHandler<UpdateAddressCommand, Result
         var addressEntity = _mapper.Map<Address>(request.Address);
         var address = await _addressRepository.UpdateAddressAsync(request.AddressId, addressEntity, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result<AddressDto>.Success(_mapper.Map<AddressDto>(address));
+        return AppResult<AddressDto>.Success(_mapper.Map<AddressDto>(address));
     }
 
 }

@@ -60,7 +60,9 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.MainImageUrl))
             .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.DetailImages))
             .ForMember(dest => dest.Tags, opt => opt.MapFrom(src => src.DisplayTags))
-            .ForMember(dest => dest.ImagePublicId, opt => opt.MapFrom(src => src.MainImagePublicId));
+            .ForMember(dest => dest.ImagePublicId, opt => opt.MapFrom(src => src.MainImagePublicId))
+            .ForMember(dest => dest.BrandId, opt => opt.MapFrom(src => src.Brand == null ? 0 : src.Brand.Id))
+            .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand == null ? "" : src.Brand.Name));
 
         CreateMap<FilterTag, FilterTagDto>();
         CreateMap<FilterTagDto, FilterTag>();
@@ -80,10 +82,14 @@ public class MappingProfile : Profile
         CreateMap<BannerImageDto, BannerImage>();
 
         CreateMap<Notification, NotificationDto>()
-            .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Sender == null ? string.Empty : src.Sender.DisplayName));
+            .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Sender == null ? string.Empty : src.Sender.DisplayName))
+            .ForMember(dest => dest.SenderImageUrl, opt => opt.MapFrom(src => src.Sender == null ? string.Empty : src.Sender.Image!.Url));
         CreateMap<NotificationDto, Notification>();
 
         CreateMap<NotificationGroup, NotificationGroupDto>();
         CreateMap<NotificationGroupDto, NotificationGroup>();
+        
+        CreateMap<Brand, BrandDto>();
+        CreateMap<BrandDto, Brand>();
     }
 }

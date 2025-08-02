@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import {  useEffect, useState } from "react"
+import { useParams, useSearchParams } from "react-router-dom"
 import { ReviewSignalRService } from "../../app/api/reviewSignalRService"
 import { Review, User } from "../../lib/types"
 import { Box, Button, Divider, Rating, Typography } from "@mui/material"
@@ -8,6 +8,9 @@ import StarIcon from '@mui/icons-material/Star';
 import AddProductReviewPrompt from "../../components/AddProductReviewPrompt"
 import LoginPromptDialog from "../../components/LoginPromptDialog"
 import ReviewItem from "../../components/ReviewItem"
+import { NotificationSignalRService } from "../../app/api/notificationSignalRService"
+import { useNotificationContext } from "../../app/context/notificationContext"
+import { toast } from "react-toastify"
 
 type Props = {
     productName: string
@@ -22,6 +25,32 @@ export default function ReviewList({ productName, currentUser }: Props) {
     const [openAddReview, setOpenAddReview] = useState(false)
     const [openLoginPrompt, setOpenLoginPrompt] = useState(false)
     const [displayedReviews, setDisplayedReviews] = useState<Review[]>([])
+    const { adminGroup } = useNotificationContext();
+    const [searchParams] = useSearchParams();
+    const reviewId = searchParams.get("reviewId");
+    console.log("list reviews:", reviews)
+
+
+      useEffect(() => {
+    console.log("commentId:", reviewId);
+    console.log("list comments:", reviews)
+    if (reviewId && reviews && reviews.length > 0) {
+      // Delay nhẹ để đợi DOM render xong
+      requestAnimationFrame(() => {
+        const element = document.getElementById(reviewId);
+        console.log("element:", element);
+
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "center" });
+        element.classList.add("highlight-comment");
+        // setTimeout(() => {
+        //   element.classList.remove("highlight-comment");
+        // }, 6000);
+      }
+    });
+  }}, [reviewId, reviews]);
+
+
     const filterTags = [
         { label: 'Tất cả', value: 'all' },
         { label: 'Có hình ảnh', value: 'images' },
@@ -104,9 +133,14 @@ export default function ReviewList({ productName, currentUser }: Props) {
         }
     }, [selectedFilterTag, reviews]);
 
-    const handleAddReview = (productId: string, review: string, rating: number) => {
-        ReviewSignalRService.sendReview(productId, review, rating)
+    const handleAddReview = async (productId: string, review: string, rating: number) => {
+        const reviewId = await ReviewSignalRService.sendReview(productId, review, rating)
         setOpenAddReview(false)
+        if (adminGroup) {
+            await NotificationSignalRService.sendNotification("Đánh giá mới", review, location.pathname, undefined, adminGroup?.id, currentUser?.id || "", undefined, reviewId);
+        } else {
+            toast.error("Admin group not found");
+        }
     }
 
     const handleOpenAddNewReviewPrompt = () => {
@@ -309,7 +343,7 @@ export default function ReviewList({ productName, currentUser }: Props) {
                 <Box display={"flex"} flexDirection={"column"} >
                     {displayedReviews.map((review, index) => (
                         <Box key={review.id}>
-                            <ReviewItem review={review} />
+                            <ReviewItem review={review}/>
                             {index < reviews.length - 1 && (
                                 <Divider sx={{ my: 2 }} />
                             )}

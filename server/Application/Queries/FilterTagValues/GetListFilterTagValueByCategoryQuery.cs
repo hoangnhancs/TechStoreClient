@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.FilterTagValues;
 
-public class GetListFilterTagValueByCategoryQuery : IRequest<Result<List<FilterTagValueDto>>>
+public class GetListFilterTagValueByCategoryQuery : IRequest<AppResult<List<FilterTagValueDto>>>
 {
     public required int CategoryId;
 }

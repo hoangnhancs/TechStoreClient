@@ -1,5 +1,6 @@
 using System.Text;
 using API.Extensions;
+using API.GraphQL.Queries;
 using API.Middleware;
 using API.SignalR;
 using Application.Interface;
@@ -70,6 +71,16 @@ builder.Services.AddTransient<IResend, ResendClient>();
 builder.Services.AddTransient<IEmailSender<User>, EmailSender>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetProductDetailsHandler>());
+
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType(d => d.Name("Query")) 
+        .AddTypeExtension<BrandQuery>()
+    .AddAuthorization()
+    .AddFiltering()
+    .AddSorting()
+    .AddProjections();
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();
@@ -91,6 +102,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationGroupRepository, NotificationGroupRepository>();
+builder.Services.AddScoped<IBrandRepository, BrandRepository>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 
@@ -143,7 +155,7 @@ builder.Services.AddAppCookiePolicy();
 builder.Services.AddAppAuthorization();
 builder.Services.AddAuditLogging();
 
-builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.None);
+// builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.None);
 
 var app = builder.Build();
 
@@ -199,6 +211,7 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapControllers();
+app.MapGraphQL();
 app.MapGroup("api").MapIdentityApi<User>(); //chuyen tu api/account thanh api
 app.MapHub<CommentHub>("/commentHub");
 app.MapHub<ReviewHub>("/reviewHub");

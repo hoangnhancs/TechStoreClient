@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Application.Commands.Products;
 
-public class CreateNewProductHandler : IRequestHandler<CreateNewProductCommand, Result<ProductDto>>
+public class CreateNewProductHandler : IRequestHandler<CreateNewProductCommand, AppResult<ProductDto>>
 {
     private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
@@ -23,7 +23,7 @@ public class CreateNewProductHandler : IRequestHandler<CreateNewProductCommand, 
         _photoService = photoService;
         _unitOfWork = unitOfWork;
     }
-    public async Task<Result<ProductDto>> Handle(CreateNewProductCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<ProductDto>> Handle(CreateNewProductCommand request, CancellationToken cancellationToken)
     {
         var productDto = request.ProductDto; //get productDto from request
 
@@ -101,8 +101,8 @@ public class CreateNewProductHandler : IRequestHandler<CreateNewProductCommand, 
         if (result)
         {
             var productDtoResult = _mapper.Map<ProductDto>(product);
-            return Result<ProductDto>.Success(productDtoResult);
+            return AppResult<ProductDto>.Success(productDtoResult);
         }
-        return Result<ProductDto>.Failure("Failed to create new product", 500);
+        return AppResult<ProductDto>.Failure("Failed to create new product", 500);
     }
 }

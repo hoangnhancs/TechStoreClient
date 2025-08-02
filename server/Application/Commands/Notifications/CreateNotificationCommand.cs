@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Commands.Notifications;
 
-public class CreateNotificationCommand : IRequest<Result<NotificationDto>>
+public class CreateNotificationCommand : IRequest<AppResult<NotificationDto>>
 {
     public string? CommentResultId { get; set; }
     public string? ReviewResultId { get; set; }

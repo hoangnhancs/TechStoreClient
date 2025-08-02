@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Application.Commands.Banners;
 
-public class DeleteBannerImageHandler : IRequestHandler<DeleteBannerImageCommand, Result<Unit>>
+public class DeleteBannerImageHandler : IRequestHandler<DeleteBannerImageCommand, AppResult<Unit>>
 {
     private readonly IBannerRepository _bannerRepository;
     private readonly IMapper _mapper;
@@ -21,18 +21,18 @@ public class DeleteBannerImageHandler : IRequestHandler<DeleteBannerImageCommand
         _unitOfWork = unitOfWork;
         _photoService = photoService;
     }
-    public async Task<Result<Unit>> Handle(DeleteBannerImageCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<Unit>> Handle(DeleteBannerImageCommand request, CancellationToken cancellationToken)
     {
         foreach (var id in request.BannerImageIds)
         {
             var banner = await _bannerRepository.GetBannerImageById(id, cancellationToken);
-            if (banner == null) return Result<Unit>.Failure($"Banner image with ID: {id} not found.", 404);
+            if (banner == null) return AppResult<Unit>.Failure($"Banner image with ID: {id} not found.", 404);
             await _bannerRepository.DeleteBannerImage(id, cancellationToken);
             await _photoService.DeletePhoto(banner.PublicId);
             var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
-            if (!result) return Result<Unit>.Failure($"Problem when delete banner image with ID: {id}.", 400);
+            if (!result) return AppResult<Unit>.Failure($"Problem when delete banner image with ID: {id}.", 400);
         }
         
-        return Result<Unit>.Success(Unit.Value);
+        return AppResult<Unit>.Success(Unit.Value);
     }
 }

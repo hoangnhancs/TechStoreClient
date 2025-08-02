@@ -13,6 +13,7 @@ public class ProductRepository(StoreContext context) : IProductRepository
     {
         return await _context.Products
             .Where(p => p.Id == productId)
+            .Include(p => p.Brand)
             .Include(p => p.Category)
             .Include(p => p.DisplayTags)
             .Include(p => p.ProductTagFilters!)
@@ -64,6 +65,7 @@ public class ProductRepository(StoreContext context) : IProductRepository
         return await _context.Products
             .Where(p => p.IsActive)
             .Include(p => p.Category)
+            .Include(p => p.Brand)
             .Where(p => p.CategoryId == categoryId)
             .Include(p => p.DisplayTags)
             .Include(p => p.ProductTagFilters)
@@ -100,6 +102,7 @@ public class ProductRepository(StoreContext context) : IProductRepository
         existProduct.DetailImages = product.DetailImages;
         existProduct.Attributes = product.Attributes;
         existProduct.ProductTagFilters = product.ProductTagFilters;   
+        existProduct.BrandId = product.BrandId;
         // existProduct = product;
     }
 

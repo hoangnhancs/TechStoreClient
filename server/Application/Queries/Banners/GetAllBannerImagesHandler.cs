@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Application.Queries.Banners;
 
-public class GetAllBannerImagesHandler : IRequestHandler<GetAllBannerImagesQuery, Result<List<BannerImageDto>>>
+public class GetAllBannerImagesHandler : IRequestHandler<GetAllBannerImagesQuery, AppResult<List<BannerImageDto>>>
 {
     private readonly IBannerRepository _bannerRepository;
     private readonly IMapper _mapper;
@@ -19,10 +19,10 @@ public class GetAllBannerImagesHandler : IRequestHandler<GetAllBannerImagesQuery
         _mapper = mapper;
     }
 
-    public async Task<Result<List<BannerImageDto>>> Handle(GetAllBannerImagesQuery request, CancellationToken cancellationToken)
+    public async Task<AppResult<List<BannerImageDto>>> Handle(GetAllBannerImagesQuery request, CancellationToken cancellationToken)
     {
         var bannerImages = await _bannerRepository.GetAllBannerImages();
         var bannerImagesDto = bannerImages.Select(_mapper.Map<BannerImageDto>).ToList();
-        return Result<List<BannerImageDto>>.Success(bannerImagesDto);
+        return AppResult<List<BannerImageDto>>.Success(bannerImagesDto);
     }
 }

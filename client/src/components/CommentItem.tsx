@@ -4,6 +4,9 @@ import { Comment, User } from '../lib/types';
 import LoginPromptDialog from './LoginPromptDialog';
 import { NotificationSignalRService } from '../app/api/notificationSignalRService';
 import { useLocation } from 'react-router';
+import { useNotificationContext } from '../app/context/notificationContext';
+import { toast } from 'react-toastify';
+import { formatVNDate } from '../lib/util/util';
 
 
 type Props = {
@@ -12,7 +15,7 @@ type Props = {
   currentUser?: User;
   onSendReply: (content: string, parent?: string) => Promise<string>;
   onDraftChange: (hasDraft: boolean) => void;
-  
+  isLastChild?: boolean; //kiem tra xem sau comment nay, con comment nao cung level khong
 }
 
 
@@ -21,16 +24,14 @@ const CommentItem: React.FC<Props> = React.memo(({
   depth,
   currentUser,
   onSendReply,
-  onDraftChange,
+  onDraftChange, 
 }) => {
   // console.log("current user img:", currentUser?.imageUrl, "comment user img:", comment.user?.imageUrl);
   const [replyContent, setReplyContent] = useState('');
   const [isOpenReply, setOpenReply] = useState<boolean>(false);
   const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
   const location = useLocation();
-  const dateFormatted = comment.createdAt instanceof Date 
-    ? comment.createdAt.toLocaleString() 
-    : new Date(comment.createdAt).toLocaleString();
+  const { adminGroup } = useNotificationContext();
   
   const isOwnComment = currentUser && currentUser.id === comment.user?.id;
   const handleSendReply = async () => {
@@ -38,9 +39,13 @@ const CommentItem: React.FC<Props> = React.memo(({
     if (currentUser?.id.toString() !== comment.user.id.toString()) {
       if (comment.isAdminComment) {
         if (!currentUser?.isAdmin) {
-          NotificationSignalRService
-          .sendNotification("Bình luận mới", replyContent, location.pathname, undefined, 
-            "e605dfb1-7540-4ae7-8cda-96f8dc1525a6", currentUser?.id || "", commentId, undefined);
+          if (adminGroup) {
+            NotificationSignalRService
+            .sendNotification("Bình luận mới", replyContent, location.pathname, undefined, 
+              adminGroup?.id, currentUser?.id || "", commentId, undefined);
+          } else {
+            toast.error("Admin group not found");
+          }
         }
       }
       else {
@@ -71,24 +76,46 @@ const CommentItem: React.FC<Props> = React.memo(({
   }
   return (
     <Box 
-      sx={{ 
-        mb: 2, 
+      sx={{  
         borderRadius: 2,
-        border: '1px solid',
-        borderColor: 'divider'
       }} >
       {/* Comment container với độ thụt lề theo cấp độ */}
       <Box 
         id={comment.id}
         sx={{
-          ml: depth * 3, // Thụt lề dựa theo cấp độ
-          p: 2,
+          ml: depth * 6, // Thụt lề dựa theo cấp độ
+          // p: 1.5,
+          px: 1.5,
           borderRadius: "inherit",
+          border: '1px solid',
+          borderColor: 'divider',
           position: 'relative',
           '&:hover': {
             borderColor: 'primary.light',
             boxShadow: 1
           },
+//           '&::before': comment.parentCommentId ? {
+//   content: '""',
+//   position: 'absolute',
+//   top: 0,
+//   left: -20,
+//   width: '2px',
+//   height: isLastChild ? '25px' : '100%',
+//   backgroundColor: '#ccc',
+//   boxShadow: `
+//     -5px 0 0 0 #ccc,  // Đường thứ 2 bên trái
+//     -10px 0 0 0 #ccc  // Đường thứ 3 bên trái
+//   `,
+// } : {},
+//           '&::after': comment.parentCommentId ? {
+//             content: '""',
+//             position: 'absolute',
+//             top: '25px',         // chiều cao từ trên xuống
+//             left: -20,
+//             width: '20px',       // chiều ngang sang phải
+//             height: '2px',
+//             bgcolor: '#ccc',
+//           } : {},
           backgroundColor: isOwnComment ? 'rgba(66, 165, 245, 0.05)' : 'background.paper',
         }}
       >
@@ -108,14 +135,14 @@ const CommentItem: React.FC<Props> = React.memo(({
             </Typography>
             
             <Typography variant="caption" color="text.secondary">
-              {dateFormatted}
+              {formatVNDate(comment.createdAt, "ddmmyyyyhhmm")}
               {comment.isEdited && ' (đã chỉnh sửa)'}
             </Typography>
           </Box>
         </Stack>
         
         {/* Comment Content */}
-        <Typography variant="body2" sx={{ mt: 1, whiteSpace: 'pre-wrap' }}>
+        <Typography variant="body2" sx={{ mt: 1, ml: 1, whiteSpace: 'pre-wrap' }}>
           {comment.content}
         </Typography>
         
@@ -187,8 +214,8 @@ const CommentItem: React.FC<Props> = React.memo(({
       
       {/* Replies - Recursive rendering */}
       {comment.replies && comment.replies.length > 0 && (
-        <Box>
-          {comment.replies.map(reply => (
+        <Box >
+          {comment.replies.map((reply) => (
             <CommentItem
               key={reply.id}
               comment={reply}
@@ -196,6 +223,7 @@ const CommentItem: React.FC<Props> = React.memo(({
               currentUser={currentUser}
               onSendReply={onSendReply}
               onDraftChange={onDraftChange}
+              // isLastChild={index === comment.replies.length - 1}
             />
           ))}
         </Box>

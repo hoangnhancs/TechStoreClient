@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Application.Commands.Banners;
 
-public class CreateNewBannerImageCommand : IRequest<Result<List<BannerImageDto>>>
+public class CreateNewBannerImageCommand : IRequest<AppResult<List<BannerImageDto>>>
 {
     public required List<IFormFile> NewImages { get; set; }
 

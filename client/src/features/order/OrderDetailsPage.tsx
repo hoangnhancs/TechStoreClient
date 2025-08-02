@@ -30,11 +30,10 @@ import {
     Phone,
     CreditCard,
 } from '@mui/icons-material';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
 import { useGetOrderDetailsQuery } from '../../app/api/orderApi';
 import { useGetAddressQuery } from '../../app/api/addressApi';
 import LoadingComponent from '../../components/LoadingComponent';
+import { formatCurrency, formatVNDate } from '../../lib/util/util';
 
 const StatusChip = styled(Chip)<{ status: string }>(({ theme, status }) => {
 let color;
@@ -116,17 +115,6 @@ export default function OrderDetailsPage() {
         ? (order.subToTal + order.shippingCost - order.discount) 
         : 0;
 
-    const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('vi-VN', { 
-        style: 'currency', 
-        currency: 'VND' 
-        }).format(price);
-    };
-
-    const formatDate = (dateString: string) => {
-        return format(new Date(dateString), 'dd/MM/yyyy HH:mm', { locale: vi });
-    };
-
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
             <Box mb={4}>
@@ -159,7 +147,7 @@ export default function OrderDetailsPage() {
                 </Box>
                 
                 <Typography variant="body2" color="text.secondary">
-                    Đặt hàng lúc: {order.updatedAt ? formatDate(order.updatedAt.toString()) : 'N/A'}
+                    Đặt hàng lúc: {order.updatedAt ? formatVNDate(order.updatedAt.toString(), 'ddmmyyyyhhmm') : 'N/A'}
                 </Typography>
             </Box>
 
@@ -289,11 +277,11 @@ export default function OrderDetailsPage() {
                                         </Box>
                                         </Box>
                                     </TableCell>
-                                    <TableCell align="center">{formatPrice(item.unitPrice)}</TableCell>
+                                    <TableCell align="center">{formatCurrency(item.unitPrice)}</TableCell>
                                     <TableCell align="center">{item.quantity}</TableCell>
                                     <TableCell align="right">
                                         <Typography fontWeight="bold">
-                                        {formatPrice(item.unitPrice * item.quantity)}
+                                        {formatCurrency(item.unitPrice * item.quantity)}
                                         </Typography>
                                     </TableCell>
                                     </TableRow>
@@ -314,12 +302,12 @@ export default function OrderDetailsPage() {
                                 </Typography>
                             </Grid>
                             <Grid size={12} sx={{ textAlign: 'right' }}>
-                                <Typography variant="body2">{formatPrice(order.subToTal)}</Typography>
-                                <Typography variant="body2">{formatPrice(order.shippingCost)}</Typography>
-                                <Typography variant="body2">{formatPrice(order.discount)}</Typography>
+                                <Typography variant="body2">{formatCurrency(order.subToTal)}</Typography>
+                                <Typography variant="body2">{formatCurrency(order.shippingCost)}</Typography>
+                                <Typography variant="body2">{formatCurrency(order.discount)}</Typography>
                                 <Divider sx={{ my: 1 }} />
                                 <Typography variant="subtitle1" fontWeight="bold" color="primary">
-                                    {formatPrice(orderTotal)}
+                                    {formatCurrency(orderTotal)}
                                 </Typography>
                             </Grid>
                         </Grid>

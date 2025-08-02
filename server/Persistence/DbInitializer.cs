@@ -9,6 +9,19 @@ namespace Persistence;
 
 public class DbInitializer
 {
+    public class BrandGroup
+    {
+        public int categoryId { get; set; }
+        public required string category { get; set; }
+        public List<BrandDto> brands { get; set; } = [];
+    }
+
+    public class BrandDto
+    {
+        public required string name { get; set; }
+        public required string imageUrl { get; set; }
+    }
+
     public static async Task SeedData(StoreContext context, UserManager<User> userManager, ILogger<DbInitializer> logger)
     {
 
@@ -27,7 +40,6 @@ public class DbInitializer
             await context.SaveChangesAsync();
         }
         var categoriesInDb = context.Categories.ToList();
-
 
         var basePath = Path.Combine(AppContext.BaseDirectory, "SeedData");
         string jsonContent = File.ReadAllText(Path.Combine(basePath, "tags_dict.json"));
@@ -92,6 +104,38 @@ public class DbInitializer
             }
         }
 
+        //add brands
+        if (!context.Brands.Any())
+        {
+            var jsonBrands = File.ReadAllText(Path.Combine(basePath, "brands.json"));
+            var brandsByCategory = JsonConvert.DeserializeObject<List<BrandGroup>>(jsonBrands);
+            if (brandsByCategory == null)
+            {
+                throw new Exception("Failed to deserialize brands from JSON file.");
+            }
+            Console.WriteLine("Adding Brands");
+            Console.WriteLine("Count: " + brandsByCategory.Count);
+            foreach (var brandByCat in brandsByCategory)
+            {
+                var matchedCat = categoriesInDb.FirstOrDefault(c => c.Name.ToLower() == brandByCat.category.ToLower() && c.Id == brandByCat.categoryId);
+                if (matchedCat == null)
+                {
+                    throw new Exception($"Category '{brandByCat.category}' not found in the database.");
+                }
+                foreach (var brand in brandByCat.brands)
+                {
+                    var brandEntity = new Brand
+                    {
+                        Name = brand.name,
+                        CategoryId = matchedCat.Id,
+                        ImageUrl = brand.imageUrl
+                    };
+                    await context.Brands.AddAsync(brandEntity);
+                }
+            }
+            await context.SaveChangesAsync();
+        }
+
         //add user
         if (!userManager.Users.Any())
         {
@@ -111,17 +155,31 @@ public class DbInitializer
                 context.Baskets.Add(basket);
             }
 
-            var admin = new User
+            var admin1 = new User
             {
                 DisplayName = "Admin",
                 UserName = "admin@gmail.com",
-                Email = "admin@gmail.com"
+                Email = "admin@gmail.com",
+                IsAdmin = true
             };
 
-            await userManager.CreateAsync(admin, "Pa$$w0rd");
-            await userManager.AddToRolesAsync(admin, ["Member", "Admin"]);
-            var adminBasket = new Basket { UserId = admin.Id };
-            context.Baskets.Add(adminBasket);
+            await userManager.CreateAsync(admin1, "Pa$$w0rd");
+            await userManager.AddToRolesAsync(admin1, ["Member", "Admin"]);
+            var admin1Basket = new Basket { UserId = admin1.Id };
+            context.Baskets.Add(admin1Basket);
+
+            var admin2 = new User
+            {
+                DisplayName = "Hoàng Nhân",
+                UserName = "thaihoangnhantk17lqd@gmail.com",
+                Email = "thaihoangnhantk17lqd@gmail.com",
+                IsAdmin = true
+            };
+
+            await userManager.CreateAsync(admin2, "Pa$$w0rd");
+            await userManager.AddToRolesAsync(admin2, ["Member", "Admin"]);
+            var admin2Basket = new Basket { UserId = admin2.Id };
+            context.Baskets.Add(admin2Basket);
 
         }
 
@@ -202,6 +260,7 @@ public class DbInitializer
                 {
                     throw new Exception($"Category '{item.category}' not found for product '{item.name}'");
                 }
+                string brandName = item.brand.ToString();
                 var product = new Product
                 {
                     Name = item.name,
@@ -210,7 +269,8 @@ public class DbInitializer
                     Price = item.price,
                     DiscountPercentage = item.discount,
                     CategoryId = matchedCategory.Id,
-                    Brand = item.brand,
+                    BrandId = context.Brands.FirstOrDefault(b => b.Name == brandName && b.CategoryId == matchedCategory.Id)?.Id ?? throw new Exception($"Brand '{item.brand}' not found for product '{item.name}'"),
+                    Brand = context.Brands.FirstOrDefault(b => b.Name == brandName && b.CategoryId == matchedCategory.Id) ?? throw new Exception($"Brand '{item.brand}' not found for product '{item.name}'"),
                     MainImageUrl = item.image_url,
                     QuantityInStock = 1000,
                     UrlSlug = item.urlslug,
@@ -264,6 +324,11 @@ public class DbInitializer
             logger.LogInformation("Notification group already exists");
         }
 
-        await context.SaveChangesAsync();       
+        // if (!context.Addresses.Any())
+        // {
+        //     string jsonContent = File.ReadAllText(Path.Combine(basePath, "addresses.json"));
+        // }
+
+        await context.SaveChangesAsync();
     }
 }

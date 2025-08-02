@@ -1,39 +1,25 @@
-import { Box, TextField } from "@mui/material";
-import { useNotificationContext } from "../../app/context/notificationContext"
+import { Box, Stack, Typography } from "@mui/material";
+import { useNotificationContext } from "../../app/context/notificationContext";
+import NotificationItemInPage from "./NotificationItemInPage";
 
 export default function NotificationPage() {
-    const { allNotifications: allNotifications, onlineNotifications: onlineNotifications } = useNotificationContext();
-    // const { data: currentUser } = useGetCurrentUserQuery();  
-    // const handleSendNotification = async (title: string, message: string, link: string | undefined, receivedId: string | undefined, groupId: string | undefined, senderId: string) => {
-    //     await NotificationSignalRService.sendNotification(title, message, link, receivedId, groupId, senderId);
-    // }
-    // const [count, setCount] = useState(0);
+  const { allNotifications } = useNotificationContext();
 
   return (
-    <>
-        {allNotifications.map((notification, index) => (
-            <div key={index}>{notification.message}</div>
-        ))}
-        <Box>
-            <TextField label="Message">
+    <Box p={3}>
+      <Typography variant="h5" mb={2}>
+        Thông báo
+      </Typography>
 
-            </TextField>
-            <TextField label="Title">
-
-            </TextField>
-            <TextField>
-
-            </TextField>
-            {/* <Button onClick={() => {
-                handleSendNotification(`test ${count}`, `test message ${count}`, "test link", undefined, "e605dfb1-7540-4ae7-8cda-96f8dc1525a6", currentUser?.id || "");
-                setCount(prev => prev + 1);
-            }}>
-                submit
-            </Button> */}
-            {onlineNotifications.map((notification, index) => (
-                <div key={index}>{notification.message}</div>
-            ))}
-        </Box>
-    </>
-  )
+      <Stack spacing={1.5}>
+        {allNotifications.length === 0 ? (
+          <Typography>Không có thông báo nào.</Typography>
+        ) : (
+          allNotifications.map((noti, i) => (
+            <NotificationItemInPage key={i} notification={noti} />
+          ))
+        )}
+      </Stack>
+    </Box>
+  );
 }

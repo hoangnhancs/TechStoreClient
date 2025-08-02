@@ -42,7 +42,7 @@ export default function ProductCard({product}: Props) {
                 imageUrl: product.imageUrl,
                 price: product.price,
                 quantity: 1,
-                brand: product.brand,
+                brandId: product.brandId,
                 category: product.category} as Item))
         })
         .catch(error => {

@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.Notifications;
 
-public class GetNotificationsByGroupIdQuery : IRequest<Result<List<NotificationDto>>>
+public class GetNotificationsByGroupIdQuery : IRequest<AppResult<List<NotificationDto>>>
 {
     public required string GroupId { get; set; }
 }

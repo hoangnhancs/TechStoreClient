@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Commands.Orders;
 
-public class CreateOrUpdateOrderCommand : IRequest<Result<OrderDto>>
+public class CreateOrUpdateOrderCommand : IRequest<AppResult<OrderDto>>
 {
     public required string UserId { get; set; }
     public CreateOrUpdateOrderDto CreateOrderDto { get; set; } = null!;

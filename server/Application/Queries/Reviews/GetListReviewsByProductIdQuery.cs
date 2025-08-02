@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.Reviews;
 
-public class GetListReviewsByProductIdQuery : IRequest<Result<List<ReviewDto>>>
+public class GetListReviewsByProductIdQuery : IRequest<AppResult<List<ReviewDto>>>
 {
     public required string ProductId { get; set; }
 }

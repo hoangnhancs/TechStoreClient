@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Queries.Addresses;
 
-public class GetAddressByIdHandler : IRequestHandler<GetAddressByIdQuery, Result<AddressDto>>
+public class GetAddressByIdHandler : IRequestHandler<GetAddressByIdQuery, AppResult<AddressDto>>
 {
     private readonly IAddressRepository _addressRepository;
     private readonly IMapper _mapper;
@@ -18,10 +18,10 @@ public class GetAddressByIdHandler : IRequestHandler<GetAddressByIdQuery, Result
         _addressRepository = addressRepository;
         _mapper = mapper;
     }
-    public async Task<Result<AddressDto>> Handle(GetAddressByIdQuery request, CancellationToken cancellationToken)
+    public async Task<AppResult<AddressDto>> Handle(GetAddressByIdQuery request, CancellationToken cancellationToken)
     {
         var address = await _addressRepository.GetAddressByIdAsync(request.AddressId, cancellationToken);
-        if (address == null) return Result<AddressDto>.Failure("Address not found", 404);
-        return Result<AddressDto>.Success(_mapper.Map<AddressDto>(address));
+        if (address == null) return AppResult<AddressDto>.Failure("Address not found", 404);
+        return AppResult<AddressDto>.Success(_mapper.Map<AddressDto>(address));
     }
 }

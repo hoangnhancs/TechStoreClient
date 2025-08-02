@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Commands.Images;
 
-public class UpdateUserImageHandler : IRequestHandler<UpdateUserImageCommand, Result<object>>
+public class UpdateUserImageHandler : IRequestHandler<UpdateUserImageCommand, AppResult<object>>
 {
     private readonly IPhotoRepository _photoRepository;
     private readonly IPhotoService _photoService;
@@ -18,14 +18,14 @@ public class UpdateUserImageHandler : IRequestHandler<UpdateUserImageCommand, Re
         _photoService = photoService;
         _unitOfWork = unitOfWork ;
     }
-    public async Task<Result<object>> Handle(UpdateUserImageCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<object>> Handle(UpdateUserImageCommand request, CancellationToken cancellationToken)
     {
         var image = await _photoRepository.GetImageByUserIdAsync(request.UserId);
         
         var uploadResult = await _photoService.UploadPhoto(request.NewImage);
         if (uploadResult == null)
         {
-            return Result<object>.Failure("Image upload failed", 502);
+            return AppResult<object>.Failure("Image upload failed", 502);
         }
         if (image != null)
         {
@@ -35,8 +35,8 @@ public class UpdateUserImageHandler : IRequestHandler<UpdateUserImageCommand, Re
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
         if (!result)
         {
-            return Result<object>.Failure("Failed to save image into DB", 400);
+            return AppResult<object>.Failure("Failed to save image into DB", 400);
         }
-        return Result<object>.Success(new { imageUrl = uploadResult.Url });
+        return AppResult<object>.Success(new { imageUrl = uploadResult.Url });
     }
 }

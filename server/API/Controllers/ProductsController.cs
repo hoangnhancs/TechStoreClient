@@ -17,34 +17,34 @@ public class ProductsController : BaseApiController
     [HttpGet]
     public async Task<IActionResult> GetProducts()
     {
-        return HandleResult(await Mediator.Send(new GetProductListQuery()));
+        return HandleAppResult(await Mediator.Send(new GetProductListQuery()));
     }
 
     [AllowAnonymous]
     [HttpGet("top10")]
     public async Task<IActionResult> GetTop10ProductsPerCategory()
     {
-        return HandleResult(await Mediator.Send(new GetTop10ProductPerCategoryQuery()));
+        return HandleAppResult(await Mediator.Send(new GetTop10ProductPerCategoryQuery()));
     }
 
     [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProductDetails(string id)
     {
-        return HandleResult(await Mediator.Send(new GetProductDetailsQuery { ProductId = id }));
+        return HandleAppResult(await Mediator.Send(new GetProductDetailsQuery { ProductId = id }));
     }
 
     [AllowAnonymous]
     [HttpGet("category/{categoryId}")]
     public async Task<IActionResult> GetProductsByCategory(int categoryId)
     {
-        return HandleResult(await Mediator.Send(new GetProductListByCategoryQuery { CategoryId = categoryId }));
+        return HandleAppResult(await Mediator.Send(new GetProductListByCategoryQuery { CategoryId = categoryId }));
     }
 
     [HttpPost("create")]
     public async Task<IActionResult> CreateNewProduct([FromForm] CreateProductDto createProductDto)
     {
-        return HandleResult(await Mediator.Send(new CreateNewProductCommand
+        return HandleAppResult(await Mediator.Send(new CreateNewProductCommand
         {
             ProductDto = new ProductDto
             {
@@ -54,7 +54,7 @@ public class ProductsController : BaseApiController
                 DiscountPercentage = createProductDto.Discount,
                 Price = createProductDto.OldPrice * (100 - createProductDto.Discount) / 100,
                 CategoryId = int.TryParse(createProductDto.CategoryId, out var catId) ? catId : 0,
-                Brand = createProductDto.Brand,
+                BrandId = createProductDto.BrandId,
                 QuantityInStock = createProductDto.QuantityInStock,
             },
             MainImageFile = createProductDto.MainImageFile,
@@ -91,7 +91,7 @@ public class ProductsController : BaseApiController
             Urls = updateProductDto.DetailImageUrls
         };
 
-        return HandleResult(await Mediator.Send(new UpdateProductCommand
+        return HandleAppResult(await Mediator.Send(new UpdateProductCommand
         {
             ProductDto = new ProductDto
             {
@@ -102,7 +102,7 @@ public class ProductsController : BaseApiController
                 DiscountPercentage = updateProductDto.Discount,
                 Price = updateProductDto.OldPrice * (100 - updateProductDto.Discount) / 100,
                 CategoryId = int.TryParse(updateProductDto.CategoryId, out var catId) ? catId : 0,
-                Brand = updateProductDto.Brand,
+                BrandId = updateProductDto.BrandId,
                 QuantityInStock = updateProductDto.QuantityInStock,
             },
             MainImageInput = mainImageInput,
@@ -128,6 +128,6 @@ public class ProductsController : BaseApiController
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteProduct([FromQuery] string id)
     {
-        return HandleResult(await Mediator.Send(new DeleteProductCommand { ProductId = id }));
+        return HandleAppResult(await Mediator.Send(new DeleteProductCommand { ProductId = id }));
     }
 }

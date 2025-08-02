@@ -6,4 +6,5 @@ namespace Domain.Interfaces.Repositories;
 public interface INotificationGroupRepository
 {
     Task<List<NotificationGroup>> GetNotificationGroupByUserId(string userId);
+    Task<NotificationGroup?> GetAdminNotificationGroup(CancellationToken cancellationToken);
 }

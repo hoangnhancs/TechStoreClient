@@ -19,10 +19,9 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Receipt, Info } from '@mui/icons-material';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
 import { useFetchOrderQuery } from '../../app/api/orderApi';
 import LoadingComponent from '../../components/LoadingComponent';
+import { formatCurrency, formatVNDate } from '../../lib/util/util';
 
 
 const OrderContainer = styled(Box)(({ theme }) => ({
@@ -156,7 +155,7 @@ export default function MyOrdersPage() {
                                     subheader={
                                         <Box display="flex" justifyContent="space-between" alignItems="center">
                                             <Typography variant="body2" color="text.secondary">
-                                                {format(new Date(order.updatedAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                                                {formatVNDate(order.updatedAt, "ddmmyyyyhhmm")}
                                             </Typography>
                                         </Box>
                                     }
@@ -183,10 +182,7 @@ export default function MyOrdersPage() {
                                                     primary={item.productName}
                                                     secondary={
                                                         <Typography variant="body2" color="text.secondary">
-                                                            {new Intl.NumberFormat('vi-VN', { 
-                                                                style: 'currency', 
-                                                                currency: 'VND' 
-                                                            }).format(item.unitPrice)} x {item.quantity}
+                                                            {formatCurrency(item.unitPrice)} x {item.quantity}
                                                         </Typography>
                                                     }
                                                 />
@@ -212,16 +208,10 @@ export default function MyOrdersPage() {
                                 <Box sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                                     <Box display={"flex"} flexDirection="column">
                                         <Typography variant="caption" color="text.secondary" textAlign="right">
-                                            Phí giao hàng: {new Intl.NumberFormat('vi-VN', { 
-                                                style: 'currency', 
-                                                currency: 'VND' 
-                                            }).format(order.shippingCost)}
+                                            Phí giao hàng: {formatCurrency(order.shippingCost)}
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary" textAlign="right">
-                                            Giảm giá: {new Intl.NumberFormat('vi-VN', { 
-                                                style: 'currency', 
-                                                currency: 'VND' 
-                                            }).format(order.discount)}
+                                            Giảm giá: {formatCurrency(order.discount)}
                                         </Typography>
                                     </Box>
                                     <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"} sx={{ mt: 1}}>
@@ -234,10 +224,7 @@ export default function MyOrdersPage() {
                                             Chi tiết
                                         </Button>
                                         <Typography variant="body2" fontWeight="bold">
-                                            Thành tiền: {new Intl.NumberFormat('vi-VN', { 
-                                                style: 'currency', 
-                                                currency: 'VND' 
-                                            }).format(orderTotal)}
+                                            Thành tiền: {formatCurrency(orderTotal)}
                                         </Typography>
                                     </Box>
                                 </Box>

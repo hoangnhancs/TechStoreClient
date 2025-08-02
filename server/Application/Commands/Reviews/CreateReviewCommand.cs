@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Commands.Reviews;
 
-public class CreateReviewCommand : IRequest<Result<ReviewDto>>
+public class CreateReviewCommand : IRequest<AppResult<ReviewDto>>
 {
     public required string UserId { get; set; }
     public required string ProductId { get; set; }

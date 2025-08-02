@@ -11,6 +11,7 @@ import { useOrderProcessing } from "../../app/hooks/useOrderProcessing";
 import { stripePromise } from "../../app/stripe/stripePromise";
 import { useFetchAddressQuery } from "../../app/api/addressApi";
 import LoadingComponent from "../../components/LoadingComponent";
+import { formatCurrency } from "../../lib/util/util";
 
 
 const SummarySection = styled(Paper)(({ theme }) => ({
@@ -47,17 +48,6 @@ export default function CheckOutPage() {
     } = useOrderProcessing();
     const { data: addresses } = useFetchAddressQuery()
     const [selectGroupedItems, setSelectGroupedItems] = useState<Record<string, Item[]>>({})
-
- 
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('vi-VN', { 
-            style: 'currency', 
-            currency: 'VND',
-            maximumFractionDigits: 0 
-        }).format(amount);
-    };
-
     
     useEffect(() => {
         if (selectedItems.length > 0) {    

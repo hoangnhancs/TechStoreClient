@@ -14,7 +14,7 @@ export default function ReviewItem({ review }: Props) {
         5: 'Tuyệt vời',
     };
     return (
-        <Box display={"flex"}>
+        <Box display={"flex"} id={review.id} sx={{ p: 1 }}>
             <Stack direction={"row"} spacing={2} alignItems="center" sx={{ width: 200 }} >
                 <Avatar 
                     src={review.user?.imageUrl} 
@@ -54,9 +54,7 @@ export default function ReviewItem({ review }: Props) {
                         })}
                     </Typography>
                 </Stack>
-            </Box>
-            
-            
+            </Box>  
         </Box>
     )
 }

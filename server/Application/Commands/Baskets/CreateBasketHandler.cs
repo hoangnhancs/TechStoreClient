@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Commands.Baskets;
 
-public class CreateBasketHandler : IRequestHandler<CreateBasketCommand, Result<Unit>>
+public class CreateBasketHandler : IRequestHandler<CreateBasketCommand, AppResult<Unit>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBasketRepository _basketRepository;
@@ -15,11 +15,11 @@ public class CreateBasketHandler : IRequestHandler<CreateBasketCommand, Result<U
         _basketRepository = basketRepository;
         _unitOfWork = unitOfWork;
     }
-    public async Task<Result<Unit>> Handle(CreateBasketCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<Unit>> Handle(CreateBasketCommand request, CancellationToken cancellationToken)
     {
         await _basketRepository.CreateBasketAsync(request.UserId, cancellationToken);
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
-        if (!result) return Result<Unit>.Failure("Problem when create basket", 400);
-        return Result<Unit>.Success(Unit.Value);
+        if (!result) return AppResult<Unit>.Failure("Problem when create basket", 400);
+        return AppResult<Unit>.Success(Unit.Value);
     }
 }

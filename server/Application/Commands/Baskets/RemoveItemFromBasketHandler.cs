@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Application.Commands.Baskets;
 
-public class RemoveItemFromBasketHandler : IRequestHandler<RemoveItemFromBasketCommand, Result<BasketDto>>
+public class RemoveItemFromBasketHandler : IRequestHandler<RemoveItemFromBasketCommand, AppResult<BasketDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBasketRepository _basketRepository;
@@ -24,24 +24,24 @@ public class RemoveItemFromBasketHandler : IRequestHandler<RemoveItemFromBasketC
         _mapper = mapper;
     }
 
-    public async Task<Result<BasketDto>> Handle(RemoveItemFromBasketCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<BasketDto>> Handle(RemoveItemFromBasketCommand request, CancellationToken cancellationToken)
     {
 
         if (string.IsNullOrEmpty(request.UserId))
         {
-            return Result<BasketDto>.Failure("User ID cannot be null or empty", 400);
+            return AppResult<BasketDto>.Failure("User ID cannot be null or empty", 400);
         }
 
         var product = await _productRepository.GetProductByIdAsync(request.ProductId, cancellationToken);
 
-        if (product == null) return Result<BasketDto>.Failure("Product not found", 404);
+        if (product == null) return AppResult<BasketDto>.Failure("Product not found", 404);
 
         var newBasket = await _basketRepository.RemoveItemFromBasketAsync(request.UserId, request.ProductId, request.Quantity, cancellationToken);
 
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        if (!result) return Result<BasketDto>.Failure("Don't have any update when remove item", 400);
+        if (!result) return AppResult<BasketDto>.Failure("Don't have any update when remove item", 400);
 
-        return Result<BasketDto>.Success(_mapper.Map<BasketDto>(newBasket));
+        return AppResult<BasketDto>.Success(_mapper.Map<BasketDto>(newBasket));
     }
 }

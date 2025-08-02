@@ -18,7 +18,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
-        return HandleResult(await Mediator.Send(new AddAddressCommand { UserId = userId, Address = dto }));
+        return HandleAppResult(await Mediator.Send(new AddAddressCommand { UserId = userId, Address = dto }));
     }
 
     [HttpPut("update-address/{id}")]
@@ -28,7 +28,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
-        return HandleResult(await Mediator.Send(new UpdateAddressCommand { UserId = userId, AddressId = id, Address = address }));
+        return HandleAppResult(await Mediator.Send(new UpdateAddressCommand { UserId = userId, AddressId = id, Address = address }));
     }
 
     [HttpGet("myaddresses")]
@@ -38,7 +38,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
-        return HandleResult(await Mediator.Send(new GetAddressesByUserIdQuery { UserId = userId }));
+        return HandleAppResult(await Mediator.Send(new GetAddressesByUserIdQuery { UserId = userId }));
     }
 
     [HttpGet("myaddresses/{id}")]
@@ -48,7 +48,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
-        return HandleResult(await Mediator.Send(new GetAddressByIdQuery { AddressId = id }));
+        return HandleAppResult(await Mediator.Send(new GetAddressByIdQuery { AddressId = id }));
     }
 
     [HttpDelete("delete-address")]
@@ -58,7 +58,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
-        return HandleResult(await Mediator.Send(new DeleteAddressCommand { AddressId = dto.AddressId, UserId = userId }));
+        return HandleAppResult(await Mediator.Send(new DeleteAddressCommand { AddressId = dto.AddressId, UserId = userId }));
     }
 
 
@@ -77,7 +77,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
     }
 
     [HttpGet("districts")]
-    public async Task<IActionResult> GetDistricts([FromQuery]string provinceId)
+    public async Task<IActionResult> GetDistricts([FromQuery] string provinceId)
     {
         var token = configuration["GHN:ApiToken"];
         using var client = new HttpClient();
@@ -91,7 +91,7 @@ public class AddressController(IConfiguration configuration) : BaseApiController
     }
 
     [HttpGet("wards")]
-    public async Task<IActionResult> GetWards([FromQuery]string districtId)
+    public async Task<IActionResult> GetWards([FromQuery] string districtId)
     {
         var token = configuration["GHN:ApiToken"];
         using var client = new HttpClient();
@@ -102,5 +102,12 @@ public class AddressController(IConfiguration configuration) : BaseApiController
 
         var content = await response.Content.ReadAsStringAsync();
         return Ok(content);
+    }
+    
+    [HttpPost("create-virtual-addresses")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateVirtualOrder()
+    {
+        return HandleAppResult(await Mediator.Send(new CreateVirtualAddresses.Command()));
     }
 }

@@ -9,7 +9,8 @@ export type Product = {
   discountPercentage: number;
   category: Category;
   categoryId: number,
-  brand: string;
+  brandId: string;
+  brandName: string;
   quantityInStock: number;
   imageUrl: string;
   averageRating: number;
@@ -30,6 +31,13 @@ export type Product = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type Brand = {
+  id: number;
+  name: string;
+  categoryId: number;
+  imageUrl: string;
+}
 
 export type ProductTagFilter = {
     id: number;
@@ -121,7 +129,8 @@ export type Item = {
   imageUrl: string;
   quantity: number;
   price: number;
-  brand: string;
+  brandId: string;
+  brandName: string;
   category: Category;
 };
 
@@ -239,7 +248,7 @@ export type CreateAndUpdateProductInput = {
   oldPrice: number,
   discount: number,
   categoryId: string,
-  brand: string,
+  brandId: string,
   quantityInStock: number,
   mainImageFile: File | string,
   detailImageFiles: File[],
@@ -272,6 +281,7 @@ export type Notification = {
   groupId: string;
   senderId: string;
   senderName: string;
+  senderImageUrl: string;
   createdAt: Date;
 }
 

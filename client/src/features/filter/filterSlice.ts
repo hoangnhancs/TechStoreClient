@@ -1,9 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { Brand } from "../../lib/types";
+
 
 const initialState = {
     filter: {} as Record<number, number[]>,
     priceSort: 'asc' as 'asc' | 'desc',
     searchQuery: '' as string,
+    brand: [] as Brand[],
 }
 const filterSlice = createSlice({
     initialState,
@@ -25,6 +28,9 @@ const filterSlice = createSlice({
         setSearchQuery: (state, action: { payload: string }) => {
             state.searchQuery = action.payload;
         },
+        setBrand: (state, action: { payload: Brand[] }) => {
+            state.brand = action.payload;
+        },
     },
 })
 
@@ -33,5 +39,6 @@ export const {
   clearFilterByTagId, clearAllFilters,
   setPriceSort,
   setSearchQuery,
+  setBrand
 } = filterSlice.actions;
 export default filterSlice.reducer;

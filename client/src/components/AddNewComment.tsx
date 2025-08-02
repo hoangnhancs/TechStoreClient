@@ -5,6 +5,8 @@ import React from "react";
 import { User } from "../lib/types";
 import LoginPromptDialog from "./LoginPromptDialog";
 import { NotificationSignalRService } from "../app/api/notificationSignalRService";
+import { useNotificationContext } from "../app/context/notificationContext";
+import { toast } from "react-toastify";
 
 type Props = {
     onSendComment: (content: string, parentId?: string) => Promise<string>;
@@ -15,15 +17,20 @@ type Props = {
 const AddNewComment: React.FC<Props> = React.memo(({onSendComment, onDraftChange, currentUser}) => {
     const [commentContent, setCommentContent] = useState("");
     const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
-
+    const { adminGroup } = useNotificationContext();
+    
     const handleSendComment = async () => {
         if (commentContent.trim().length > 0) {
             const commentId = await onSendComment(commentContent);
             setCommentContent("");
             if (!currentUser?.isAdmin) {
-                NotificationSignalRService
-                    .sendNotification("Bình luận mới", commentContent, location.pathname, undefined, 
-                        "e605dfb1-7540-4ae7-8cda-96f8dc1525a6", currentUser?.id || "", commentId, undefined);
+                if (adminGroup) {
+                    NotificationSignalRService
+                        .sendNotification("Bình luận mới", commentContent, location.pathname, undefined, 
+                            adminGroup?.id, currentUser?.id || "", commentId, undefined);
+                } else {
+                    toast.error("Admin group not found");
+                }
             }
         }
     }
@@ -79,38 +86,38 @@ const AddNewComment: React.FC<Props> = React.memo(({onSendComment, onDraftChange
                     height={"195px"}
                 >
                     <Typography variant="h6">
-                    Hãy đặt câu hỏi cho chúng tôi.
+                        Hãy đặt câu hỏi cho chúng tôi.
                     </Typography>
                     <Typography variant="body1">
                         TechStore sẽ phản hồi trong vòng 1 giờ. Nếu Quý khách gửi câu hỏi sau 22h, chúng tôi sẽ trả lời vào sáng hôm sau.
                         Thông tin có thể thay đổi theo thời gian, vui lòng đặt câu hỏi để nhận được cập nhật mới nhất!
                     </Typography>
-                    <Box display={"flex"} height={'auto'}>
-                    <TextField
-                        fullWidth
-                        multiline
-                        placeholder="Nhập bình luận của bạn"
-                        value={commentContent}
-                        onChange={(e) => setCommentContent(e.target.value)}
-                        onFocus={(e) => {
-                            if (!currentUser && !openLoginPrompt) { 
-                                setOpenLoginPrompt(true);
-                                e.target.blur(); 
-                            }
-                        }}
-                        sx={{
-                            height: "100%",
-                        }}
-                    >  
-                    </TextField>
-                    <Button 
-                        onClick={handleSendComment} 
-                        variant="contained" 
-                        color="primary" 
-                        sx={{ height: '100%' }}
-                    >
-                        Gửi
-                    </Button>
+                    <Box display={"flex"} height={58} alignItems={"center"}>
+                        <TextField
+                            fullWidth
+                            multiline
+                            placeholder="Nhập bình luận của bạn"
+                            value={commentContent}
+                            onChange={(e) => setCommentContent(e.target.value)}
+                            onFocus={(e) => {
+                                if (!currentUser && !openLoginPrompt) { 
+                                    setOpenLoginPrompt(true);
+                                    e.target.blur(); 
+                                }
+                            }}
+                            sx={{
+                                height: "100%",
+                            }}
+                        >  
+                        </TextField>
+                        <Button 
+                            onClick={handleSendComment} 
+                            variant="contained" 
+                            color="primary" 
+                            sx={{ height: '100%' }}
+                        >
+                            Gửi
+                        </Button>
                     </Box>
                 </Box>
             </Box>

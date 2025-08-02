@@ -188,6 +188,38 @@ namespace Persistence.Migrations
                     b.ToTable("basket_item", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.Brand", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("image_url");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_brands");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_brands_category_id");
+
+                    b.ToTable("brands", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -607,10 +639,9 @@ namespace Persistence.Migrations
                         .HasColumnType("numeric(3,2)")
                         .HasColumnName("average_rating");
 
-                    b.Property<string>("Brand")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("brand");
+                    b.Property<int>("BrandId")
+                        .HasColumnType("integer")
+                        .HasColumnName("brand_id");
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer")
@@ -701,6 +732,9 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_products");
+
+                    b.HasIndex("BrandId")
+                        .HasDatabaseName("ix_products_brand_id");
 
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("ix_products_category_id");
@@ -892,12 +926,9 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Review", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                    b.Property<string>("Id")
+                        .HasColumnType("text")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Comment")
                         .HasColumnType("text")
@@ -1291,6 +1322,18 @@ namespace Persistence.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Brand", b =>
+                {
+                    b.HasOne("Domain.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_brands_categories_category_id");
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("Domain.Entities.Comment", b =>
                 {
                     b.HasOne("Domain.Entities.Comment", "ParentComment")
@@ -1463,12 +1506,21 @@ namespace Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
                 {
+                    b.HasOne("Domain.Entities.Brand", "Brand")
+                        .WithMany()
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_products_brands_brand_id");
+
                     b.HasOne("Domain.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_products_categories_category_id");
+
+                    b.Navigation("Brand");
 
                     b.Navigation("Category");
                 });

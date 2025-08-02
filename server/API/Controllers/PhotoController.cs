@@ -22,7 +22,7 @@ namespace API.Controllers
                 return Unauthorized("User is not authenticated.");
             }
 
-            return HandleResult(await Mediator.Send(new UpdateUserImageCommand { UserId = userId, NewImage = file }));
+            return HandleAppResult(await Mediator.Send(new UpdateUserImageCommand { UserId = userId, NewImage = file }));
             
         }
     }

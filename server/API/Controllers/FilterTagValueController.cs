@@ -11,7 +11,7 @@ namespace API.Controllers
         [HttpGet("filtertagvalues")]
         public async Task<IActionResult> GetFilterTagValues([FromQuery] int catId)
         {
-            return HandleResult(await Mediator.Send(new GetListFilterTagValueByCategoryQuery
+            return HandleAppResult(await Mediator.Send(new GetListFilterTagValueByCategoryQuery
             {
                 CategoryId = catId
             }));

@@ -22,7 +22,7 @@ public class PaymentsController : BaseApiController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
 
-        return HandleResult(await Mediator.Send(new CreateOrUpdatePaymentIntentCommand { UserId = userId }));
+        return HandleAppResult(await Mediator.Send(new CreateOrUpdatePaymentIntentCommand { UserId = userId }));
     }
     [HttpGet("mypayments")]
     [Authorize(Policy = "SecurityStampRequirement")]
@@ -32,7 +32,7 @@ public class PaymentsController : BaseApiController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
 
-        return HandleResult(await Mediator.Send(new GetPaymentByUserIdQuery { UserId = userId }));
+        return HandleAppResult(await Mediator.Send(new GetPaymentByUserIdQuery { UserId = userId }));
     }
     [HttpGet("payment-intent")]
     [Authorize(Policy = "SecurityStampRequirement")]
@@ -42,7 +42,7 @@ public class PaymentsController : BaseApiController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
 
-        return HandleResult(await Mediator.Send(new GetPaymentIntentQuery { PaymentIntentId = paymentIntentId }));
+        return HandleAppResult(await Mediator.Send(new GetPaymentIntentQuery { PaymentIntentId = paymentIntentId }));
     }
     [HttpPut("complete-payment")]
     [Authorize(Policy = "SecurityStampRequirement")]
@@ -52,7 +52,7 @@ public class PaymentsController : BaseApiController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
 
-        return HandleResult(await Mediator.Send(new UpdateCompletePaymentCommand { UserId = userId }));
+        return HandleAppResult(await Mediator.Send(new UpdateCompletePaymentCommand { UserId = userId }));
     }
     [HttpPost("create-payment")]
     [Authorize(Policy = "SecurityStampRequirement")]
@@ -62,6 +62,6 @@ public class PaymentsController : BaseApiController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
 
-        return HandleResult(await Mediator.Send(new CreatePaymentCommand { UserId = userId }));
+        return HandleAppResult(await Mediator.Send(new CreatePaymentCommand { UserId = userId }));
     }
 }

@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { format, DateArg } from "date-fns";
 
+export type DateFormatStyle = 'ddmmyyyy' | 'ddmmyyyyhhmm' | 'hhmm' | 'iso' | 'full';
+
 export function formatDate(date: DateArg<Date>) {
   return format(date, "dd MMM yyyy h:mm a");
 }
@@ -24,4 +26,53 @@ export const passwordRules = (fieldName: string) => {
       "Phải chứa ít nhất 1 ký tự đặc biệt (!@#$...)"
     )
     .refine((val) => !/\s/.test(val), "Mật khẩu không được chứa khoảng trắng");
+};
+
+export const formatVNDate = (
+  date: string | Date,
+  style: DateFormatStyle = "ddmmyyyy"
+): string => {
+  const d = new Date(date);
+
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  const day = pad(d.getDate());
+  const month = pad(d.getMonth() + 1);
+  const year = d.getFullYear();
+  const hour = pad(d.getHours());
+  const minute = pad(d.getMinutes());
+
+  switch (style) {
+    case "ddmmyyyy":
+      return `${day}/${month}/${year}`;
+    case "ddmmyyyyhhmm":
+      return `${day}/${month}/${year} ${hour}:${minute}`;
+    case "hhmm":
+      return `${hour}:${minute}`;
+    case "iso":
+      return d.toISOString(); // "2025-08-02T13:45:00.000Z"
+    case "full":
+    default:
+      return new Intl.DateTimeFormat("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(d);
+  }
+};
+
+export const formatCurrency = (
+  value: number | string,
+  currency: "VND" | "USD" | "EUR" = "VND",
+  fractionDigits = 0
+): string => {
+  const num = typeof value === "string" ? parseFloat(value) : value;
+
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  }).format(num);
 };

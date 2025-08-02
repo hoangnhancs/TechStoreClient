@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.Orders;
 
-public class GetOrderDetailsByOrderIdQuery : IRequest<Result<OrderDto>>
+public class GetOrderDetailsByOrderIdQuery : IRequest<AppResult<OrderDto>>
 {
     public required string OrderId { get; set; }
 }

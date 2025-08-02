@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Commands.Products;
 
-public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, Result<Unit>>
+public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, AppResult<Unit>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IProductRepository _productRepository;
@@ -18,10 +18,10 @@ public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, Result
         _productRepository = productRepository;
         _photoService = photoService;
     }
-    public async Task<Result<Unit>> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<Unit>> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
     {
         var product = await _productRepository.GetProductByIdAsync(request.ProductId, cancellationToken);
-        if (product == null) return Result<Unit>.Failure("Product not found", 404);
+        if (product == null) return AppResult<Unit>.Failure("Product not found", 404);
         product.IsActive = false;
         await _productRepository.UpdateProductAsync(product, DateTime.UtcNow, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -43,6 +43,6 @@ public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, Result
             //ims detail cung valid thi xoa
         }
          
-        return Result<Unit>.Success(Unit.Value);
+        return AppResult<Unit>.Success(Unit.Value);
     }
 }

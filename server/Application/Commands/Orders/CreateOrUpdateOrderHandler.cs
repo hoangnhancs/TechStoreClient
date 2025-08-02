@@ -11,7 +11,7 @@ using MediatR;
 
 namespace Application.Commands.Orders;
 
-public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCommand, Result<OrderDto>>
+public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCommand, AppResult<OrderDto>>
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -24,7 +24,7 @@ public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCom
         _mapper = mapper;
         _productRepository = productRepository;
     }
-    public async Task<Result<OrderDto>> Handle(CreateOrUpdateOrderCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<OrderDto>> Handle(CreateOrUpdateOrderCommand request, CancellationToken cancellationToken)
     {
         var uncompletedOrder = await _orderRepository.GetUnCompletedOrdersByUserIdAsync(request.UserId);
         var orderItemsDto = request.CreateOrderDto.Items;  
@@ -34,7 +34,7 @@ public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCom
         var errorMessages = _productRepository.InventoryCheckAsync(items, cancellationToken).Result;
         if (errorMessages.Count > 0)
         {
-            return Result<OrderDto>.Failure(string.Join("\n", errorMessages), 400);
+            return AppResult<OrderDto>.Failure(string.Join("\n", errorMessages), 400);
         }
 
         if (uncompletedOrder != null)
@@ -57,10 +57,10 @@ public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCom
             var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
             if (!result)
             {
-                return Result<OrderDto>.Failure("Failed to update order", 500);
+                return AppResult<OrderDto>.Failure("Failed to update order", 500);
             }
             var returnValue = _mapper.Map<OrderDto>(newOrder);
-            return Result<OrderDto>.Success(returnValue);
+            return AppResult<OrderDto>.Success(returnValue);
         }
         else
         {
@@ -69,10 +69,10 @@ public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCom
             var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
             if (!result)
             {
-                return Result<OrderDto>.Failure("Failed to update order", 500);
+                return AppResult<OrderDto>.Failure("Failed to update order", 500);
             }
             var returnValue = _mapper.Map<OrderDto>(newOrder);
-            return Result<OrderDto>.Success(returnValue);
+            return AppResult<OrderDto>.Success(returnValue);
         }
 
     }

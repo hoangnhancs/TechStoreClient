@@ -1,6 +1,6 @@
-# E-Commerce Store
+# E-Commerce Store 🛒
 
-E-Commerce Store is a full-stack web application built with ASP.NET Core + ReactJS, service-oriented e-commerce platform with a clean, maintainable codebase and modern tech stack.
+An e-commerce website built with *React + Vite* (frontend) and *ASP.NET Core* (backend), following the Clean Architecture approach. This project aims to simulate a real-world e-commerce system, showcasing a complete feature set including authentication, admin dashboard, order management, and more.
 
 **[Live Demo](https://server-proud-fire-4566.fly.dev)**
 
@@ -17,7 +17,7 @@ _(for testing realtime comment/review and notification)_
 
 ![Demo image for Reactivities](docs/images/ecommercestore_demo.png)
 
-## ► Key Features
+## ► 🛍️ Key Features
 
 ### 1. User Management & Authentication
 
@@ -28,55 +28,63 @@ _(for testing realtime comment/review and notification)_
 
 ### 2. Product & Category Management
 
-- **Create product**: admin can create new product with full details, inluce name, description, price, discount, attributes,...
+- **Admin CRUD product**: admin can create and update product with full details, inluce name, description, price, discount, attributes,... And admin also can delete product.
 - **Analys products, custommers**: admin can view the total products sold, total revenue, top-selling products, top customers,...
 - **Rich Media** support: Admin also can upload one or many detail images to Cloudinary per product
-- **List & Filter**: Users can get products by category, users can filter them by Filter Tags corresponding with each selected category. E.g: Phone has resolution 5, Chip, RAM,... Laptop has Graphics Card, Hard disk,...
+- **List & Filter**: Users can get products by category, users can filter them by Filter Tags corresponding with each selected category. E.g: Phone has resolution 5, Chip, RAM,... Laptop has Graphics Card, Hard disk,... Users also can filter product by discount, price, brand,..
 - **Product Details**: Each product has its own detail page with full information: price, description, quantity in stock,... This page also has comment, review about this product
 
-### 3. Shopping Cart & Checkout
+### 3. Photos Management
+
+- **Cloudinary Integration**: All uploaded images (e.g., avatars) are stored, optimized, and served via Cloudinary.
+- **Banners Manage**: Admin can upload new banners onto Cloudinary server. And admin also remove any banner existed.
+- **Product Images**: Admins can update new main image and detail images for each product 
+- **Avatar** Each user or admin also can upload their own avatar
+
+### 4. Shopping Cart & Checkout
 
 - **Persistent Cart**: per authenticated user
 - **Add/Update/Remove**: user can add new or existed product into cart, can remove permanent or reduce the number of products. Users can select/unselect multiple products with only one click per category, or select/unselect all products in cart for preparing for Payment.
 - **Order Placement**: users can payment with multiple ways (banking, card, COD,...). In card payment method, users can pay via StripePayment Gateway (Stripe Payment Intent)
 - **Order History**: user can tracking orders and payments, and also see detail information for these
 
-### 4. Real-Time Comments & Reviews
+### 5. Real-Time Comments & Reviews
 
 - **SignalR Hub** for live comment and review threads on products
 - **Nested Comments**: was built intuitively like modern social media platforms like Facebook, Instagram
 - **Comment & Review**: users can add new comment, or reply other comments. Users also can add new review, rating for products.
 
-### 5. Email Notifications
+### 6. Real-Time Notifications
+
+- **NotificationHub**: for live notification threads on any review or comment that user input
+- **Notification Popup**: contextual popup notifications for user or admin actions (e.g., new comment or review), displayed in real time.
+- **Notification Manage**: user/admin can manage notification by mark as read notification, delete notification. Also can sort and filter notifications to easily track and review important updates
+
+### 7. Email Notifications
 
 - **Transactional Emails** for registration, password reset, order confirmation
 - Built on **Resend API** for reliable delivery
 
-### 6. Address
+### 8. Address
 
 - **GHN API** integration for getting Provinces / Districts / Wards
 - **CRUD**: users can create new/update/remove addresses. It's used for Order feature. Users can use this feature at Order step or at user's profile
 
-### 7. Validation & Error Handling
+### 9. Validation & Error Handling
 
 - **Client-Side**: Zod schemas + React Hook Form + `@hookform/resolvers/zod`
 - Centralized **API Error Wrapper** (`HandleResult`)
 
-### 8. Architecture & Patterns
+### 10. Architecture & Patterns
 
 - **Clean Architecture**: API ↔ Application ↔ Domain ↔ Infrastructure
 - **CQRS** with MediatR: separate Commands & Queries
 - **Repository Pattern** & **Unit of Work** for data access
 - **AutoMapper**: easy for mapping between entity and DTO
 
-### 9. Photo Management
-
-- **Cloudinary Integration**: All uploaded images (e.g., avatars) are stored, optimized, and served via Cloudinary.
-- **Profile Photos**: Users can upload photo to set avatar.
-
 ---
 
-## ► Technologies Used
+## ► 🚀 Tech Stack
 
 ### **Backend**
 
@@ -92,10 +100,11 @@ _(for testing realtime comment/review and notification)_
 
 ### **Frontend**
 
-- **Framework:** ReactJS , TypeScript
+- **Framework:** ReactJS 
+- **Language:** TypeScript
 - **Build Tool:** Vite
 - **State Management:** Redux
-- **Query** RTK Query
+- **Query** RTK Query, GraphQL
 - **Routing:** React Router
 - **UI Library:** Material-UI (MUI)
 - **HTTP Client:** Axios

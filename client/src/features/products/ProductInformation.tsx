@@ -73,7 +73,7 @@ export default function ProductInformation({product, currentUser}: Props) {
         {label: 'Name', value: product.name},
         {label: 'Description', value: product.description},
         {label: 'Category', value: product.category.name},
-        {label: 'Brand', value: product.brandId},
+        {label: 'Brand', value: product.brandName},
         {label: 'Quantity in stock', value: product.quantityInStock},
     ]
 

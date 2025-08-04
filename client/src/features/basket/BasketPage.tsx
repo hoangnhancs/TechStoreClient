@@ -318,7 +318,7 @@ export default function BasketPage() {
                                         }}
                                     >
                                         
-                                        <Typography sx={{textAlign: 'left'}}>{items.category.name}</Typography>
+                                        <Typography sx={{textAlign: 'left'}}>{items.category.displayName}</Typography>
                                     </Grid>                        
                                 </Grid>
                                 <Divider />

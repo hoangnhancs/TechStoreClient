@@ -22,14 +22,14 @@ interface Category {
 const categories: Category[] = [
     { id: 1, name: 'Camera', icon: <Camera /> },
     { id: 2, name: 'Laptop', icon: <Laptop /> },
-    { id: 3, name: 'Microphones', icon: <Mic /> },
-    { id: 4, name: 'Monitor', icon: <Monitor /> },
+    { id: 3, name: 'Mic thu âm', icon: <Mic /> },
+    { id: 4, name: 'Màn hình', icon: <Monitor /> },
     { id: 5, name: 'PC', icon: <Computer /> },
-    { id: 6, name: 'Phone', icon: <Phone /> },
-    { id: 7, name: 'Printer', icon: <Print /> },
-    { id: 8, name: 'Tablet', icon: <Tablet /> },
-    { id: 9, name: 'TV', icon: <Tv /> },
-    { id: 10, name: 'Watch', icon: <Watch /> },
+    { id: 6, name: 'Điện thoại', icon: <Phone /> },
+    { id: 7, name: 'Máy in', icon: <Print /> },
+    { id: 8, name: 'Máy tính bảng', icon: <Tablet /> },
+    { id: 9, name: 'Tivi', icon: <Tv /> },
+    { id: 10, name: 'Đồng hồ', icon: <Watch /> },
 ];
 
 export default function SidePanel() {

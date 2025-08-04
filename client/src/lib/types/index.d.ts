@@ -84,6 +84,7 @@ export type Basket = {
 export type Category = {
   id: number;
   name: string;
+  displayName: string;
   imageUrl: string;
   description: string;
 }

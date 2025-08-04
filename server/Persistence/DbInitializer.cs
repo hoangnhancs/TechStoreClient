@@ -26,14 +26,15 @@ public class DbInitializer
     {
 
         List<string> categories = new List<string> { "camera", "laptop", "microphone", "monitor", "pc", "phone", "printer", "tablet", "tv", "watch" };
-
+        List<string> categoryNames = new List<string> { "Camera", "Laptop", "Mic thu âm", "Màn hình", "PC", "Điện thoại", "Máy in", "Máy tính bảng", "Tivi", "Đồng hồ" };
         //add category
         if (!context.Categories.Any())
         {
             var categoryEntities = categories
                 .Select((name, idx) => new Category
                 {
-                    Name = name
+                    Name = name,
+                    DisplayName = categoryNames[idx]
                 })
                 .ToList();
             await context.Categories.AddRangeAsync(categoryEntities);

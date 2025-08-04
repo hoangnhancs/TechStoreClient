@@ -3,7 +3,7 @@ import ProductCard from "./ProductCard"
 import { useFetchProductsByCatQuery,   } from "../../app/api/productApi"
 import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import CloseIcon from "@mui/icons-material/Close";
 import { Brand, Product } from "../../lib/types";
 import React from "react";
@@ -15,12 +15,17 @@ import { useGetCurrentUserQuery } from "../user/userApi";
 import { useFetchBrandsByCatIdQuery } from "../../app/api/brandApi";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import { useFetchCategoriesQuery } from "../../app/api/categoryApi";
 
 
 export default function ProductListByCategory() {
     const dispatch = useAppDispatch();
     const {id} = useParams();
+    
     const categoryIdNumber = id ? Number(id) : undefined;
+    const {data: allCats } = useFetchCategoriesQuery();
     const {data: filterTags, isLoading: isLoadingFilterTagValueLoading} = useFetchFilterTagsByCatIdQuery(
         categoryIdNumber as number
     );
@@ -35,14 +40,16 @@ export default function ProductListByCategory() {
     const reduxSelectedBrands = useAppSelector(state => state.filter.brand);
     const [selectedBrands, setSelectedBrands] = useState<Brand[] | null>(reduxSelectedBrands);
     const reduxPriceSort = useAppSelector(state => state.filter.priceSort);
-    const [selectedPriceSort, setSelectedPriceSort] = useState<'asc' | 'desc'>(reduxPriceSort);
+    const [selectedPriceSort, setSelectedPriceSort] = useState<'asc' | 'desc' | 'discount'>(reduxPriceSort);
+    const [numberPorductsDisplay, setNumberPorductsDisplay] = useState(20);
+    
+    useEffect(() => {
+        dispatch(clearAllFilters());
+    }, [categoryIdNumber, dispatch]);
 
-    console.log("tmpSelectedFilters", tmpSelectedFilters);
-    console.log("SelectedFilters", selectedFilters);
     useEffect(() => {
         setTmpSelectedFilters(selectedFilters);
     }, [selectedFilters]);
-    console.log("selected brands", selectedBrands);
     // Cleanup chỉ gọi 1 lần khi component unmount
     // useEffect(() => {
     //     return () => {
@@ -115,9 +122,10 @@ export default function ProductListByCategory() {
         if (selectedPriceSort !== null) {
             if (selectedPriceSort === 'asc' && tmp !== null && tmp.length > 0) {
                 tmp = [...tmp].sort((a, b) => a.price - b.price);
-            }
-            else {
+            } else if (selectedPriceSort === 'desc' && tmp !== null && tmp.length > 0) {
                 tmp = [...tmp].sort((a, b) => b.price - a.price);
+            } else if (selectedPriceSort === 'discount' && tmp !== null && tmp.length > 0) {
+                tmp = [...tmp].sort((a, b) => b.discountPercentage - a.discountPercentage);
             }
         }
 
@@ -138,7 +146,7 @@ export default function ProductListByCategory() {
 
         return tmp;
     }, [productByCat, selectedFilters, selectedBrands, selectedPriceSort]);
-
+    const displayedProducts = filteredProducts?.slice(0, numberPorductsDisplay);
     //mappingFilterTags: mapping filter tags. Eg: {1: "Độ phân giải", 2: "Kích thước"}
     //mappingFilterTagValues: mapping filter tag values. Eg: {1: "2K", 2: "4K", 3: "24 inch", 4: "36 inch"}
     const filterTextMapping: {mappingFilterTags: Record<number, string>, mappingFilterTagValues: Record<number, string>} = React.useMemo(() => {
@@ -171,14 +179,17 @@ export default function ProductListByCategory() {
     return (
         <LoadingComponent />
     );
-    
+    console.log("filter", selectedPriceSort, selectedBrands, selectedFilters)
+    console.log("productbyCat", productByCat)
+    console.log("filteredProducts",filteredProducts)
+    console.log("displayedProducts",displayedProducts)
     return (
         <Box
             sx={{ flexGrow: 1, mt:6}} 
         >
             <Box>
                 <Typography color="text.primary" variant="h6" sx={{ mb: 1.5, fontWeight: 'bold' }}>
-                    Thương hiệu
+                    {allCats?.find(cat => cat.id === categoryIdNumber)?.displayName}
                 </Typography>
                 {brandsByCatId && (
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
@@ -250,7 +261,13 @@ export default function ProductListByCategory() {
                                         onClick={(e) => handleClick(e, tag.id)}
                                     >
                                         {tag.name}
-                                        <ArrowDropDownIcon sx={{ ml: 0.5, fontSize: 18 }} />
+                                        <ArrowRightIcon   
+                                            style={{ 
+                                                transform: openTagId === tag.id ? 'rotate(90deg)' : 'rotate(0deg)',
+                                                transition: 'transform 0.3s',
+                                            }}
+                                            sx={{ ml: 0.5, fontSize: 18 }} 
+                                        />
                                     </Button>
                                 </Box>
                             </Box>
@@ -398,19 +415,40 @@ export default function ProductListByCategory() {
                                 mr: 1, 
                                 mb: 1, 
                                 bgcolor: 'white', 
+                                color: (selectedPriceSort === 'discount')
+                                    ? 'rgb(59, 130, 246)'
+                                    : 'black',
+                                borderRadius: 10,
+                                height: 40,         
+                                width: 170,         
+                                border: (selectedPriceSort === 'discount')
+                                    ? '1px solid rgb(59, 130, 246)'
+                                    : '1px solid #ccc',
+                                alignContent: 'center',
+                            }}
+                            onClick={() => dispatch(setPriceSort('discount'))}
+                            startIcon={<LocalOfferIcon />}
+                        >  
+                            Khuyến mãi hot
+                        </Button>
+                        <Button         
+                            sx={{  
+                                mr: 1, 
+                                mb: 1, 
+                                bgcolor: 'white', 
                                 color: (selectedPriceSort === 'asc')
                                     ? 'rgb(59, 130, 246)'
                                     : 'black',
                                 borderRadius: 10,
                                 height: 40,         
-                                width: 160,         
+                                width: 170,         
                                 border: (selectedPriceSort === 'asc')
                                     ? '1px solid rgb(59, 130, 246)'
                                     : '1px solid #ccc',
                                 alignContent: 'center',
                             }}
                             onClick={() => dispatch(setPriceSort('asc'))}
-                            endIcon={<ArrowUpwardIcon />}
+                            startIcon={<ArrowUpwardIcon />}
 
                         >  
                             Giá Thấp - Cao
@@ -425,14 +463,14 @@ export default function ProductListByCategory() {
                                     : 'black',
                                 borderRadius: 10,
                                 height: 40,         
-                                width: 160,         
+                                width: 170,         
                                 border: (selectedPriceSort === 'desc')
                                     ? '1px solid rgb(59, 130, 246)'
                                     : '1px solid #ccc',
                                 alignContent: 'center'
                             }}  
                             onClick={() => dispatch(setPriceSort('desc'))}
-                            endIcon={<ArrowDownwardIcon />}
+                            startIcon={<ArrowDownwardIcon />}
                         >  
                             Giá Cao - Thấp
                         </Button>
@@ -443,7 +481,25 @@ export default function ProductListByCategory() {
             <Typography color="text.primary" variant="h6" sx={{ mb: 1, fontWeight: 'bold', width: '100%' }}>
                 Danh sách sản phẩm
             </Typography>
-            <ProductGrid products={filteredProducts ? filteredProducts : productByCat} />
+            <ProductGrid products={displayedProducts ? displayedProducts : productByCat} />
+            <Box display={"flex"} justifySelf={"center"} alignItems={"center"} sx={{ width: "fit-content", my: 2, borderRadius: 2, color: '#3b82f6', backgroundColor: '#f0f7ff' }}>
+                <Button
+                    sx={{
+                        width: "fit-content",
+                        textAlign: "center",
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        height: '100%', // hoặc giá trị cụ thể nếu cần
+                        py: 1, // padding theo chiều dọc để cân đối
+                    }}
+                    onClick={() => setNumberPorductsDisplay(prev => prev + 20)}
+                    endIcon={<ExpandMoreIcon sx={{ ml: -1 }}/>}
+                    disabled={filteredProducts.length <= numberPorductsDisplay}
+                >
+                    Hiển thị thêm {Math.max(filteredProducts.length - numberPorductsDisplay, 0)} sản phẩm
+                </Button>
+            </Box>
         </Box>  
   )
 }

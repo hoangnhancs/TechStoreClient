@@ -1,9 +1,9 @@
 import { Box, Typography } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications"; // hoặc thay bằng icon khác
 import { Notification } from "../../lib/types";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
 import { useNavigate } from "react-router";
+import { formatVNDate } from "../../lib/util/util";
+import { NotificationSignalRService } from "../../app/api/notificationSignalRService";
 
 interface Props {
   notification: Notification
@@ -14,7 +14,10 @@ const NotificationItem = ({ notification }: Props) => {
   const navigate = useNavigate();
   return (
     <Box
-      onClick={() => navigate(notification.link || "/")}
+      onClick={() => {
+        navigate(notification.link || "/")
+        NotificationSignalRService.markAsReadNotifications([notification.id]);
+      }}
       sx={{
         backgroundColor: "#102a43", 
         borderRadius: 2,
@@ -42,7 +45,7 @@ const NotificationItem = ({ notification }: Props) => {
           <NotificationsIcon sx={{ fontSize: 18, color: "#00b0ff", mr: 0.5 }} />
           <Typography sx={{ fontWeight: 600, fontSize: 13, mr: 1 }}>{notification.title}</Typography>
         </Box>
-        <Typography sx={{ fontSize: 12, opacity: 0.7 }}>{format(notification.createdAt, "hh:mm", { locale: vi })}</Typography>
+        <Typography sx={{ fontSize: 12, opacity: 0.7 }}>{formatVNDate(notification.createdAt, "hhmm")}</Typography>
       </Box>
 
       {/* Title */}

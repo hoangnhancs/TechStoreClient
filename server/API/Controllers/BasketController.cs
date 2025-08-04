@@ -21,7 +21,7 @@ public class BasketController() : BaseApiController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
 
-        return HandleResult(await Mediator.Send(new GetBasketQuery { UserId = userId }));
+        return HandleAppResult(await Mediator.Send(new GetBasketQuery { UserId = userId }));
     }
 
     [HttpPost("mybasket/items")]
@@ -44,7 +44,7 @@ public class BasketController() : BaseApiController
             });
         }
 
-        return HandleResult(await Mediator.Send(new AddItemToBasketCommand
+        return HandleAppResult(await Mediator.Send(new AddItemToBasketCommand
         {
             UserId = userId,
             ProductId = addItemDto.ProductId,
@@ -63,7 +63,7 @@ public class BasketController() : BaseApiController
             return Unauthorized("User not authenticated");
         }
 
-        return HandleResult(await Mediator.Send(new RemoveItemFromBasketCommand
+        return HandleAppResult(await Mediator.Send(new RemoveItemFromBasketCommand
         {
             UserId = userId,
             ProductId = productId,
@@ -80,7 +80,7 @@ public class BasketController() : BaseApiController
             return Unauthorized("User not authenticated");
         }
 
-        return HandleResult(await Mediator.Send(new RemovePermanentItemsFromBasketCommand
+        return HandleAppResult(await Mediator.Send(new RemovePermanentItemsFromBasketCommand
         {
             UserId = userId,
             ProductIds = removeItemsDto.ProductIds

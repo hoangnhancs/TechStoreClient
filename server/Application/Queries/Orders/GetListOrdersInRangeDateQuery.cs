@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.Orders;
 
-public class GetListOrdersInRangeDateQuery : IRequest<Result<List<OrderDto>>>
+public class GetListOrdersInRangeDateQuery : IRequest<AppResult<List<OrderDto>>>
 {
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }

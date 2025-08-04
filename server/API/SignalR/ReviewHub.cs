@@ -1,6 +1,7 @@
 using System;
 using System.Security.Claims;
 using Application.Commands.Reviews;
+using Application.DTOs;
 using Application.Queries.Reviews;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
@@ -14,13 +15,13 @@ public class ReviewHub : Hub
     {
         _mediator = mediator;
     }
-    public async Task SendReview(string productId, string comment, int rating)
+    public async Task<string?> SendReview(string productId, string comment, int rating)
     {
         var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
         {
             await Clients.Caller.SendAsync("ReviewError", "User not authenticated");
-            return;
+            return null;
         }
         var command = new CreateReviewCommand
         {
@@ -34,10 +35,12 @@ public class ReviewHub : Hub
         if (result.IsSuccess && result.Value != null)
         {
             await Clients.Group(productId).SendAsync("ReceiveReview", result.Value);
+            return result.Value.Id;
         }
         else
         {
             await Clients.Caller.SendAsync("ReviewError", result.Error);
+            return null;
         }
     }
 

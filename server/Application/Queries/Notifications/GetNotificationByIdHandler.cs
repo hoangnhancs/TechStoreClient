@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Queries.Notifications;
 
-public class GetNotificationByIdHandler : IRequestHandler<GetNotificationByIdQuery, Result<NotificationDto>>
+public class GetNotificationByIdHandler : IRequestHandler<GetNotificationByIdQuery, AppResult<NotificationDto>>
 {
     private readonly IMapper _mapper;
     private readonly INotificationRepository _notificationRepository;
@@ -16,10 +16,10 @@ public class GetNotificationByIdHandler : IRequestHandler<GetNotificationByIdQue
         _mapper = mapper;
         _notificationRepository = notificationRepository;
     }
-    public async Task<Result<NotificationDto>> Handle(GetNotificationByIdQuery request, CancellationToken cancellationToken)
+    public async Task<AppResult<NotificationDto>> Handle(GetNotificationByIdQuery request, CancellationToken cancellationToken)
     {
         var notification = await _notificationRepository.GetNotificationById(request.Id, cancellationToken);
-        if (notification == null) return Result<NotificationDto>.Failure("Notification not found", 404);
-        return Result<NotificationDto>.Success(_mapper.Map<NotificationDto>(notification));
+        if (notification == null) return AppResult<NotificationDto>.Failure("Notification not found", 404);
+        return AppResult<NotificationDto>.Success(_mapper.Map<NotificationDto>(notification));
     }
 }

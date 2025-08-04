@@ -12,7 +12,7 @@ using Application.Interface;
 
 namespace Application.Commands.Payments;
 
-public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdatePaymentIntentCommand, Result<PaymentDto>>
+public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdatePaymentIntentCommand, AppResult<PaymentDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBasketRepository _basketRepository;
@@ -31,7 +31,7 @@ public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdate
         _mapper = mapper;
     }
 
-    public async Task<Result<PaymentDto>> Handle(CreateOrUpdatePaymentIntentCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<PaymentDto>> Handle(CreateOrUpdatePaymentIntentCommand request, CancellationToken cancellationToken)
     {
 
 
@@ -39,7 +39,7 @@ public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdate
         var unCompletedOrder = await _orderRepository.GetUnCompletedOrdersByUserIdAsync(request.UserId);
 
         if (unCompletedOrder == null)
-            return Result<PaymentDto>.Failure("Don't have any order to payment", 404);
+            return AppResult<PaymentDto>.Failure("Don't have any order to payment", 404);
 
 
 
@@ -48,7 +48,7 @@ public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdate
 
 
         if (intent == null)
-            return Result<PaymentDto>.Failure("Payment intent creation failed", 500);
+            return AppResult<PaymentDto>.Failure("Payment intent creation failed", 500);
 
         var payment = await _paymentRepository.GetPaymentByOrderIdAsync(unCompletedOrder.Id, cancellationToken);
 
@@ -61,13 +61,13 @@ public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdate
         }
         else
         {
-            return Result<PaymentDto>.Failure("Payment not initialized correctly", 500);
+            return AppResult<PaymentDto>.Failure("Payment not initialized correctly", 500);
         }
 
 
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<PaymentDto>.Success(_mapper.Map<PaymentDto>(payment));
+        return AppResult<PaymentDto>.Success(_mapper.Map<PaymentDto>(payment));
 
     }
 

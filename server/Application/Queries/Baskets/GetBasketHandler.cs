@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Application.Queries.Baskets;
 
-public class GetBasketHandler : IRequestHandler<GetBasketQuery, Result<BasketDto>>
+public class GetBasketHandler : IRequestHandler<GetBasketQuery, AppResult<BasketDto>>
 {
     private readonly IBasketRepository _repository;
     private readonly IMapper _mapper;
@@ -19,15 +19,15 @@ public class GetBasketHandler : IRequestHandler<GetBasketQuery, Result<BasketDto
         _mapper = mapper;
     }
 
-    public async Task<Result<BasketDto>> Handle(GetBasketQuery request, CancellationToken cancellationToken)
+    public async Task<AppResult<BasketDto>> Handle(GetBasketQuery request, CancellationToken cancellationToken)
     {
         var basket = await _repository.GetBasketByUserIdAsync(request.UserId, cancellationToken);
 
         if (basket == null)
         {
-            return Result<BasketDto>.Failure("Basket not found", 404);
+            return AppResult<BasketDto>.Failure("Basket not found", 404);
         }
 
-        return Result<BasketDto>.Success(_mapper.Map<BasketDto>(basket));
+        return AppResult<BasketDto>.Success(_mapper.Map<BasketDto>(basket));
     }
 }

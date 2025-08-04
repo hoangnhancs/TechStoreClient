@@ -57,7 +57,7 @@ export const useOrderProcessing = () => {
         imageUrl: item.imageUrl,
         quantity: item.quantity,
         unitPrice: item.price,
-        brand: item.brand,
+        brand: item.brandId,
         category: item.category,
       })),
     shippingCost: shippingCost,

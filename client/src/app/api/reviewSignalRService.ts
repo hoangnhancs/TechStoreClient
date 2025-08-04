@@ -153,17 +153,21 @@ class ReviewSignalRServiceClass {
     this.reviewCallback = callback;
   };
 
-  public sendReview = (productId: string, comment: string, rating: number) => {
+  public sendReview = async (productId: string, comment: string, rating: number) => {
     if (
       !this.hubConnection ||
       this.hubConnection.state !== signalR.HubConnectionState.Connected
     ) {
       console.error("Reviews hub Cannot send review: SignalR not connected");
-      return;
+      return "";
     }
-    this.hubConnection
-      .invoke("SendReview", productId, comment, rating)
-      .catch((err) => console.error("Error sending review: ", err));
+    try {
+      const result = await this.hubConnection.invoke("SendReview",productId,comment,rating);
+      return result as string;
+    } catch (error) {
+      console.error("Error while sending review: ", error);
+      return "";
+    }    
   };
 }
 

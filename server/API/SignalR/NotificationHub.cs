@@ -19,8 +19,9 @@ public class NotificationHub : Hub
     {
         _mediator = mediator;
     }
-    
-    public async Task SendNotification(string title, string message, string? link, string? receiverId, string? groupId, string senderId, string? commentResultId, string? reviewResultId)
+
+    public async Task SendNotification(string title, string message, string? link, string? receiverId,
+    string? groupId, string senderId, string? commentResultId, string? reviewResultId, string type)
     {
         var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
@@ -40,7 +41,8 @@ public class NotificationHub : Hub
                 Link = link,
                 ReceiverId = receiverId,
                 GroupId = groupId,
-                SenderId = senderId
+                SenderId = senderId,
+                Type = type
             }
         };
         var result = await _mediator.Send(command);
@@ -88,7 +90,7 @@ public class NotificationHub : Hub
                 notifications.AddRange(personnalNotisResult.Value);
             }
         }
-            
+
         await Clients.Caller.SendAsync("ReceiveAllNotifications", notifications);
 
     }
@@ -112,7 +114,7 @@ public class NotificationHub : Hub
                 Console.WriteLine($"Client {userId} joined group {group.Name}");
             }
         }
-        
+
         var roles = Context.User?.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
         //ca nhan chi dung cho ca nhan
         if (roles?.Contains("Admin") == false)
@@ -131,13 +133,83 @@ public class NotificationHub : Hub
         }
         var userRoles = Context.User?.FindAll(ClaimTypes.Role).Select(x => x.Value).ToList();
         if (userRoles?.Contains("Admin") == true)
-        {  
+        {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, "admin-notifications");
         }
         else
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"{userId}-notifications");
         }
-        
+
+    }
+
+    public async Task MarkAsReadListNotifications(List<string> notificationIds)
+    {
+        var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            await Clients.Caller.SendAsync("ReviewError", "User not authenticated");
+            return;
+        }
+
+        var groupsResult = await _mediator.Send(new GetNotificationGroupsByUserIdQuery { UserId = userId });
+        var groupIds = groupsResult.Value!.Select(g => g.Id).ToHashSet();
+
+        var notiesResult = await _mediator.Send(new GetListNotificationsByListIdsQuery { NotificationIds = notificationIds });
+
+        if (!notiesResult.IsSuccess || notiesResult.Value == null)
+        {
+            await Clients.Caller.SendAsync("ReviewError", "Have not found some notifications.");
+            return;
+        }
+
+        var noties = notiesResult.Value;
+
+        var unauthorizedNotis = noties
+            .Where(n => n.ReceiverId != userId && !groupIds.Contains(n.GroupId!))
+            .ToList();
+        if (unauthorizedNotis.Any())
+        {
+            await Clients.Caller.SendAsync("ReviewError", "You don't have permission to mark some notifications as read.");
+            return;
+        }
+
+        await _mediator.Send(new MarkAsReadListNotificationCommand { NotificationIds = notificationIds });
+        await Clients.Caller.SendAsync("ReceiveNotificationsRead", notificationIds);
+    }
+
+    public async Task DeleteListNotifications(List<string> notificationIds)
+    {
+        var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            await Clients.Caller.SendAsync("ReviewError", "User not authenticated");
+            return;
+        }
+
+        var groupsResult = await _mediator.Send(new GetNotificationGroupsByUserIdQuery { UserId = userId });
+        var groupIds = groupsResult.Value!.Select(g => g.Id).ToHashSet();
+
+        var notiesResult = await _mediator.Send(new GetListNotificationsByListIdsQuery { NotificationIds = notificationIds });
+
+        if (!notiesResult.IsSuccess || notiesResult.Value == null)
+        {
+            await Clients.Caller.SendAsync("ReviewError", "Have not found some notifications.");
+            return;
+        }
+
+        var noties = notiesResult.Value;
+
+        var unauthorizedNotis = noties
+            .Where(n => n.ReceiverId != userId && !groupIds.Contains(n.GroupId!))
+            .ToList();
+        if (unauthorizedNotis.Any())
+        {
+            await Clients.Caller.SendAsync("ReviewError", "You don't have permission to mark some notifications as read.");
+            return;
+        }
+
+        await _mediator.Send(new DeleteListNotificationsCommand { NotificationIds = notificationIds });
+        await Clients.Caller.SendAsync("ReceiveNotificationsDeleted", notificationIds);
     }
 }

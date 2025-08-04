@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Queries.Notifications;
 
-public class GetListNotificationsByUserIdHandler : IRequestHandler<GetListNotificationsByUserIdQuery, Result<List<NotificationDto>>>
+public class GetListNotificationsByUserIdHandler : IRequestHandler<GetListNotificationsByUserIdQuery, AppResult<List<NotificationDto>>>
 {
     private readonly IMapper _mapper;
     private readonly INotificationRepository _notificationRepository;
@@ -18,10 +18,10 @@ public class GetListNotificationsByUserIdHandler : IRequestHandler<GetListNotifi
         _notificationRepository = notificationRepository;
     }
 
-    public async Task<Result<List<NotificationDto>>> Handle(GetListNotificationsByUserIdQuery request, CancellationToken cancellationToken)
+    public async Task<AppResult<List<NotificationDto>>> Handle(GetListNotificationsByUserIdQuery request, CancellationToken cancellationToken)
     {
         var notifications = await _notificationRepository.GetNotificationsByUserId(request.UserId, cancellationToken);
         var notificationsDto = notifications.Select(_mapper.Map<NotificationDto>).ToList();
-        return Result<List<NotificationDto>>.Success(notificationsDto);
+        return AppResult<List<NotificationDto>>.Success(notificationsDto);
     }
 }

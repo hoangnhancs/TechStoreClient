@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Application.Commands.Reviews;
 
-public class CreateReviewHandler : IRequestHandler<CreateReviewCommand, Result<ReviewDto>>
+public class CreateReviewHandler : IRequestHandler<CreateReviewCommand, AppResult<ReviewDto>>
 {
     private readonly IReviewRepository _reviewRepository;
     private readonly IAccountRepository _accountRepository;
@@ -22,7 +22,7 @@ public class CreateReviewHandler : IRequestHandler<CreateReviewCommand, Result<R
         _mapper = mapper;
         _unitOfWork = unitOfWork;
     }
-    public async Task<Result<ReviewDto>> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<ReviewDto>> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
     {
         var userInfo = await _accountRepository.GetUserByIdAsync(request.UserId, cancellationToken);
         var review = new Review
@@ -35,6 +35,6 @@ public class CreateReviewHandler : IRequestHandler<CreateReviewCommand, Result<R
         };
         var createdReview = await _reviewRepository.CreateReview(review, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result<ReviewDto>.Success(_mapper.Map<ReviewDto>(createdReview));
+        return AppResult<ReviewDto>.Success(_mapper.Map<ReviewDto>(createdReview));
     }
 }

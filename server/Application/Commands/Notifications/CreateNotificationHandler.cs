@@ -7,10 +7,12 @@ using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using MediatR;
+using Microsoft.Data.SqlClient;
+
 
 namespace Application.Commands.Notifications;
 
-public class CreateNotificationHandler : IRequestHandler<CreateNotificationCommand, Result<NotificationDto>>
+public class CreateNotificationHandler : IRequestHandler<CreateNotificationCommand, AppResult<NotificationDto>>
 {
     private readonly INotificationRepository _notificationRepository;
     private readonly IMapper _mapper;
@@ -24,7 +26,7 @@ public class CreateNotificationHandler : IRequestHandler<CreateNotificationComma
         _unitOfWork = unitOfWork;
         _accountRepository = accountRepository;
     }
-    public async Task<Result<NotificationDto>> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<NotificationDto>> Handle(CreateNotificationCommand request, CancellationToken cancellationToken)
     {
         var newLink = !String.IsNullOrEmpty(request.CommentResultId)
             ? request.NotificationDto.Link + "?commentId=" + request.CommentResultId
@@ -40,11 +42,12 @@ public class CreateNotificationHandler : IRequestHandler<CreateNotificationComma
             GroupId = request.NotificationDto.GroupId,
             SenderId = request.NotificationDto.SenderId ?? string.Empty,
             Sender = await _accountRepository.GetUserByIdAsync(request.NotificationDto.SenderId ?? string.Empty, cancellationToken) ?? throw new Exception(),
+            Type = Enum.Parse<Domain.Entities.Notification.NotificationType>(request.NotificationDto.Type ?? string.Empty),
         };
 
         await _notificationRepository.CreateNotification(notification, cancellationToken);
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
-        if (!result) return Result<NotificationDto>.Failure("Problem when create notification", 400);
-        return Result<NotificationDto>.Success(_mapper.Map<NotificationDto>(notification));
+        if (!result) return AppResult<NotificationDto>.Failure("Problem when create notification", 400);
+        return AppResult<NotificationDto>.Success(_mapper.Map<NotificationDto>(notification));
     }
 }

@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.Baskets;
 
-public class GetBasketQuery : IRequest<Result<BasketDto>>
+public class GetBasketQuery : IRequest<AppResult<BasketDto>>
 {
     public required string UserId { get; set; }
 }

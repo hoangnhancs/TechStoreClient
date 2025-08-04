@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Commands.Baskets;
 
-public class RemoveItemFromBasketCommand : IRequest<Result<BasketDto>>
+public class RemoveItemFromBasketCommand : IRequest<AppResult<BasketDto>>
 {
     [JsonIgnore]
     public string? UserId { get; set; }

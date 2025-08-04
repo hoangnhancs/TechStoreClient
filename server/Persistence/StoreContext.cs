@@ -28,6 +28,7 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
     public required DbSet<Notification> Notifications { get; set; }
     public required DbSet<NotificationGroup> NotificationGroups { get; set; }
     public required DbSet<NotificationGroupMember> NotificationGroupMembers { get; set; }
+    public required DbSet<Brand> Brands { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

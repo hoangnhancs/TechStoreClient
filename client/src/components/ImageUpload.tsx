@@ -16,9 +16,9 @@ const ImageUpload: React.FC<Props> = React.memo(( props: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<(string | File)[]>([]);
 
-  useEffect(() => {
-    console.log("Images changed:", images);
-  }, [images]);
+  // useEffect(() => {
+  //   console.log("Images changed:", images);
+  // }, [images]);
 
   const hasInitialized = useRef(false);
 

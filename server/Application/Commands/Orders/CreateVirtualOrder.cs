@@ -12,11 +12,11 @@ namespace Application.Commands.Orders;
 
 public class CreateVirtualOrder
 {
-    public class Command : IRequest<Result<Unit>>
+    public class Command : IRequest<AppResult<Unit>>
     {
 
     }
-    public class Handler : IRequestHandler<Command, Result<Unit>>
+    public class Handler : IRequestHandler<Command, AppResult<Unit>>
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IAddressRepository _addressRepository;
@@ -33,8 +33,9 @@ public class CreateVirtualOrder
             _productRepository = productRepository;
         }
 
-        public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<AppResult<Unit>> Handle(Command request, CancellationToken cancellationToken)
         {
+            if (_context.Orders.Any()) return AppResult<Unit>.Success(Unit.Value);
             var users = await _context.Users.Where(u => u.Email != "admin@gmail.com").ToListAsync(cancellationToken);
             var random = new Random();
             var toDate = DateTime.UtcNow;
@@ -109,7 +110,7 @@ public class CreateVirtualOrder
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
 
-            return Result<Unit>.Success(Unit.Value);
+            return AppResult<Unit>.Success(Unit.Value);
         }
     }
 }

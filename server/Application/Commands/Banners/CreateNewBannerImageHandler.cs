@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Application.Commands.Banners;
 
-public class CreateNewBannerImageHandler : IRequestHandler<CreateNewBannerImageCommand, Result<List<BannerImageDto>>>
+public class CreateNewBannerImageHandler : IRequestHandler<CreateNewBannerImageCommand, AppResult<List<BannerImageDto>>>
 {
     private readonly IBannerRepository _bannerRepository;
     private readonly IPhotoService _photoService;
@@ -23,13 +23,13 @@ public class CreateNewBannerImageHandler : IRequestHandler<CreateNewBannerImageC
         _mapper = mapper;
         _unitOfWork = unitOfWork;
     }
-    public async Task<Result<List<BannerImageDto>>> Handle(CreateNewBannerImageCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<List<BannerImageDto>>> Handle(CreateNewBannerImageCommand request, CancellationToken cancellationToken)
     {
         var bannerImagesDto = new List<BannerImageDto>();
         foreach (var image in request.NewImages)
         {
             var uploadResult = await _photoService.UploadPhoto(image);
-            if (uploadResult == null) return Result<List<BannerImageDto>>.Failure($"Image {image.Name} upload failed", 502);
+            if (uploadResult == null) return AppResult<List<BannerImageDto>>.Failure($"Image {image.Name} upload failed", 502);
             var bannerImage = new BannerImage
             {
                 PublicId = uploadResult.PublicId,
@@ -37,10 +37,10 @@ public class CreateNewBannerImageHandler : IRequestHandler<CreateNewBannerImageC
             };
             await _bannerRepository.AddNewBannerImage(bannerImage, cancellationToken);
             var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
-            if (!result) return Result<List<BannerImageDto>>.Failure($"Problem when create banner image {image.Name}", 400);
+            if (!result) return AppResult<List<BannerImageDto>>.Failure($"Problem when create banner image {image.Name}", 400);
             bannerImagesDto.Add(_mapper.Map<BannerImageDto>(bannerImage));
         }
         
-        return Result<List<BannerImageDto>>.Success(bannerImagesDto);
+        return AppResult<List<BannerImageDto>>.Success(bannerImagesDto);
     }
 }

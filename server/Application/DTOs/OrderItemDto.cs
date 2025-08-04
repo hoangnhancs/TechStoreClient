@@ -10,7 +10,7 @@ public class OrderItemDto
     public string ImageUrl { get; set; } = null!;
     public int Quantity { get; set; }
     public long UnitPrice { get; set; }
-    public required string Brand { get; set; }
+    public string? Brand { get; set; }
     public required CategoryDto Category { get; set; }
     public string? OrderId { get; set; } 
 }

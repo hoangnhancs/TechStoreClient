@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Commands.Payments;
 
-public class CreatePaymentCommand : IRequest<Result<PaymentDto>>
+public class CreatePaymentCommand : IRequest<AppResult<PaymentDto>>
 {
     public required string UserId { get; set; }
 

@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.FilterTags;
 
-public class GetAllFilterTagQuery : IRequest<Result<List<FilterTagDto>>>
+public class GetAllFilterTagQuery : IRequest<AppResult<List<FilterTagDto>>>
 {
 
 }

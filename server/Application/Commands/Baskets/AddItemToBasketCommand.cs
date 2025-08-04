@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Commands.Baskets;
 
-public class AddItemToBasketCommand : IRequest<Result<BasketDto>>
+public class AddItemToBasketCommand : IRequest<AppResult<BasketDto>>
 {
     [JsonIgnore] 
     public string? UserId { get; set; }

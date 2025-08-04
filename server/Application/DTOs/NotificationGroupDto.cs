@@ -6,5 +6,5 @@ public class NotificationGroupDto
 {
     public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public NotificationGroupMemberDto? Group { get; set; }
+    // public NotificationGroupMemberDto? Member { get; set; }
 }

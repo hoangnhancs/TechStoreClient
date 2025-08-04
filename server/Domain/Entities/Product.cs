@@ -12,7 +12,8 @@ public class Product
     public required long DiscountPercentage { get; set; }
     public required int CategoryId { get; set; }
     public Category? Category { get; set; }
-    public required string Brand { get; set; }
+    public int BrandId { get; set; }
+    public Brand? Brand { get; set; }
     public required string MainImageUrl { get; set; }
     // chỉ dùng khi ảnh lưu trên Cloudinary
     public string? MainImagePublicId { get; set; }

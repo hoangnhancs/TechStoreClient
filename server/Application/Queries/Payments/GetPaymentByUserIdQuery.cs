@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.Payments;
 
-public class GetPaymentByUserIdQuery : IRequest<Result<List<PaymentDto>>>
+public class GetPaymentByUserIdQuery : IRequest<AppResult<List<PaymentDto>>>
 {
  public required string UserId { get; set; } = null!;
 }

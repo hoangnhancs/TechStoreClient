@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Queries.FilterTags;
 
-public class GetAllFilterTagHandler : IRequestHandler<GetAllFilterTagQuery, Result<List<FilterTagDto>>>
+public class GetAllFilterTagHandler : IRequestHandler<GetAllFilterTagQuery, AppResult<List<FilterTagDto>>>
 {
     private readonly IFilterTagRepository _filterTagRepository;
     private readonly IMapper _mapper;
@@ -16,14 +16,14 @@ public class GetAllFilterTagHandler : IRequestHandler<GetAllFilterTagQuery, Resu
         _filterTagRepository = filterTagRepository;
         _mapper = mapper;
     }
-    public async Task<Result<List<FilterTagDto>>> Handle(GetAllFilterTagQuery request, CancellationToken cancellationToken)
+    public async Task<AppResult<List<FilterTagDto>>> Handle(GetAllFilterTagQuery request, CancellationToken cancellationToken)
     {
         var filterTag = await _filterTagRepository.GetAllFilterTags(cancellationToken);
         if (filterTag == null || filterTag.Count == 0)
         {
-            return Result<List<FilterTagDto>>.Failure("No filter tags found.", 404);
+            return AppResult<List<FilterTagDto>>.Failure("No filter tags found.", 404);
         }
         var filterTagDtos = _mapper.Map<List<FilterTagDto>>(filterTag);
-        return Result<List<FilterTagDto>>.Success(filterTagDtos);
+        return AppResult<List<FilterTagDto>>.Success(filterTagDtos);
     }
 }

@@ -9,7 +9,7 @@ public class CreateProductDto
     public long OldPrice { get; set; }
     public long Discount { get; set; }
     public string CategoryId { get; set; } = string.Empty;
-    public string Brand { get; set; } = string.Empty;
+    public string BrandId { get; set; } = string.Empty;
     public int QuantityInStock { get; set; }
     public required IFormFile MainImageFile { get; set; }
     public List<IFormFile> DetailImageFiles { get; set; } = new List<IFormFile>();

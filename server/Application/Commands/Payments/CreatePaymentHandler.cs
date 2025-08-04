@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Application.Commands.Payments;
 
-public class CreatePaymentHandler : IRequestHandler<CreatePaymentCommand, Result<PaymentDto>>
+public class CreatePaymentHandler : IRequestHandler<CreatePaymentCommand, AppResult<PaymentDto>>
 {
     private readonly IPaymentRepository _paymentRepository;
     private readonly IOrderRepository _orderRepository;
@@ -22,18 +22,18 @@ public class CreatePaymentHandler : IRequestHandler<CreatePaymentCommand, Result
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
-    public async Task<Result<PaymentDto>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<PaymentDto>> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
     {
         var unCompleteOrder = await _orderRepository.GetUnCompletedOrdersByUserIdAsync(request.UserId);
         if (unCompleteOrder == null)
-            return Result<PaymentDto>.Failure("Don't have any order to payment", 404);
+            return AppResult<PaymentDto>.Failure("Don't have any order to payment", 404);
         var payment = await _paymentRepository.CreatePaymentAsync(unCompleteOrder.Id, request.UserId, cancellationToken);
         if (payment == null)
-            return Result<PaymentDto>.Failure("Payment creation failed", 500);
+            return AppResult<PaymentDto>.Failure("Payment creation failed", 500);
         var paymentDto = _mapper.Map<PaymentDto>(payment);
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
         if (!result)
-            return Result<PaymentDto>.Failure("Payment creation failed", 500);
-        return Result<PaymentDto>.Success(paymentDto);
+            return AppResult<PaymentDto>.Failure("Payment creation failed", 500);
+        return AppResult<PaymentDto>.Success(paymentDto);
     }
 }

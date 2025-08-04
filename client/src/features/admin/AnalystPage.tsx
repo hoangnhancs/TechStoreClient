@@ -13,6 +13,7 @@
     import Inventory2Icon from '@mui/icons-material/Inventory2';
     import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
     import SalesChart from "./SalesChart";
+    import { formatCurrency } from "../../lib/util/util";
 
     export default function AnalystPage() {
         const dispatch = useAppDispatch();
@@ -30,31 +31,8 @@
             }, []);
             setCustommers(tmpCustommers || []);
         }, [orders]);
-        // const calculateRevenueByProductId = (productId: string) => {
-        //     return orders.reduce((total, order) => {
-        //         order.items.forEach(item => {
-        //             if (item.productId === productId) {
-        //                 total += item.unitPrice * item.quantity;
-        //             }
-        //         });
-        //         return total;
-        //     }, 0);
-        // }
-        const formatRevenue = (value: number) => {
-            return new Intl.NumberFormat('vi-VN', {
-            style: 'currency',
-            currency: 'VND',
-            }).format(value);
-        }
+
         const handleSeeResults = async () => {
-            // const result = await fetchedOrders({ startDate: startDate, endDate: endDate});
-            // if (result?.data) {
-            // setOrders(result.data);
-            // console.log("Fetched orders:", result.data);
-            // } else {
-            // // handle error if needed
-            // console.error("Failed to fetch orders", result.error);
-            // }
             dispatch(setAnalysStartDate({startDate: selectedStartDate}));
             dispatch(setAnalysEndDate({endDate: selectedEndDate}));
         }
@@ -144,7 +122,7 @@
                 />
                 <AnalystCard
                     icon={<MonetizationOnIcon />}
-                    value={formatRevenue(useCountUp(totalSold? totalSold.totalRevenue : 0, 1500))}
+                    value={formatCurrency(totalSold ? totalSold.totalRevenue : 0)}
                     label="Doanh thu"
                     color="#26BA4F" 
                 />

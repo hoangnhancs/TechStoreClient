@@ -11,7 +11,7 @@ namespace API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetListCategories()
         {
-            return HandleResult(await Mediator.Send(new GetListCategoriesQuery()));
+            return HandleAppResult(await Mediator.Send(new GetListCategoriesQuery()));
         }
     }
 }

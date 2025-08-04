@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.Products;
 
-public class GetTop10ProductPerCategoryQuery : IRequest<Result<List<ProductDto>>>
+public class GetTop10ProductPerCategoryQuery : IRequest<AppResult<List<ProductDto>>>
 {
 
 }

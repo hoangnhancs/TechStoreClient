@@ -11,7 +11,7 @@ using MediatR;
 
 namespace Application.Commands.Addresses;
 
-public class AddAddressHandler : IRequestHandler<AddAddressCommand, Result<AddressDto>>
+public class AddAddressHandler : IRequestHandler<AddAddressCommand, AppResult<AddressDto>>
 {
     private readonly IAddressRepository _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -22,7 +22,7 @@ public class AddAddressHandler : IRequestHandler<AddAddressCommand, Result<Addre
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
-    public async Task<Result<AddressDto>> Handle(AddAddressCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<AddressDto>> Handle(AddAddressCommand request, CancellationToken cancellationToken)
     {
         if (request.Address.IsDefault == true)
         {
@@ -31,7 +31,7 @@ public class AddAddressHandler : IRequestHandler<AddAddressCommand, Result<Addre
         var addressEntity = _mapper.Map<Address>(request.Address);
         var address = await _addressRepository.CreateAddressAsync(request.UserId, addressEntity, cancellationToken);
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
-        if (!result) return Result<AddressDto>.Failure("Problem when create address", 400);
-        return Result<AddressDto>.Success(_mapper.Map<AddressDto>(address));
+        if (!result) return AppResult<AddressDto>.Failure("Problem when create address", 400);
+        return AppResult<AddressDto>.Success(_mapper.Map<AddressDto>(address));
     }
 }

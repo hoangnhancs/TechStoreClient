@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Queries.Categories;
 
-public class GetListCategoriesHandler : IRequestHandler<GetListCategoriesQuery, Result<List<CategoryDto>>>
+public class GetListCategoriesHandler : IRequestHandler<GetListCategoriesQuery, AppResult<List<CategoryDto>>>
 {
     private readonly ICategoryRepository _categoryRepository;
     private readonly IMapper _mapper;
@@ -17,15 +17,15 @@ public class GetListCategoriesHandler : IRequestHandler<GetListCategoriesQuery, 
         _mapper = mapper;
     }
 
-    public async Task<Result<List<CategoryDto>>> Handle(GetListCategoriesQuery request, CancellationToken cancellationToken)
+    public async Task<AppResult<List<CategoryDto>>> Handle(GetListCategoriesQuery request, CancellationToken cancellationToken)
     {
         var categories = await _categoryRepository.GetCategories();
         if (categories == null || categories.Count == 0)
         {
-            return Result<List<CategoryDto>>.Failure("No categories found.", 404);
+            return AppResult<List<CategoryDto>>.Failure("No categories found.", 404);
         }
         
         var categoryDtos = _mapper.Map<List<CategoryDto>>(categories);
-        return Result<List<CategoryDto>>.Success(categoryDtos);
+        return AppResult<List<CategoryDto>>.Success(categoryDtos);
     }
 }

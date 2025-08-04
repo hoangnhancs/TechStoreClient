@@ -5,14 +5,16 @@ import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import CloseIcon from "@mui/icons-material/Close";
-import { Product } from "../../lib/types";
+import { Brand, Product } from "../../lib/types";
 import React from "react";
 import { useFetchFilterTagsByCatIdQuery } from "../../app/api/filterTagApi";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import { clearAllFilters, clearFilterByTagId, setFilter } from "../filter/filterSlice";
+import { clearAllFilters, clearFilterByTagId, setFilter, setBrand, setPriceSort } from "../filter/filterSlice";
 import LoadingComponent from "../../components/LoadingComponent";
 import { useGetCurrentUserQuery } from "../user/userApi";
-
+import { useFetchBrandsByCatIdQuery } from "../../app/api/brandApi";
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
 
 export default function ProductListByCategory() {
@@ -29,16 +31,31 @@ export default function ProductListByCategory() {
     const [openTagId, setOpenTagId] = useState<number | null>(null);
     const selectedFilters = useAppSelector((state) => state.filter.filter);//type Record<number, number[]>: {filtertagId: [filterTagValueIds]}
     const [tmpSelectedFilters, setTmpSelectedFilters] = useState<Record<number, number[]>>(selectedFilters);
+    const { data: brandsByCatId } = useFetchBrandsByCatIdQuery(Number(id), {skip: !id});
+    const reduxSelectedBrands = useAppSelector(state => state.filter.brand);
+    const [selectedBrands, setSelectedBrands] = useState<Brand[] | null>(reduxSelectedBrands);
+    const reduxPriceSort = useAppSelector(state => state.filter.priceSort);
+    const [selectedPriceSort, setSelectedPriceSort] = useState<'asc' | 'desc'>(reduxPriceSort);
+
+    console.log("tmpSelectedFilters", tmpSelectedFilters);
+    console.log("SelectedFilters", selectedFilters);
     useEffect(() => {
         setTmpSelectedFilters(selectedFilters);
     }, [selectedFilters]);
-
+    console.log("selected brands", selectedBrands);
     // Cleanup chỉ gọi 1 lần khi component unmount
+    // useEffect(() => {
+    //     return () => {
+    //         dispatch(clearAllFilters()); 
+    //     };
+    // }, [dispatch]);
     useEffect(() => {
-        return () => {
-            dispatch(clearAllFilters()); 
-        };
-    }, [dispatch]);
+        setSelectedBrands(reduxSelectedBrands);
+    }, [reduxSelectedBrands]);
+
+    useEffect(() => {
+        setSelectedPriceSort(reduxPriceSort);
+    }, [reduxPriceSort]);
 
     const handleSetTmpFilter = (tagId: number, valueId: number) => {
         setTmpSelectedFilters((prev) => {
@@ -81,14 +98,31 @@ export default function ProductListByCategory() {
         setOpenTagId(null);
     }
 
+    const handleBrandChange = (brand: Brand) => {
+        if (selectedBrands?.find(b => b.id === brand.id)) {
+            dispatch(setBrand(selectedBrands.filter(b => b.id !== brand.id)));
+        }
+        else {
+            dispatch(setBrand([...(selectedBrands || []), brand]));
+        }
+    }
+
     const filteredProducts = React.useMemo(() => {
         if (productByCat == null || productByCat.length === 0) return []
 
-        if (selectedFilters == null || Object.keys(selectedFilters).length === 0) return productByCat;
-
         let tmp: Product[] = productByCat
 
-        for (const key in selectedFilters) {
+        if (selectedPriceSort !== null) {
+            if (selectedPriceSort === 'asc' && tmp !== null && tmp.length > 0) {
+                tmp = [...tmp].sort((a, b) => a.price - b.price);
+            }
+            else {
+                tmp = [...tmp].sort((a, b) => b.price - a.price);
+            }
+        }
+
+        if (selectedFilters !== null && Object.keys(selectedFilters).length > 0) {
+            for (const key in selectedFilters) {
             const filterTagId = Number(key);
             const filterTagValues = selectedFilters[filterTagId];
             tmp = tmp.filter(product => (product.productTagFilters.some(//bất kì ptf nào của sp, thỏa mãn nằm trong mảng filterTagValues  
@@ -97,10 +131,13 @@ export default function ProductListByCategory() {
                     return filterTagValues.includes(valueId);
                 }
             )))
+        }}
+        if (selectedBrands !== null && selectedBrands.length > 0) {
+            tmp = tmp.filter(product => (selectedBrands.some(b => product.brandId === b.id.toString())));
         }
 
         return tmp;
-    }, [productByCat, selectedFilters]);
+    }, [productByCat, selectedFilters, selectedBrands, selectedPriceSort]);
 
     //mappingFilterTags: mapping filter tags. Eg: {1: "Độ phân giải", 2: "Kích thước"}
     //mappingFilterTagValues: mapping filter tag values. Eg: {1: "2K", 2: "4K", 3: "24 inch", 4: "36 inch"}
@@ -139,6 +176,44 @@ export default function ProductListByCategory() {
         <Box
             sx={{ flexGrow: 1, mt:6}} 
         >
+            <Box>
+                <Typography color="text.primary" variant="h6" sx={{ mb: 1.5, fontWeight: 'bold' }}>
+                    Thương hiệu
+                </Typography>
+                {brandsByCatId && (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                        {brandsByCatId.map((brand) => (
+                            <Box 
+                                key={brand.id} 
+                                sx={{ display: 'flex', p: 0.5, alignItems: 'center' }}
+                            >
+                                <Button         
+                                    sx={{  
+                                        mr: 1, 
+                                        mb: 1, 
+                                        bgcolor: 'white', 
+                                        color: 'GrayText',
+                                        borderRadius: 3,
+                                        height: 50,         
+                                        width: 120,         
+                                        border: (selectedBrands?.find(b => b.id === brand.id))
+                                            ? '1px solid red'
+                                            : '1px solid #ccc',
+                                    }}
+                                    onClick={() => handleBrandChange(brand)}
+                                >
+                                    <img 
+                                        src={brand.imageUrl} 
+                                        alt={brand.name} 
+                                        style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+                                    />
+                                </Button>
+                            </Box>     
+                        ))}        
+                    </Box>
+                )}
+            </Box>
+            
             <Box>
                 <Typography color="text.primary" variant="h6" sx={{ mb: 1.5, fontWeight: 'bold' }}>
                     Chọn theo tiêu chí
@@ -294,7 +369,7 @@ export default function ProductListByCategory() {
                                     borderRadius: 'inherit',  
                                     textTransform: 'none',
                                 }}
-                                onClick={() => {dispatch(clearAllFilters())}}
+                                onClick={() => {dispatch(clearAllFilters()); setSelectedBrands(null)}}
                             >
 
                                 <CloseIcon sx={{mr: 0.5}} color="error" fontSize="small" />
@@ -307,6 +382,64 @@ export default function ProductListByCategory() {
                     </Box>
                 </Box>
             }
+
+            <Box display={"flex"} justifyContent={"space-between"}>
+                <Typography color="text.primary" variant="h6" sx={{ mb: 1.5, fontWeight: 'bold' }}>
+                    Sắp xếp theo
+                </Typography>
+                
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                    <Box 
+                        key='pricesort' 
+                        sx={{ display: 'flex', p: 0.5, alignItems: 'center' }}
+                    >
+                        <Button         
+                            sx={{  
+                                mr: 1, 
+                                mb: 1, 
+                                bgcolor: 'white', 
+                                color: (selectedPriceSort === 'asc')
+                                    ? 'rgb(59, 130, 246)'
+                                    : 'black',
+                                borderRadius: 10,
+                                height: 40,         
+                                width: 160,         
+                                border: (selectedPriceSort === 'asc')
+                                    ? '1px solid rgb(59, 130, 246)'
+                                    : '1px solid #ccc',
+                                alignContent: 'center',
+                            }}
+                            onClick={() => dispatch(setPriceSort('asc'))}
+                            endIcon={<ArrowUpwardIcon />}
+
+                        >  
+                            Giá Thấp - Cao
+                        </Button>
+                        <Button         
+                            sx={{  
+                                mr: 1, 
+                                mb: 1, 
+                                bgcolor: 'white', 
+                                color: (selectedPriceSort === 'desc')
+                                    ? 'rgb(59, 130, 246)'
+                                    : 'black',
+                                borderRadius: 10,
+                                height: 40,         
+                                width: 160,         
+                                border: (selectedPriceSort === 'desc')
+                                    ? '1px solid rgb(59, 130, 246)'
+                                    : '1px solid #ccc',
+                                alignContent: 'center'
+                            }}  
+                            onClick={() => dispatch(setPriceSort('desc'))}
+                            endIcon={<ArrowDownwardIcon />}
+                        >  
+                            Giá Cao - Thấp
+                        </Button>
+                    </Box>            
+                </Box>
+            </Box>
+
             <Typography color="text.primary" variant="h6" sx={{ mb: 1, fontWeight: 'bold', width: '100%' }}>
                 Danh sách sản phẩm
             </Typography>

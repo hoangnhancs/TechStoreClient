@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Commands.Comments;
 
-public class CreateCommentCommand : IRequest<Result<CommentDto>>
+public class CreateCommentCommand : IRequest<AppResult<CommentDto>>
 {
     public required string ProductId { get; set; } = string.Empty;
     public required string UserId { get; set; } = string.Empty;

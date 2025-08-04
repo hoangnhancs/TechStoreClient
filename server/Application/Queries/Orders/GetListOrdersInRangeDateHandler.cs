@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Application.Queries.Orders;
 
-public class GetListOrdersInRangeDateHandler : IRequestHandler<GetListOrdersInRangeDateQuery, Result<List<OrderDto>>>
+public class GetListOrdersInRangeDateHandler : IRequestHandler<GetListOrdersInRangeDateQuery, AppResult<List<OrderDto>>>
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IMapper _mapper;
@@ -16,10 +16,10 @@ public class GetListOrdersInRangeDateHandler : IRequestHandler<GetListOrdersInRa
         _orderRepository = orderRepository;
         _mapper = mapper;
     }
-    public async Task<Result<List<OrderDto>>> Handle(GetListOrdersInRangeDateQuery request, CancellationToken cancellationToken)
+    public async Task<AppResult<List<OrderDto>>> Handle(GetListOrdersInRangeDateQuery request, CancellationToken cancellationToken)
     {
         var orders = await _orderRepository.GetOrdersInRangeDateAsync(request.StartDate, request.EndDate);
         var ordersDto = orders.Select(_mapper.Map<OrderDto>).ToList();
-        return Result<List<OrderDto>>.Success(ordersDto);
+        return AppResult<List<OrderDto>>.Success(ordersDto);
     }
 }

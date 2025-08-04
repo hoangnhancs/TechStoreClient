@@ -13,7 +13,8 @@ public class ProductDto
     public required long DiscountPercentage { get; set; }
     public required int CategoryId { get; set; }
     public CategoryDto? Category { get; set; }
-    public string Brand { get; set; } = string.Empty;
+    public string BrandId { get; set; } = string.Empty;
+    public string BrandName { get; set; } = string.Empty;
     public required int QuantityInStock { get; set; }
     public string ImageUrl { get; set; } = string.Empty;
     public string? ImagePublicId { get; set; }

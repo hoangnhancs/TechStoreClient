@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Application.Commands.Products;
 
-public class UpdateProductCommand : IRequest<Result<ProductDto>>
+public class UpdateProductCommand : IRequest<AppResult<ProductDto>>
 {
     public required ProductDto ProductDto { get; set; }
     public Dictionary<int, string> FilterTags { get; set; } = [];

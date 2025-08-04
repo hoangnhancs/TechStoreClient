@@ -12,7 +12,7 @@ namespace API.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return Unauthorized("User is not authenticated.");
-            return HandleResult(await Mediator.Send(new CreateReviewCommand { ProductId = reviewDto.ProductId, UserId = userId, Comment = reviewDto.Comment, Rating = reviewDto.Rating }));
+            return HandleAppResult(await Mediator.Send(new CreateReviewCommand { ProductId = reviewDto.ProductId, UserId = userId, Comment = reviewDto.Comment, Rating = reviewDto.Rating }));
         }
     }
 }

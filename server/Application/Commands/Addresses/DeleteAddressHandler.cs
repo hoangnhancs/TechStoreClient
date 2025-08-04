@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Application.Commands.Addresses;
 
-public class DeleteAddressHandler : IRequestHandler<DeleteAddressCommand, Result<Unit>>
+public class DeleteAddressHandler : IRequestHandler<DeleteAddressCommand, AppResult<Unit>>
 {
     private readonly IAddressRepository _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -15,10 +15,10 @@ public class DeleteAddressHandler : IRequestHandler<DeleteAddressCommand, Result
         _addressRepository = addressRepository;
         _unitOfWork = unitOfWork;
     }
-    public async Task<Result<Unit>> Handle(DeleteAddressCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<Unit>> Handle(DeleteAddressCommand request, CancellationToken cancellationToken)
     {
         await _addressRepository.DeleteAddressAsync(request.AddressId, request.UserId, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result<Unit>.Success(Unit.Value);
+        return AppResult<Unit>.Success(Unit.Value);
     }
 }

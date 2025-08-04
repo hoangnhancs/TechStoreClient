@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Application.Queries.Orders;
 
-public class GetOrderByUserIdHandler : IRequestHandler<GetOrderByUserIdQuery, Result<List<OrderDto>>>
+public class GetOrderByUserIdHandler : IRequestHandler<GetOrderByUserIdQuery, AppResult<List<OrderDto>>>
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IMapper _mapper;
@@ -20,14 +20,14 @@ public class GetOrderByUserIdHandler : IRequestHandler<GetOrderByUserIdQuery, Re
 
     }
 
-    public async Task<Result<List<OrderDto>>> Handle(GetOrderByUserIdQuery request, CancellationToken cancellationToken)
+    public async Task<AppResult<List<OrderDto>>> Handle(GetOrderByUserIdQuery request, CancellationToken cancellationToken)
     {
         var order = await _orderRepository.GetOrdersByUserIdAsync(request.UserId);
         if (order == null || order.Count == 0)
         {
-            return Result<List<OrderDto>>.Failure("Order not found", 404);
+            return AppResult<List<OrderDto>>.Failure("Order not found", 404);
         }
 
-        return Result<List<OrderDto>>.Success(order.Select(_mapper.Map<OrderDto>).ToList());
+        return AppResult<List<OrderDto>>.Success(order.Select(_mapper.Map<OrderDto>).ToList());
     }
 }

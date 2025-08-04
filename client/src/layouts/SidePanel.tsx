@@ -12,8 +12,6 @@ import { useFetchBannersQuery } from '../app/api/bannerApi';
 
 // Import modules
 
-
-
 interface Category {
     id: number;
     name: string;
@@ -33,22 +31,6 @@ const categories: Category[] = [
     { id: 9, name: 'TV', icon: <Tv /> },
     { id: 10, name: 'Watch', icon: <Watch /> },
 ];
-
-// const bannerItems = [
-//     {
-//         url: "https://res.cloudinary.com/dukhvtyr7/image/upload/v1752750848/banner3_fjl7xa.png",
-//         title: "Summer Sale"
-//     },
-//     {
-//         url: "https://res.cloudinary.com/dukhvtyr7/image/upload/v1752750848/banner2_w5valv.png",
-//         title: "New Arrivals"
-//     },
-//     {
-//         url: "https://res.cloudinary.com/dukhvtyr7/image/upload/v1752750848/banner1_osh2sf.png",
-//         title: "Hot deals weekend"
-//     },
-//     // ...thêm các banner khác
-// ];
 
 export default function SidePanel() {
     const {data: bannerItems} = useFetchBannersQuery()

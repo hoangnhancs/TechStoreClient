@@ -2,6 +2,7 @@ import { Box, Paper, Typography } from "@mui/material";
 import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Order } from "../../lib/types";
 import React from "react";
+import { formatCurrency } from "../../lib/util/util";
 
 type SalesChartProps = {
   orders: Order[];
@@ -80,10 +81,7 @@ const SalesChart = React.memo(function SalesChart({ orders }: SalesChartProps) {
           </Box>
           
           <Typography sx={{ ml: 2}}>
-            {new Intl.NumberFormat('vi-VN', {
-              style: 'currency',
-              currency: 'VND',
-            }).format(overallRevenue)}
+            {formatCurrency(overallRevenue)}
           </Typography>
         </Box>
       </Box>

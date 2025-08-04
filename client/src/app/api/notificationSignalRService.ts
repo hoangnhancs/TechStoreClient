@@ -7,6 +7,8 @@ type NotificationsCallback = (notifications: Notification[]) => void;
 class NotificationSignalRServiceClass {
     private hubConnection: signalR.HubConnection | null = null;
     private notificationCallback: NotificationCallback | null = null;
+    private notificationsReadCallBack: ((id: string[]) => void) | null = null;
+    private notificationsDeletedCallBack: ((id: string[]) => void) | null = null;
     private isConnecting: boolean = false; 
 
     public createHubConnection = async (): Promise<void> => {
@@ -112,16 +114,60 @@ class NotificationSignalRServiceClass {
 
     public onReceiveNewNotification = (callback: NotificationCallback): void => {
         this.notificationCallback = callback;
-    }
+    } //noi component gan callback cho signalRservice notificationcallback
 
-    public sendNotification = async (title: string, message: string, link: string | undefined, receivedId: string | undefined, groupId: string | undefined, senderId: string, commentResultId: string | undefined, reviewResultId: string | undefined): Promise<void> => {
+    public sendNotification = async (title: string, message: string, link: string | undefined, receivedId: string | undefined, groupId: string | undefined, senderId: string, commentResultId: string | undefined, reviewResultId: string | undefined, type: string): Promise<void> => {
         if (!this.hubConnection || this.hubConnection.state != signalR.HubConnectionState.Connected) {
             console.warn("Notifications hub not connected");
             return
         }
         this.hubConnection
-            .invoke("SendNotification", title, message, link, receivedId, groupId, senderId, commentResultId, reviewResultId)
-            .catch((err) => console.error("Error sending notification: ", err));;
+            .invoke("SendNotification", title, message, link, receivedId, groupId, senderId, commentResultId, reviewResultId, type)
+            .catch((err) => console.error("Error sending notification: ", err));
+    }
+
+    public markAsReadNotifications = async (notificationIds: string[]): Promise<void> => {
+        if (!this.hubConnection || this.hubConnection.state != signalR.HubConnectionState.Connected) {
+            console.warn("Notifications hub not connected");
+            return
+        }
+        this.hubConnection
+          .invoke("MarkAsReadListNotifications", notificationIds)
+          .catch((err) => console.error("Error sending notification: ", err));
+    }
+
+    public onReceiveReadNotifications = (callback: (id: string[]) => void): void => {
+        this.notificationsReadCallBack = callback;
+        if (this.hubConnection) {
+            this.hubConnection.off("ReceiveNotificationsRead");
+            this.hubConnection.on("ReceiveNotificationsRead", (notificationIds: string[]) => {
+                if (this.notificationsReadCallBack) {
+                    this.notificationsReadCallBack(notificationIds);
+                }
+            });
+        }
+    }
+
+    public deleteNotifications = async (notificationIds: string[]): Promise<void> => {
+        if (!this.hubConnection || this.hubConnection.state != signalR.HubConnectionState.Connected) {
+            console.warn("Notifications hub not connected");
+            return
+        }
+        this.hubConnection
+          .invoke("DeleteListNotifications", notificationIds)
+          .catch((err) => console.error("Error sending notification: ", err));
+    }
+
+    public onReceiveDeletedNotifications = (callback: (id: string[]) => void): void => {
+        this.notificationsDeletedCallBack = callback;
+        if (this.hubConnection) {
+            this.hubConnection.off("ReceiveNotificationsDeleted");
+            this.hubConnection.on("ReceiveNotificationsDeleted", (notificationIds: string[]) => {
+                if (this.notificationsDeletedCallBack) {
+                    this.notificationsDeletedCallBack(notificationIds);
+                }
+            });
+        }
     }
 }
 

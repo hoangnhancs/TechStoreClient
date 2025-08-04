@@ -5,7 +5,7 @@ using Stripe;
 
 namespace Application.Queries.Payments;
 
-public class GetPaymentIntentQuery : IRequest<Result<PaymentIntent>>
+public class GetPaymentIntentQuery : IRequest<AppResult<PaymentIntent>>
 {
     public required string PaymentIntentId { get; set; }
 }

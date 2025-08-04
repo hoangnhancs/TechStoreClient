@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.Comments;
 
-public class GetCommentByIdQuery : IRequest<Result<CommentDto>>
+public class GetCommentByIdQuery : IRequest<AppResult<CommentDto>>
 {
     public required string CommentId { get; set; }
 }

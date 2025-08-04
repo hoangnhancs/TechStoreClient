@@ -11,7 +11,7 @@ namespace API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetFilterTags([FromQuery] int catId)
         {
-            return HandleResult(await Mediator.Send(new GetListFilterTagByCategoryQuery
+            return HandleAppResult(await Mediator.Send(new GetListFilterTagByCategoryQuery
             {
                 CategoryId = catId
             }));
@@ -20,7 +20,7 @@ namespace API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetAllFilterTags()
         {
-            return HandleResult(await Mediator.Send(new GetAllFilterTagQuery()));
+            return HandleAppResult(await Mediator.Send(new GetAllFilterTagQuery()));
         }
     }
 }

@@ -16,16 +16,16 @@ export default function CommentList({currentUser}: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [draftCount, setDraftCount] = useState(0);
   const [searchParams] = useSearchParams();
-    const commentId = searchParams.get("commentId");
+  const commentId = searchParams.get("commentId");
 
-    useEffect(() => {
-      console.log("commentId:", commentId);
-      console.log("list comments:", comments)
-  if (commentId && comments.length > 0) {
-    // Delay nhẹ để đợi DOM render xong
-    requestAnimationFrame(() => {
-      const element = document.getElementById(commentId);
-      console.log("element:", element);
+  useEffect(() => {
+    console.log("commentId:", commentId);
+    console.log("list comments:", comments)
+    if (commentId && comments.length > 0) {
+      // Delay nhẹ để đợi DOM render xong
+      requestAnimationFrame(() => {
+        const element = document.getElementById(commentId);
+        console.log("element:", element);
 
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -35,8 +35,7 @@ export default function CommentList({currentUser}: Props) {
         // }, 6000);
       }
     });
-  }
-}, [commentId, comments]);
+  }}, [commentId, comments]);
 
 
   function insertCommentToTree(commentTree: Comment[],newComment: Comment): Comment[] {
@@ -139,7 +138,7 @@ export default function CommentList({currentUser}: Props) {
         margin: '0 auto',
       }}
     >
-      <Button onClick={() => {console.log(draftCount)}}>test</Button>
+      <Button sx={{ visibility: 'hidden' }} onClick={() => {console.log(draftCount)}}>test</Button>
       <AddNewComment onSendComment={handleSendComment} onDraftChange={handleDraftChange} currentUser={currentUser}/>
       <Box sx={{ mt: 2, fontWeight: 'bold' }}> 
         Danh sách bình luận:

@@ -4,7 +4,7 @@ namespace Application.DTOs;
 
 public class ReviewDto
 {
-    public int Id { get; set; }
+    public string? Id { get; set; }
     public required string ProductId { get; set; } = string.Empty;
     public required string UserId { get; set; } = string.Empty;
     public UserDto? User { get; set; }

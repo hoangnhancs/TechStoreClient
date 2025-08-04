@@ -21,7 +21,7 @@ public class OrderController : BaseApiController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
 
-        return HandleResult(await Mediator.Send(new GetOrderByUserIdQuery { UserId = userId }));
+        return HandleAppResult(await Mediator.Send(new GetOrderByUserIdQuery { UserId = userId }));
     }
 
     [HttpPost("createorder")]
@@ -32,7 +32,7 @@ public class OrderController : BaseApiController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
 
-        return HandleResult(await Mediator.Send(new CreateOrUpdateOrderCommand { UserId = userId, CreateOrderDto = orderDto }));
+        return HandleAppResult(await Mediator.Send(new CreateOrUpdateOrderCommand { UserId = userId, CreateOrderDto = orderDto }));
     }
 
     [HttpGet("myorders/{orderId}")]
@@ -43,7 +43,7 @@ public class OrderController : BaseApiController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
 
-        return HandleResult(await Mediator.Send(new GetOrderDetailsByOrderIdQuery { OrderId = orderId }));
+        return HandleAppResult(await Mediator.Send(new GetOrderDetailsByOrderIdQuery { OrderId = orderId }));
     }
     [Authorize(Roles = "Admin")]
     [HttpGet("list-orders")]
@@ -52,7 +52,7 @@ public class OrderController : BaseApiController
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
-        return HandleResult(await Mediator.Send(new GetListOrdersInRangeDateQuery { StartDate = orderRangeDate.StartDate, EndDate = orderRangeDate.EndDate }));
+        return HandleAppResult(await Mediator.Send(new GetListOrdersInRangeDateQuery { StartDate = orderRangeDate.StartDate, EndDate = orderRangeDate.EndDate }));
     }
 
     [Authorize(Roles = "Admin")]
@@ -63,6 +63,6 @@ public class OrderController : BaseApiController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("User not authenticated");
 
-        return HandleResult(await Mediator.Send(new CreateVirtualOrder.Command()));
+        return HandleAppResult(await Mediator.Send(new CreateVirtualOrder.Command()));
     }
 }

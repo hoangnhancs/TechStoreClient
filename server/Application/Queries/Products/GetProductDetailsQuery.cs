@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Application.Queries.Products;
 
-public class GetProductDetailsQuery : IRequest<Result<ProductDto>>
+public class GetProductDetailsQuery : IRequest<AppResult<ProductDto>>
 {
     public required string ProductId { get; set; } 
 }

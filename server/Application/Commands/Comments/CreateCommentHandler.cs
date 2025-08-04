@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Application.Commands.Comments;
 
-public class CreateCommentHandler : IRequestHandler<CreateCommentCommand, Result<CommentDto>>
+public class CreateCommentHandler : IRequestHandler<CreateCommentCommand, AppResult<CommentDto>>
 {
     private readonly ICommentRepository _commentRepository;
     private readonly IAccountRepository _accountRepository;
@@ -23,7 +23,7 @@ public class CreateCommentHandler : IRequestHandler<CreateCommentCommand, Result
         _accountRepository = accountRepository;
     }
 
-    public async Task<Result<CommentDto>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
+    public async Task<AppResult<CommentDto>> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
     {
         var userInfor = await _accountRepository.GetUserByIdAsync(request.UserId, cancellationToken);
         var comment = new Domain.Entities.Comment
@@ -39,9 +39,9 @@ public class CreateCommentHandler : IRequestHandler<CreateCommentCommand, Result
         var createdComment = await _commentRepository.CreateComment(comment, cancellationToken);
         if (createdComment == null)
         {
-            return Result<CommentDto>.Failure("Failed to create comment.", 500);
+            return AppResult<CommentDto>.Failure("Failed to create comment.", 500);
         }
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        return Result<CommentDto>.Success(_mapper.Map<CommentDto>(createdComment));
+        return AppResult<CommentDto>.Success(_mapper.Map<CommentDto>(createdComment));
     }
 }

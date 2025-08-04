@@ -9,7 +9,7 @@ using Persistence;
 
 namespace Application.Queries.Products;
 
-public class GetProductListHandler : IRequestHandler<GetProductListQuery, Result<List<ProductDto>>>
+public class GetProductListHandler : IRequestHandler<GetProductListQuery, AppResult<List<ProductDto>>>
 {
     private readonly IProductRepository _repository;
     private readonly IMapper _mapper;
@@ -20,7 +20,7 @@ public class GetProductListHandler : IRequestHandler<GetProductListQuery, Result
         _mapper = mapper;
     }
 
-    public async Task<Result<List<ProductDto>>> Handle(GetProductListQuery request, CancellationToken cancellationToken)
+    public async Task<AppResult<List<ProductDto>>> Handle(GetProductListQuery request, CancellationToken cancellationToken)
     {
         var products = await _repository.GetAllProducts(cancellationToken);
 
@@ -28,11 +28,11 @@ public class GetProductListHandler : IRequestHandler<GetProductListQuery, Result
 
         if (productsDto == null || productsDto.Count == 0)
         {
-            return Result<List<ProductDto>>.Failure("No products found", 404);
+            return AppResult<List<ProductDto>>.Failure("No products found", 404);
         }
         else
         {
-            return Result<List<ProductDto>>.Success(productsDto);
+            return AppResult<List<ProductDto>>.Success(productsDto);
         }
     }
 }

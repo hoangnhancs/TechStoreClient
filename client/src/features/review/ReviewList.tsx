@@ -137,7 +137,7 @@ export default function ReviewList({ productName, currentUser }: Props) {
         const reviewId = await ReviewSignalRService.sendReview(productId, review, rating)
         setOpenAddReview(false)
         if (adminGroup) {
-            await NotificationSignalRService.sendNotification("Đánh giá mới", review, location.pathname, undefined, adminGroup?.id, currentUser?.id || "", undefined, reviewId);
+            await NotificationSignalRService.sendNotification("Đánh giá mới", review, location.pathname, undefined, adminGroup?.id, currentUser?.id || "", undefined, reviewId, "Review");
         } else {
             toast.error("Admin group not found");
         }

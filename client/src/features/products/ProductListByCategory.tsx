@@ -37,7 +37,8 @@ export default function ProductListByCategory() {
     const reduxPriceSort = useAppSelector(state => state.filter.priceSort);
     const [selectedPriceSort, setSelectedPriceSort] = useState<'asc' | 'desc'>(reduxPriceSort);
 
-
+    console.log("tmpSelectedFilters", tmpSelectedFilters);
+    console.log("SelectedFilters", selectedFilters);
     useEffect(() => {
         setTmpSelectedFilters(selectedFilters);
     }, [selectedFilters]);

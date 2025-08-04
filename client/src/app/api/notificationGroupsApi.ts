@@ -12,12 +12,14 @@ export const notificationGroupApi = createApi({
         url: "/notificationgroup",
         method: "GET",
       }),
+      providesTags: ["NotificationGroup"],
     }),
     fetchAdminNotificationGroup: builder.query<NotificationGroup, void>({
       query: () => ({
         url: "/notificationgroup/admin-group",
         method: "GET",
       }),
+      providesTags: ["NotificationGroup"],
     }),
   }),
 });

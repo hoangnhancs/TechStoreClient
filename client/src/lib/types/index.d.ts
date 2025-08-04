@@ -282,6 +282,7 @@ export type Notification = {
   senderId: string;
   senderName: string;
   senderImageUrl: string;
+  type: string;
   createdAt: Date;
 }
 

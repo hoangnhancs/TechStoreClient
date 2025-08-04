@@ -3,6 +3,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications"; // hoặc tha
 import { Notification } from "../../lib/types";
 import { useNavigate } from "react-router";
 import { formatVNDate } from "../../lib/util/util";
+import { NotificationSignalRService } from "../../app/api/notificationSignalRService";
 
 interface Props {
   notification: Notification
@@ -13,7 +14,10 @@ const NotificationItem = ({ notification }: Props) => {
   const navigate = useNavigate();
   return (
     <Box
-      onClick={() => navigate(notification.link || "/")}
+      onClick={() => {
+        navigate(notification.link || "/")
+        NotificationSignalRService.markAsReadNotifications([notification.id]);
+      }}
       sx={{
         backgroundColor: "#102a43", 
         borderRadius: 2,

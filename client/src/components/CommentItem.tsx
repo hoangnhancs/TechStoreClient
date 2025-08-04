@@ -42,7 +42,7 @@ const CommentItem: React.FC<Props> = React.memo(({
           if (adminGroup) {
             NotificationSignalRService
             .sendNotification("Bình luận mới", replyContent, location.pathname, undefined, 
-              adminGroup?.id, currentUser?.id || "", commentId, undefined);
+              adminGroup?.id, currentUser?.id || "", commentId, undefined, "Comment");
           } else {
             toast.error("Admin group not found");
           }
@@ -51,7 +51,7 @@ const CommentItem: React.FC<Props> = React.memo(({
       else {
         NotificationSignalRService
           .sendNotification("Bình luận mới", replyContent, location.pathname, comment.user.id, undefined, 
-            currentUser?.id || "", commentId, undefined);
+            currentUser?.id || "", commentId, undefined, "Comment");
       }   
     }
     setReplyContent('');

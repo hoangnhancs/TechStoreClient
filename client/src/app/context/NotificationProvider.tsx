@@ -10,7 +10,8 @@ export const NotificationProvider: React.FC<{children: React.ReactNode}> = ({chi
     const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
     const [onlineNotifications, setOnlineNotifications] = useState<Notification[]>([]);
     const { data: currentUser } = useGetCurrentUserQuery();
-    const { data: adminGroup } = useFetchAdminNotificationGroupQuery();
+    const { data: adminGroup } = useFetchAdminNotificationGroupQuery(undefined, { skip: !currentUser?.id });
+    console.log("admin group", adminGroup)
     useEffect(() => {
         if (!currentUser?.id) return; //dam bao user valid moi tao notification connection
         
@@ -30,6 +31,19 @@ export const NotificationProvider: React.FC<{children: React.ReactNode}> = ({chi
             NotificationSignalRService.loadAllNotifications((allNotifications) => {
                 setAllNotifications(allNotifications)
             });
+
+            NotificationSignalRService.onReceiveReadNotifications((notificationIds) => {
+                setAllNotifications((prevNotifications) => prevNotifications.map((notification) => {
+                    if (notificationIds.includes(notification.id)) {
+                        return { ...notification, isRead: true };
+                    }
+                    return notification;
+                }));
+            });
+
+            NotificationSignalRService.onReceiveDeletedNotifications((notificationIds) => {
+                setAllNotifications((prevNotifications) => prevNotifications.filter((notification) => !notificationIds.includes(notification.id)));
+            })
         } 
 
         setupConnection();

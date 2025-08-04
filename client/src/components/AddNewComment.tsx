@@ -27,7 +27,7 @@ const AddNewComment: React.FC<Props> = React.memo(({onSendComment, onDraftChange
                 if (adminGroup) {
                     NotificationSignalRService
                         .sendNotification("Bình luận mới", commentContent, location.pathname, undefined, 
-                            adminGroup?.id, currentUser?.id || "", commentId, undefined);
+                            adminGroup?.id, currentUser?.id || "", commentId, undefined, "Comment");
                 } else {
                     toast.error("Admin group not found");
                 }

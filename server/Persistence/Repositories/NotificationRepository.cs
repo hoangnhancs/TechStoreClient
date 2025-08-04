@@ -14,6 +14,12 @@ public class NotificationRepository(StoreContext context) : INotificationReposit
         return notification;
     }
 
+    public async Task DeleteNotification(string notificationId, CancellationToken cancellationToken)
+    {
+        var notification = await _context.Notifications.FirstOrDefaultAsync(n => n.Id == notificationId, cancellationToken) ?? throw new Exception("Notification not found");
+        _context.Notifications.Remove(notification);
+    }
+
     public async Task<Notification> GetNotificationById(string id, CancellationToken cancellationToken)
     {
         return await _context.Notifications
@@ -37,4 +43,14 @@ public class NotificationRepository(StoreContext context) : INotificationReposit
             .ThenInclude(n => n!.Image)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<Notification> MaskAsReadNotification(string notificationId, CancellationToken cancellationToken)
+    {
+        var notification = await _context.Notifications.FirstOrDefaultAsync(n => n.Id == notificationId, cancellationToken) ?? throw new Exception("Notification not found");
+        notification.IsRead = true;
+        _context.Notifications.Update(notification);
+        return notification;
+    }
+
+    
 }

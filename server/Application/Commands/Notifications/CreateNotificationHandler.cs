@@ -7,6 +7,8 @@ using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using MediatR;
+using Microsoft.Data.SqlClient;
+
 
 namespace Application.Commands.Notifications;
 
@@ -40,6 +42,7 @@ public class CreateNotificationHandler : IRequestHandler<CreateNotificationComma
             GroupId = request.NotificationDto.GroupId,
             SenderId = request.NotificationDto.SenderId ?? string.Empty,
             Sender = await _accountRepository.GetUserByIdAsync(request.NotificationDto.SenderId ?? string.Empty, cancellationToken) ?? throw new Exception(),
+            Type = Enum.Parse<Domain.Entities.Notification.NotificationType>(request.NotificationDto.Type ?? string.Empty),
         };
 
         await _notificationRepository.CreateNotification(notification, cancellationToken);

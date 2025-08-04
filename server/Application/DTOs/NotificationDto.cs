@@ -14,5 +14,6 @@ public class NotificationDto
     public string? SenderId { get; set; }
     public string? SenderName { get; set; }
     public string? SenderImageUrl { get; set; }
+    public string? Type { get; set; }
     public DateTime CreatedAt { get; set; }
 }

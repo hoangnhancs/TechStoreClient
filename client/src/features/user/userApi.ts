@@ -6,7 +6,7 @@ import { basketApi } from "../../app/api/basketApi";
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: baseQueryWithErrorHandling,
-  tagTypes: ["User", "Basket"],
+  tagTypes: ["User", "Basket", "NotificationGroup"],
   refetchOnMountOrArgChange: true, // Khi tải lại trang/chuyển trang
   refetchOnFocus: true, // Khi quay lại tab
   refetchOnReconnect: true, // Khi có kết nối mạng trở lại
@@ -22,7 +22,7 @@ export const userApi = createApi({
         body: { email, password },
       }),
 
-      invalidatesTags: ["User", "Basket"],
+      invalidatesTags: ["User", "Basket", "NotificationGroup"],
     }),
     logout: builder.mutation<void, void>({
       query: () => ({ url: "/account/logout", method: "POST" }),
@@ -37,7 +37,15 @@ export const userApi = createApi({
       },
       invalidatesTags: ["User", "Basket"],
     }),
-    register: builder.mutation<User, {email: string; displayName: string; password: string; confirmPassword: string;}>({
+    register: builder.mutation<
+      User,
+      {
+        email: string;
+        displayName: string;
+        password: string;
+        confirmPassword: string;
+      }
+    >({
       query: (credentials) => ({
         url: "/account/register",
         method: "POST",
@@ -45,7 +53,10 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User", "Basket"],
     }),
-    changePasword: builder.mutation<void, { currentPassword: string, newPassword: string, confirmPassword: string }>({
+    changePasword: builder.mutation<
+      void,
+      { currentPassword: string; newPassword: string; confirmPassword: string }
+    >({
       query: (credentials) => ({
         url: "/account/change-password",
         method: "POST",
@@ -53,7 +64,10 @@ export const userApi = createApi({
       }),
       invalidatesTags: ["User", "Basket"],
     }),
-    resendConfirmEmail: builder.mutation<void, { email?: string; userId?: string | null }>({
+    resendConfirmEmail: builder.mutation<
+      void,
+      { email?: string; userId?: string | null }
+    >({
       query: (credentials) => ({
         url: "/account/resendConfirmEmail",
         method: "POST",
@@ -73,7 +87,10 @@ export const userApi = createApi({
         body: credentials,
       }),
     }),
-    resetPassword: builder.mutation<void, { email: string; newPassword: string; resetCode: string }>({
+    resetPassword: builder.mutation<
+      void,
+      { email: string; newPassword: string; resetCode: string }
+    >({
       query: (credentials) => ({
         url: "/resetPassword",
         method: "POST",

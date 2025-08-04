@@ -16,4 +16,12 @@ public class Notification
     public required string SenderId { get; set; }
     public User? Sender { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public NotificationType Type { get; set; } = NotificationType.Other;
+    public enum NotificationType
+    {
+        System,
+        Comment,
+        Review,
+        Other
+    }
 }

@@ -86,7 +86,7 @@ export default function UserMenu({currentUser}: Props) {
                             <ListItemIcon>
                                 <Add />
                             </ListItemIcon>
-                            <ListItemText>Add product</ListItemText>
+                            <ListItemText>Thêm sản phẩm</ListItemText>
                         </MenuItem>,
                         <MenuItem key={'dashboard'} component={Link} to='/dashboard' onClick={handleClose}>
                             <ListItemIcon>

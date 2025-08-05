@@ -9,6 +9,7 @@ import { useAddBasketItemMutation } from "../../app/api/basketApi";
 import { useGetCurrentUserQuery } from "../user/userApi";
 import { useAppDispatch } from "../../hooks";
 import { addItem } from "../basket/basketSlice";
+import { formatCurrency } from "../../lib/util/util";
 
 // import { useAppSelector } from "../../hooks";
 
@@ -152,7 +153,7 @@ export default function ProductCard({product}: Props) {
                 }}
                 variant="h6"
             >
-                ${(product.price / 100).toFixed(2)}
+                {formatCurrency(product.price)}
             </Typography>
         </CardContent>
         <CardActions
@@ -162,8 +163,8 @@ export default function ProductCard({product}: Props) {
                 paddingTop: 0,
             }}
         >
-            <Button onClick={handleAddToCart} disabled={isLoading}>Add to cart</Button>
-            <Button component={Link} to={`/products/${product.id}`}>View</Button>
+            <Button onClick={handleAddToCart} disabled={isLoading}>Thêm vào giỏ</Button>
+            <Button component={Link} to={`/products/${product.id}`}>Chi tiết</Button>
         </CardActions>
         <LoginPromptDialog 
         open={openLoginPrompt} onClose={() => setOpenLoginPrompt(false)} />

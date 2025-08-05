@@ -3,7 +3,7 @@ import { Brand } from "../../lib/types";
 
 const initialState = {
     filter: {} as Record<number, number[]>,
-    priceSort: 'asc' as 'asc' | 'desc',
+    priceSort: 'asc' as 'asc' | 'desc' | 'discount',
     searchQuery: '' as string,
     brand: [] as Brand[],
     notiCreateAtSort: 'desc' as 'asc' | 'desc',
@@ -24,7 +24,7 @@ const filterSlice = createSlice({
         clearAllFilters: () => {
             return initialState;
         },
-        setPriceSort: (state, action: { payload: 'asc' | 'desc' }) => {
+        setPriceSort: (state, action: { payload: 'asc' | 'desc' | 'discount' }) => {
             state.priceSort = action.payload;
         },
         setSearchQuery: (state, action: { payload: string }) => {

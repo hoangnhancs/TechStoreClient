@@ -41,7 +41,7 @@ export default function ProductsPage() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [inputSearch, setInputSearch] = useState("");
-    const [selectedCategory, setSelectedCategory] = useState<Category>({id: -1, name: "Tất cả", imageUrl: "", description: ""});
+    const [selectedCategory, setSelectedCategory] = useState<Category>({id: -1, name: "all", displayName: "Tất cả", imageUrl: "", description: ""});
     const [sortParam, setSortParam] = useState<Record<string, "asc" | "desc" | "">>({
         name: "",
         price: "",
@@ -49,7 +49,7 @@ export default function ProductsPage() {
         unitSold: "",
         lastUpdate: "",
     });
-    const displayedCategories = [{id: -1, name: "Tất cả", imageUrl: "", description: ""}, ...(categories ?? [])]
+    const displayedCategories = [{id: -1, name: "all", displayName: "Tất cả", imageUrl: "", description: ""}, ...(categories ?? [])]
     //clear sort params
     const clearSortParam = () => {
         setSortParam({

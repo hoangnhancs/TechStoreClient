@@ -30,6 +30,7 @@ public class Product
     public List<ProductTagFilter> ProductTagFilters { get; set; } = [];
     public decimal AverageRating { get; set; } = 0;
     public int RatingCount { get; set; } = 0;
+    public int TotalRatingStar { get; set; } = 0;
     public List<Review> Reviews { get; set; } = [];
     public List<ProductImage> DetailImages { get; set; } = [];
     public List<ProductAttribute> Attributes { get; set; } = [];

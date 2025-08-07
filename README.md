@@ -82,7 +82,7 @@ _(for testing realtime comment/review and notification)_
 - **Repository Pattern** & **Unit of Work** for data access
 - **AutoMapper**: easy for mapping between entity and DTO
 
-### 11. Product Recommaendation
+### 11. Product Recommendation
 
 - **Generate Product Embedding Vector** Extract vector representations for each product based on attributes such as name, description, price, category, brand, etc.
 - **Average of Tracking Product** Track user interactions (e.g., view, add to cart, purchase) and compute a weighted average of the corresponding product vectors using weights (view: 1.0, add to cart: 1.5, purchase: 2.0).

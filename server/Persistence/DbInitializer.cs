@@ -148,7 +148,8 @@ public class DbInitializer
                 {
                     DisplayName = userName,
                     UserName = $"{userName.ToLower()}@gmail.com",
-                    Email = $"{userName.ToLower()}@gmail.com"
+                    Email = $"{userName.ToLower()}@gmail.com",
+                    EmailConfirmed = true
                 };
                 await userManager.CreateAsync(user, "Pa$$w0rd");
                 await userManager.AddToRoleAsync(user, "Member");
@@ -161,6 +162,7 @@ public class DbInitializer
                 DisplayName = "Admin",
                 UserName = "admin@gmail.com",
                 Email = "admin@gmail.com",
+                EmailConfirmed = true,
                 IsAdmin = true
             };
 

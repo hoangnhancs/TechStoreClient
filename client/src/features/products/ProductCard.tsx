@@ -1,6 +1,6 @@
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Typography } from "@mui/material";
+import { Box, Button, Card, CardActions, CardContent, CardMedia, Rating, Typography } from "@mui/material";
 import {  Item, Product, User } from "../../lib/types";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import discount from '../../assets/discount.png';
 import { useState } from "react";
 import LoginPromptDialog from "../../components/LoginPromptDialog";
@@ -10,6 +10,9 @@ import { useGetCurrentUserQuery } from "../user/userApi";
 import { useAppDispatch } from "../../hooks";
 import { addItem } from "../basket/basketSlice";
 import { formatCurrency } from "../../lib/util/util";
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
+import InfoIcon from '@mui/icons-material/Info';
+
 
 // import { useAppSelector } from "../../hooks";
 
@@ -23,6 +26,7 @@ export default function ProductCard({product}: Props) {
     const {data: currentUser} = useGetCurrentUserQuery()
     const [addBasketItem, {isLoading}] = useAddBasketItemMutation()
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
     const handleAddToCart = () => {
         
         if (!currentUser?.id) {
@@ -55,14 +59,22 @@ export default function ProductCard({product}: Props) {
     <Card
         elevation={3}    
         sx={{
+            padding: 0.5,
             position: 'relative',
-            height: 400,
+            height: 430,
             borderRadius: 2,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
             overflow: 'visible', // Để hiển thị phần thẻ giảm giá bên ngoài
+            transition: 'all 0.3s ease',
+            '&:hover': {
+                transform: 'scale(1.03) translateY(-10px)',
+                boxShadow: 5,
+            },
+            cursor: 'pointer',
         }}
+        onClick={() =>navigate(`/products/${product.id}`)}
     >
         {product.discountPercentage ? <Box
             sx={{
@@ -88,8 +100,7 @@ export default function ProductCard({product}: Props) {
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'left center',
-                backgroundImage: `url(${discount})`,
-                
+                backgroundImage: `url(${discount})`,            
             }}
         >
             <Typography 
@@ -121,7 +132,7 @@ export default function ProductCard({product}: Props) {
         <CardContent
             sx={{
                 flexGrow: 1,
-                minHeight: 50,
+                minHeight: 150,
                 padding: 2,
                 display: 'flex',
                 flexDirection: 'column',
@@ -134,7 +145,8 @@ export default function ProductCard({product}: Props) {
                 sx={{
                     textTransform: "uppercase",
                     width: '100%',  // Chiếm toàn bộ chiều rộng
-                    minHeight: '2.5em',  // Chiều cao tối thiểu 2 dòng
+                    height: '3.5em', // hoặc 3em tùy độ cao dòng
+                    lineHeight: '1.2em',
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
@@ -146,12 +158,32 @@ export default function ProductCard({product}: Props) {
             >
                 {product.name}
             </Typography>
+            {product.averageRating > 0 && 
+                <Box display={"flex"} alignItems={"center"} gap={1}>
+                    <Rating
+                        name="read-only-rating"
+                        value={product.averageRating}
+                        readOnly
+                        precision={0.1}
+                        size="medium"
+                        sx={{
+                            color: '#fbc02d', // màu vàng
+                            '& .MuiRating-iconEmpty': {
+                                color: '#ccc', // màu xám cho sao chưa chọn
+                            },
+                        }}
+                    />
+                    <Typography color="gray" sx={{ transform: 'translateY(3px)'}} variant="body2" alignSelf={"center"}>
+                        ({product.averageRating}/5)
+                    </Typography>
+                </Box>
+            }
             <Typography
                 sx={{
                     color: 'secondary.main',
                     marginTop: 'auto',  // Đẩy xuống dưới cùng  
                 }}
-                variant="h6"
+                variant="body1"
             >
                 {formatCurrency(product.price)}
             </Typography>
@@ -159,12 +191,38 @@ export default function ProductCard({product}: Props) {
         <CardActions
             sx={{
                 justifyContent: 'space-between', 
-                height: 50,
                 paddingTop: 0,
             }}
         >
-            <Button onClick={handleAddToCart} disabled={isLoading}>Thêm vào giỏ</Button>
-            <Button component={Link} to={`/products/${product.id}`}>Chi tiết</Button>
+            <Button 
+                
+                sx={{ 
+                    background: 'linear-gradient(135deg, #44b4d6ff, #1b4594ff)',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                        transform: 'scale(1.03) translateY(-2px)',
+                        boxShadow: 5,
+                    },
+                    color: "white",
+                    width: '100px'
+                }} 
+                startIcon={<AddShoppingCartIcon />} 
+                onClick={(e) => {handleAddToCart(); e.stopPropagation();}} 
+                disabled={isLoading}>Thêm</Button>
+            <Button 
+                sx={{ 
+                    background: 'linear-gradient(135deg, #44b4d6ff, #1b4594ff)',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                        transform: 'scale(1.03) translateY(-2px)',
+                        boxShadow: 5,
+                    },
+                    color: "white",
+                    width: '100px'
+                }} 
+                startIcon={<InfoIcon />} 
+                component={Link} 
+                to={`/products/${product.id}`}>Chi tiết</Button>
         </CardActions>
         <LoginPromptDialog 
         open={openLoginPrompt} onClose={() => setOpenLoginPrompt(false)} />

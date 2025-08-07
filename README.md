@@ -82,6 +82,13 @@ _(for testing realtime comment/review and notification)_
 - **Repository Pattern** & **Unit of Work** for data access
 - **AutoMapper**: easy for mapping between entity and DTO
 
+### 11. Product Recommaendation
+
+- **Generate Product Embedding Vector** Extract vector representations for each product based on attributes such as name, description, price, category, brand, etc.
+- **Average of Tracking Product** Track user interactions (e.g., view, add to cart, purchase) and compute a weighted average of the corresponding product vectors using weights (view: 1.0, add to cart: 1.5, purchase: 2.0).
+- **Cosine Similarity** Calculate cosine similarity between the user's average vector and all product vectors, and return the top 10 most similar products.
+
+
 ---
 
 ## ► 🚀 Tech Stack
@@ -157,6 +164,23 @@ The diagram below illustrates the structure and key relationships between entiti
     dotnet watch run
     ```
     Backend will run at `https://localhost:5001` or a similar port.
+7.  Auto generate addresses for each user by run endpoint
+    ```bash
+    POST: 
+    https://localhost:5001/api/address/create-virtual-addresses
+    ```
+8.  Auto generate orders for testing analyst(admin feature) by run endpoint
+    ```bash
+    POST: 
+    https://localhost:5001/api/order/create-virtual-order
+    ```
+9.  Auto generate products embedding vectors for using recommanded by run endpoint
+    ```bash
+    POST:
+    https://localhost:5001/api/products/generate_product_vector
+    ```
+
+
 
 ### **2. Frontend Setup**
 

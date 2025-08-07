@@ -29,6 +29,8 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
     public required DbSet<NotificationGroup> NotificationGroups { get; set; }
     public required DbSet<NotificationGroupMember> NotificationGroupMembers { get; set; }
     public required DbSet<Brand> Brands { get; set; }
+    public required DbSet<UserActionTracking> UserActionTrackings { get; set; }
+    public required DbSet<ProductVectorEmbedding> ProductVectorEmbeddings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

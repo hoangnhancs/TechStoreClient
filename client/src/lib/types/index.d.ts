@@ -298,3 +298,8 @@ export type NotificationGroupMember = {
   userId: string,
   notificationGroupId: string
 }
+
+export type UserActionTracking = {
+  productId: string,
+  actionType: string
+}

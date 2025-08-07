@@ -88,8 +88,10 @@ public class MappingProfile : Profile
 
         CreateMap<NotificationGroup, NotificationGroupDto>();
         CreateMap<NotificationGroupDto, NotificationGroup>();
-        
+
         CreateMap<Brand, BrandDto>();
         CreateMap<BrandDto, Brand>();
+        
+        // CreateMap<ProductVectorEmbedding, Product
     }
 }

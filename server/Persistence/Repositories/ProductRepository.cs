@@ -23,6 +23,21 @@ public class ProductRepository(StoreContext context) : IProductRepository
             .Include(p => p.Attributes)
             .FirstOrDefaultAsync(cancellationToken);
     }
+    public async Task<Product?> GetProductByIdWithDetailFilterTagsAsync(string productId, CancellationToken cancellationToken)
+    {
+        return await _context.Products
+            .Where(p => p.Id == productId)
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .Include(p => p.DisplayTags)
+            .Include(p => p.ProductTagFilters!)
+            .ThenInclude(ptf => ptf.FilterTagValue)
+            .ThenInclude(ftv => ftv!.FilterTag)
+            .Include(p => p.Reviews)
+            .Include(p => p.DetailImages)
+            .Include(p => p.Attributes)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 
     public async Task<List<Product>> GetAllProducts(CancellationToken cancellationToken)
     {
@@ -101,7 +116,7 @@ public class ProductRepository(StoreContext context) : IProductRepository
         existProduct.MainImagePublicId = product.MainImagePublicId;
         existProduct.DetailImages = product.DetailImages;
         existProduct.Attributes = product.Attributes;
-        existProduct.ProductTagFilters = product.ProductTagFilters;   
+        existProduct.ProductTagFilters = product.ProductTagFilters;
         existProduct.BrandId = product.BrandId;
         // existProduct = product;
     }
@@ -141,5 +156,13 @@ public class ProductRepository(StoreContext context) : IProductRepository
             }
         }
         return messages;
+    }
+
+    public async Task<List<Product>> GetTop10SoldProducts(CancellationToken cancellationToken)
+    {
+        return await _context.Products.Where(p => p.IsActive)
+            .OrderByDescending(p => p.UnitSold)
+            .Take(10)
+            .ToListAsync(cancellationToken);
     }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Persistence;
@@ -12,9 +13,11 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    partial class StoreContextModelSnapshot : ModelSnapshot
+    [Migration("20250806133442_NewProductVectorEmbed+UserTrackignAction")]
+    partial class NewProductVectorEmbedUserTrackignAction
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -881,35 +884,6 @@ namespace Persistence.Migrations
                     b.ToTable("product_tag_filters", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.ProductVectorEmbedding", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("EmbeddingJson")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("embedding_json");
-
-                    b.Property<string>("ProductId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("product_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_product_vector_embeddings");
-
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("ix_product_vector_embeddings_product_id");
-
-                    b.ToTable("product_vector_embeddings", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -1108,49 +1082,6 @@ namespace Persistence.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserActionTracking", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("ActionTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("action_time");
-
-                    b.Property<int>("ActionType")
-                        .HasColumnType("integer")
-                        .HasColumnName("action_type");
-
-                    b.Property<string>("MetaData")
-                        .HasColumnType("text")
-                        .HasColumnName("meta_data");
-
-                    b.Property<string>("ProductId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("product_id");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_user_action_trackings");
-
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("ix_user_action_trackings_product_id");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_action_trackings_user_id");
-
-                    b.ToTable("user_action_trackings", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.UserImage", b =>
@@ -1667,18 +1598,6 @@ namespace Persistence.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ProductVectorEmbedding", b =>
-                {
-                    b.HasOne("Domain.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_product_vector_embeddings_products_product_id");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
@@ -1706,27 +1625,6 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_reviews_users_user_id");
-
-                    b.Navigation("Product");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserActionTracking", b =>
-                {
-                    b.HasOne("Domain.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_action_trackings_products_product_id");
-
-                    b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_action_trackings_users_user_id");
 
                     b.Navigation("Product");
 

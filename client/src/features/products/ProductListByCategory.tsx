@@ -511,10 +511,10 @@ type Props = {
 const ProductGrid = React.memo(function ProductGrid({ products }: Props) {
     const {data: currentUser} = useGetCurrentUserQuery()
     return (
-        <Grid container spacing={{ xs: 2, sm: 3, md: 4 }} columns={{ xs: 2, sm: 9, md: 12 }}>
+        <Grid container spacing={{ xs: 2, sm: 2, md: 3 }} columns={{ xs: 2, sm: 8, md: 12 }}>
             {(products && products.length > 0) ?
                 (products.map((product) => (
-                    <Grid size={{ xs: 1, sm: 3, md: 3 }} key={product.id}>
+                    <Grid size={{ xs: 1, sm: 2, md: 2.4 }}  key={product.id}>
                         <ProductCard product={product} currentUser={currentUser} />
                     </Grid>
                 ))) 

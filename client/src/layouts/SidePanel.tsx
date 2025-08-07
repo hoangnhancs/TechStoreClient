@@ -50,37 +50,46 @@ export default function SidePanel() {
             <Paper 
                 elevation={3}
                 sx={{
-                    width: '30%', // Chiếm 30% chiều rộng
+                    width: '25%', // Chiếm 30% chiều rộng
                     height: '100%',
                     overflow: 'auto', // Cho phép scroll nếu có nhiều categories
                     borderRadius: 5,
                     
                 }}
             >
-                {/* <Typography 
-                    variant="h6" 
-                    sx={{ 
-                        p: 2, 
-                        borderBottom: '1px solid #eee',
-                        fontWeight: 'bold',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                    }}
-                >
-                    Categories
-                </Typography>
-                <Divider /> */}
-
                 <List sx={{ p: 1 , }}>
                     {categories.map((category) => (
                         <ListItemButton
                             key={category.id}
                             sx={{
+                                position: 'relative', 
+                                overflow: 'hidden',
                                 height: 30,
                                 borderRadius: 1,
                                 mb: 0.5,
                                 '&:hover': {
-                                    backgroundColor: 'action.hover',
+                                    backgroundColor: '#abd5f1ff',
+                                },
+                                '&::before': {
+                                    content: '""',
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: '-75%',
+                                    width: '50%',
+                                    height: '100%',
+                                    background: 'linear-gradient(120deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.2) 100%)',
+                                    transform: 'skewX(-20deg)',
+                                },
+                                '&:hover::before': {
+                                    animation: 'sweep 0.5s ease-in-out',
+                                },
+                                '@keyframes sweep': {
+                                    '0%': {
+                                        left: '-75%',
+                                    },
+                                    '100%': {
+                                        left: '125%',
+                                    },
                                 },
                             }}
                             onClick={() => navigate(`/products/category/${category.id}`)}
@@ -93,15 +102,13 @@ export default function SidePanel() {
                                 sx={{
                                     fontSize: '0.9rem',
                                     fontWeight: 500,
-                                    '.MuiListItemButton-root:hover &': {
-                                        color: 'primary.main'
-                                    }
+                                    
                                 }}
                             />
                             <KeyboardArrowRight 
                                 sx={{ 
                                     opacity: 0.5,
-                                    transition: '0.2s',
+                                    transition: '0.5s',
                                     '.MuiListItemButton-root:hover &': {
                                         opacity: 1,
                                         transform: 'translateX(4px)'
@@ -169,6 +176,7 @@ export default function SidePanel() {
                         clickable: true,
                         type: 'bullets',
                     }}
+                    slidesPerView={1}
                     autoplay={{
                         delay: 4000,
                         disableOnInteraction: false

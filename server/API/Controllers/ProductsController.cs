@@ -1,4 +1,5 @@
 using System;
+using System.Security.Claims;
 using API.DTOs;
 using Application.Commands.Products;
 using Application.DTOs;
@@ -106,7 +107,7 @@ public class ProductsController : BaseApiController
                 QuantityInStock = updateProductDto.QuantityInStock,
             },
             MainImageInput = mainImageInput,
-            DetailImageInputs =  detailImageInput,
+            DetailImageInputs = detailImageInput,
             FilterTags = updateProductDto.FilterTags,
             // AttributeGroups = createProductDto.AttributeGroups
             //     .Select(create_ag => new Application.Command.Product.ProductAttributeGroupDto
@@ -129,5 +130,20 @@ public class ProductsController : BaseApiController
     public async Task<IActionResult> DeleteProduct([FromQuery] string id)
     {
         return HandleAppResult(await Mediator.Send(new DeleteProductCommand { ProductId = id }));
+    }
+
+    [HttpGet("suggestion")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetSuggestionProducts()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return HandleAppResult(await Mediator.Send(new GetSuggestionProductQuery { UserId = userId }));
+    }
+
+    [HttpPost("generate_product_vector")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GenerateProductVector()
+    {
+        return HandleAppResult(await Mediator.Send(new GenerateProductVector.Command()));
     }
 }

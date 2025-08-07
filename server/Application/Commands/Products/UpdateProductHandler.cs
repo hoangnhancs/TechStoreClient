@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Text.Json;
 using Application.Core;
 using Application.DTOs;
 using Application.Interface;
@@ -16,20 +18,22 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, AppRes
     private readonly IMapper _mapper;   
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPhotoService _photoService;
-
-    public UpdateProductHandler(IProductRepository productRepository, IMapper mapper, IUnitOfWork unitOfWork, IPhotoService photoService)
+    private readonly IProductVectorEmbeddingRepository _productVectorEmbeddingRepository;
+    public UpdateProductHandler(IProductRepository productRepository, IMapper mapper,
+    IUnitOfWork unitOfWork, IPhotoService photoService, IProductVectorEmbeddingRepository productVectorEmbeddingRepository)
     {
         _productRepository = productRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _photoService = photoService;
+        _productVectorEmbeddingRepository = productVectorEmbeddingRepository;
     }
     public async Task<AppResult<ProductDto>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         if (request.ProductDto.Id == null) return AppResult<ProductDto>.Failure("Product ID cannot be null or empty", 400);
         var existingProduct = await _productRepository.GetProductByIdAsync(request.ProductDto.Id, cancellationToken);
         if (existingProduct == null) return AppResult<ProductDto>.Failure("Product not found", 404);
-        var newProduct = _mapper.Map<Domain.Entities.Product>(request.ProductDto);
+        var newProduct = _mapper.Map<Product>(request.ProductDto);
 
         //main image handler
         if (request.MainImageInput != null)
@@ -127,6 +131,65 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, AppRes
         await _productRepository.UpdateProductAsync(newProduct, DateTime.UtcNow, cancellationToken); 
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
         if (!result) return AppResult<ProductDto>.Failure("Failed to update product", 500);
+        var productFilterTagValuesText = "";
+        var tmpProduct = await _productRepository.GetProductByIdWithDetailFilterTagsAsync(newProduct.Id, cancellationToken);
+        foreach (var filtertagvalue in tmpProduct!.ProductTagFilters)
+        {
+            productFilterTagValuesText += $"{filtertagvalue.FilterTagValue!.FilterTag!.Name}: {filtertagvalue.FilterTagValue!.Value}, ";
+        }
+        var productAttributesText = $"Name: {tmpProduct.Name}, Description: {String.Join(" ", tmpProduct.Description)}, Price: {tmpProduct.OldPrice}, Discount: {tmpProduct.DiscountPercentage}%, Category: {tmpProduct.Category!.DisplayName}, Brand: {tmpProduct.Brand!.Name}, Tags: {productFilterTagValuesText}";
+        Console.WriteLine(productAttributesText);
+
+
+        var psi = new ProcessStartInfo
+        {
+            FileName = "python3", // hoặc "python"
+            Arguments = $"\"../ApplicationPythonScripts/ExtractVectorFromProductAttributesString.py\" \"{productAttributesText}\"", // truyền param nếu cần
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        var process = new Process { StartInfo = psi };
+
+        try
+        {
+            process.Start();
+
+            string output = await process.StandardOutput.ReadToEndAsync();
+            string error = await process.StandardError.ReadToEndAsync();
+
+            process.WaitForExit();
+
+            if (process.ExitCode != 0)
+            {
+                return AppResult<ProductDto>.Failure("Failed to generate product vector", 400);
+            }
+
+            // TODO: parse output nếu cần (JSON, list v.v.)
+            try
+            {
+                var vectors = JsonSerializer.Deserialize<List<float>>(output);
+                await _productVectorEmbeddingRepository.UpdateProductVectorEmbedding(tmpProduct.Id, output);
+                var updateResult = await _unitOfWork.SaveChangesAsync(cancellationToken);
+                if (!updateResult) return AppResult<ProductDto>.Failure("Problem when update product vector embedding", 400);
+
+            }
+            catch (JsonException jsonEx)
+            {
+                return AppResult<ProductDto>.Failure("JSON parsing error: " + jsonEx.Message + "\nRaw output: " + output, 500);
+            }
+            // Console.WriteLine(output);
+        }
+        catch (Exception ex)
+        {
+            return AppResult<ProductDto>.Failure("Error running python script: " + ex.Message, 400);
+        }
+        finally
+        {
+            process.Dispose();
+        }
         return AppResult<ProductDto>.Success(_mapper.Map<ProductDto>(newProduct));
     }
 }

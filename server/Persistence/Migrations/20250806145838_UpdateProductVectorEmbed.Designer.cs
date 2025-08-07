@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Persistence;
@@ -12,9 +13,11 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    partial class StoreContextModelSnapshot : ModelSnapshot
+    [Migration("20250806145838_UpdateProductVectorEmbed")]
+    partial class UpdateProductVectorEmbed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -904,9 +907,6 @@ namespace Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_product_vector_embeddings");
 
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("ix_product_vector_embeddings_product_id");
-
                     b.ToTable("product_vector_embeddings", (string)null);
                 });
 
@@ -1143,12 +1143,6 @@ namespace Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_user_action_trackings");
-
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("ix_user_action_trackings_product_id");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("ix_user_action_trackings_user_id");
 
                     b.ToTable("user_action_trackings", (string)null);
                 });
@@ -1667,18 +1661,6 @@ namespace Persistence.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Domain.Entities.ProductVectorEmbedding", b =>
-                {
-                    b.HasOne("Domain.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_product_vector_embeddings_products_product_id");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
@@ -1706,27 +1688,6 @@ namespace Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_reviews_users_user_id");
-
-                    b.Navigation("Product");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserActionTracking", b =>
-                {
-                    b.HasOne("Domain.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_action_trackings_products_product_id");
-
-                    b.HasOne("Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_action_trackings_users_user_id");
 
                     b.Navigation("Product");
 

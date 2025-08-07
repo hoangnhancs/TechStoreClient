@@ -17,12 +17,15 @@ public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCom
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IProductRepository _productRepository;
-    public CreateOrUpdateOrderHandler(IMapper mapper, IOrderRepository orderRepository, IUnitOfWork unitOfWork, IProductRepository productRepository)
+    private readonly IUserActionTrackingRepository _userActionTrackingRepository;
+    public CreateOrUpdateOrderHandler(IMapper mapper, IOrderRepository orderRepository, IUnitOfWork unitOfWork,
+            IProductRepository productRepository, IUserActionTrackingRepository userActionTrackingRepository)
     {
         _orderRepository = orderRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _productRepository = productRepository;
+        _userActionTrackingRepository = userActionTrackingRepository;
     }
     public async Task<AppResult<OrderDto>> Handle(CreateOrUpdateOrderCommand request, CancellationToken cancellationToken)
     {
@@ -50,6 +53,12 @@ public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCom
                     product.QuantityInStock -= item.Quantity;
                     product.UnitSold += item.Quantity;
                     await _productRepository.UpdateProductAsync(product, null, cancellationToken);
+                    await _userActionTrackingRepository.AddUserActionTracking(new UserActionTracking
+                    {
+                        UserId = request.UserId,
+                        ProductId = item.ProductId,
+                        ActionType = UserActionTracking.UserActionType.Purchase
+                    }, cancellationToken);
                     // await _productRepository.UpdateProductQuantityAsync(item.ProductId, item.Quantity, "sub", cancellationToken);
                 }
             }

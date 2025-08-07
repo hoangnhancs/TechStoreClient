@@ -37,6 +37,7 @@ import { categoryApi } from "../api/categoryApi";
 import { bannerApi } from "../api/bannerApi";
 import { notificationGroupApi } from "../api/notificationGroupsApi";
 import { brandApi } from "../api/brandApi";
+import { userActionTrackingApi } from "../api/userActionTrackingApi";
 
 export const resetState = createAction("app/reset-state");
 
@@ -56,6 +57,7 @@ export const rootReducer = combineReducers({
   [bannerApi.reducerPath]: bannerApi.reducer,
   [notificationGroupApi.reducerPath]: notificationGroupApi.reducer,
   [brandApi.reducerPath]: brandApi.reducer,
+  [userActionTrackingApi.reducerPath]: userActionTrackingApi.reducer,
 
   counter: counterReducer,
   ui: uiReducer,
@@ -100,6 +102,7 @@ export const store = configureStore({
       bannerApi.middleware,
       notificationGroupApi.middleware,
       brandApi.middleware,
+      userActionTrackingApi.middleware,
     ),
 });
 

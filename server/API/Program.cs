@@ -1,5 +1,6 @@
 using System.Text;
 using API.Extensions;
+using API.GraphQL.Mutations;
 using API.GraphQL.Queries;
 using API.Middleware;
 using API.SignalR;
@@ -74,8 +75,10 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<Ge
 
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType(d => d.Name("Query")) 
+    .AddQueryType(d => d.Name("Query"))
         .AddTypeExtension<BrandQuery>()
+    .AddMutationType(d => d.Name("Mutation"))
+        .AddTypeExtension<UserActionTrackingMutation>()
     .AddAuthorization()
     .AddFiltering()
     .AddSorting()
@@ -103,6 +106,8 @@ builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationGroupRepository, NotificationGroupRepository>();
 builder.Services.AddScoped<IBrandRepository, BrandRepository>();
+builder.Services.AddScoped<IProductVectorEmbeddingRepository, ProductVectorEmbeddingRepository>();
+builder.Services.AddScoped<IUserActionTrackingRepository, UserActionTrackingRepository>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 

@@ -3,6 +3,7 @@ using Application.Core;
 using Application.DTOs;
 using Application.Mappers;
 using AutoMapper;
+using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using MediatR;
@@ -16,14 +17,17 @@ public class AddItemToBasketHandler : IRequestHandler<AddItemToBasketCommand, Ap
     private readonly IBasketRepository _basketRepository;
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserActionTrackingRepository _userActionTrackingRepository;
     private readonly IMapper _mapper;
 
-    public AddItemToBasketHandler(IBasketRepository basketRepository, IProductRepository productRepository, IUnitOfWork unitOfWork, IMapper mapper)
+    public AddItemToBasketHandler(IBasketRepository basketRepository, IProductRepository productRepository, IUnitOfWork unitOfWork,
+            IMapper mapper, IUserActionTrackingRepository userActionTrackingRepository)
     {
         _basketRepository = basketRepository;
         _productRepository = productRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _userActionTrackingRepository = userActionTrackingRepository;
     }
 
     public async Task<AppResult<BasketDto>> Handle(AddItemToBasketCommand request, CancellationToken cancellationToken)
@@ -38,6 +42,13 @@ public class AddItemToBasketHandler : IRequestHandler<AddItemToBasketCommand, Ap
         if (product == null) return AppResult<BasketDto>.Failure("Product not found", 404);
 
         var newBasket = await _basketRepository.AddItemToBasketAsync(request.UserId, request.ProductId, request.Quantity, cancellationToken);
+
+        await _userActionTrackingRepository.AddUserActionTracking(new UserActionTracking
+        {
+            UserId = request.UserId,
+            ProductId = request.ProductId,
+            ActionType = UserActionTracking.UserActionType.AddToCart
+        }, cancellationToken);
 
         var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
 

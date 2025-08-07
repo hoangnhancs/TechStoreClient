@@ -135,6 +135,13 @@ export const productApi = createApi({
       }),
       // invalidatesTags: [{ type: "Product", id: "LIST" }],
     }),
+    fetchSuggestionProducts: builder.query<Product[], void>({
+      query: () => ({ url: "/products/suggestion", method: "GET" }),
+      providesTags: (result) =>
+        result
+          ? result.map((p) => ({ type: "Product" as const, id: p.id }))
+          : [],
+    }),
   }),
 });
 
@@ -146,5 +153,6 @@ export const {
   useLazyFetchProductsByCatQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
-  useDeleteProductMutation
+  useDeleteProductMutation, 
+  useFetchSuggestionProductsQuery
 } = productApi;

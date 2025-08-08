@@ -31,6 +31,7 @@ public class StoreContext(DbContextOptions options) : IdentityDbContext<User>(op
     public required DbSet<Brand> Brands { get; set; }
     public required DbSet<UserActionTracking> UserActionTrackings { get; set; }
     public required DbSet<ProductVectorEmbedding> ProductVectorEmbeddings { get; set; }
+    public required DbSet<FlashSaleProduct> FlashSaleProducts { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

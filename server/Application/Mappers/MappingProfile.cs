@@ -91,7 +91,8 @@ public class MappingProfile : Profile
 
         CreateMap<Brand, BrandDto>();
         CreateMap<BrandDto, Brand>();
-        
-        // CreateMap<ProductVectorEmbedding, Product
+
+        CreateMap<FlashSaleProduct, FlashSaleProductDto>()
+            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product!.Name));
     }
 }

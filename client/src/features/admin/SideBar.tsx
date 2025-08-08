@@ -47,7 +47,6 @@ export default function Sidebar() {
                 },
             }}
         >
-
             <Box sx={{ width: "100%", bgcolor: "#e3f2fd", height: "100%" }}>
                 <List component="nav">
                     {/* Dashboards */}
@@ -85,9 +84,9 @@ export default function Sidebar() {
                         <ListItemButton sx={{ pl: 4 }} component={Link} to="/dashboard/notifications">
                             <ListItemText primary="Thông báo" />
                         </ListItemButton>
-                        <ListItemButton sx={{ pl: 4 }}>
+                        <ListItemButton sx={{ pl: 4 }} component={Link} to="/dashboard/flash-sales">
                             <ListItemIcon><People /></ListItemIcon>
-                            <ListItemText primary="Customers" />
+                            <ListItemText primary="Flash Sales" />
                         </ListItemButton>
                         <ListItemButton sx={{ pl: 4 }}>
                             <ListItemIcon><AddBox /></ListItemIcon>

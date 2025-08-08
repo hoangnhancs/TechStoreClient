@@ -108,6 +108,7 @@ builder.Services.AddScoped<INotificationGroupRepository, NotificationGroupReposi
 builder.Services.AddScoped<IBrandRepository, BrandRepository>();
 builder.Services.AddScoped<IProductVectorEmbeddingRepository, ProductVectorEmbeddingRepository>();
 builder.Services.AddScoped<IUserActionTrackingRepository, UserActionTrackingRepository>();
+builder.Services.AddScoped<IFlashSaleProductRepository, FlashSaleProductRepository>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
 
 

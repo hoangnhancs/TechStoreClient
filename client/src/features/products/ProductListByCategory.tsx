@@ -36,7 +36,7 @@ export default function ProductListByCategory() {
     const [openTagId, setOpenTagId] = useState<number | null>(null);
     const selectedFilters = useAppSelector((state) => state.filter.filter);//type Record<number, number[]>: {filtertagId: [filterTagValueIds]}
     const [tmpSelectedFilters, setTmpSelectedFilters] = useState<Record<number, number[]>>(selectedFilters);
-    const { data: brandsByCatId } = useFetchBrandsByCatIdQuery(Number(id), {skip: !id});
+    const { data: brandsByCatId, isLoading: isLoadingBrands } = useFetchBrandsByCatIdQuery(Number(id), {skip: !id});
     const reduxSelectedBrands = useAppSelector(state => state.filter.brand);
     const [selectedBrands, setSelectedBrands] = useState<Brand[] | null>(reduxSelectedBrands);
     const reduxPriceSort = useAppSelector(state => state.filter.priceSort);
@@ -175,7 +175,7 @@ export default function ProductListByCategory() {
         return texts;
     }, [selectedFilters, filterTextMapping]);
 
-    if (isLoadingFilterTagValueLoading || isProductLoading || !productByCat) 
+    if (isLoadingFilterTagValueLoading || isProductLoading || !productByCat || isLoadingBrands) 
     return (
         <LoadingComponent />
     );

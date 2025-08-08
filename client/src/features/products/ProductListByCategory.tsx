@@ -22,7 +22,7 @@ import { useFetchCategoriesQuery } from "../../app/api/categoryApi";
 
 export default function ProductListByCategory() {
     const dispatch = useAppDispatch();
-    const {id} = useParams();
+    const {id} = useParams<{id: string}>();
     
     const categoryIdNumber = id ? Number(id) : undefined;
     const {data: allCats } = useFetchCategoriesQuery();

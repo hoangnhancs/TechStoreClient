@@ -30,7 +30,7 @@ export default function AddNewProduct() {
   const [ createProduct, { isLoading: isLoadingCreateProduct } ] = useCreateProductMutation();
   const [ updateProduct, { isLoading: isLoadingUpdateProduct } ] = useUpdateProductMutation();
   const { enqueueSnackbar } = useSnackbar();
-  const { id } = useParams<{id: string}>();
+  const { id } = useParams();
   const [ resetKey, setResetkey ] = useState(false);
   const { data: updatedProduct,  } = useFetchProductByIdQuery(id || "", {skip: !id});
   console.log("updatedProduct", updatedProduct);

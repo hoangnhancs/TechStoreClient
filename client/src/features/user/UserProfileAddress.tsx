@@ -75,7 +75,7 @@ export default function UserProfileAddress() {
       let tempDistricts: District[] = [];
       let tempWards: Ward[] = [];
       const provincesResponse = await axios.get(
-          "https://localhost:5001/api/address/provinces", 
+          `${import.meta.env.VITE_API_URL}/address/provinces`, 
           {withCredentials: true}
       );
       tempProvinces = provincesResponse.data.data || [];
@@ -86,7 +86,7 @@ export default function UserProfileAddress() {
         
       if (provinceId) {
           const districtsResponse = await axios.get(
-              `https://localhost:5001/api/address/districts?provinceId=${provinceId}`, 
+              `${import.meta.env.VITE_API_URL}/address/districts?provinceId=${provinceId}`, 
               {withCredentials: true}
           );
           tempDistricts = districtsResponse.data.data || [];
@@ -98,7 +98,7 @@ export default function UserProfileAddress() {
           
           if (districtId) {
               const wardsResponse = await axios.get(
-                  `https://localhost:5001/api/address/wards?districtId=${districtId}`, 
+                  `${import.meta.env.VITE_API_URL}/address/wards?districtId=${districtId}`, 
                   {withCredentials: true}
               );
               tempWards = wardsResponse.data.data || [];

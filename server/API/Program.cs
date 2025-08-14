@@ -213,8 +213,8 @@ app.UseCors(options =>
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseDefaultFiles();
-app.UseStaticFiles();
+// app.UseDefaultFiles();
+// app.UseStaticFiles();
 
 app.MapControllers();
 app.MapGraphQL();
@@ -222,7 +222,7 @@ app.MapGroup("api").MapIdentityApi<User>(); //chuyen tu api/account thanh api
 app.MapHub<CommentHub>("/commentHub");
 app.MapHub<ReviewHub>("/reviewHub");
 app.MapHub<NotificationHub>("/notificationHub");
-app.MapFallbackToController("Index", "Fallback");
+// app.MapFallbackToController("Index", "Fallback");
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 

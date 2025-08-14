@@ -249,3 +249,102 @@ lib: notistack: bat toan bo error
 
 
 alignItems != flexdirection
+
+✅1. REST API — truyền args kiểu truyền thống
+// Gọi REST tạo user
+fetch("/api/users", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    name: "Alice",
+    email: "alice@example.com"
+  })
+});
+
+ ✅2. GraphQL API — truyền args gián tiếp qua variables
+// GraphQL mutation tạo user
+fetch("/graphql", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    query: `
+      mutation CreateUser($input: CreateUserInput!) {
+        createUser(input: $input) {
+          id
+          name
+        }
+      }
+    `,
+    variables: {
+      input: {
+        name: "Alice",
+        email: "alice@example.com"
+      }
+    },
+    operationName: "CreateUser"
+  })
+});
+Tổng hợp lại: cấu trúc args
+🔧 REST
+const restArgs: FetchArgs = {
+  url: "/users",
+  method: "POST",
+  body: {
+    name: "Alice"
+  }
+};
+🔧 GraphQL
+const graphQLArgs: GraphQLRequestArgs = {
+  document: `
+    query GetUser($id: ID!) {
+      user(id: $id) {
+        name
+      }
+    }
+  `,
+  variables: {
+    id: "123"
+  },
+  operationName: "GetUser"
+};
+
+
+giai thich Nguyen ly hoat dong của signalR: 
+ben phia client, component goi: SendNotification
+bên phía BE: cái method SendNotification sẽ đc gọi, và gọi lại phương thức da dang ky: ReceiveNotification: await Clients.Group("admin-notifications").SendAsync("ReceiveNotification", result.Value);
+sau do ben phia signalRsrvice, 
+newConnection.on("ReceiveNotification", (notification: Notification) => {
+                if (this.notificationCallback) {
+                    // console.log("Received notification: ", notification);
+                    this.notificationCallback(notification);
+                }
+            })
+khi duoc goi ReceiveNotification, no se thuc thi cai callback ma minh da dang ky truoc do
+callback do minh da dang ky o dau? cau tra loi la o trong provider:
+o provider minh goi:
+NotificationSignalRService.onReceiveNewNotification((notification) => {
+                console.log("Received new notification:", notification);
+                setAllNotifications((prevNotifications) => [notification, ...prevNotifications]);
+                setOnlineNotifications((prevNotifications) => [notification, ...prevNotifications]);
+                setTimeout(() => {
+                    setOnlineNotifications((prevNotifications) => prevNotifications.filter((n) => n.id !== notification.id));
+                }, 5000)
+                
+            })
+khi do, cai notificationCallback se tuong duong voi :
+(notification) => {
+                console.log("Received new notification:", notification);
+                setAllNotifications((prevNotifications) => [notification, ...prevNotifications]);
+                setOnlineNotifications((prevNotifications) => [notification, ...prevNotifications]);
+                setTimeout(() => {
+                    setOnlineNotifications((prevNotifications) => prevNotifications.filter((n) => n.id !== notification.id));
+                }, 5000)
+                
+            }
+
+git pull --rebase origin feature/notification
+→ Lệnh này sẽ lấy commit mới nhất từ GitHub, rồi "đặt lại" (rebase) commit của bạn lên trên cùng.
+
+dotnet restore	Tải các dependency (NuGet package)
+dotnet publish	Biên dịch và chuẩn bị app để deploy/run
+--no-restore	Tối ưu build bằng cách không restore lại

@@ -1,8 +1,9 @@
 # E-Commerce Store 🛒
 
-An e-commerce website built with *React + Vite* (frontend) and *ASP.NET Core* (backend), following the Clean Architecture approach. This project aims to simulate a real-world e-commerce system, showcasing a complete feature set including authentication, admin dashboard, order management, and more.
+An e-commerce website built with _React + Vite_ (frontend) and _ASP.NET Core_ (backend), following the Clean Architecture approach. This project aims to simulate a real-world e-commerce system, showcasing a complete feature set including authentication, admin dashboard, order management, and more.
 
 **[Live Demo](https://server-proud-fire-4566.fly.dev)**
+test
 
 **Account demo:**
 
@@ -38,7 +39,7 @@ _(for testing realtime comment/review and notification)_
 
 - **Cloudinary Integration**: All uploaded images (e.g., avatars) are stored, optimized, and served via Cloudinary.
 - **Banners Manage**: Admin can upload new banners onto Cloudinary server. And admin also remove any banner existed.
-- **Product Images**: Admins can update new main image and detail images for each product 
+- **Product Images**: Admins can update new main image and detail images for each product
 - **Avatar** Each user or admin also can upload their own avatar
 
 ### 4. Shopping Cart & Checkout
@@ -88,7 +89,6 @@ _(for testing realtime comment/review and notification)_
 - **Average of Tracking Product** Track user interactions (e.g., view, add to cart, purchase) and compute a weighted average of the corresponding product vectors using weights (view: 1.0, add to cart: 1.5, purchase: 2.0).
 - **Cosine Similarity** Calculate cosine similarity between the user's average vector and all product vectors, and return the top 10 most similar products.
 
-
 ---
 
 ## ► 🚀 Tech Stack
@@ -107,7 +107,7 @@ _(for testing realtime comment/review and notification)_
 
 ### **Frontend**
 
-- **Framework:** ReactJS 
+- **Framework:** ReactJS
 - **Language:** TypeScript
 - **Build Tool:** Vite
 - **State Management:** Redux
@@ -166,12 +166,12 @@ The diagram below illustrates the structure and key relationships between entiti
     Backend will run at `https://localhost:5001` or a similar port.
 7.  Auto generate addresses for each user by run endpoint
     ```bash
-    POST: 
+    POST:
     https://localhost:5001/api/address/create-virtual-addresses
     ```
 8.  Auto generate orders for testing analyst(admin feature) by run endpoint
     ```bash
-    POST: 
+    POST:
     https://localhost:5001/api/order/create-virtual-order
     ```
 9.  Auto generate products embedding vectors for using recommanded by run endpoint
@@ -179,8 +179,6 @@ The diagram below illustrates the structure and key relationships between entiti
     POST:
     https://localhost:5001/api/products/generate_product_vector
     ```
-
-
 
 ### **2. Frontend Setup**
 

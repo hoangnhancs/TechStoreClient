@@ -2,8 +2,7 @@
 
 An e-commerce website built with _React + Vite_ (frontend) and _ASP.NET Core_ (backend), following the Clean Architecture approach. This project aims to simulate a real-world e-commerce system, showcasing a complete feature set including authentication, admin dashboard, order management, and more.
 
-**[Live Demo](https://e-commerce-store-five-azure.vercel.app)**
-test3
+**[Live Demo](https://e-commerce-store-five-azure.vercel.app/)**
 
 **Account demo:**
 

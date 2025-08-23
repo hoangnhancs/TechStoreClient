@@ -1,14 +1,9 @@
 using System;
 using Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Persistence;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Application.Commands.Payments;
 using Microsoft.AspNetCore.Authorization;
-using Application.Queries.Payments;
-using Stripe;
-using Domain.Entities;
 
 namespace API.Controllers;
 
@@ -24,26 +19,26 @@ public class PaymentsController : BaseApiController
 
         return HandleAppResult(await Mediator.Send(new CreateOrUpdatePaymentIntentCommand { UserId = userId }));
     }
-    [HttpGet("mypayments")]
-    [Authorize(Policy = "SecurityStampRequirement")]
-    public async Task<IActionResult> GetPaymentByUserId()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-            return Unauthorized("User not authenticated");
+    // [HttpGet("mypayments")]
+    // [Authorize(Policy = "SecurityStampRequirement")]
+    // public async Task<IActionResult> GetPaymentByUserId()
+    // {
+    //     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    //     if (string.IsNullOrEmpty(userId))
+    //         return Unauthorized("User not authenticated");
 
-        return HandleAppResult(await Mediator.Send(new GetPaymentByUserIdQuery { UserId = userId }));
-    }
-    [HttpGet("payment-intent")]
-    [Authorize(Policy = "SecurityStampRequirement")]
-    public async Task<IActionResult> GetPaymentIntent([FromQuery] string paymentIntentId)
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-            return Unauthorized("User not authenticated");
+    //     return HandleAppResult(await Mediator.Send(new GetPaymentByUserIdQuery { UserId = userId }));
+    // }
+    // [HttpGet("payment-intent")]
+    // [Authorize(Policy = "SecurityStampRequirement")]
+    // public async Task<IActionResult> GetPaymentIntent([FromQuery] string paymentIntentId)
+    // {
+    //     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    //     if (string.IsNullOrEmpty(userId))
+    //         return Unauthorized("User not authenticated");
 
-        return HandleAppResult(await Mediator.Send(new GetPaymentIntentQuery { PaymentIntentId = paymentIntentId }));
-    }
+    //     return HandleAppResult(await Mediator.Send(new GetPaymentIntentQuery { PaymentIntentId = paymentIntentId }));
+    // }
     [HttpPut("complete-payment")]
     [Authorize(Policy = "SecurityStampRequirement")]
     public async Task<IActionResult> CompletePayment()

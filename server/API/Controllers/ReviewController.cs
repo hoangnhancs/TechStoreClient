@@ -8,6 +8,7 @@ namespace API.Controllers
 
     public class ReviewController : BaseApiController
     {
+        [HttpPost("create")]
         public async Task<IActionResult> CreateReview([FromBody] CreateReviewDto reviewDto)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

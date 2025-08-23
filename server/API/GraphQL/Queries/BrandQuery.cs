@@ -1,8 +1,6 @@
 using System;
 using Application.DTOs;
 using Application.Queries.Brands;
-using AutoMapper;
-using Domain.Interfaces.Repositories;
 using MediatR;
 
 namespace API.GraphQL.Queries;

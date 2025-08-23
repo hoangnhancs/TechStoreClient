@@ -99,6 +99,7 @@ _(for testing realtime comment/review and notification)_
 - **Database:** Entity Framework Core, PostgreSQL (hosted on Neon)
 - **Authentication:** ASP.NET Core Identity + JWT
 - **Real-time:** SignalR
+- **Redis** Caching
 - **External Services:**
   - **Cloudinary:** Image hosting and optimization
   - **Resend:** Transactional email delivery
@@ -153,27 +154,34 @@ The diagram below illustrates the structure and key relationships between entiti
     - `Resend:ApiToken`: Your Resend API token.
     - `GHN:ApiToken`: Your GHN API token.
     - `Stripe:Secretkey`: Stripe `Secretkey` for virtual payment.
-
-5.  Open terminal in folder `API` và run this command to migrations and create the database:
+5. Running Docker and run this command to create container(if container already not existed):
+    ```bash
+    docker run -d --name redis -p 6379:6379 redis
+    ```
+    Or start container(if container already existed):
+    ```bash
+    docker start redis
+    ```
+6.  Open terminal in folder `API` và run this command to migrations and create the database:
     ```bash
     dotnet ef database update
     ```
-6.  Start the backend:
+7.  Start the backend:
     ```bash
     dotnet watch run
     ```
     Backend will run at `https://localhost:5001` or a similar port.
-7.  Auto generate addresses for each user by run endpoint
+8.  Auto generate addresses for each user by run endpoint
     ```bash
     POST:
     https://localhost:5001/api/address/create-virtual-addresses
     ```
-8.  Auto generate orders for testing analyst(admin feature) by run endpoint
+9.  Auto generate orders for testing analyst(admin feature) by run endpoint
     ```bash
     POST:
     https://localhost:5001/api/order/create-virtual-order
     ```
-9.  Auto generate products embedding vectors for using recommanded by run endpoint
+10.  Auto generate products embedding vectors for using recommanded by run endpoint
     ```bash
     POST:
     https://localhost:5001/api/products/generate_product_vector

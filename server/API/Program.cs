@@ -46,6 +46,10 @@ builder.Services.AddIdentityApiEndpoints<User>(opt =>
 
 // builder.Logging.AddFilter("Microsoft.EntityFrameworkCore", LogLevel.None); //ignore logging from entity
 
+
+var containerId = Guid.NewGuid().ToString();
+builder.Services.AddSingleton(containerId); //test load balance on Fly.IO
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

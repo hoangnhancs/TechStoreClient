@@ -154,11 +154,11 @@ The diagram below illustrates the structure and key relationships between entiti
     - `Resend:ApiToken`: Your Resend API token.
     - `GHN:ApiToken`: Your GHN API token.
     - `Stripe:Secretkey`: Stripe `Secretkey` for virtual payment.
-5. Running Docker and run this command to create container(if container already not existed):
+5. Run Docker and run this command to create container (if container already not existed):
     ```bash
     docker run -d --name redis -p 6379:6379 redis
     ```
-    Or start container(if container already existed):
+    Or start container (if container already existed):
     ```bash
     docker start redis
     ```

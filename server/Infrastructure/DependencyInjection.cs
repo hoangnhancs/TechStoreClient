@@ -23,6 +23,7 @@ public static class DependencyInjection
         services.AddSingleton<IConnectionMultiplexer>(sp =>
             ConnectionMultiplexer.Connect(config.GetConnectionString("Redis") ?? "localhost:6379")
         );
+        services.AddScoped<ICacheService, RedisCacheService>();
 
         // Email (Resend)
         services.AddHttpClient<ResendClient>();

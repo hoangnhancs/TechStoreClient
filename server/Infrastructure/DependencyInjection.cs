@@ -35,7 +35,7 @@ public static class DependencyInjection
         services.AddTransient<IEmailSender<User>, EmailSender>();
 
         // Cloudinary
-        // services.Configure<CloudinarySetting>(config.GetSection("CloudinarySettings"));
+        services.Configure<CloudinarySetting>(config.GetSection("CloudinarySettings"));
         services.AddScoped<IPhotoService, PhotoService>();
 
         // Helpers

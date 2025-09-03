@@ -19,13 +19,13 @@ export default function CommentList({currentUser}: Props) {
   const commentId = searchParams.get("commentId");
 
   useEffect(() => {
-    console.log("commentId:", commentId);
-    console.log("list comments:", comments)
+    // console.log("commentId:", commentId);
+    // console.log("list comments:", comments)
     if (commentId && comments.length > 0) {
       // Delay nhẹ để đợi DOM render xong
       requestAnimationFrame(() => {
         const element = document.getElementById(commentId);
-        console.log("element:", element);
+        // console.log("element:", element);
 
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });

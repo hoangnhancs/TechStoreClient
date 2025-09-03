@@ -11,7 +11,7 @@ export const NotificationProvider: React.FC<{children: React.ReactNode}> = ({chi
     const [onlineNotifications, setOnlineNotifications] = useState<Notification[]>([]);
     const { data: currentUser } = useGetCurrentUserQuery();
     const { data: adminGroup } = useFetchAdminNotificationGroupQuery(undefined, { skip: !currentUser?.id });
-    console.log("admin group", adminGroup)
+    // console.log("admin group", adminGroup)
     useEffect(() => {
         if (!currentUser?.id) return; //dam bao user valid moi tao notification connection
         

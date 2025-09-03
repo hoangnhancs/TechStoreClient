@@ -11,9 +11,9 @@ public static class GraphQlExtensions
         services
             .AddGraphQLServer()
             .AddQueryType(d => d.Name("Query"))
-            .AddTypeExtension<BrandQuery>()
+                .AddTypeExtension<BrandQuery>()
             .AddMutationType(d => d.Name("Mutation"))
-            .AddTypeExtension<UserActionTrackingMutation>()
+                .AddTypeExtension<UserActionTrackingMutation>()
             .AddAuthorization()
             .AddFiltering()
             .AddSorting()

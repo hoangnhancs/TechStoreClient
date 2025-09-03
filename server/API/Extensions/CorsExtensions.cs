@@ -6,7 +6,7 @@ public static class CorsExtensions
 {
     private const string PolicyName = "AppCors";
     public static IServiceCollection AddCorsPolicy(this IServiceCollection
-    services, IConfiguration config)
+    services)
     {
         var allowedOrigins = new[]
         {

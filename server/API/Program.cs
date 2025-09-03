@@ -1,32 +1,9 @@
-using System.Text;
 using API.Extensions;
-using API.GraphQL.Mutations;
-using API.GraphQL.Queries;
-using API.Middleware;
-using API.SignalR;
-using Application.Interface;
-using Application.Mappers;
-using Application.Queries.Products;
+using Application;
 using Domain.Entities;
-using Domain.Interfaces;
-using Domain.Interfaces.Repositories;
-using Infrastructure.Email;
-using Infrastructure.Helper;
-using Infrastructure.Photo;
-using Infrastructure.Security;
-using Infrastructure.Service;
-using Microsoft.AspNetCore.Authentication.BearerToken;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+using Infrastructure;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
 using Persistence;
-using Persistence.Repositories;
-using Resend;
-using StackExchange.Redis;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,85 +16,28 @@ if (builder.Environment.IsProduction())
 
 // Add services to the container.
 
-builder.Services.AddControllers(opt =>
-{
-    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
-    opt.Filters.Add(new AuthorizeFilter(policy));
-});
+/*API layer*/
 
-// builder.Services.AddDbContext<StoreContext>(options =>
-//     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddDbContext<StoreContext>(options =>
-{
-    var connStr = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseNpgsql(connStr) // Dùng Npgsql cho PostgreSQL
-        .UseSnakeCaseNamingConvention(); //name convert theo chuan postgres  
-});
-
-builder.Services.AddTransient<ExceptionMiddleware>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
-
+builder.Services.AddControllersWithGlobalAuth();
+builder.Services.AddGlobalMiddlewareException();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddCors();
-builder.Services.AddSignalR()
-    .AddStackExchangeRedis("localhost:6379", options =>
-    {
-        options.Configuration.ChannelPrefix = RedisChannel.Pattern("MyAppSignalR");
-    });
+builder.Services.AddCorsPolicy();
+builder.Services.AddSignalRConfig();
+builder.Services.AddGraphQlServerConfig();
 
 
-builder.Services.AddHttpClient<ResendClient>();
-builder.Services.Configure<ResendClientOptions>(o =>
-{
-    o.ApiToken = builder.Configuration["Resend:ApiKey"]!;        // appsettings.json
-});
-builder.Services.AddTransient<IResend, ResendClient>();
-builder.Services.AddTransient<IEmailSender<User>, EmailSender>();
-
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetProductDetailsHandler>());
-
-builder.Services
-    .AddGraphQLServer()
-    .AddQueryType(d => d.Name("Query"))
-        .AddTypeExtension<BrandQuery>()
-    .AddMutationType(d => d.Name("Mutation"))
-        .AddTypeExtension<UserActionTrackingMutation>()
-    .AddAuthorization()
-    .AddFiltering()
-    .AddSorting()
-    .AddProjections();
-
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IBasketRepository, BasketRepository>();
-builder.Services.AddScoped<IAddressRepository, AddressRepository>();
-builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-builder.Services.AddScoped<IFilterTagValueRepository, FilterTagValueRepository>();
-builder.Services.AddScoped<IFilterTagRepository, FilterTagRepository>();
-builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
-builder.Services.AddScoped<IUserAccessor, UserAccessor>();
-builder.Services.AddScoped<ITokenServices, TokenServices>();
-builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.AddScoped<IHttpContextAccessorHelper, HttpContextAccessorHelper>();
-builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-builder.Services.AddScoped<IPhotoRepository, PhotoRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IBannerRepository, BannerRepository>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<INotificationGroupRepository, NotificationGroupRepository>();
-builder.Services.AddScoped<IBrandRepository, BrandRepository>();
-builder.Services.AddScoped<IProductVectorEmbeddingRepository, ProductVectorEmbeddingRepository>();
-builder.Services.AddScoped<IUserActionTrackingRepository, UserActionTrackingRepository>();
-builder.Services.AddScoped<IFlashSaleProductRepository, FlashSaleProductRepository>();
-builder.Services.AddScoped<IPhotoService, PhotoService>();
+/*Application layer*/
+builder.Services.AddApplicationServices();
 
 
-builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
+/*Persistence layer (repos + uow)*/
+builder.Services.AddPersistenceServices(builder.Configuration);
+
+
+/*Infastructure layer*/
+builder.Services.AddInfrastructureServices(builder.Configuration);
+
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddIdentityApiEndpoints<User>(opt =>
@@ -132,39 +52,8 @@ builder.Services.AddIdentityApiEndpoints<User>(opt =>
 //     options.BearerTokenExpiration = TimeSpan.FromMinutes(3); // access token sống 3 phút
 //     options.RefreshTokenExpiration = TimeSpan.FromDays(7);   // refresh token sống 7 ngày
 // });
-builder.Services.AddAuthorization(opt =>
-{
-    opt.AddPolicy("SecurityStampRequirement", policy =>
-    {
-        policy.Requirements.Add(new SecurityStampRequirement());
-    });
-    opt.AddPolicy("IsAdminRequirement", policy =>
-    {
-        policy.Requirements.Add(new IsAdminRequirement());
-    });
-});
-builder.Services.AddTransient<IAuthorizationHandler, SecurityStampRequirementHandler>();
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.ExpireTimeSpan = TimeSpan.FromDays(7); // Cookie sống 7 ngày
-    options.SlidingExpiration = true;              // Cứ dùng là gia hạn thêm
-    options.Cookie.IsEssential = true;
-});
-
-builder.Services.Configure<SecurityStampValidatorOptions>(opt =>
-{
-    opt.ValidationInterval = TimeSpan.FromMinutes(15); // Auto check mỗi 15p
-});
-builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
-{
-    options.TokenLifespan = TimeSpan.FromMinutes(15); //email song 15'
-});
-builder.Services.Configure<CloudinarySetting>(builder.Configuration
-    .GetSection("CloudinarySettings"));
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-            ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379")
-        );
-builder.Services.AddScoped<ICacheService, RedisCacheService>();
+builder.Services.AddAppAuthorization();
+builder.Services.AddAppAuthentication();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAppCookiePolicy();
 builder.Services.AddAppAuthorization();
@@ -180,79 +69,32 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.Use(async (context, next) =>
-{
-    var token = context.Request.Cookies["access_token"];
-    if (!string.IsNullOrEmpty(token))
-    {
-        context.Request.Headers.Append("Authorization", "Bearer " + token);
-    }
-    await next();
-});
+app.UseAuthorizationFromCookie();
 
 app.UseCookiePolicy();
 // app.UseHttpsRedirection();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
 
+app.UseGlobalMiddlewareException();
 
-
-
-app.UseMiddleware<ExceptionMiddleware>();
-
-
-app.UseCors(options =>
-{
-    options
-        .AllowAnyMethod()
-        .AllowAnyHeader()
-        .AllowCredentials()
-        .WithOrigins("https://localhost:3000", "https://e-commerce-store-five-azure.vercel.app")
-        .WithExposedHeaders("token-expired", "token-expired2", "token-expired3");
-});
-
-// app.Use(async (context, next) =>
-// {
-//     Console.WriteLine("ACCESS TOKEN COOKIE: " + context.Request.Cookies["access_token"]);
-//     Console.WriteLine("AUTH HEADER: " + context.Request.Headers["Authorization"]);
-//     await next();
-// });
+app.UseCorsPolicy();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 // app.UseDefaultFiles();
 // app.UseStaticFiles();
 
 app.MapControllers();
-app.MapGraphQL();
+app.MapGraphQlEndpoint();
 app.MapGroup("api").MapIdentityApi<User>(); //chuyen tu api/account thanh api
-app.MapHub<CommentHub>("/commentHub");
-app.MapHub<ReviewHub>("/reviewHub");
-app.MapHub<NotificationHub>("/notificationHub");
+app.MapSignalRHubs();
 // app.MapFallbackToController("Index", "Fallback");
-using var scope = app.Services.CreateScope();
-var services = scope.ServiceProvider;
 
-try
-{
-    var context = services.GetRequiredService<StoreContext>();
-    //o dong nay, context đã có sẵn dữ liệu từ database, vì nó được lấy từ DI container,
-    // và Entity Framework Core sẽ tự động kết nối với database mà bạn đã cấu hình.
-    var userManager = services.GetRequiredService<UserManager<User>>();
-    var logger = services.GetRequiredService<ILogger<DbInitializer>>();
-    await context.Database.MigrateAsync();
-    //chi kiem tra schema, k kiem tra data
-    await DbInitializer.SeedData(context, userManager, logger);
-    //thuc hien seed data trong \Persistence\DbInitializer.cs
-    //data se duoc add vao db o line nay
-}
-catch (Exception ex)
-{
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    logger.LogError(ex, "An error occurred during migration.");
-    throw;
-}
+await app.ApplyMigrationsAndSeedData();
 
 app.Run();

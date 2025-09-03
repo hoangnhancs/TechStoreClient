@@ -83,10 +83,10 @@ public static class JwtCookieExtensions
         services.AddAuthorization(options =>
         {
             // Policy yêu cầu MFA (2FA)
-            options.AddPolicy("Require2FA", policy =>
-            {
-                policy.RequireClaim("amr", "mfa"); // Check multifactor
-            });
+            // options.AddPolicy("Require2FA", policy =>
+            // {
+            //     policy.RequireClaim("amr", "mfa"); // Check multifactor
+            // });
 
             // Policy yêu cầu SecurityStampRequirement
             options.AddPolicy("SecurityStampRequirement", policy =>

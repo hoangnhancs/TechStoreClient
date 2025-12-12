@@ -11,6 +11,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly StoreContext _context;
     private IAddressRepository? _addresses;
     private IBannerRepository? _banners;
+    private IBrandRepository? _brands;
     private readonly ConcurrentDictionary<Type, object> _repositories = new();
 
     public UnitOfWork(StoreContext context)
@@ -19,7 +20,7 @@ public class UnitOfWork : IUnitOfWork
     }
     public IAddressRepository Addresses => _addresses ??= new AddressRepository(_context);
     public IBannerRepository Banners => _banners ??= new BannerRepository(_context);
-
+    public IBrandRepository Brands => _brands ??= new BrandRepository(_context);
     public async Task<bool> CommitAsync(CancellationToken cancellationToken)
     {
         return await _context.SaveChangesAsync(cancellationToken) > 0;

@@ -3,8 +3,7 @@ using Domain.Entities;
 
 namespace Domain.Interfaces.Repositories;
 
-public interface IBrandRepository
+public interface IBrandRepository : IBaseRepository<Brand>
 {
-    Task<List<Brand>> GetAllBrands(CancellationToken cancellationToken);
     Task<List<Brand>> GetBrandsByCategory(int categoryId, CancellationToken cancellationToken);
 }

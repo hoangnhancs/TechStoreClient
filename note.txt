@@ -345,6 +345,56 @@ khi do, cai notificationCallback se tuong duong voi :
 git pull --rebase origin feature/notification
 → Lệnh này sẽ lấy commit mới nhất từ GitHub, rồi "đặt lại" (rebase) commit của bạn lên trên cùng.
 
+
+RUN dotnet publish "./API/API.csproj" -c Release -o /app/publish --no-restore
 dotnet restore	Tải các dependency (NuGet package)
 dotnet publish	Biên dịch và chuẩn bị app để deploy/run
 --no-restore	Tối ưu build bằng cách không restore lại
+-c là viết tắt của --configuration
+
+Release là chế độ build tối ưu hóa cho production (tốc độ, dung lượng)
+
+Ngược lại với Debug (dùng trong dev, có thêm thông tin debug)
+
+👉 Mặc định nếu không chỉ rõ, .NET sẽ dùng cấu hình Debug.
+-o là viết tắt của --output
+
+/app/publish là nơi bạn muốn lưu output sau khi publish
+Tuy nhiên, vì Docker đang ở thư mục /source (do WORKDIR), nên đường dẫn /app/publish là:
+
+✅ Một thư mục tuyệt đối trong container: /app/publish
+Nếu không có --no-restore, Docker sẽ restore lại 1 lần nữa → chậm không cần thiết
+
+docker run -p <host_port>:<container_port>
+Lý do là vì Docker container giống như một máy tính riêng biệt chạy bên trong máy bạn.
+
+Khi app của bạn bên trong container lắng nghe ở 0.0.0.0:8080, nó chỉ mở cổng đó bên trong container, chứ chưa tự động mở ra ngoài máy host.
+
+docker run -p 8080:8080 đóng vai trò làm cầu nối (port mapping):
+Giải thích chi tiết:
+
+Trước khi mapping
+
+Bạn gõ localhost:8080 trên máy host → request đi vào cổng 8080 của host.
+
+Host không có process nào nghe ở 8080 → Kết nối bị từ chối.
+
+Container vẫn nghe ở 8080 bên trong, nhưng mạng bị cách ly.
+
+Sau khi mapping -p 8080:8080
+
+Docker thiết lập NAT rules (iptables) để mọi request tới host:8080 được forward tới container:8080.
+
+Giờ thì bạn truy cập localhost:8080 → request đi qua cầu, vào container, tới app của bạn.
+
+EXPOSE 8080 trong Dockerfile chỉ là metadata cho biết container có dùng port này, chứ không tự động mở port ra ngoài.
+
+-------------------------------------REDIS---------------------------------------
+
+Đặc điểm		Redis Pub/Sub									SignalR
+Cơ chế			Dựa trên Redis làm message broker. Các subscriber đăng ký vào channel.		Dựa trên WebSocket (hoặc fallback như SSE, Long Polling).
+Phạm vi			Backend-to-Backend (hoặc kết hợp với backend gửi ra client).			Server-to-Client (kết nối trực tiếp với client).
+Client			Không kết nối trực tiếp Redis (thường backend nhận pub và push ra client).	Client (browser/app) kết nối trực tiếp đến server SignalR Hub.
+Khi có nhiều server	Redis giữ vai trò trung gian → tất cả server nhận thông điệp.			SignalR cần backplane (Redis, Azure SignalR) để sync message giữa nhiều server.
+Reliability		Pub/Sub mặc định fire-and-forget (không đảm bảo client nhận đủ tin).		SignalR có cơ chế retry nếu mất kết nối (tốt hơn cho client).
+

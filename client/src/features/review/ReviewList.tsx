@@ -28,27 +28,27 @@ export default function ReviewList({ productName, currentUser }: Props) {
     const { adminGroup } = useNotificationContext();
     const [searchParams] = useSearchParams();
     const reviewId = searchParams.get("reviewId");
-    console.log("list reviews:", reviews)
+    // console.log("list reviews:", reviews)
 
 
-      useEffect(() => {
-    console.log("commentId:", reviewId);
-    console.log("list comments:", reviews)
-    if (reviewId && reviews && reviews.length > 0) {
-      // Delay nhẹ để đợi DOM render xong
-      requestAnimationFrame(() => {
-        const element = document.getElementById(reviewId);
-        console.log("element:", element);
+    useEffect(() => {
+        // console.log("commentId:", reviewId);
+        // console.log("list comments:", reviews)
+        if (reviewId && reviews && reviews.length > 0) {
+        // Delay nhẹ để đợi DOM render xong
+        requestAnimationFrame(() => {
+            const element = document.getElementById(reviewId);
+            // console.log("element:", element);
 
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth", block: "center" });
-        element.classList.add("highlight-comment");
-        // setTimeout(() => {
-        //   element.classList.remove("highlight-comment");
-        // }, 6000);
-      }
-    });
-  }}, [reviewId, reviews]);
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth", block: "center" });
+                element.classList.add("highlight-comment");
+                // setTimeout(() => {
+                //   element.classList.remove("highlight-comment");
+                // }, 6000);
+            }
+        });
+    }}, [reviewId, reviews]);
 
 
     const filterTags = [

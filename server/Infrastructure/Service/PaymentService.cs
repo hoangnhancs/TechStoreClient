@@ -1,17 +1,17 @@
 using System;
+using Application.DTOs;
 using Application.Interface;
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Interfaces.Repositories;
 using Microsoft.Extensions.Configuration;
-using Persistence;
 using Stripe;
 
 namespace Infrastructure.Service;
 
 public class PaymentService(IConfiguration config, IPaymentRepository paymentRepository, IUnitOfWork unitOfWork) : IPaymentService
 {
-    public async Task<PaymentIntent> CreateOrUpdatePaymentIntentAsync(Order order, string UserId, CancellationToken cancellationToken)
+    public async Task<PaymentIntentDto> CreateOrUpdatePaymentIntentAsync(Order order, string UserId, CancellationToken cancellationToken)
     {
         StripeConfiguration.ApiKey = config["StripeSettings:SecretKey"];
 
@@ -69,24 +69,24 @@ public class PaymentService(IConfiguration config, IPaymentRepository paymentRep
             intent = await service.UpdateAsync(payment.PaymentIntentId, options, cancellationToken: cancellationToken);
         }
 
-        return intent ?? throw new InvalidOperationException("PaymentIntent creation or update failed.");
+        return new PaymentIntentDto() { Id = intent.Id, ClientSecret = intent.ClientSecret } ?? throw new InvalidOperationException("PaymentIntent creation or update failed.");
 
     }
 
-    public async Task<PaymentIntent> GetPaymentIntent(string paymentIntentId, CancellationToken cancellationToken)
-    {
-        var paymentIntentService = new PaymentIntentService();
-        try
-        {
-            var paymentIntent = await paymentIntentService.GetAsync(
-                paymentIntentId, cancellationToken: cancellationToken
-            );
-            return paymentIntent;
-        }
-        catch (Exception)
-        {
+    // public async Task<PaymentIntent> GetPaymentIntent(string paymentIntentId, CancellationToken cancellationToken)
+    // {
+    //     var paymentIntentService = new PaymentIntentService();
+    //     try
+    //     {
+    //         var paymentIntent = await paymentIntentService.GetAsync(
+    //             paymentIntentId, cancellationToken: cancellationToken
+    //         );
+    //         return paymentIntent;
+    //     }
+    //     catch (Exception)
+    //     {
 
-            throw new ApplicationException("PaymentIntent not found.");
-        }
-    }
+    //         throw new ApplicationException("PaymentIntent not found.");
+    //     }
+    // }
 }

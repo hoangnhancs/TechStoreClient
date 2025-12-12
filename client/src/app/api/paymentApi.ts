@@ -8,13 +8,13 @@ export const paymentApi = createApi({
   baseQuery: baseQueryWithErrorHandling,
   tagTypes: ["Payment"],
   endpoints: (builder) => ({
-    fetchPayment: builder.query<Payment, void>({
-      query: () => ({
-        url: "/payments/mypayments",
-        method: "GET",
-      }),
-      providesTags: ["Payment"],
-    }),
+    // fetchPayment: builder.query<Payment, void>({
+    //   query: () => ({
+    //     url: "/payments/mypayments",
+    //     method: "GET",
+    //   }),
+    //   providesTags: ["Payment"],
+    // }),
     createPayment: builder.mutation<Payment, void>({
       query: () => ({
         url: "/payments/create-payment",

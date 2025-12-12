@@ -12,13 +12,11 @@ namespace Application.Commands.Addresses;
 
 public class UpdateAddressHandler : IRequestHandler<UpdateAddressCommand, AppResult<AddressDto>>
 {
-    private readonly IAddressRepository _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
 
-    public UpdateAddressHandler(IAddressRepository addressRepository, IUnitOfWork unitOfWork, IMapper mapper)
+    public UpdateAddressHandler(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _addressRepository = addressRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
@@ -27,12 +25,13 @@ public class UpdateAddressHandler : IRequestHandler<UpdateAddressCommand, AppRes
     {
         if (request.Address.IsDefault == true)
         {
-            await _addressRepository.SetOtherAddressNotDefaultAsync(request.UserId, cancellationToken);
+            await _unitOfWork.Addresses.SetOtherAddressNotDefaultAsync(request.UserId, cancellationToken);
         }
         var addressEntity = _mapper.Map<Address>(request.Address);
-        var address = await _addressRepository.UpdateAddressAsync(request.AddressId, addressEntity, cancellationToken);
+        addressEntity.Id = request.AddressId;
+        _unitOfWork.Addresses.Update(addressEntity);
         await _unitOfWork.CommitAsync(cancellationToken);
-        return AppResult<AddressDto>.Success(_mapper.Map<AddressDto>(address));
+        return AppResult<AddressDto>.Success(_mapper.Map<AddressDto>(addressEntity));
     }
 
 }

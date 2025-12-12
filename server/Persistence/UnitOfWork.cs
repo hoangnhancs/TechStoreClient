@@ -27,14 +27,4 @@ public class UnitOfWork : IUnitOfWork
     {
         _context.Dispose();
     }
-
-    public IBaseRepository<T> Repository<T>() where T : class
-    {
-        if (_repositories.ContainsKey(typeof(T)))
-            return (IBaseRepository<T>)_repositories[typeof(T)];
-
-        var repo = new BaseRepository<T>(_context);
-        _repositories[typeof(T)] = repo;
-        return repo;
-    }
 }

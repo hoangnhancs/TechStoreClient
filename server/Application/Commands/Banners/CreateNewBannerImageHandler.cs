@@ -12,13 +12,11 @@ namespace Application.Commands.Banners;
 
 public class CreateNewBannerImageHandler : IRequestHandler<CreateNewBannerImageCommand, AppResult<List<BannerImageDto>>>
 {
-    private readonly IBannerRepository _bannerRepository;
     private readonly IPhotoService _photoService;
     private readonly IMapper _mapper;
     private IUnitOfWork _unitOfWork;
-    public CreateNewBannerImageHandler(IBannerRepository bannerRepository, IMapper mapper, IUnitOfWork unitOfWork, IPhotoService photoService)
+    public CreateNewBannerImageHandler(IMapper mapper, IUnitOfWork unitOfWork, IPhotoService photoService)
     {
-        _bannerRepository = bannerRepository;
         _photoService = photoService;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
@@ -35,7 +33,7 @@ public class CreateNewBannerImageHandler : IRequestHandler<CreateNewBannerImageC
                 PublicId = uploadResult.PublicId,
                 Url = uploadResult.Url
             };
-            await _bannerRepository.AddNewBannerImage(bannerImage, cancellationToken);
+            await _unitOfWork.Banners.AddAsync(bannerImage, cancellationToken);
             var result = await _unitOfWork.CommitAsync(cancellationToken);
             if (!result) return AppResult<List<BannerImageDto>>.Failure($"Problem when create banner image {image.Name}", 400);
             bannerImagesDto.Add(_mapper.Map<BannerImageDto>(bannerImage));

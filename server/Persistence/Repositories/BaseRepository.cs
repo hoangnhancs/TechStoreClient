@@ -32,12 +32,12 @@ namespace Persistence.Repositories
             return await _dbSet.ToListAsync(cancellationToken);
         }
 
-        public async Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken)
+        public async Task<T?> GetByIdAsync<TId>(TId id, CancellationToken cancellationToken)
         {
             return await _dbSet.FindAsync(id, cancellationToken);
         }
 
-        public async Task<IEnumerable<T>> GetListAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+        public async Task<IEnumerable<T>> GetListAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
         {
             return await _dbSet.Where(predicate).ToListAsync(cancellationToken);
         }

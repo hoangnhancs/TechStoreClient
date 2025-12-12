@@ -10,13 +10,11 @@ namespace Application.Commands.Banners;
 
 public class DeleteBannerImageHandler : IRequestHandler<DeleteBannerImageCommand, AppResult<Unit>>
 {
-    private readonly IBannerRepository _bannerRepository;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPhotoService _photoService;
-    public DeleteBannerImageHandler(IBannerRepository bannerRepository, IMapper mapper, IUnitOfWork unitOfWork, IPhotoService photoService)
+    public DeleteBannerImageHandler(IMapper mapper, IUnitOfWork unitOfWork, IPhotoService photoService)
     {
-        _bannerRepository = bannerRepository;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
         _photoService = photoService;
@@ -25,9 +23,9 @@ public class DeleteBannerImageHandler : IRequestHandler<DeleteBannerImageCommand
     {
         foreach (var id in request.BannerImageIds)
         {
-            var banner = await _bannerRepository.GetBannerImageById(id, cancellationToken);
+            var banner = await _unitOfWork.Banners.GetByIdAsync(id, cancellationToken);
             if (banner == null) return AppResult<Unit>.Failure($"Banner image with ID: {id} not found.", 404);
-            await _bannerRepository.DeleteBannerImage(id, cancellationToken);
+            _unitOfWork.Banners.Delete(banner);
             await _photoService.DeletePhoto(banner.PublicId);
             var result = await _unitOfWork.CommitAsync(cancellationToken);
             if (!result) return AppResult<Unit>.Failure($"Problem when delete banner image with ID: {id}.", 400);

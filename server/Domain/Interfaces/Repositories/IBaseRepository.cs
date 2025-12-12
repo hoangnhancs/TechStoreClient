@@ -8,7 +8,7 @@ namespace Domain.Interfaces.Repositories
 {
     public interface IBaseRepository<T> where T : class
     {
-        Task<T?> GetByIdAsync(string id, CancellationToken cancellationToken);
+        Task<T?> GetByIdAsync<TId>(TId id, CancellationToken cancellationToken);
         Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken);
         Task<IEnumerable<T>> GetListAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken);
         Task AddAsync(T entity, CancellationToken cancellationToken);

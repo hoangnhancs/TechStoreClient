@@ -3,7 +3,7 @@ using Domain.Entities;
 
 namespace Domain.Interfaces.Repositories;
 
-public interface ICategoryRepository
+public interface ICategoryRepository : IBaseRepository<Category>
 {
-    Task<List<Category>> GetCategories();
+    
 }

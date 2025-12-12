@@ -5,15 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Persistence.Repositories;
 
-public class CategoryRepository : ICategoryRepository
+public class CategoryRepository(StoreContext context) : BaseRepository<Category>(context), ICategoryRepository
 {
-    private readonly StoreContext _context;
-    public CategoryRepository(StoreContext context)
-    {
-        _context = context;
-    }
-    public async Task<List<Category>> GetCategories()
-    {
-        return await _context.Categories.ToListAsync();
-    }
+
 }

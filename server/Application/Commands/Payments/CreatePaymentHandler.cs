@@ -31,7 +31,7 @@ public class CreatePaymentHandler : IRequestHandler<CreatePaymentCommand, AppRes
         if (payment == null)
             return AppResult<PaymentDto>.Failure("Payment creation failed", 500);
         var paymentDto = _mapper.Map<PaymentDto>(payment);
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result)
             return AppResult<PaymentDto>.Failure("Payment creation failed", 500);
         return AppResult<PaymentDto>.Success(paymentDto);

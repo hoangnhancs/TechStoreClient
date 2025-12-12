@@ -34,7 +34,7 @@ public class CreateReviewHandler : IRequestHandler<CreateReviewCommand, AppResul
             Comment = request.Comment
         };
         var createdReview = await _reviewRepository.CreateReview(review, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
         return AppResult<ReviewDto>.Success(_mapper.Map<ReviewDto>(createdReview));
     }
 }

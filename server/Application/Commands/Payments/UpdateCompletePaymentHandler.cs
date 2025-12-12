@@ -30,7 +30,7 @@ public class UpdateCompletePaymentHandler : IRequestHandler<UpdateCompletePaymen
             return AppResult<Unit>.Failure("Không tìm thấy thông tin thanh toán.", 404);
         }
         payment.Status = Domain.Entities.Payment.PaymentStatus.Succeeded;
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
         return AppResult<Unit>.Success(Unit.Value);
     }
 }

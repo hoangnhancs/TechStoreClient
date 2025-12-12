@@ -65,7 +65,7 @@ public class CreateOrUpdatePaymentIntentHandler : IRequestHandler<CreateOrUpdate
         }
 
 
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
 
         return AppResult<PaymentDto>.Success(_mapper.Map<PaymentDto>(payment));
 

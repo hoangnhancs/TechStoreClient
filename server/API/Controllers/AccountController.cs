@@ -127,7 +127,7 @@ public class AccountController : BaseApiController
             if (refreshToken != null && refreshToken.IsActive)
             {
                 await _refreshTokenRepository.RevokeAsync(token, ipAddress, "logout");
-                await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+                await _unitOfWork.CommitAsync(CancellationToken.None);
             }
         }
         Response.Cookies.Delete("access_token");
@@ -154,7 +154,7 @@ public class AccountController : BaseApiController
         //b3: revoke token
         var ipAddress = _httpContextAccessorHelper.GetClientIp();
         await _refreshTokenRepository.RevokeAllAsync(user.Id, ipAddress, "pwchanged");
-        await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+        await _unitOfWork.CommitAsync(CancellationToken.None);
 
         //b4: xoa cookies
         Response.Cookies.Delete("access_token");
@@ -195,7 +195,7 @@ public class AccountController : BaseApiController
         var ipAddress = _httpContextAccessorHelper.GetClientIp();
         var refreshToken = _tokenServices.CreateRefreshToken(user, ipAddress);
         await _refreshTokenRepository.AddAsync(refreshToken);
-        await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+        await _unitOfWork.CommitAsync(CancellationToken.None);
 
         Response.Cookies.Append("refresh_token", refreshToken.Token, new CookieOptions
         {
@@ -263,7 +263,7 @@ public class AccountController : BaseApiController
 
         //b3: cap nhat rf token moi vao db va update token cu
         await _refreshTokenRepository.AddAsync(newRefreshToken);
-        await _unitOfWork.SaveChangesAsync(CancellationToken.None);
+        await _unitOfWork.CommitAsync(CancellationToken.None);
 
         //b4: gan vao response
         Response.Cookies.Append("access_token", newAccessToken.Token, new CookieOptions

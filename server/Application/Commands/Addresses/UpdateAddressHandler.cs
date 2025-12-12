@@ -31,7 +31,7 @@ public class UpdateAddressHandler : IRequestHandler<UpdateAddressCommand, AppRes
         }
         var addressEntity = _mapper.Map<Address>(request.Address);
         var address = await _addressRepository.UpdateAddressAsync(request.AddressId, addressEntity, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
         return AppResult<AddressDto>.Success(_mapper.Map<AddressDto>(address));
     }
 

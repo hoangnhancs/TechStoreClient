@@ -24,7 +24,7 @@ public class DeleteProductHandler : IRequestHandler<DeleteProductCommand, AppRes
         if (product == null) return AppResult<Unit>.Failure("Product not found", 404);
         product.IsActive = false;
         await _productRepository.UpdateProductAsync(product, DateTime.UtcNow, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
         if (!string.IsNullOrEmpty(product.MainImagePublicId))
         {
             await _photoService.DeletePhoto(product.MainImagePublicId);

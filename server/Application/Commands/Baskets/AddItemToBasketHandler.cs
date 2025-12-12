@@ -50,7 +50,7 @@ public class AddItemToBasketHandler : IRequestHandler<AddItemToBasketCommand, Ap
             ActionType = UserActionTracking.UserActionType.AddToCart
         }, cancellationToken);
 
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
 
         if (!result) return AppResult<BasketDto>.Failure("Don't have any update when add item", 400);
 

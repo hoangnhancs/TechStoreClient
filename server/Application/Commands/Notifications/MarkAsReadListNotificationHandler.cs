@@ -21,7 +21,7 @@ public class MarkAsReadListNotificationHandler : IRequestHandler<MarkAsReadListN
         {
             await _notificationRepository.MaskAsReadNotification(notiId, cancellationToken);
         } 
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result) return AppResult<Unit>.Failure("Problem when mask as read all notification", 400);
         return AppResult<Unit>.Success(Unit.Value);
     }

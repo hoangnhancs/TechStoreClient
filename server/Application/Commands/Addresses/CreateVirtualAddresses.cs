@@ -123,7 +123,7 @@ public class CreateVirtualAddresses
 
                 _storeContext.Addresses.Add(address);
             }
-            var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var result = await _unitOfWork.CommitAsync(cancellationToken);
             if (!result) return AppResult<Unit>.Failure("Problem when create address", 400);
             return AppResult<Unit>.Success(Unit.Value);
         }

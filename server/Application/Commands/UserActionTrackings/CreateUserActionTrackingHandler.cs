@@ -25,7 +25,7 @@ public class CreateUserActionTrackingHandler : IRequestHandler<CreateUserActionT
             ActionType = Enum.Parse<UserActionTracking.UserActionType>(request.ActionType)
         };
         await _userActionTrackingRepository.AddUserActionTracking(newTracking, cancellationToken);
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result) return AppResult<int>.Failure("Problem when create user action tracking", 400);
         return AppResult<int>.Success(newTracking.Id);
     }

@@ -63,7 +63,7 @@ public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCom
                 }
             }
 
-            var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var result = await _unitOfWork.CommitAsync(cancellationToken);
             if (!result)
             {
                 return AppResult<OrderDto>.Failure("Failed to update order", 500);
@@ -75,7 +75,7 @@ public class CreateOrUpdateOrderHandler : IRequestHandler<CreateOrUpdateOrderCom
         {
             // var items = _mapper.Map<Domain.Entities.Order>(orderDto).Items.ToList();
             var newOrder = await _orderRepository.CreateOrderAsync(items, request.UserId, orderDto.ShippingAddressId, orderDto.BillingAddressId, orderDto.ShippingCost, orderDto.Discount);
-            var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var result = await _unitOfWork.CommitAsync(cancellationToken);
             if (!result)
             {
                 return AppResult<OrderDto>.Failure("Failed to update order", 500);

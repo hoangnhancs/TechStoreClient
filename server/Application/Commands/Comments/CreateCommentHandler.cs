@@ -41,7 +41,7 @@ public class CreateCommentHandler : IRequestHandler<CreateCommentCommand, AppRes
         {
             return AppResult<CommentDto>.Failure("Failed to create comment.", 500);
         }
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
         return AppResult<CommentDto>.Success(_mapper.Map<CommentDto>(createdComment));
     }
 }

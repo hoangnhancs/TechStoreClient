@@ -33,7 +33,7 @@ public class UpdateFlashSaleProductHandler : IRequestHandler<UpdateFlashSaleProd
         };
 
         await _flashSaleProductRepository.UpdateFlashSaleProduct(flashProduct, cancellationToken);
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result) return AppResult<FlashSaleProductDto>.Failure("Problem when update flash sale product", 400);
         return AppResult<FlashSaleProductDto>.Success(request.FlashSaleProduct);
     }

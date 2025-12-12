@@ -13,12 +13,10 @@ namespace Application.Commands.Addresses;
 
 public class AddAddressHandler : IRequestHandler<AddAddressCommand, AppResult<AddressDto>>
 {
-    private readonly IAddressRepository _addressRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    public AddAddressHandler(IAddressRepository addressRepository, IUnitOfWork unitOfWork, IMapper mapper)
+    public AddAddressHandler(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        _addressRepository = addressRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
     }
@@ -26,12 +24,13 @@ public class AddAddressHandler : IRequestHandler<AddAddressCommand, AppResult<Ad
     {
         if (request.Address.IsDefault == true)
         {
-            await _addressRepository.SetOtherAddressNotDefaultAsync(request.UserId, cancellationToken);
+            await _unitOfWork.Addresses.SetOtherAddressNotDefaultAsync(request.UserId, cancellationToken);
         }
         var addressEntity = _mapper.Map<Address>(request.Address);
-        var address = await _addressRepository.CreateAddressAsync(request.UserId, addressEntity, cancellationToken);
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        addressEntity.UserId = request.UserId;
+        await _unitOfWork.Addresses.AddAsync(addressEntity, cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result) return AppResult<AddressDto>.Failure("Problem when create address", 400);
-        return AppResult<AddressDto>.Success(_mapper.Map<AddressDto>(address));
+        return AppResult<AddressDto>.Success(_mapper.Map<AddressDto>(addressEntity));
     }
 }

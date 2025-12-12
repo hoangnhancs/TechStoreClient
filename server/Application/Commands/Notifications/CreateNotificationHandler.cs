@@ -46,7 +46,7 @@ public class CreateNotificationHandler : IRequestHandler<CreateNotificationComma
         };
 
         await _notificationRepository.CreateNotification(notification, cancellationToken);
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result) return AppResult<NotificationDto>.Failure("Problem when create notification", 400);
         return AppResult<NotificationDto>.Success(_mapper.Map<NotificationDto>(notification));
     }

@@ -21,7 +21,7 @@ public class DeleteListNotificationsHandler : IRequestHandler<DeleteListNotifica
         {
             await _notificationRepository.DeleteNotification(notiId, cancellationToken);
         }
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result) return AppResult<Unit>.Failure("Problem when delete list notifications", 400);
 
         return AppResult<Unit>.Success(Unit.Value);  

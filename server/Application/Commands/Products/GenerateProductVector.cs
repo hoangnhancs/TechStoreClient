@@ -72,7 +72,7 @@ public class GenerateProductVector
                         };
                         await _context.AddAsync(newProductVector);
                     }
-                    var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+                    var result = await _unitOfWork.CommitAsync(cancellationToken);
                     if (!result) return AppResult<List<ProductVector>>.Failure("Problem when generate product vector", 400);
                     return AppResult<List<ProductVector>>.Success(vectors!);
                 }

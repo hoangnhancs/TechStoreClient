@@ -32,7 +32,7 @@ public class UpdateUserImageHandler : IRequestHandler<UpdateUserImageCommand, Ap
             await _photoService.DeletePhoto(image.PublicId); //neu user da co anh cu, thi xoa anh cu tren cloudinary
         }     
         await _photoRepository.UpdateImage(request.UserId, uploadResult.Url, uploadResult.PublicId); //update anh moi vao DB
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result)
         {
             return AppResult<object>.Failure("Failed to save image into DB", 400);

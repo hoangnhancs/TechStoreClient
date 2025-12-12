@@ -5,9 +5,9 @@ using Domain.Interfaces.Repositories;
 
 namespace Persistence.Repositories;
 
-public class AccountRepository(StoreContext context) : IAccountRepository
+public class AccountRepository(StoreContext context) : BaseRepository<User>(context), IAccountRepository
 {
-    private readonly StoreContext _context = context;
+    // private readonly StoreContext _context = context;
     public async Task<User?> GetUserByIdAsync(string userId, CancellationToken cancellationToken)
     {
         return await _context.Users

@@ -26,7 +26,7 @@ public class RemovePermanentItemsFromBasketHandler : IRequestHandler<RemovePerma
         if (basket == null)
             return AppResult<BasketDto>.Failure("Basket not found", 404);
         var newBasket = await _basketRepository.RemovePermanentItemsFromBasketAsync(request.UserId, request.ProductIds, cancellationToken);
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result) return AppResult<BasketDto>.Failure("Don't have any update when remove item", 400);
         return AppResult<BasketDto>.Success(_mapper.Map<BasketDto>(newBasket));
     }

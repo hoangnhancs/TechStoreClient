@@ -36,7 +36,7 @@ public class CreateNewBannerImageHandler : IRequestHandler<CreateNewBannerImageC
                 Url = uploadResult.Url
             };
             await _bannerRepository.AddNewBannerImage(bannerImage, cancellationToken);
-            var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var result = await _unitOfWork.CommitAsync(cancellationToken);
             if (!result) return AppResult<List<BannerImageDto>>.Failure($"Problem when create banner image {image.Name}", 400);
             bannerImagesDto.Add(_mapper.Map<BannerImageDto>(bannerImage));
         }

@@ -32,7 +32,7 @@ public class CreateFlashSaleProductHandler : IRequestHandler<CreateFlashSaleProd
             EndTime = request.FlashSaleProduct.EndTime
         };
         await _flashSaleProductRepository.CreateFlashSaleProduct(flashSaleProduct, cancellationToken);
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result) return AppResult<FlashSaleProductDto>.Failure("Problem when create flash sale product", 400);
         return AppResult<FlashSaleProductDto>.Success(request.FlashSaleProduct);
     }

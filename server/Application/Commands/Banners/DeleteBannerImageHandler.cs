@@ -29,7 +29,7 @@ public class DeleteBannerImageHandler : IRequestHandler<DeleteBannerImageCommand
             if (banner == null) return AppResult<Unit>.Failure($"Banner image with ID: {id} not found.", 404);
             await _bannerRepository.DeleteBannerImage(id, cancellationToken);
             await _photoService.DeletePhoto(banner.PublicId);
-            var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var result = await _unitOfWork.CommitAsync(cancellationToken);
             if (!result) return AppResult<Unit>.Failure($"Problem when delete banner image with ID: {id}.", 400);
         }
         

@@ -47,7 +47,7 @@ public class PaymentService(IConfiguration config, IPaymentRepository paymentRep
                 }
                 throw new InvalidOperationException($"Failed to create payment. Subtotal: {subtotal}, Payment: {(payment == null ? "null" : "not null")}");
             }
-            await unitOfWork.SaveChangesAsync(cancellationToken);
+            await unitOfWork.CommitAsync(cancellationToken);
         }
 
         if (string.IsNullOrEmpty(payment.PaymentIntentId))

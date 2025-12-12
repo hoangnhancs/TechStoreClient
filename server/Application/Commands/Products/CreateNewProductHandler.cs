@@ -97,7 +97,7 @@ public class CreateNewProductHandler : IRequestHandler<CreateNewProductCommand, 
         product.ProductTagFilters = filterTags;
 
         await _productRepository.AddNewProduct(product, cancellationToken);
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (result)
         {
             var productDtoResult = _mapper.Map<ProductDto>(product);

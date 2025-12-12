@@ -22,7 +22,7 @@ public class MarkAsReadNotificationHandler : IRequestHandler<MarkAsReadNotificat
     public async Task<AppResult<NotificationDto>> Handle(MarkAsReadNotificationCommand request, CancellationToken cancellationToken)
     {
         var notification = await _notificationRepository.MaskAsReadNotification(request.Id, cancellationToken);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.CommitAsync(cancellationToken);
         return AppResult<NotificationDto>.Success(_mapper.Map<NotificationDto>(notification));
     }
 }

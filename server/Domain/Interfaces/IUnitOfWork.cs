@@ -1,8 +1,11 @@
 using System;
+using Domain.Interfaces.Repositories;
 
 namespace Domain.Interfaces;
 
-public interface IUnitOfWork
+public interface IUnitOfWork : IDisposable
 {
-    Task<bool> SaveChangesAsync(CancellationToken cancellationToken);
+    IAddressRepository Addresses { get; }
+    IBaseRepository<T> Repository<T>() where T : class;
+    Task<bool> CommitAsync(CancellationToken cancellationToken);
 }

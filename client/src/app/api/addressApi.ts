@@ -1,10 +1,7 @@
-
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithErrorHandling } from "./baseApi";
 import { Address } from "../../lib/types";
 import { LoadingPriority } from "../../layouts/uiSlice";
-
-
 
 export const addressApi = createApi({
   reducerPath: "addressApi",
@@ -62,4 +59,10 @@ export const addressApi = createApi({
   }),
 });
 
-export const { useFetchAddressQuery, useCreateAddressMutation, useUpdateAddressMutation, useGetAddressQuery, useDeleteAddressMutation } = addressApi;
+export const {
+  useFetchAddressQuery,
+  useCreateAddressMutation,
+  useUpdateAddressMutation,
+  useGetAddressQuery,
+  useDeleteAddressMutation,
+} = addressApi;

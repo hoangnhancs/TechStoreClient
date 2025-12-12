@@ -107,7 +107,7 @@ public class CreateVirtualOrder
                     UpdatedAt = (newOrder.UpdatedAt?.AddMilliseconds(random.Next(0, 100))) ?? DateTime.UtcNow.AddMilliseconds(random.Next(0, 100)),
                 };
                 _context.Payments.Add(paymment);
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await _unitOfWork.CommitAsync(cancellationToken);
             }
 
             return AppResult<Unit>.Success(Unit.Value);

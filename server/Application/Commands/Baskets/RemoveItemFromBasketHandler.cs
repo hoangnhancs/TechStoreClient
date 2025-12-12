@@ -38,7 +38,7 @@ public class RemoveItemFromBasketHandler : IRequestHandler<RemoveItemFromBasketC
 
         var newBasket = await _basketRepository.RemoveItemFromBasketAsync(request.UserId, request.ProductId, request.Quantity, cancellationToken);
 
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
 
         if (!result) return AppResult<BasketDto>.Failure("Don't have any update when remove item", 400);
 

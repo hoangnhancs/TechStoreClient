@@ -129,7 +129,7 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, AppRes
         newProduct.ProductTagFilters = filterTags;
 
         await _productRepository.UpdateProductAsync(newProduct, DateTime.UtcNow, cancellationToken); 
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result) return AppResult<ProductDto>.Failure("Failed to update product", 500);
         var productFilterTagValuesText = "";
         var tmpProduct = await _productRepository.GetProductByIdWithDetailFilterTagsAsync(newProduct.Id, cancellationToken);
@@ -172,7 +172,7 @@ public class UpdateProductHandler : IRequestHandler<UpdateProductCommand, AppRes
             {
                 var vectors = JsonSerializer.Deserialize<List<float>>(output);
                 await _productVectorEmbeddingRepository.UpdateProductVectorEmbedding(tmpProduct.Id, output);
-                var updateResult = await _unitOfWork.SaveChangesAsync(cancellationToken);
+                var updateResult = await _unitOfWork.CommitAsync(cancellationToken);
                 if (!updateResult) return AppResult<ProductDto>.Failure("Problem when update product vector embedding", 400);
 
             }

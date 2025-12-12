@@ -18,7 +18,7 @@ public class CreateBasketHandler : IRequestHandler<CreateBasketCommand, AppResul
     public async Task<AppResult<Unit>> Handle(CreateBasketCommand request, CancellationToken cancellationToken)
     {
         await _basketRepository.CreateBasketAsync(request.UserId, cancellationToken);
-        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        var result = await _unitOfWork.CommitAsync(cancellationToken);
         if (!result) return AppResult<Unit>.Failure("Problem when create basket", 400);
         return AppResult<Unit>.Success(Unit.Value);
     }

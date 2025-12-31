@@ -71,7 +71,7 @@ export const baseQueryWithErrorHandling = async (
         break;
       case 404:
         if (isDev) toast.error((responseData as string) || "Not found");
-        router.navigate('/not-found');
+        // router.navigate('/not-found');
         break;
       case 500:
         if (typeof responseData !== "string" && 'message' in responseData) {

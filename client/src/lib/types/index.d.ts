@@ -1,18 +1,26 @@
 import { Stripe, StripeElements, StripeCardElement } from "@stripe/stripe-js";
 
+export interface GetResult<T> {
+  results: T[];
+  pageCount: number;
+  totalCount: number;
+}
+
 export type Product = {
   id: string;
   name: string;
-  description: string[];
+  description: string;
   oldPrice: number;
   price: number;
   discountPercentage: number;
-  category: Category;
-  categoryId: number,
-  brandId: string;
+  // category: Category;
+  categoryId: number; 
+  categoryName: string;
+  categoryDisplayName: string;
+  brandId: number;
   brandName: string;
   quantityInStock: number;
-  imageUrl: string;
+  mainImageUrl: string;
   averageRating: number;
   ratingCount: number;
   unitSold: number;
@@ -24,9 +32,9 @@ export type Product = {
   isFeatured: boolean;
   isNewArrival: boolean;
   isOnSale: boolean;
-  images: Images[];
-  productTagFilters: ProductTagFilter[];
-  tags: string[];
+  detailImages: Images[];
+  productFilterTagValues: ProductTagFilter[];
+  displayTags: string[];
   attributes: Attribute[];
   createdAt: Date;
   updatedAt: Date;
@@ -130,9 +138,10 @@ export type Item = {
   imageUrl: string;
   quantity: number;
   price: number;
-  brandId: string;
+  brandId: number;
   brandName: string;
-  category: Category;
+  categoryId: number;
+  categoryName: string;
 };
 
 export type Category = {
@@ -253,17 +262,20 @@ export type CreateAndUpdateProductInput = {
   quantityInStock: number,
   mainImageFile: File | string,
   detailImageFiles: File[],
-  filterTags: Record<number, string>,
+  productFilterTagValues: string[],
   attributeGroups: InputAttributeGroup[],
 }
 export type InputAttributeGroup = {
-  groupName: string;
-  attributes: InputAttribute[];
-};
-export type InputAttribute = {
-  key: string,
+  attributeType: string;
+  name: string;
   value: string;
 };
+
+
+export type ProductFilterTag = {
+  filterTagId: number;
+  filterTagValueId: number;
+}
 
 export type BannerImage = {
   id: number;

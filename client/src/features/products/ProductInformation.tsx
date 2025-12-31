@@ -49,11 +49,11 @@ export default function ProductInformation({product, currentUser}: Props) {
                     dispatch(addItem({
                         productId: product.id,
                         productName: product.name,
-                        imageUrl: product.imageUrl,
+                        imageUrl: product.mainImageUrl,
                         price: product.price,
                         quantity: quantity,
                         brandId: product.brandId,
-                        category: product.category} as Item));
+                        categoryId: product.categoryId} as Item));
                 })
                 .catch(error => {
                     console.error('Error adding item to cart:', error);
@@ -72,7 +72,7 @@ export default function ProductInformation({product, currentUser}: Props) {
     const productDetails = [
         {label: 'Name', value: product.name},
         {label: 'Description', value: product.description},
-        {label: 'Category', value: product.category.name},
+        {label: 'Category', value: product.categoryName},
         {label: 'Brand', value: product.brandName},
         {label: 'Quantity in stock', value: product.quantityInStock},
     ]
@@ -192,7 +192,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                                                 borderRadius: 2,
                                             }}
                                             component={'img'}
-                                            src={product.imageUrl}
+                                            src={product.mainImageUrl}
                                         />
                                         {product.description && product.description.length > 0 && (
                                             <Box
@@ -220,16 +220,14 @@ export default function ProductInformation({product, currentUser}: Props) {
                                                         },
                                                     }}
                                                 >
-                                                    {product.description.map((desc, index) => (
-                                                        <Typography key={index} variant="subtitle2" sx={{ mb: 1 }}>• {desc}</Typography>
-                                                    ))}
+                                                    <Typography variant="subtitle2" sx={{ mb: 1, whiteSpace: 'pre-line' }}>{product.description}</Typography>
                                                 </Box>
                                             </Box>
                                         )}
                                     </Box>
                                 </Box>
                             </SwiperSlide>
-                            {product.images.map((item, index) => (
+                            {(product.detailImages !== undefined) && product.detailImages.map((item, index) => (
                                 <SwiperSlide key={`main-${index}`}>
                                     <Box
                                         component="img"
@@ -255,7 +253,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                         <Swiper
                             onSwiper={setThumbsSwiper}
                             modules={[Thumbs]} 
-                            slidesPerView={Math.min(product.images.length + 1, 6)}
+                            slidesPerView={Math.min(product.detailImages.length + 1, 6)}
                             spaceBetween={8}
                             watchSlidesProgress
                             style={{ 
@@ -267,7 +265,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                             <SwiperSlide key="thumb-main">
                             <Box
                                 component="img"
-                                src={product.imageUrl}
+                                src={product.mainImageUrl}
                                 sx={{
                                     width: 60,
                                     height: 60,
@@ -278,7 +276,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                                 }}
                             />
                         </SwiperSlide>
-                        {product.images.map((item, index) => (
+                        {product.detailImages.map((item, index) => (
                             <SwiperSlide key={`thumb-${index}`}>
                                 <Box
                                     component="img"

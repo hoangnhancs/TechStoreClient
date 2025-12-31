@@ -26,7 +26,7 @@ export default function ProductListByCategory() {
     
     const categoryIdNumber = id ? Number(id) : undefined;
     const {data: allCats } = useFetchCategoriesQuery();
-    const {data: filterTags, isLoading: isLoadingFilterTagValueLoading} = useFetchFilterTagsByCatIdQuery(
+    const {data: filterTags, isLoading: isLoadingFilterTagValue} = useFetchFilterTagsByCatIdQuery(
         categoryIdNumber as number
     );
     const { data: productByCat, isLoading: isProductLoading } = useFetchProductsByCatQuery(
@@ -115,9 +115,9 @@ export default function ProductListByCategory() {
     }
 
     const filteredProducts = React.useMemo(() => {
-        if (productByCat == null || productByCat.length === 0) return []
+        if (productByCat == null || productByCat.results.length === 0) return []
 
-        let tmp: Product[] = productByCat
+        let tmp: Product[] = productByCat.results
 
         if (selectedPriceSort !== null) {
             if (selectedPriceSort === 'asc' && tmp !== null && tmp.length > 0) {
@@ -133,7 +133,7 @@ export default function ProductListByCategory() {
             for (const key in selectedFilters) {
             const filterTagId = Number(key);
             const filterTagValues = selectedFilters[filterTagId];
-            tmp = tmp.filter(product => (product.productTagFilters.some(//bất kì ptf nào của sp, thỏa mãn nằm trong mảng filterTagValues  
+            tmp = tmp.filter(product => (product.productFilterTagValues.some(//bất kì ptf nào của sp, thỏa mãn nằm trong mảng filterTagValues  
                 ptf => {
                     const valueId = ptf.filterTagValueId;
                     return filterTagValues.includes(valueId);
@@ -141,7 +141,7 @@ export default function ProductListByCategory() {
             )))
         }}
         if (selectedBrands !== null && selectedBrands.length > 0) {
-            tmp = tmp.filter(product => (selectedBrands.some(b => product.brandId === b.id.toString())));
+            tmp = tmp.filter(product => (selectedBrands.some(b => product.brandId === b.id)));
         }
 
         return tmp;
@@ -174,8 +174,8 @@ export default function ProductListByCategory() {
         }
         return texts;
     }, [selectedFilters, filterTextMapping]);
-
-    if (isLoadingFilterTagValueLoading || isProductLoading || !productByCat || isLoadingBrands) 
+    console.log(isLoadingFilterTagValue, isProductLoading, !productByCat, isLoadingBrands)
+    if (isLoadingFilterTagValue || isProductLoading || !productByCat || isLoadingBrands) 
     return (
         <LoadingComponent />
     );
@@ -481,7 +481,7 @@ export default function ProductListByCategory() {
             <Typography color="text.primary" variant="h6" sx={{ mb: 1, fontWeight: 'bold', width: '100%' }}>
                 Danh sách sản phẩm
             </Typography>
-            <ProductGrid products={displayedProducts ? displayedProducts : productByCat} />
+            <ProductGrid products={displayedProducts ? displayedProducts : productByCat.results} />
             <Box display={"flex"} justifySelf={"center"} alignItems={"center"} sx={{ width: "fit-content", my: 2, borderRadius: 2, color: '#3b82f6', backgroundColor: '#f0f7ff' }}>
                 <Button
                     sx={{

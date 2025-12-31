@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { CreateAndUpdateProductInput, Product } from "../../lib/types";
+import { CreateAndUpdateProductInput, GetResult, Product } from "../../lib/types";
 import { baseQueryWithErrorHandling } from "./baseApi";
 
 export const productApi = createApi({
@@ -8,7 +8,7 @@ export const productApi = createApi({
   baseQuery: baseQueryWithErrorHandling, //custom base query with error handling
   endpoints: (builder) => ({
     fetchProducts: builder.query<Product[], void>({
-      query: () => ({ url: "/products", method: "GET" }),
+      query: () => ({ url: "/search", method: "GET" }),
       providesTags: (result) =>
         result
           ? [
@@ -18,20 +18,20 @@ export const productApi = createApi({
           : [{ type: "Product", id: "LIST" }],
     }),
     fetchTop10Products: builder.query<Product[], void>({
-      query: () => ({ url: "/products/top10", method: "GET" }),
+      query: () => ({ url: "/search/top10", method: "GET" }),
       providesTags: (result) =>
         result
           ? result.map((p) => ({ type: "Product" as const, id: p.id }))
           : [],
     }),
-    fetchProductsByCat: builder.query<Product[], number>({
+    fetchProductsByCat: builder.query<GetResult<Product>, number>({
       query: (categoryId) => ({
-        url: `/products/category/${categoryId}`,
+        url: `/search/${categoryId}`,
         method: "GET",
       }),
       providesTags: (result) =>
-        result
-          ? result.map((p) => ({ type: "Product" as const, id: p.id }))
+        result?.results
+          ? result.results.map((p) => ({ type: "Product" as const, id: p.id }))
           : [],
     }),
     fetchProductById: builder.query<Product, string>({
@@ -62,18 +62,23 @@ export const productApi = createApi({
         }
 
         // Filter tags (object)
-        Object.entries(product.filterTags).forEach(([key, value]) => {
-          formData.append(`filterTags[${key}]`, value);
+        product.productFilterTagValues.forEach(val => {
+          formData.append('productFilterTagValues', val.toString());
         });
 
         // Attribute groups (array of objects)
-        formData.append(
-          "attributeGroupsJson",
-          JSON.stringify(product.attributeGroups)
-        );
+        // formData.append(
+        //   "attributeGroups",
+        //   JSON.stringify(product.attributeGroups)
+        // );
+        product.attributeGroups.forEach((attrGroup, index) => {
+          formData.append(`attributes[${index}].attributeType`, attrGroup.attributeType);
+          formData.append(`attributes[${index}].name`,  attrGroup.name);
+          formData.append(`attributes[${index}].value`,  attrGroup.value);
+        });
 
         return {
-          url: "/products/create",
+          url: "/products",
           method: "POST",
           body: formData,
         };
@@ -110,9 +115,10 @@ export const productApi = createApi({
         }
 
         // Filter tags (object)
-        Object.entries(props.filterTags).forEach(([key, value]) => {
-          formData.append(`filterTags[${key}]`, value);
-        });
+        formData.append(
+          "productFilterTagValuesJson",
+          JSON.stringify(props.productFilterTagValues)
+        );
 
         // Attribute groups (array of objects)
         formData.append(

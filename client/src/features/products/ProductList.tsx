@@ -19,7 +19,7 @@ export default function ProductList() {
     data?.reduce((acc, product) => {
         if (!acc[product.categoryId]) {
             acc[product.categoryId] = {
-                catName: product.category.displayName,
+                catName: product.categoryName,
                 products: [],
             };
         }

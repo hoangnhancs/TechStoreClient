@@ -17,8 +17,8 @@ export const bannerApi = createApi({
     }),
     deleteBanner: builder.mutation<void, number[]>({
       query: (bannerIdS) => ({
-        url: `/banner/delete-banner`,
-        method: "POST",
+        url: `/banner`,
+        method: "DELETE",
         body: bannerIdS ,
       }),
       invalidatesTags: ["Banner"],
@@ -32,7 +32,7 @@ export const bannerApi = createApi({
           });
         }
         return {
-          url: "/banner/create-banner",
+          url: "/banner",
           method: "POST",
           body: formData,
         };

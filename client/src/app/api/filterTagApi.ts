@@ -9,13 +9,13 @@ export const filterTagApi = createApi({
     endpoints: (builder) => ({
         fetchFilterTagsByCatId: builder.query<FilterTag[], number>({
             query: (categoryId) => ({
-                url: `/filtertag/filtertags?catId=${categoryId}`,
+                url: `/filtertag?catId=${categoryId}`,
                 method: "GET",
             }),
         }),
         fetchAllFilterTags: builder.query<FilterTag[], void>({
             query: () => ({
-                url: `/filtertag/filtertags/all_filter_tags`,
+                url: `/filtertag`,
                 method: "GET",
             }),
      

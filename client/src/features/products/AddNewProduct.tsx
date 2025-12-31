@@ -14,7 +14,7 @@ import { useFetchAllFilterTagsQuery } from "../../app/api/filterTagApi";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 import { Brand, CreateAndUpdateProductInput, FilterTag } from "../../lib/types";
-import { useCreateProductMutation, useFetchProductByIdQuery, useUpdateProductMutation } from "../../app/api/productApi";
+import { useCreateProductMutation, useFetchProductByIdQuery } from "../../app/api/productApi";
 import { Link, useLocation, useParams } from "react-router";
 import { ArrowBack } from "@mui/icons-material";
 import { useFetchAllBrandsQuery } from "../../app/api/brandApi";
@@ -25,10 +25,10 @@ export default function AddNewProduct() {
   const { data: categories, isLoading: isCategoryLoading } = useFetchCategoriesQuery();
   const { data: allFilterTags, isLoading: isFilterTagLoading } = useFetchAllFilterTagsQuery();
   // const { data: currentUser } = useGetCurrentUserQuery();
-  const { data: allBrands } = useFetchAllBrandsQuery();
+  const { data: allBrands, isLoading: isBrandLoading } = useFetchAllBrandsQuery();
   const location = useLocation()
   const [ createProduct, { isLoading: isLoadingCreateProduct } ] = useCreateProductMutation();
-  const [ updateProduct, { isLoading: isLoadingUpdateProduct } ] = useUpdateProductMutation();
+  // const [ updateProduct, { isLoading: isLoadingUpdateProduct } ] = useUpdateProductMutation();
   const { enqueueSnackbar } = useSnackbar();
   const { id } = useParams();
   const [ resetKey, setResetkey ] = useState(false);
@@ -38,58 +38,64 @@ export default function AddNewProduct() {
     mode: "onTouched",
     resolver: zodResolver(addProductSchema),
     defaultValues: {
-      name: "",
+      name: "", 
       description: "",
-      category: "",
-      brand: "",
+      categoryId: "",
+      brandId: "",
       oldPrice: 0,
       discount: 0,
-      mainImage: "",
       mainImageFile: undefined,
-      detailImages: [],
       detailImageFiles: [],
       quantityInStock: 0,
       stockIn: id ? 0 : undefined,
       attributeGroups: [],
-      filterTags: {},
+      productFilterTagValues: [],
     }
   });
 
-  // Lấy category đang chọn
-  const selectedCategoryId = useWatch({ control, name: "category" });
   
-  // const mainImageFile = useWatch({ control, name: "mainImageFile" });
-  // const detailImageFiles = useWatch({ control, name: "detailImageFiles" });
 
+  // Lấy category đang chọn
+  const selectedCategoryId = useWatch({ control, name: "categoryId" });
+  useEffect(() => {
+  console.log("selectedCategoryId", selectedCategoryId);
+}, [selectedCategoryId]);
+  // const formValues = useWatch({ control });
+  // console.log("formValues", formValues); // Sẽ log mỗi lần render lại component
 
   // Lọc filter tags theo category
   const [filters, setFilters] = useState<FilterTag[]>([]);
+  // Lọc brand theo category
   const [brands, setBrands] = useState<Brand[]>([]);
-  console.log(brands)
+  useEffect(() => {
+    console.log("allBrands", allBrands);
+    console.log("isBrandLoading", isBrandLoading);
+  }, [allBrands, isBrandLoading]);
   useEffect(() => {
     if (selectedCategoryId && allFilterTags) {
       const filteredTags = allFilterTags.filter(
         tag => tag.categoryId.toString() === selectedCategoryId
       );
+      console.log("filteredTags", filteredTags);
       setFilters(filteredTags);
       // Reset filterTags khi đổi category
       // setValue("filterTags", {});
     }
-  }, [selectedCategoryId, allFilterTags, setValue]);
-  useEffect(() => {
     if (selectedCategoryId && allBrands) {
       const filteredBrands = allBrands.filter(
         brand => brand.categoryId.toString() === selectedCategoryId
       );
+      console.log("filteredBrands", filteredBrands);
       setBrands(filteredBrands);
       // // Reset filterTags khi đổi category
       // setValue("brand", '');
     }
-  }, [selectedCategoryId, allBrands, setValue]);
-  useEffect(() => {
-    // Khi đổi category, reset filterTags về {}
-    setValue("filterTags", {});
-  }, [selectedCategoryId, setValue]);
+  }, [selectedCategoryId, allFilterTags, setValue, allBrands]);
+
+  // useEffect(() => {
+  //   // Khi đổi category, reset filterTags về {}
+  //   setValue("productFilterTagValues", []);
+  // }, [selectedCategoryId, setValue]);
   // useEffect(() => {
   //   // Khi đổi category, reset filterTags về {}
   //   setValue("brand", '');
@@ -98,16 +104,14 @@ export default function AddNewProduct() {
     if (updatedProduct) {
       reset({
         name: updatedProduct.name,
-        description: updatedProduct.description.join("\n"),
-        category: updatedProduct.categoryId.toString(),
-        brand: updatedProduct.brandId,
+        description: updatedProduct.description,
+        categoryId: updatedProduct.categoryId.toString(),
+        brandId: updatedProduct.brandId.toString(),
         oldPrice: updatedProduct.oldPrice,
         discount: updatedProduct.discountPercentage,
         stockIn: id ? 0 : undefined,
-        mainImage: "",
-        mainImageFile: updatedProduct.imageUrl,
-        detailImages: [],
-        detailImageFiles: updatedProduct.images.map(image => image.imageUrl),
+        mainImageFile: updatedProduct.mainImageUrl,
+        detailImageFiles: updatedProduct.detailImages.map(image => image.imageUrl),
         quantityInStock: updatedProduct.quantityInStock,
         attributeGroups: updatedProduct.attributes.reduce<{groupName: string, attributes:{key: string, value: string}[]}[]>((acc, attribute) => {
           const group = acc.find(group => group.groupName === attribute.attributeType);
@@ -118,10 +122,8 @@ export default function AddNewProduct() {
           }
           return acc;
         }, []), //mapping from fetched template to submit template(add product schema)
-        filterTags: updatedProduct.productTagFilters.reduce<Record<number, string>>((acc, filter) => {
-          acc[filter.filterTagId] = filter.filterTagValueId.toString();
-          return acc;
-        }, {}),
+        productFilterTagValues: updatedProduct.productFilterTagValues.map((item) => (item.filterTagValueId.toString()
+        )),
       })
     }
   }, [updatedProduct, reset, id])
@@ -159,55 +161,55 @@ export default function AddNewProduct() {
 
   const onSubmit = async (data: AddProductFormValues) => {
     if (id) {
-      updateProduct({
-        props: {
-          categoryId: data.category,
-          name: data.name,
-          description: data.description,
-          category: data.category,
-          brandId: data.brand,
-          oldPrice: data.oldPrice,
-          discount: data.discount,
-          mainImage: data.mainImage,
-          mainImageFile: data.mainImageFile,
-          detailImages: data.detailImages,
-          detailImageFiles: data.detailImageFiles,
-          quantityInStock: data.quantityInStock + (data.stockIn || 0),
-          attributeGroups: (data.attributeGroups ?? []).map((group) => ({
-            groupName: group.groupName,
-            attributes: group.attributes})),
-          filterTags: data.filterTags
-          } as CreateAndUpdateProductInput,
-          id: id
-        })
-        .unwrap()
-        .then(() => {
-          enqueueSnackbar("Cập nhật sản phẩm thành công", { variant: "success" });
-        })
-        .catch((error) => {
-          console.error("Error creating product:", error);
-          enqueueSnackbar("Lỗi khi cập nhật sản phẩm", { variant: "error" });
-        });
+      // updateProduct({
+      //   props: {
+      //     categoryId: data.categoryId,
+      //     name: data.name,
+      //     description: data.description,
+      //     brandId: data.brandId,
+      //     oldPrice: data.oldPrice,
+      //     discount: data.discount,
+      //     mainImageFile: data.mainImageFile,
+      //     detailImages: data.detailImageFiles,
+      //     detailImageFiles: data.detailImageFiles,
+      //     quantityInStock: data.quantityInStock + (data.stockIn || 0),
+      //     attributeGroups: (data.attributeGroups ?? []).map((group) => ({
+      //       groupName: group.groupName,
+      //       attributes: group.attributes})),
+      //     filterTags: data.productFilterTagValues.reduce<Record<number, string>>((acc, item) => {
+      //       acc[item.filterTagId] = item.filterTagValueId.toString();
+      //       return acc;
+      //     }, {}) ,
+      //     id: id
+      //   })
+      //   .unwrap()
+      //   .then(() => {
+      //     enqueueSnackbar("Cập nhật sản phẩm thành công", { variant: "success" });
+      //   })
+      //   .catch((error) => {
+      //     console.error("Error creating product:", error);
+      //     enqueueSnackbar("Lỗi khi cập nhật sản phẩm", { variant: "error" });
+      //   });
     }
     else {
       createProduct({
-        categoryId: data.category,
+        categoryId: data.categoryId,
         name: data.name,
         description: data.description,
-        category: data.category,
-        brandId: data.brand,
+        brandId: data.brandId,
         oldPrice: data.oldPrice,
         discount: data.discount,
-        mainImage: data.mainImage,
         mainImageFile: data.mainImageFile,
-        detailImages: data.detailImages,
         detailImageFiles: data.detailImageFiles,
         quantityInStock: data.quantityInStock,
-        attributeGroups: (data.attributeGroups ?? []).map((group) => ({
-          groupName: group.groupName,
-          attributes: group.attributes,
-        })),
-        filterTags: data.filterTags,
+        attributeGroups: (data.attributeGroups ?? []).flatMap(group =>
+          group.attributes.map(attr => ({
+            attributeType: group.groupName,
+            name: attr.key,
+            value: attr.value,
+          }))
+        ),
+        productFilterTagValues: (data.productFilterTagValues ?? []).filter(v => v !== undefined && v !== null),
       } as CreateAndUpdateProductInput)
         .unwrap()
         .then(() => {
@@ -232,6 +234,9 @@ export default function AddNewProduct() {
   if (!categories || isCategoryLoading || isFilterTagLoading) {
     return <LoadingComponent />;
   }
+
+  if (isBrandLoading) return <LoadingComponent />;
+  if (!allBrands) return <div>Lỗi tải thương hiệu</div>;
 
   // if (!currentUser || !currentUser.roles.includes("Admin")) {
   //   return (
@@ -258,7 +263,7 @@ export default function AddNewProduct() {
           {id ? "Cập nhật sản phẩm" : "Tạo sản phẩm mới"}
         </Typography>
       </Box>
-      {(isLoadingCreateProduct || isLoadingUpdateProduct) && <Box
+      {(isLoadingCreateProduct) && <Box
         sx={{
           position: 'fixed',
           top: 0,
@@ -348,7 +353,7 @@ export default function AddNewProduct() {
                 value: category.id.toString()
               }))}
               label="Danh mục"
-              name="category"
+              name="categoryId"
               control={control} 
             />
 
@@ -360,7 +365,7 @@ export default function AddNewProduct() {
                   value: brand.id.toString()
                 })) : []}
                 label={"Thương hiệu"}
-                name={`brand`}
+                name={`brandId`}
                 control={control}
               >
               </SelectInput> 
@@ -372,8 +377,7 @@ export default function AddNewProduct() {
 
             <Typography variant="h6" mt={2}>Bộ lọc</Typography>
             {filters.length > 0 ? (
-              filters.map((filterTag) => { 
-                
+              filters.map((filterTag, idx) => { 
                 return (
                   <Box
                     display="flex"
@@ -390,7 +394,7 @@ export default function AddNewProduct() {
                         value: attr.id.toString()
                       }))}
                       label="Thuộc tính"
-                      name={`filterTags.${String(filterTag.id)}`}
+                      name={`productFilterTagValues.${idx}`}
                       control={control}
                       sx={{ flexGrow: 1 }}
                     />
@@ -433,7 +437,7 @@ export default function AddNewProduct() {
                     resetKey = {resetKey}
                     onChangeResetkey={setResetkey}
                     onImagesChange={(images) => onChange(images[0] || undefined)}
-                    defaultImages={updatedProduct?.imageUrl ? [updatedProduct.imageUrl] : undefined}
+                    defaultImages={updatedProduct?.mainImageUrl ? [updatedProduct.mainImageUrl] : undefined}
                   />
                 )}
               />
@@ -447,7 +451,7 @@ export default function AddNewProduct() {
                     resetKey = {resetKey}     
                     onChangeResetkey={setResetkey}               
                     onImagesChange={onChange} 
-                    defaultImages={updatedProduct?.images.map(image => image.imageUrl) || []} 
+                    defaultImages={updatedProduct?.detailImages.map(image => image.imageUrl) || []} 
                   />
                 )}
               />

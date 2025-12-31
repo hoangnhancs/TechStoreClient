@@ -312,7 +312,7 @@ export default function ProductsPage() {
                     <Box display={"flex"} justifyContent={"flex-start"} alignItems={"center"} gap={1}> 
                         <Box
                             component={"img"}
-                            src={product.imageUrl}
+                            src={product.mainImageUrl}
                             alt={product.name}
                             sx={{
                             width: 60,

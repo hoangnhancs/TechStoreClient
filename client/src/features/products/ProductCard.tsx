@@ -44,11 +44,12 @@ export default function ProductCard({product}: Props) {
             dispatch(addItem({
                 productId: product.id,
                 productName: product.name,
-                imageUrl: product.imageUrl,
+                imageUrl: product.mainImageUrl,
                 price: product.price,
                 quantity: 1,
                 brandId: product.brandId,
-                category: product.category} as Item))
+                categoryId: product.categoryId,
+            } as Item))
         })
         .catch(error => {
             console.error('Error adding item to cart:', error);
@@ -126,7 +127,7 @@ export default function ProductCard({product}: Props) {
                 objectFit: 'contain',  
                 mx: 'auto',  // Căn giữa hình ảnh
             }}
-            image={product.imageUrl}
+            image={product.mainImageUrl}
         >
         </CardMedia>
         <CardContent

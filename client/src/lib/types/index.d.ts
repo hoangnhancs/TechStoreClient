@@ -252,7 +252,7 @@ export type Review = {
   updatedAt: Date;
 };
 
-export type CreateAndUpdateProductInput = {
+export type UpsertProductInput = {
   name: string,
   description: string,
   oldPrice: number,
@@ -260,11 +260,23 @@ export type CreateAndUpdateProductInput = {
   categoryId: string,
   brandId: string,
   quantityInStock: number,
-  mainImageFile: File | string,
-  detailImageFiles: File[],
   productFilterTagValues: string[],
   attributeGroups: InputAttributeGroup[],
 }
+
+export type CreateProductInput = UpsertProductInput & {
+  mainImageFile: File,
+  detailImageFiles: File[],
+}
+
+export type UpdateProductInput = UpsertProductInput & {
+  mainImageFile?: File,
+  mainImageUrl?: string,
+  detailImageFiles?: File[],
+  detailImageUrls?: string[],
+}
+
+
 export type InputAttributeGroup = {
   attributeType: string;
   name: string;

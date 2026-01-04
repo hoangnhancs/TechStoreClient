@@ -13,22 +13,23 @@ import { useFetchAllFilterTagsQuery } from "../../app/api/filterTagApi";
 // import { useGetCurrentUserQuery } from "../user/userApi";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
-import { Brand, CreateAndUpdateProductInput, FilterTag } from "../../lib/types";
-import { useCreateProductMutation, useFetchProductByIdQuery } from "../../app/api/productApi";
+import { Brand, CreateProductInput, FilterTag, UpdateProductInput } from "../../lib/types";
+import { useCreateProductMutation, useFetchProductByIdQuery, useUpdateProductMutation } from "../../app/api/productApi";
 import { Link, useLocation, useParams } from "react-router";
 import { ArrowBack } from "@mui/icons-material";
 import { useFetchAllBrandsQuery } from "../../app/api/brandApi";
+import { useGetCurrentUserQuery } from "../user/userApi";
 
 
 
 export default function AddNewProduct() {
   const { data: categories, isLoading: isCategoryLoading } = useFetchCategoriesQuery();
   const { data: allFilterTags, isLoading: isFilterTagLoading } = useFetchAllFilterTagsQuery();
-  // const { data: currentUser } = useGetCurrentUserQuery();
+  const { data: currentUser } = useGetCurrentUserQuery();
   const { data: allBrands, isLoading: isBrandLoading } = useFetchAllBrandsQuery();
   const location = useLocation()
   const [ createProduct, { isLoading: isLoadingCreateProduct } ] = useCreateProductMutation();
-  // const [ updateProduct, { isLoading: isLoadingUpdateProduct } ] = useUpdateProductMutation();
+  const [ updateProduct, { isLoading: isLoadingUpdateProduct } ] = useUpdateProductMutation();
   const { enqueueSnackbar } = useSnackbar();
   const { id } = useParams();
   const [ resetKey, setResetkey ] = useState(false);
@@ -160,36 +161,63 @@ export default function AddNewProduct() {
   };
 
   const onSubmit = async (data: AddProductFormValues) => {
+    console.log("Submitting data:", {
+        product: {
+          categoryId: data.categoryId,
+          name: data.name,
+          description: data.description,
+          brandId: data.brandId,
+          oldPrice: data.oldPrice,
+          discount: data.discount,
+          mainImageFile: typeof data.mainImageFile === 'string' ? null : data.mainImageFile,
+          detailImageFiles: (data.detailImageFiles ?? []).filter(file => typeof file !== 'string') as File[],
+          mainImageUrl: typeof data.mainImageFile !== 'string' ? null : data.mainImageFile,
+          detailImageUrls: (data.detailImageFiles ?? []).filter(file => typeof file === 'string') as string[],
+          quantityInStock: data.quantityInStock,
+          attributeGroups: (data.attributeGroups ?? []).flatMap(group =>
+            group.attributes.map(attr => ({
+              attributeType: group.groupName,
+              name: attr.key,
+              value: attr.value,
+            }))
+          ),
+          productFilterTagValues: (data.productFilterTagValues ?? []).filter(v => v !== undefined && v !== null),
+        } as UpdateProductInput,
+        id: id
+      });
     if (id) {
-      // updateProduct({
-      //   props: {
-      //     categoryId: data.categoryId,
-      //     name: data.name,
-      //     description: data.description,
-      //     brandId: data.brandId,
-      //     oldPrice: data.oldPrice,
-      //     discount: data.discount,
-      //     mainImageFile: data.mainImageFile,
-      //     detailImages: data.detailImageFiles,
-      //     detailImageFiles: data.detailImageFiles,
-      //     quantityInStock: data.quantityInStock + (data.stockIn || 0),
-      //     attributeGroups: (data.attributeGroups ?? []).map((group) => ({
-      //       groupName: group.groupName,
-      //       attributes: group.attributes})),
-      //     filterTags: data.productFilterTagValues.reduce<Record<number, string>>((acc, item) => {
-      //       acc[item.filterTagId] = item.filterTagValueId.toString();
-      //       return acc;
-      //     }, {}) ,
-      //     id: id
-      //   })
-      //   .unwrap()
-      //   .then(() => {
-      //     enqueueSnackbar("Cập nhật sản phẩm thành công", { variant: "success" });
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error creating product:", error);
-      //     enqueueSnackbar("Lỗi khi cập nhật sản phẩm", { variant: "error" });
-      //   });
+      updateProduct({
+        product: {
+          categoryId: data.categoryId,
+          name: data.name,
+          description: data.description,
+          brandId: data.brandId,
+          oldPrice: data.oldPrice,
+          discount: data.discount,
+          mainImageFile: typeof data.mainImageFile === 'string' ? null : data.mainImageFile,
+          detailImageFiles: (data.detailImageFiles ?? []).filter(file => typeof file !== 'string') as File[],
+          mainImageUrl: typeof data.mainImageFile !== 'string' ? null : data.mainImageFile,
+          detailImageUrls: (data.detailImageFiles ?? []).filter(file => typeof file === 'string') as string[],
+          quantityInStock: data.quantityInStock,
+          attributeGroups: (data.attributeGroups ?? []).flatMap(group =>
+            group.attributes.map(attr => ({
+              attributeType: group.groupName,
+              name: attr.key,
+              value: attr.value,
+            }))
+          ),
+          productFilterTagValues: (data.productFilterTagValues ?? []).filter(v => v !== undefined && v !== null),
+        } as UpdateProductInput,
+        id: id
+      })
+        .unwrap()
+        .then(() => {
+          enqueueSnackbar("Cập nhật sản phẩm thành công", { variant: "success" });
+        })
+        .catch((error) => {
+          console.error("Error creating product:", error);
+          enqueueSnackbar("Lỗi khi cập nhật sản phẩm", { variant: "error" });
+        });
     }
     else {
       createProduct({
@@ -210,7 +238,7 @@ export default function AddNewProduct() {
           }))
         ),
         productFilterTagValues: (data.productFilterTagValues ?? []).filter(v => v !== undefined && v !== null),
-      } as CreateAndUpdateProductInput)
+      } as CreateProductInput)
         .unwrap()
         .then(() => {
           enqueueSnackbar("Tạo sản phẩm thành công", { variant: "success" });
@@ -231,22 +259,22 @@ export default function AddNewProduct() {
     console.error("Form errors:", errors);
   };
 
-  if (!categories || isCategoryLoading || isFilterTagLoading) {
+  if (!categories || isCategoryLoading || isFilterTagLoading || isLoadingUpdateProduct) {
     return <LoadingComponent />;
   }
 
   if (isBrandLoading) return <LoadingComponent />;
   if (!allBrands) return <div>Lỗi tải thương hiệu</div>;
 
-  // if (!currentUser || !currentUser.roles.includes("Admin")) {
-  //   return (
-  //     <Paper sx={{ padding: 3, borderRadius: 2 }}>
-  //       <Typography variant="h5" color="error">
-  //         Bạn không có quyền truy cập vào trang này.
-  //       </Typography>
-  //     </Paper>
-  //   );
-  // }
+  if (!currentUser || !currentUser.roles.includes("Admin")) {
+    return (
+      <Paper sx={{ padding: 3, borderRadius: 2 }}>
+        <Typography variant="h5" color="error">
+          Bạn không có quyền truy cập vào trang này.
+        </Typography>
+      </Paper>
+    );
+  }
 
   return (
     <Paper sx={{ borderRadius: 3, padding: 3, gap: 3, display: 'flex', flexDirection: 'column' }}>

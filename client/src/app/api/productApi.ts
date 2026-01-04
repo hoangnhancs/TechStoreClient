@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { CreateAndUpdateProductInput, GetResult, Product } from "../../lib/types";
+import { CreateProductInput, GetResult, Product, UpdateProductInput } from "../../lib/types";
 import { baseQueryWithErrorHandling } from "./baseApi";
 
 export const productApi = createApi({
@@ -7,12 +7,12 @@ export const productApi = createApi({
   tagTypes: ["Product"],
   baseQuery: baseQueryWithErrorHandling, //custom base query with error handling
   endpoints: (builder) => ({
-    fetchProducts: builder.query<Product[], void>({
+    fetchProducts: builder.query<GetResult<Product>, void>({
       query: () => ({ url: "/search", method: "GET" }),
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: "Product" as const, id })),
+              ...result.results.map(({ id }) => ({ type: "Product" as const, id })),
               { type: "Product", id: "LIST" }, // dùng để refetch list khi tạo mới
             ]
           : [{ type: "Product", id: "LIST" }],
@@ -38,7 +38,7 @@ export const productApi = createApi({
       query: (id) => ({ url: `/products/${id}`, method: "GET" }),
       providesTags: (_, __, id) => [{ type: "Product", id }],
     }),
-    createProduct: builder.mutation<Product, CreateAndUpdateProductInput>({
+    createProduct: builder.mutation<Product, CreateProductInput>({
       query: (product) => {
         const formData = new FormData();
         formData.append("name", product.name);
@@ -66,11 +66,6 @@ export const productApi = createApi({
           formData.append('productFilterTagValues', val.toString());
         });
 
-        // Attribute groups (array of objects)
-        // formData.append(
-        //   "attributeGroups",
-        //   JSON.stringify(product.attributeGroups)
-        // );
         product.attributeGroups.forEach((attrGroup, index) => {
           formData.append(`attributes[${index}].attributeType`, attrGroup.attributeType);
           formData.append(`attributes[${index}].name`,  attrGroup.name);
@@ -85,49 +80,50 @@ export const productApi = createApi({
       },
       invalidatesTags: [{ type: "Product", id: "LIST" }],
     }),
-    updateProduct: builder.mutation<Product,{ props: CreateAndUpdateProductInput; id: string }>({
-      query: ({ props, id }) => {
+    updateProduct: builder.mutation<Product,{ product: UpdateProductInput; id: string }>({
+      query: ({ product, id }) => {
         const formData = new FormData();
-        formData.append("name", props.name);
-        formData.append("description", props.description);
-        formData.append("oldPrice", props.oldPrice.toString());
-        formData.append("discount", props.discount.toString());
-        formData.append("categoryId", props.categoryId);
-        formData.append("brandId", props.brandId);
-        formData.append("quantityInStock", props.quantityInStock.toString());
+        formData.append("name", product.name);
+        formData.append("description", product.description);
+        formData.append("oldPrice", product.oldPrice.toString());
+        formData.append("discount", product.discount.toString());
+        formData.append("categoryId", product.categoryId);
+        formData.append("brandId", product.brandId);
+        formData.append("quantityInStock", product.quantityInStock.toString());
 
         // Main image
-        if (props.mainImageFile && typeof props.mainImageFile === "string") {
-          formData.append("mainImageUrl", props.mainImageFile); // là URL
-        } else {
-          formData.append("mainImageFile", props.mainImageFile); // là File
+        if (product.mainImageFile) {
+          formData.append("mainImageFile", product.mainImageFile);
+        }
+        if (product.mainImageUrl) {
+          formData.append("mainImageUrl", product.mainImageUrl);
         }
 
         // Detail images
-        if (props.detailImageFiles && props.detailImageFiles.length > 0) {
-          props.detailImageFiles.forEach((fileOrUrl) => {
-            if (typeof fileOrUrl === "string") {
-              formData.append("detailImageUrls", fileOrUrl);
-            } else {
-              formData.append("detailImageFiles", fileOrUrl);
-            }
+        if (product.detailImageFiles && product.detailImageFiles.length > 0) {
+          product.detailImageFiles.forEach((file) => {
+            formData.append(`detailImageFiles`, file);
+          });
+        }
+        if (product.detailImageUrls && product.detailImageUrls.length > 0) {
+          product.detailImageUrls.forEach((url) => {
+            formData.append(`detailImageUrls`, url);
           });
         }
 
         // Filter tags (object)
-        formData.append(
-          "productFilterTagValuesJson",
-          JSON.stringify(props.productFilterTagValues)
-        );
+        product.productFilterTagValues.forEach(val => {
+          formData.append('productFilterTagValues', val.toString());
+        });
 
-        // Attribute groups (array of objects)
-        formData.append(
-          "attributeGroupsJson",
-          JSON.stringify(props.attributeGroups)
-        );
+        product.attributeGroups.forEach((attrGroup, index) => {
+          formData.append(`attributes[${index}].attributeType`, attrGroup.attributeType);
+          formData.append(`attributes[${index}].name`,  attrGroup.name);
+          formData.append(`attributes[${index}].value`,  attrGroup.value);
+        });
 
         return {
-          url: `/products/manage/${id}`,
+          url: `/products/${id}`,
           method: "PUT",
           body: formData,
         };

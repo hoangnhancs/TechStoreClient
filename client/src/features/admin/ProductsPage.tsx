@@ -34,7 +34,7 @@ export default function ProductsPage() {
     const {data: products} = useFetchProductsQuery()
     const navigate = useNavigate()
     const location = useLocation()
-    const [localProducts, setLocalProducts] = useState<Product[] | undefined>(products)
+    const [localProducts, setLocalProducts] = useState<Product[] | undefined>(products?.results)
     const [ deleteProduct, { isLoading: isLoadingDelete }] = useDeleteProductMutation()
     const [selectedProduct, setSelectedProduct] = useState<{id: string, name: string} | null>(null);
     const [deleteProductDialogOpen, setDeleteProductDialogOpen] = useState(false);
@@ -74,13 +74,13 @@ export default function ProductsPage() {
 
     useEffect(() => {
         if (products) {
-            setLocalProducts(products);
+            setLocalProducts(products.results);
         }
     }, [products]);
     useEffect(() => {
         console.log(selectedCategory)
     }, [selectedCategory])
-    if (!products || products.length === 0 || !localProducts) {
+    if (!products || products.results.length === 0 || !localProducts) {
         return (
             <LoadingComponent />
         )
@@ -141,10 +141,10 @@ export default function ProductsPage() {
     const handleSeeResult = () => {
         setPage(0);
         if (selectedCategory.id === -1) {
-            setLocalProducts(products)
+            setLocalProducts(products.results)
         }
         else {
-            const result = products.filter((p) => p.categoryId === selectedCategory.id);
+            const result = products.results.filter((p) => p.categoryId === selectedCategory.id);
             setLocalProducts(result)
         }
     }

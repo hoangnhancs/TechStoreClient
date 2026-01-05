@@ -11,16 +11,17 @@ import UserMenu from "../features/user/UserMenu";
 import LoginPromptDialog from "../components/LoginPromptDialog";
 import { useFetchBasketQuery } from "../app/api/basketApi";
 import { useGetCurrentUserQuery } from "../features/user/userApi";
+import SearchBar from "../components/SearchBar";
 
 
 
-const midLinks = [
-    {title: 'products', path: '/products'},
-    {title: 'about', path: '/about'},
-    {title: 'contact', path: '/contact'},
-    {title: 'counter', path: '/counter'},
-    {title: 'error', path: '/error'},
-]
+// const midLinks = [
+//     {title: 'products', path: '/products'},
+//     {title: 'about', path: '/about'},
+//     {title: 'contact', path: '/contact'},
+//     {title: 'counter', path: '/counter'},
+//     {title: 'error', path: '/error'},
+// ]
 
 const rightLinks = [
     {title: 'login', path: '/login'},
@@ -59,9 +60,10 @@ export default function NavBar() {
     <Box sx={{ width: 250 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
         <StoreMallDirectory sx={{ fontSize: '2rem' }} />
-        <Typography variant="h6" sx={{ ml: 1 }}>RE-STORE</Typography>
+        <Typography variant="h6" sx={{ ml: 1 }}>TECH STORE</Typography>
       </Box>
-      <List>
+      <SearchBar isMobile />
+      {/* <List>
         {midLinks.map(({title, path}) => (
           <MenuItemLink 
             key={path} 
@@ -70,7 +72,7 @@ export default function NavBar() {
             {title.toUpperCase()}
           </MenuItemLink>
         ))}
-      </List>
+      </List> */}
       <Divider />
       {currentUser ? (<UserMenu currentUser={currentUser} />) : (
         <List>
@@ -105,7 +107,7 @@ export default function NavBar() {
                 ml: 1
               }}
             >
-              RE-STORE
+              TECH STORE
             </Typography>
             <IconButton sx={{ml: 2}} onClick={() => dispatch(toggleDarkMode())}>
               {!isDarkMode ? <LightMode sx={{color: 'yellow'}} /> : <DarkMode />}
@@ -120,14 +122,15 @@ export default function NavBar() {
           {/* Desktop Menu */}
           {!isMobile && (
             <>
-              <List sx={{ display: 'flex', gap: 1 }}>
+              {/* <List sx={{ display: 'flex', gap: 1 }}>
                 {midLinks.map(({title, path}) => (
                   <MenuItemLink key={path} to={path}>
                     {title.toUpperCase()}
                   </MenuItemLink>
                 ))}
-              </List>
+              </List> */}
 
+                <SearchBar />
               <Box display="flex" alignItems="center" sx={{ minWidth: 300, justifyContent: 'flex-end' }}>
                 <IconButton onClick={handleClickShoppingCart} color="inherit" sx={{ mr: 3 }}>
                   <Badge badgeContent={currentUser ? basket?.items.length || 0 : 0} color="secondary">

@@ -44,6 +44,7 @@ export const productApi = createApi({
         formData.append("name", product.name);
         formData.append("description", product.description);
         formData.append("oldPrice", product.oldPrice.toString());
+        formData.append("price", product.price.toString());
         formData.append("discount", product.discount.toString());
         formData.append("categoryId", product.categoryId);
         formData.append("brandId", product.brandId);
@@ -87,6 +88,7 @@ export const productApi = createApi({
         formData.append("name", product.name);
         formData.append("description", product.description);
         formData.append("oldPrice", product.oldPrice.toString());
+        formData.append("price", product.price.toString());
         formData.append("discount", product.discount.toString());
         formData.append("categoryId", product.categoryId);
         formData.append("brandId", product.brandId);

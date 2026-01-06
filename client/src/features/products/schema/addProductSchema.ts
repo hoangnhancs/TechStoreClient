@@ -13,6 +13,10 @@ export const addProductSchema = z.object({
     .min(0, "Giảm giá phải là một số dương")
     .max(100, "Giảm giá không được vượt quá 100%")
     .optional(),
+  price: z.coerce
+    .number()
+    .gt(0, "Giá sản phẩm phải là một số dương")
+    .optional(),
   categoryId: requiredString("Danh mục"),
   brandId: requiredString("Thương hiệu"),
   // mainImageFile: z.preprocess(
@@ -48,9 +52,15 @@ export const addProductSchema = z.object({
     )
     .optional()
     .default([]),
-  productFilterTagValues: z.array(z.string().optional())
-    .refine(arr => arr.filter(v => v !== undefined && v !== null && v !== "").length > 0, {
-      message: "Bạn phải chọn ít nhất 1 bộ lọc",
+  productFilterTagValues: z
+    .array(
+      z.object({
+        filterTagId: requiredString("ID bộ lọc"),
+        filterTagValueId: z.string().optional(),
+      })
+    )
+    .refine((vals) => vals.filter(v => v.filterTagValueId && v.filterTagValueId !== "").length > 0, {
+      message: "Ít nhất một giá trị bộ lọc là bắt buộc",
     })
     .default([]),
   mainImageFile: z

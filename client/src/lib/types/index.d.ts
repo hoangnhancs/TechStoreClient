@@ -257,10 +257,11 @@ export type UpsertProductInput = {
   description: string,
   oldPrice: number,
   discount: number,
+  price: number,
   categoryId: string,
   brandId: string,
   quantityInStock: number,
-  productFilterTagValues: string[],
+  productFilterTagValues: InputFilterTagValue[],
   attributeGroups: InputAttributeGroup[],
 }
 
@@ -276,6 +277,10 @@ export type UpdateProductInput = UpsertProductInput & {
   detailImageUrls?: string[],
 }
 
+export type InputFilterTagValue = {
+  filterTagId: string;
+  filterTagValueId: string;
+}
 
 export type InputAttributeGroup = {
   attributeType: string;

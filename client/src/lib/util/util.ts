@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { format, DateArg } from "date-fns";
+import { FieldError, FieldErrors, FieldValues } from "react-hook-form";
 
 export type DateFormatStyle = 'ddmmyyyy' | 'ddmmyyyyhhmm' | 'hhmm' | 'iso' | 'full';
 
@@ -75,4 +76,28 @@ export const formatCurrency = (
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
   }).format(num);
+};
+
+export const flattenErrors = <T extends FieldValues>(errObj: FieldErrors<T>): string[] => {
+  let msgs: string[] = [];
+  
+  if (Array.isArray(errObj)) {
+    errObj.forEach(item => {
+      if (item) msgs = msgs.concat(flattenErrors(item));
+    });
+  } else {
+    Object.values(errObj).forEach(val => {
+      if (val && typeof (val as FieldError).message === "string") {
+        const msg = (val as FieldError).message;
+        if (msg !== undefined) {
+          msgs.push(msg);
+        }
+      } else if (val && typeof val === "object") {
+        msgs = msgs.concat(
+          flattenErrors(val as FieldErrors<T>)
+        );
+      }
+    });
+  }
+  return msgs;
 };

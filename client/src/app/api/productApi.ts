@@ -62,8 +62,9 @@ export const productApi = createApi({
         }
 
         // Filter tags (object)
-        product.productFilterTagValues.forEach(val => {
-          formData.append('productFilterTagValues', val.toString());
+        product.productFilterTagValues.forEach((ftv, idx) => {
+          formData.append(`productFilterTagValues[${idx}].filterTagId`, ftv.filterTagId.toString());
+          formData.append(`productFilterTagValues[${idx}].filterTagValueId`, ftv.filterTagValueId.toString());
         });
 
         product.attributeGroups.forEach((attrGroup, index) => {
@@ -112,8 +113,9 @@ export const productApi = createApi({
         }
 
         // Filter tags (object)
-        product.productFilterTagValues.forEach(val => {
-          formData.append('productFilterTagValues', val.toString());
+        product.productFilterTagValues.forEach((ftv, idx) => {
+          formData.append(`productFilterTagValues[${idx}].filterTagId`, ftv.filterTagId.toString());
+          formData.append(`productFilterTagValues[${idx}].filterTagValueId`, ftv.filterTagValueId.toString());
         });
 
         product.attributeGroups.forEach((attrGroup, index) => {

@@ -1,7 +1,7 @@
-import { useForm, Controller, useWatch, FieldError, FieldErrors } from "react-hook-form";
+import { useForm, Controller, useWatch, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AddProductFormValues, addProductSchema } from "./schema/addProductSchema";
-import { Box, Button, Paper, Typography, Accordion, AccordionSummary, AccordionDetails, TextField, CircularProgress } from "@mui/material";
+import { Box, Button, Paper, Typography, Accordion, AccordionSummary, AccordionDetails, CircularProgress } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TextInput from "../../components/TextInput";
 import SelectInput from "../../components/SelectInput";
@@ -19,6 +19,7 @@ import { Link, useLocation, useParams } from "react-router";
 import { ArrowBack } from "@mui/icons-material";
 import { useFetchAllBrandsQuery } from "../../app/api/brandApi";
 import { useGetCurrentUserQuery } from "../user/userApi";
+import { flattenErrors } from "../../lib/util/util";
 
 
 
@@ -45,6 +46,7 @@ export default function AddNewProduct() {
       brandId: "",
       oldPrice: 0,
       discount: 0,
+      price: 0,
       mainImageFile: undefined,
       detailImageFiles: [],
       quantityInStock: 0,
@@ -59,19 +61,20 @@ export default function AddNewProduct() {
   // Lấy category đang chọn
   const selectedCategoryId = useWatch({ control, name: "categoryId" });
   useEffect(() => {
-  console.log("selectedCategoryId", selectedCategoryId);
-}, [selectedCategoryId]);
-  // const formValues = useWatch({ control });
-  // console.log("formValues", formValues); // Sẽ log mỗi lần render lại component
+    setValue("productFilterTagValues", []);
+    setValue("brandId", '');
+  }, [selectedCategoryId, setValue]);
 
   // Lọc filter tags theo category
   const [filters, setFilters] = useState<FilterTag[]>([]);
   // Lọc brand theo category
   const [brands, setBrands] = useState<Brand[]>([]);
-  useEffect(() => {
-    console.log("allBrands", allBrands);
-    console.log("isBrandLoading", isBrandLoading);
-  }, [allBrands, isBrandLoading]);
+
+  // useEffect(() => {
+  //   console.log("allBrands", allBrands);
+  //   console.log("isBrandLoading", isBrandLoading);
+  // }, [allBrands, isBrandLoading]);
+
   useEffect(() => {
     if (selectedCategoryId && allFilterTags) {
       const filteredTags = allFilterTags.filter(
@@ -79,8 +82,6 @@ export default function AddNewProduct() {
       );
       console.log("filteredTags", filteredTags);
       setFilters(filteredTags);
-      // Reset filterTags khi đổi category
-      // setValue("filterTags", {});
     }
     if (selectedCategoryId && allBrands) {
       const filteredBrands = allBrands.filter(
@@ -88,19 +89,32 @@ export default function AddNewProduct() {
       );
       console.log("filteredBrands", filteredBrands);
       setBrands(filteredBrands);
-      // // Reset filterTags khi đổi category
-      // setValue("brand", '');
     }
   }, [selectedCategoryId, allFilterTags, setValue, allBrands]);
 
-  // useEffect(() => {
-  //   // Khi đổi category, reset filterTags về {}
-  //   setValue("productFilterTagValues", []);
-  // }, [selectedCategoryId, setValue]);
-  // useEffect(() => {
-  //   // Khi đổi category, reset filterTags về {}
-  //   setValue("brand", '');
-  // }, [selectedCategoryId, setValue]);
+  // Map productFilterTagValues đúng theo thứ tự của filters khi cả updatedProduct và filters đều đã load
+  useEffect(() => {
+    if (updatedProduct && filters.length > 0 && id) {
+      const mappedValues = filters.map(filterTag => {
+        const existingValue = updatedProduct.productFilterTagValues.find(
+          pftv => pftv.filterTagId === filterTag.id
+        );
+        return existingValue
+          ? {
+              id: existingValue.id,
+              filterTagId: existingValue.filterTagId.toString(),
+              filterTagValueId: existingValue.filterTagValueId.toString()
+            }
+          : {
+              filterTagId: filterTag.id.toString(),
+              filterTagValueId: "" // để trống nếu không có giá trị
+            };
+      });
+      setValue("productFilterTagValues", mappedValues);
+    }
+  }, [updatedProduct, filters, id, setValue]);
+
+
   useEffect(() => {
     if (updatedProduct) {
       reset({
@@ -110,21 +124,21 @@ export default function AddNewProduct() {
         brandId: updatedProduct.brandId.toString(),
         oldPrice: updatedProduct.oldPrice,
         discount: updatedProduct.discountPercentage,
-        stockIn: id ? 0 : undefined,
+        price: updatedProduct.price,
+        stockIn: id ? updatedProduct.quantityInStock : 0,
         mainImageFile: updatedProduct.mainImageUrl,
         detailImageFiles: updatedProduct.detailImages.map(image => image.imageUrl),
         quantityInStock: updatedProduct.quantityInStock,
-        attributeGroups: updatedProduct.attributes.reduce<{groupName: string, attributes:{key: string, value: string}[]}[]>((acc, attribute) => {
+        attributeGroups: updatedProduct.attributes.reduce<{groupName: string, attributes:{id?: string, key: string, value: string}[]}[]>((acc, attribute) => {
           const group = acc.find(group => group.groupName === attribute.attributeType);
           if (group) {
-            group.attributes.push({ key: attribute.name, value: attribute.value });
+            group.attributes.push({ id: attribute.id.toString(), key: attribute.name, value: attribute.value });
           } else {
-            acc.push({ groupName: attribute.attributeType, attributes: [{ key: attribute.name, value: attribute.value }] });
+            acc.push({ groupName: attribute.attributeType, attributes: [{ id: attribute.id.toString(), key: attribute.name, value: attribute.value }] });
           }
           return acc;
         }, []), //mapping from fetched template to submit template(add product schema)
-        productFilterTagValues: updatedProduct.productFilterTagValues.map((item) => (item.filterTagValueId.toString()
-        )),
+        // productFilterTagValues sẽ được set trong useEffect riêng để map đúng theo filters
       })
     }
   }, [updatedProduct, reset, id])
@@ -135,30 +149,10 @@ export default function AddNewProduct() {
     ? oldPrice - (oldPrice * discount / 100)
     : oldPrice;
 
-  // Xử lý lỗi
-  const flattenErrors = (errObj: FieldErrors<AddProductFormValues>): string[] => {
-    let msgs: string[] = [];
-    
-    if (Array.isArray(errObj)) {
-      errObj.forEach(item => {
-        if (item) msgs = msgs.concat(flattenErrors(item));
-      });
-    } else {
-      Object.values(errObj).forEach(val => {
-        if (val && typeof (val as FieldError).message === "string") {
-          const msg = (val as FieldError).message;
-          if (msg !== undefined) {
-            msgs.push(msg);
-          }
-        } else if (val && typeof val === "object") {
-          msgs = msgs.concat(
-            flattenErrors(val as FieldErrors<AddProductFormValues>)
-          );
-        }
-      });
-    }
-    return msgs;
-  };
+  // Tự động cập nhật giá sau giảm khi priceAfterDiscount thay đổi
+  useEffect(() => {
+    setValue("price", priceAfterDiscount);
+  }, [priceAfterDiscount, setValue]);
 
   const onSubmit = async (data: AddProductFormValues) => {
     console.log("Submitting data:", {
@@ -168,6 +162,7 @@ export default function AddNewProduct() {
           description: data.description,
           brandId: data.brandId,
           oldPrice: data.oldPrice,
+          price: data.price,
           discount: data.discount,
           mainImageFile: typeof data.mainImageFile === 'string' ? null : data.mainImageFile,
           detailImageFiles: (data.detailImageFiles ?? []).filter(file => typeof file !== 'string') as File[],
@@ -181,19 +176,14 @@ export default function AddNewProduct() {
               value: attr.value,
             }))
           ),
-          productFilterTagValues: (data.productFilterTagValues ?? []).filter(v => v !== undefined && v !== null),
+          productFilterTagValues: (data.productFilterTagValues ?? []).filter(v => v && v.filterTagValueId && v.filterTagValueId !== ""),
         } as UpdateProductInput,
         id: id
       });
     if (id) {
       updateProduct({
         product: {
-          categoryId: data.categoryId,
-          name: data.name,
-          description: data.description,
-          brandId: data.brandId,
-          oldPrice: data.oldPrice,
-          discount: data.discount,
+          ...data,
           mainImageFile: typeof data.mainImageFile === 'string' ? null : data.mainImageFile,
           detailImageFiles: (data.detailImageFiles ?? []).filter(file => typeof file !== 'string') as File[],
           mainImageUrl: typeof data.mainImageFile !== 'string' ? null : data.mainImageFile,
@@ -206,7 +196,7 @@ export default function AddNewProduct() {
               value: attr.value,
             }))
           ),
-          productFilterTagValues: (data.productFilterTagValues ?? []).filter(v => v !== undefined && v !== null),
+          productFilterTagValues: (data.productFilterTagValues ?? []).filter(v => v && v.filterTagValueId && v.filterTagValueId !== ""),
         } as UpdateProductInput,
         id: id
       })
@@ -221,15 +211,7 @@ export default function AddNewProduct() {
     }
     else {
       createProduct({
-        categoryId: data.categoryId,
-        name: data.name,
-        description: data.description,
-        brandId: data.brandId,
-        oldPrice: data.oldPrice,
-        discount: data.discount,
-        mainImageFile: data.mainImageFile,
-        detailImageFiles: data.detailImageFiles,
-        quantityInStock: data.quantityInStock,
+        ...data,
         attributeGroups: (data.attributeGroups ?? []).flatMap(group =>
           group.attributes.map(attr => ({
             attributeType: group.groupName,
@@ -237,7 +219,7 @@ export default function AddNewProduct() {
             value: attr.value,
           }))
         ),
-        productFilterTagValues: (data.productFilterTagValues ?? []).filter(v => v !== undefined && v !== null),
+        productFilterTagValues: (data.productFilterTagValues ?? []).filter(v => v && v.filterTagValueId && v.filterTagValueId !== ""),
       } as CreateProductInput)
         .unwrap()
         .then(() => {
@@ -345,7 +327,13 @@ export default function AddNewProduct() {
                 <Typography variant="subtitle1">
                   Giá sau khi giảm:
                 </Typography>
-                <TextField sx={{ flexGrow: 1 }} disabled value={priceAfterDiscount} />
+                <TextInput
+                  label="Giá sau giảm" 
+                  name="price"
+                  control={control}
+                  sx={{ flexGrow: 1 }}  
+                  slotProps={{ input: { readOnly: true }}}
+                />
               </Box>
               <Box display="flex" sx={{ flex: 3 }}>
                 <TextInput
@@ -416,13 +404,19 @@ export default function AddNewProduct() {
                     <Typography variant="subtitle1" sx={{ minWidth: 150 }} textTransform={"capitalize"}>
                       {filterTag.name || "Không có tên bộ lọc"}
                     </Typography>
+                    <Controller
+                      name={`productFilterTagValues.${idx}.filterTagId`}
+                      control={control}
+                      defaultValue={filterTag.id.toString()}
+                      render={({ field }) => <input type="hidden" {...field} />}
+                    />
                     <SelectInput
                       items={filterTag.values.map(attr => ({
                         text: attr.value,
                         value: attr.id.toString()
                       }))}
                       label="Thuộc tính"
-                      name={`productFilterTagValues.${idx}`}
+                      name={`productFilterTagValues.${idx}.filterTagValueId`}
                       control={control}
                       sx={{ flexGrow: 1 }}
                     />

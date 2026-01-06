@@ -58,14 +58,14 @@ export default function SearchBar({ isMobile = false }: SearchBarProps) {
   };
 
   const performSearch = (query: string) => {
-    navigate(`/products?search=${encodeURIComponent(query)}`);
+    navigate(`/products/search?q=${encodeURIComponent(query)}`);
     
     // Save to recent searches
     const updated = [query, ...recentSearches.filter(s => s !== query)].slice(0, 5);
     setRecentSearches(updated);
     localStorage.setItem('recentSearches', JSON.stringify(updated));
     
-    setSearchValue("");
+    // setSearchValue("");
     setShowSuggestions(false);
   };
 

@@ -1,24 +1,22 @@
 import { Box, Button, Grid, Menu, Typography,  } from "@mui/material"
 import ProductCard from "./ProductCard"
-import { useFetchProductsByCatQuery,   } from "../../app/api/productApi"
+import { useLazyFetchProductsByCatQuery,   } from "../../app/api/productApi"
 import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import CloseIcon from "@mui/icons-material/Close";
-import { Brand, Product } from "../../lib/types";
+import { Brand, Product, SearchParams } from "../../lib/types";
 import React from "react";
 import { useFetchFilterTagsByCatIdQuery } from "../../app/api/filterTagApi";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { clearAllFilters, clearFilterByTagId, setFilter, setBrand, setPriceSort } from "../filter/filterSlice";
 import LoadingComponent from "../../components/LoadingComponent";
-import { useGetCurrentUserQuery } from "../user/userApi";
 import { useFetchBrandsByCatIdQuery } from "../../app/api/brandApi";
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import { useFetchCategoriesQuery } from "../../app/api/categoryApi";
-
 
 export default function ProductListByCategory() {
     const dispatch = useAppDispatch();
@@ -29,9 +27,9 @@ export default function ProductListByCategory() {
     const {data: filterTags, isLoading: isLoadingFilterTagValue} = useFetchFilterTagsByCatIdQuery(
         categoryIdNumber as number
     );
-    const { data: productByCat, isLoading: isProductLoading } = useFetchProductsByCatQuery(
-        categoryIdNumber as number
-    );
+    const [trigger, { data, isFetching }] = useLazyFetchProductsByCatQuery();
+    const [pageNumber, setPageNumber] = useState(1);
+    const [products, setProducts] = useState<Product[]>([]);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openTagId, setOpenTagId] = useState<number | null>(null);
     const selectedFilters = useAppSelector((state) => state.filter.filter);//type Record<number, number[]>: {filtertagId: [filterTagValueIds]}
@@ -41,8 +39,8 @@ export default function ProductListByCategory() {
     const [selectedBrands, setSelectedBrands] = useState<Brand[] | null>(reduxSelectedBrands);
     const reduxPriceSort = useAppSelector(state => state.filter.priceSort);
     const [selectedPriceSort, setSelectedPriceSort] = useState<'asc' | 'desc' | 'discount'>(reduxPriceSort);
-    const [numberPorductsDisplay, setNumberPorductsDisplay] = useState(20);
-    
+
+    console.log("brandbycat", brandsByCatId)
     useEffect(() => {
         dispatch(clearAllFilters());
     }, [categoryIdNumber, dispatch]);
@@ -63,6 +61,25 @@ export default function ProductListByCategory() {
     useEffect(() => {
         setSelectedPriceSort(reduxPriceSort);
     }, [reduxPriceSort]);
+
+    // Trigger lazy fetch on component mount
+    useEffect(() => {
+        if (categoryIdNumber) {
+            trigger({ categoryId: categoryIdNumber, params: { pageNumber } });
+        }
+    }, [categoryIdNumber, pageNumber, trigger]);
+
+    // Update products state when result data changes
+    useEffect(() => {
+        if (data?.results) {
+            setProducts((prevProducts) => [...prevProducts, ...data.results]);
+        }
+    }, [data]);
+
+    const handleSearch = (page: number, seachParams: SearchParams) => {
+        trigger({ categoryId: categoryIdNumber as number, params: seachParams });
+        setPageNumber(page);
+    }
 
     const handleSetTmpFilter = (tagId: number, valueId: number) => {
         setTmpSelectedFilters((prev) => {
@@ -114,41 +131,6 @@ export default function ProductListByCategory() {
         }
     }
 
-    const filteredProducts = React.useMemo(() => {
-        if (productByCat == null || productByCat.results.length === 0) return []
-
-        let tmp: Product[] = productByCat.results
-
-        if (selectedPriceSort !== null) {
-            if (selectedPriceSort === 'asc' && tmp !== null && tmp.length > 0) {
-                tmp = [...tmp].sort((a, b) => a.price - b.price);
-            } else if (selectedPriceSort === 'desc' && tmp !== null && tmp.length > 0) {
-                tmp = [...tmp].sort((a, b) => b.price - a.price);
-            } else if (selectedPriceSort === 'discount' && tmp !== null && tmp.length > 0) {
-                tmp = [...tmp].sort((a, b) => b.discountPercentage - a.discountPercentage);
-            }
-        }
-
-        if (selectedFilters !== null && Object.keys(selectedFilters).length > 0) {
-            for (const key in selectedFilters) {
-            const filterTagId = Number(key);
-            const filterTagValues = selectedFilters[filterTagId];
-            tmp = tmp.filter(product => (product.productFilterTagValues.some(//bất kì ptf nào của sp, thỏa mãn nằm trong mảng filterTagValues  
-                ptf => {
-                    const valueId = ptf.filterTagValueId;
-                    return filterTagValues.includes(valueId);
-                }
-            )))
-        }}
-        if (selectedBrands !== null && selectedBrands.length > 0) {
-            tmp = tmp.filter(product => (selectedBrands.some(b => product.brandId === b.id)));
-        }
-
-        return tmp;
-    }, [productByCat, selectedFilters, selectedBrands, selectedPriceSort]);
-    const displayedProducts = filteredProducts?.slice(0, numberPorductsDisplay);
-    //mappingFilterTags: mapping filter tags. Eg: {1: "Độ phân giải", 2: "Kích thước"}
-    //mappingFilterTagValues: mapping filter tag values. Eg: {1: "2K", 2: "4K", 3: "24 inch", 4: "36 inch"}
     const filterTextMapping: {mappingFilterTags: Record<number, string>, mappingFilterTagValues: Record<number, string>} = React.useMemo(() => {
         const mappingFilterTags: Record<number, string> = {};
         const mappingFilterTagValues: Record<number, string> = {};
@@ -174,15 +156,13 @@ export default function ProductListByCategory() {
         }
         return texts;
     }, [selectedFilters, filterTextMapping]);
-    console.log(isLoadingFilterTagValue, isProductLoading, !productByCat, isLoadingBrands)
-    if (isLoadingFilterTagValue || isProductLoading || !productByCat || isLoadingBrands) 
+    console.log(isLoadingFilterTagValue, isLoadingBrands)
+    if (isLoadingFilterTagValue || isLoadingBrands || !brandsByCatId) 
     return (
         <LoadingComponent />
     );
     console.log("filter", selectedPriceSort, selectedBrands, selectedFilters)
-    console.log("productbyCat", productByCat)
-    console.log("filteredProducts",filteredProducts)
-    console.log("displayedProducts",displayedProducts)
+
     return (
         <Box
             sx={{ flexGrow: 1, mt:6}} 
@@ -481,11 +461,11 @@ export default function ProductListByCategory() {
             <Typography color="text.primary" variant="h6" sx={{ mb: 1, fontWeight: 'bold', width: '100%' }}>
                 Danh sách sản phẩm
             </Typography>
-            <ProductGrid products={displayedProducts ? displayedProducts : productByCat.results} />
+            <ProductGrid products={products} />
             <Box display={"flex"} justifySelf={"center"} alignItems={"center"} sx={{ width: "fit-content", my: 2, borderRadius: 2, color: '#3b82f6', backgroundColor: '#f0f7ff' }}>
                 <Button
                     sx={{
-                        width: "fit-content",
+                        width: "300px",
                         textAlign: "center",
                         display: 'flex',
                         alignItems: 'center',
@@ -493,11 +473,18 @@ export default function ProductListByCategory() {
                         height: '100%', // hoặc giá trị cụ thể nếu cần
                         py: 1, // padding theo chiều dọc để cân đối
                     }}
-                    onClick={() => setNumberPorductsDisplay(prev => prev + 20)}
-                    endIcon={<ExpandMoreIcon sx={{ ml: -1 }}/>}
-                    disabled={filteredProducts.length <= numberPorductsDisplay}
+                    onClick={handleSearch.bind(null, pageNumber + 1, { pageNumber: pageNumber + 1 })}
+                    endIcon={!isFetching && <ExpandMoreIcon sx={{ ml: -1 }}/>}
+                    disabled={isFetching || (data ? data.totalCount <= 20*pageNumber : true)}
                 >
-                    Hiển thị thêm {Math.max(filteredProducts.length - numberPorductsDisplay, 0)} sản phẩm
+                    {isFetching ? (
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <LoadingComponent isMaxHeight={false} />
+                        </Box>
+                    ) : (
+                        <Typography>Hiển thị thêm {data ? (data.totalCount - 20 * pageNumber) : 0} sản phẩm</Typography>
+                    )}
+                    
                 </Button>
             </Box>
         </Box>  
@@ -509,13 +496,12 @@ type Props = {
 };
 
 const ProductGrid = React.memo(function ProductGrid({ products }: Props) {
-    const {data: currentUser} = useGetCurrentUserQuery()
     return (
         <Grid container spacing={{ xs: 2, sm: 2, md: 3 }} columns={{ xs: 2, sm: 8, md: 12 }}>
             {(products && products.length > 0) ?
                 (products.map((product) => (
                     <Grid size={{ xs: 1, sm: 2, md: 2.4 }}  key={product.id}>
-                        <ProductCard product={product} currentUser={currentUser} />
+                        <ProductCard product={product} />
                     </Grid>
                 ))) 
                 : 

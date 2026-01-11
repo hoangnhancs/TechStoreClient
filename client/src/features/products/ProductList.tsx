@@ -2,14 +2,12 @@ import { Box, Button, Grid } from "@mui/material"
 import ProductCard from "./ProductCard"
 import { useFetchTop10ProductsQuery } from "../../app/api/productApi"
 import LoadingComponent from "../../components/LoadingComponent"
-import { useGetCurrentUserQuery } from "../user/userApi"
 import { Product } from "../../lib/types"
 import { useNavigate } from "react-router"
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 export default function ProductList() {
     const {data, isLoading} = useFetchTop10ProductsQuery()
-    const {data: currentUser} = useGetCurrentUserQuery()
     const navigate = useNavigate()
     // const {data, isLoading} = useFetchProductsQuery()
     if (data === null || data?.length === 0) return (
@@ -91,7 +89,7 @@ export default function ProductList() {
                                 size={{ xs: 1, sm: 2, md: 2.4 }} 
                                 key={product.id}
                             >
-                                <ProductCard product={product} currentUser={currentUser}/>
+                                <ProductCard product={product} />
                             </Grid>
                         ))}
                     </Grid>

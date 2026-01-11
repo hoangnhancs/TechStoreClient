@@ -1,5 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { CreateProductInput, GetResult, Product, UpdateProductInput } from "../../lib/types";
+import { CreateProductInput, GetResult, Product, SearchParams, UpdateProductInput } from "../../lib/types";
 import { baseQueryWithErrorHandling } from "./baseApi";
 
 export const productApi = createApi({
@@ -7,8 +7,8 @@ export const productApi = createApi({
   tagTypes: ["Product"],
   baseQuery: baseQueryWithErrorHandling, //custom base query with error handling
   endpoints: (builder) => ({
-    fetchProducts: builder.query<GetResult<Product>, void>({
-      query: () => ({ url: "/search", method: "GET" }),
+    fetchProducts: builder.query<GetResult<Product>, SearchParams>({
+      query: (params) => ({ url: "/search", method: "GET", params }),
       providesTags: (result) =>
         result
           ? [
@@ -24,10 +24,11 @@ export const productApi = createApi({
           ? result.map((p) => ({ type: "Product" as const, id: p.id }))
           : [],
     }),
-    fetchProductsByCat: builder.query<GetResult<Product>, number>({
-      query: (categoryId) => ({
+    fetchProductsByCat: builder.query<GetResult<Product>, { categoryId: number, params: SearchParams }>({
+      query: ({ categoryId, params }) => ({
         url: `/search/${categoryId}`,
         method: "GET",
+        params: params
       }),
       providesTags: (result) =>
         result?.results

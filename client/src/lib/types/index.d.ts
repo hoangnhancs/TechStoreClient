@@ -1,5 +1,13 @@
 import { Stripe, StripeElements, StripeCardElement } from "@stripe/stripe-js";
 
+export interface SearchParams {
+  searchTerm?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  orderBy?: string;
+  filterTagValues?: string[]; 
+}
+
 export interface GetResult<T> {
   results: T[];
   pageCount: number;

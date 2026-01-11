@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { Brand } from "../../lib/types";
 import { baseQueryWithErrorHandling } from "./baseApi";
@@ -20,8 +18,7 @@ export const brandApi = createApi({
       query: (catId) => ({
         url: `/brand?catId=${catId}`,
         method: "GET",
-      }),
-      transformResponse: (response: any) => response.data.getBrandsByCategoryId,
+      })
     }),
   }),
 });

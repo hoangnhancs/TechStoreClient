@@ -1,9 +1,0 @@
-# Bỏ qua các thư mục output của .NET build
-**/bin
-**/obj
-
-# Bỏ qua các file cấu hình của IDE và user
-.vs
-.vscode
-*.csproj.user
-*.user

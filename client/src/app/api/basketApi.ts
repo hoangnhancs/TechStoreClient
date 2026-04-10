@@ -8,13 +8,10 @@ export const basketApi = createApi({
   tagTypes: ["Basket"],
   endpoints: (builder) => ({
     fetchBasket: builder.query<Basket, void>({
-      query: () => ({ url: "/basket/mybasket", method: "GET" }),
+      query: () => ({ url: "/basket", method: "GET" }),
       providesTags: ["Basket"], // Set loading priority for this query
     }),
-    addBasketItem: builder.mutation<
-      Basket,
-      { productId: string; quantity: number }
-    >({
+    addBasketItem: builder.mutation<Basket, { productId: string; quantity: number }>({
       query: ({ productId, quantity }) => ({
         url: "/basket/mybasket/items",
         method: "POST",
@@ -64,10 +61,7 @@ export const basketApi = createApi({
       //   }
       // },
     }),
-    removeBasketItem: builder.mutation<
-      Basket,
-      { productId: string; quantity: number }
-    >({
+    removeBasketItem: builder.mutation<Basket, { productId: string; quantity: number }>({
       query: ({ productId, quantity }) => ({
         url: `/basket/mybasket/items/${productId}?quantity=${quantity}`,
         method: "DELETE",
@@ -106,10 +100,7 @@ export const basketApi = createApi({
         }
       },
     }),
-    removePermanentlyBasketItems: builder.mutation<
-      Basket,
-      { productIds: string[] }
-    >({
+    removePermanentlyBasketItems: builder.mutation<Basket, { productIds: string[] }>({
       query: ({ productIds }) => ({
         url: "basket/mybasket/remove_items",
         method: "POST",

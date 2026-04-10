@@ -150,6 +150,7 @@ export type Item = {
   brandName: string;
   categoryId: number;
   categoryName: string;
+  categoryDisplayName: string;
 };
 
 export type Category = {

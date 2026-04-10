@@ -109,16 +109,16 @@ export default function OrderSummary({ isCanCompleteOrder, onPaymentOrder }: Pro
                 
                 {location.pathname === '/basket' ? (
                     <Button 
-                    variant="contained" 
-                    color="primary"
-                    disabled={selectedItems.length === 0}
-                    fullWidth
-                    size="large"
-                    sx={{ mt: 2, py: 1.5 }}
-                    onClick={handleCreateOrder}
-                >
-                    Thanh toán ({selectedItems.length} sản phẩm)
-                </Button>
+                        variant="contained" 
+                        color="primary"
+                        disabled={selectedItems.length === 0}
+                        fullWidth
+                        size="large"
+                        sx={{ mt: 2, py: 1.5 }}
+                        onClick={handleCreateOrder}
+                    >
+                        Thanh toán ({selectedItems.length} sản phẩm)
+                    </Button>
                 ) : (
                     <Button 
                         variant="contained" 

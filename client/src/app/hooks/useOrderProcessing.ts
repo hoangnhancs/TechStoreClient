@@ -53,20 +53,14 @@ export const useOrderProcessing = () => {
       )
       .map((item: Item) => ({
         productId: item.productId,
-        productName: item.productName,
-        imageUrl: item.imageUrl,
         quantity: item.quantity,
         unitPrice: item.price,
-        brand: item.brandId,
-        category: item.category,
       })),
+    shippingAddress: currentAddress?.detailAddress,
+    billingAddress: currentAddress?.detailAddress,
     shippingCost: shippingCost,
     discount: discount,
-    subTotal: getTotalPrice(),
-    total: getTotalPrice() + shippingCost - discount,
-    orderStatus: "Created",
-    paymentStatus: "Pending",
-    paymentMethod: "CashOnDelivery",
+    paymentMethod: currentPaymentInfor.paymentMethod,
   };
 
   const handleActiveStepChange = (step: number) => {
@@ -84,7 +78,7 @@ export const useOrderProcessing = () => {
   const handleCreateOrder = async () => {
     try {
       try {
-        await createOrUpdateOrder(createOrderParas).unwrap();
+        // await createOrUpdateOrder(createOrderParas).unwrap();
         navigate("/order");
       } catch (error) {
         console.error("Error creating order:", error);
@@ -96,7 +90,7 @@ export const useOrderProcessing = () => {
     }
   };
 
-  const handlePaymentOrder = async () => {
+  const handleCreateOrderAndPayment = async () => {
     try {
       if (
         currentPaymentInfor.paymentMethod === "CreditCard" &&
@@ -237,7 +231,7 @@ export const useOrderProcessing = () => {
     handlePaymentInforChange,
     handleAddressChange,
     handleCreateOrder,
-    handlePaymentOrder,
+    handleCreateOrderAndPayment,
     isCanCompleteOrder,
     completePayment,
   };

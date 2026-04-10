@@ -43,7 +43,7 @@ export default function CheckOutPage() {
         handleActiveStepChange,
         handlePaymentInforChange,
         handleAddressChange,
-        handlePaymentOrder,
+        handleCreateOrderAndPayment: handlePaymentOrder,
         isCanCompleteOrder,
     } = useOrderProcessing();
     const { data: addresses } = useFetchAddressQuery()
@@ -52,14 +52,15 @@ export default function CheckOutPage() {
     useEffect(() => {
         if (selectedItems.length > 0) {    
             const groupedByCategory = selectedItems.reduce((groups: Record<string, Item[]>, item: Item) => {
-                const category = item.category || 'Other'
-                if (!(item.category.id in groups)){
-                    groups[category.id] = []
+                const categoryName = item.categoryName || 'Other'
+                if (!(categoryName in groups)){
+                    groups[categoryName] = []
                 }
-                groups[category.id].push(item)
+                groups[categoryName].push(item)
                 return groups
             }, {} as Record<string, Item[]>)
             setSelectGroupedItems(groupedByCategory)
+            console.log("groupedByCategory", groupedByCategory)
         }
     }, [selectedItems])
 

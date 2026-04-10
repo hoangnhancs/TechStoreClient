@@ -133,7 +133,7 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
                             <Button variant="outlined" onClick={handleOpenAddNewAddress}>
                                 Thêm địa chỉ mới
                             </Button>
-                            <AddNewAddressDialog
+                            {isAddingNewAddress && <AddNewAddressDialog
                                 canDisableDefaultAddress={false}
                                 inputWards={null}
                                 inputDistricts={null}
@@ -143,7 +143,7 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
                                 open={isAddingNewAddress} 
                                 onClose={handleCloseAddNewAddress}
                                 // onRefetchAddresses={onRefetchAddresses}
-                            />
+                            />}
                         </Box>  
                     ) : (
                         <Box display={"flex"} flexDirection={"column"} gap={2}>

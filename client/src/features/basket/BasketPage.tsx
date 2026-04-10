@@ -1,6 +1,6 @@
 import { Box, Button, Container, Divider, Grid, Paper, Typography, Checkbox, IconButton } from "@mui/material";
 
-import { Category, Item } from "../../lib/types";
+import { Item } from "../../lib/types";
 import { useEffect, useState } from "react";
 import { Add, Delete, Remove } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
@@ -15,7 +15,7 @@ import { useDebounce } from "../../app/hooks/useDebounce";
 
 
 
-type GroupedItems = Record<number, { category: Category, productItems: Item[] }>;
+type GroupedItems = Record<number, { categoryId: number, categoryName: string, categoryDisplayName: string, productItems: Item[] }>;
 
 export default function BasketPage() {
     const { selectedItems: reduxSelectedItems } = useAppSelector(state => state.basket);
@@ -47,19 +47,23 @@ export default function BasketPage() {
         if (basket?.items) {
             const groups: GroupedItems = {}
             basket.items.forEach((item) => {
-                const category = item.category
-                if (!category) return
-                if (!(item.category.id in groups)){
-                    groups[category.id] = {
-                        category: category,
+                const categoryId = item.categoryId
+                if (!categoryId) return
+                if (!(categoryId in groups)){
+                    groups[categoryId] = {
+                        categoryId: item.categoryId,
+                        categoryName: item.categoryName,
+                        categoryDisplayName: item.categoryDisplayName,
                         productItems: []
                     }
                 }
-                groups[category.id].productItems.push(item)
+                groups[categoryId].productItems.push(item)
                 return groups
             }, {} as Record<number, Item[]>)
             setGroupedItems(groups)
+            console.log(groups)
         }
+
     }, [basket])
 
     useEffect(() => {
@@ -116,16 +120,16 @@ export default function BasketPage() {
     }
 
     const isCategorySelectedAll = (categoryId: number) => {
-        const itemsGroupedByCategory = groupedItems[categoryId] || []
+        const itemsGroupedByCategory = groupedItems[categoryId] || { productItems: [] }
         return itemsGroupedByCategory.productItems.every(item => selectedItems.some(selected => selected.productId === item.productId))
     }
 
     const toogleSelectCategory = (categoryId: number) => {
-        const itemsGroupedByCategory = groupedItems[categoryId] || []
+        const itemsGroupedByCategory = groupedItems[categoryId] || { productItems: [] }
         // const tmpSelectedItems = selectedItems
         let updatedSelectedItems;
         if (isCategorySelectedAll(categoryId)) {
-            updatedSelectedItems = selectedItems.filter(selected => selected.category.id != categoryId)
+            updatedSelectedItems = selectedItems.filter(selected => selected.categoryId !== categoryId)
         } else {
             updatedSelectedItems = [...selectedItems, ...itemsGroupedByCategory.productItems]
         }
@@ -318,7 +322,7 @@ export default function BasketPage() {
                                         }}
                                     >
                                         
-                                        <Typography sx={{textAlign: 'left'}}>{items.category.displayName}</Typography>
+                                        <Typography sx={{textAlign: 'left'}}>{items.categoryDisplayName}</Typography>
                                     </Grid>                        
                                 </Grid>
                                 <Divider />

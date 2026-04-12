@@ -173,7 +173,7 @@ export default function MyOrdersPage() {
                                             <ListItem key={item.productId} disablePadding sx={{ mb: 1 }}>
                                                 <ListItemAvatar sx={{ mr: 2}}>
                                                     <ProductImage 
-                                                        src={item.imageUrl || '/placeholder.png'}
+                                                        src={item.productImageUrl || '/placeholder.png'}
                                                         alt={item.productName}
                                                         variant="rounded"
                                                     />

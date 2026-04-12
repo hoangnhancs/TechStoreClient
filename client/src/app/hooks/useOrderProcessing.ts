@@ -7,30 +7,30 @@ import { toast } from "react-toastify";
 import { useCreateOrderMutation } from "../api/orderApi";
 import {
   useCompletePaymentMutation,
-  useCreatePaymentIntentMutation,
-  useCreatePaymentMutation,
+  // useCreatePaymentMutation,
 } from "../api/paymentApi";
 import { useRemovePermanentlyBasketItemsMutation } from "../api/basketApi";
 import { useState } from "react";
 
+import { PaymentSignalRService } from "../api/paymentSignalRService";
+
 export const useOrderProcessing = () => {
   const shippingCost = 1000;
   const discount = 3000;
+  const paymentIntentTimeoutMs = 30000;
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { basket, selectedItems } = useAppSelector((state) => state.basket);
-  const [createOrUpdateOrder] = useCreateOrderMutation();
-  const [createOrUpdatePaymentIntent] = useCreatePaymentIntentMutation();
+  const [createOrder] = useCreateOrderMutation();
   const [completePayment] = useCompletePaymentMutation();
-  const [createPayment] = useCreatePaymentMutation();
+  // const [createPayment] = useCreatePaymentMutation();
   const [removePermanentlyBasketItems] =
     useRemovePermanentlyBasketItemsMutation();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [currentPaymentInfor, setCurrentPaymentInfor] = useState<PaymentInfor>({
     paymentMethod: "",
-    walletType: null,
     isValid: false,
   });
   const [currentAddress, setCurrentAddress] = useState<Address | null>(null);
@@ -53,6 +53,8 @@ export const useOrderProcessing = () => {
       )
       .map((item: Item) => ({
         productId: item.productId,
+        productName: item.productName,
+        productImageUrl: item.imageUrl,
         quantity: item.quantity,
         unitPrice: item.price,
       })),
@@ -75,6 +77,120 @@ export const useOrderProcessing = () => {
     setCurrentAddress(address);
   };
 
+  const clearPurchasedItemsFromBasket = async () => {
+    const productIds = selectedItems.map((item: Item) => item.productId);
+    const newBasket = await removePermanentlyBasketItems({
+      productIds,
+    }).unwrap();
+
+    dispatch(
+      setBasketStates({
+        selectedItems: [],
+        basket: newBasket ?? ({ id: "", userId: "", items: [] } as Basket),
+      })
+    );
+  };
+
+  const getPaymentIntentFromPaymentHub = async (orderId: string) => {
+    await PaymentSignalRService.createHubConnection(orderId);
+
+    return new Promise<string>((resolve, reject) => {
+      let isResolved = false;
+
+      const resolveWithCleanup = (clientSecret: string) => {
+        if (isResolved) return;
+        isResolved = true;
+        window.clearTimeout(timeoutId);
+        void PaymentSignalRService.stopConnection();
+        resolve(clientSecret);
+      };
+
+      const rejectWithCleanup = (error: Error) => {
+        if (isResolved) return;
+        isResolved = true;
+        window.clearTimeout(timeoutId);
+        void PaymentSignalRService.stopConnection();
+        reject(error);
+      };
+
+      const timeoutId = window.setTimeout(() => {
+        rejectWithCleanup(
+          new Error("Quá thời gian chờ PaymentIntent từ payment hub.")
+        );
+      }, paymentIntentTimeoutMs);
+
+      PaymentSignalRService.onReceivePayment((payment) => {
+        if (!payment?.clientSecret) return;
+        if (payment.orderId && payment.orderId !== orderId) return;
+
+        resolveWithCleanup(payment.clientSecret);
+      });
+
+      // void createOrUpdatePaymentIntent()
+      //   .unwrap()
+      //   .catch((error) => {
+      //     rejectWithCleanup(new Error(`Không thể tạo payment intent: ${error}`));
+      //   });
+    });
+  };
+
+  const handleCreditCardOrderAndPayment = async () => {
+    const stripe = currentPaymentInfor.stripe;
+    const elements = currentPaymentInfor.elements;
+    const cardElement = currentPaymentInfor.cardElement;
+
+    if (!stripe || !elements || !cardElement) {
+      toast.error("Stripe chưa được khởi tạo.");
+      return;
+    }
+
+    const order = await createOrder(createOrderParas).unwrap();
+
+    if (!order?.id) {
+      throw new Error("Không thể tạo đơn hàng.");
+    }
+
+    const clientSecret = await getPaymentIntentFromPaymentHub(order.id);
+
+    const { paymentIntent, error } = await stripe.confirmCardPayment(
+      clientSecret,
+      {
+        payment_method: {
+          card: cardElement,
+        },
+      }
+    );
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    if (paymentIntent?.status !== "succeeded") {
+      toast.warning(`Trạng thái thanh toán: ${paymentIntent?.status || "unknown"}`);
+      return;
+    }
+
+    toast.success("Thanh toán thành công!");
+    // await completePayment().unwrap();
+    await clearPurchasedItemsFromBasket();
+    navigate("/order-success");
+  };
+
+  // const handleDefaultOrderAndPayment = async () => {
+  //   await createPayment().unwrap();
+  //   // await completePayment().unwrap();
+  //   await createOrder({
+  //     ...createOrderParas,
+  //     shippingAddress: currentAddress?.detailAddress,
+  //     billingAddress: currentAddress?.detailAddress,
+  //     paymentMethod: currentPaymentInfor.paymentMethod,
+  //   }).unwrap();
+
+  //   await clearPurchasedItemsFromBasket();
+  //   navigate("/order-success");
+  // };
+
   const handleCreateOrder = async () => {
     try {
       try {
@@ -96,94 +212,9 @@ export const useOrderProcessing = () => {
         currentPaymentInfor.paymentMethod === "CreditCard" &&
         currentPaymentInfor.isValid
       ) {
-        const stripe = currentPaymentInfor.stripe;
-        const elements = currentPaymentInfor.elements;
-        const cardElement = currentPaymentInfor.cardElement;
-
-        if (!stripe || !elements || !cardElement) {
-          toast.error("Stripe chưa được khởi tạo.");
-          return;
-        }
-
-        const paymentData = await createOrUpdatePaymentIntent();
-
-        if (!paymentData?.data?.clientSecret) {
-          throw new Error("Client secret không khả dụng");
-        }
-
-        const { paymentIntent, error } = await stripe.confirmCardPayment(
-          paymentData.data.clientSecret,
-          {
-            payment_method: {
-              card: cardElement,
-            },
-          }
-        );
-
-        if (error) {
-          toast.error(error.message);
-          return;
-        }
-
-        if (paymentIntent?.status === "succeeded") {
-          toast.success("Thanh toán thành công!");
-          await completePayment();
-          await createOrUpdateOrder({
-            ...createOrderParas,
-            shippingAddressId: currentAddress?.id,
-            billingAddressId: currentAddress?.id,
-            orderStatus: "Completed",
-            paymentStatus: "Paid",
-            paymentMethod: currentPaymentInfor.paymentMethod,
-          });
-
-          const productIds = selectedItems.map((item: Item) => item.productId);
-          const newBasket = await removePermanentlyBasketItems({
-            productIds: productIds,
-          });
-          dispatch(
-            setBasketStates({
-              selectedItems: [],
-              basket:
-                newBasket.data ?? ({ id: "", userId: "", items: [] } as Basket),
-            })
-          );
-          navigate("/order-success");
-        } else {
-          toast.warning(
-            `Trạng thái thanh toán: ${paymentIntent?.status || "unknown"}`
-          );
-        }
+        await handleCreditCardOrderAndPayment();
       } else {
-        try {
-          await createPayment();
-          await completePayment();
-          await createOrUpdateOrder({
-            ...createOrderParas,
-            shippingAddressId: currentAddress?.id,
-            billingAddressId: currentAddress?.id,
-            orderStatus: "Completed",
-            paymentStatus: "Paid",
-            paymentMethod:
-              currentPaymentInfor.paymentMethod == "wallet"
-                ? currentPaymentInfor.walletType
-                : currentPaymentInfor.paymentMethod,
-          });
-          const productIds = selectedItems.map((item: Item) => item.productId);
-          const newBasket = await removePermanentlyBasketItems({
-            productIds: productIds,
-          });
-          dispatch(
-            setBasketStates({
-              selectedItems: [],
-              basket:
-                newBasket.data ?? ({ id: "", userId: "", items: [] } as Basket),
-            })
-          );
-          navigate("/order-success");
-        } catch (error) {
-          toast.error("Không thể tạo đơn hàng. Vui lòng thử lại." + error);
-        }
+        // await handleDefaultOrderAndPayment();
       }
     } catch (error: unknown) {
       console.error("Error creating order:", error);
@@ -202,11 +233,11 @@ export const useOrderProcessing = () => {
       !currentPaymentInfor.isValid
     )
       return false;
-    if (
-      currentPaymentInfor.paymentMethod === "wallet" &&
-      !currentPaymentInfor.walletType
-    )
-      return false;
+    // if (
+    //   currentPaymentInfor.paymentMethod === "wallet" &&
+    //   !currentPaymentInfor.walletType
+    // )
+    //   return false;
     if (currentStep !== 2) return false;
     if (currentAddress === null) return false;
     return true;

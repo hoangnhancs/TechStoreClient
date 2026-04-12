@@ -19,7 +19,7 @@ export default function TopProductsandCustommers({ orders }: Props) {
         const productSales = orders.reduce((acc: Record<string, {productId: string, productName: string, imageUrl: string, totalQuantity: number, revenue: number}>, order) => {
             order.items.forEach(item => {
                 if (!acc[item.productId]) {
-                    acc[item.productId] = { productId: item.productId, productName: item.productName, imageUrl: item.imageUrl, totalQuantity: 0, revenue: 0 };
+                    acc[item.productId] = { productId: item.productId, productName: item.productName, imageUrl: item.productImageUrl, totalQuantity: 0, revenue: 0 };
                 }
                 acc[item.productId].totalQuantity += item.quantity;
                 acc[item.productId].revenue += item.quantity * item.unitPrice;

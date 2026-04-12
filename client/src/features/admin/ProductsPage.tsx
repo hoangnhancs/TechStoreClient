@@ -31,7 +31,7 @@ const StyledTypography = styled(Typography)(() => ({
 
 export default function ProductsPage() {
     const { data: categories } = useFetchCategoriesQuery()
-    const {data: products} = useFetchProductsQuery()
+    const {data: products} = useFetchProductsQuery({})
     const navigate = useNavigate()
     const location = useLocation()
     const [localProducts, setLocalProducts] = useState<Product[] | undefined>(products?.results)

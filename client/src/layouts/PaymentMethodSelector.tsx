@@ -65,13 +65,11 @@ export default function PaymentMethodSelector({ onPaymentInforChange }: Props) {
   
   const updatePaymentInfor = useCallback(( //callback update cho component cha
     method: string, 
-    walletType: string | null, 
     isValid: boolean = false) => {
       const cardElement = (method === 'CreditCard' && elements) ? elements.getElement(CardElement) : null;
       const paymentInfor: PaymentInfor = {
         paymentMethod: method,
-        walletType: method === "wallet"  ? walletType : null,
-        isValid: method === 'CreditCard' ? isValid : method === 'wallet' ? !!walletType : true,
+        isValid: method === 'CreditCard' ? isValid : true,
         stripe: method === 'CreditCard' ? stripe : null,
         elements: method === 'CreditCard' ? elements : null,
         cardElement: method === 'CreditCard' ? cardElement : null,
@@ -98,19 +96,18 @@ export default function PaymentMethodSelector({ onPaymentInforChange }: Props) {
     }
     setSelectedMethod(method);
     updatePaymentInfor(
-      method,
-      method === 'wallet' ? selectedWalletType : null, 
+      method
     )
   };
 
   const handleWalletChange = (walletType: string) => {
     setSelectedWalletType(walletType)
-    updatePaymentInfor("wallet", walletType) 
+    updatePaymentInfor(walletType) 
   }
 
   const handleCardElementChange = (event: StripeCardElementChangeEvent) => {
     setIsCardValid(event.complete);
-    updatePaymentInfor('CreditCard', null, event.complete);
+    updatePaymentInfor('CreditCard', event.complete);
   };
 
   return (

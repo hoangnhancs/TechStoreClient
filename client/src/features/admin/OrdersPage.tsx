@@ -162,7 +162,7 @@ export default function OrdersPage() {
               <Box display={"flex"} justifyContent={"flex-start"} alignItems={"center"} gap={1}> 
                   <Box
                     component={"img"}
-                    src={order.items[0].imageUrl}
+                    src={order.items[0].productImageUrl}
                     alt={order.items[0].productName}
                     sx={{
                       width: 60,

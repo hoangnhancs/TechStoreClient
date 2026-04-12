@@ -113,11 +113,11 @@ export default function PreviewOrder({
           <Typography fontWeight={"medium"}>
             {getPaymentMethodName()}
           </Typography>
-          {paymentInfor.paymentMethod === 'wallet' && paymentInfor.walletType && (
+          {/* {paymentInfor.paymentMethod === 'wallet' && paymentInfor.paymentMethod && (
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
               Loại ví: {paymentInfor.walletType}
             </Typography>
-          )}
+          )} */}
         </Box>
       </SummarySection>
     </Box>

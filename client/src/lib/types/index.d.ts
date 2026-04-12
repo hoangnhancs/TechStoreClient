@@ -130,14 +130,12 @@ export type Order = {
 };
 
 export type CreateOrderInput = {
-  shippingAddressId?: string | null;
-  billingAddressId?: string | null;
+  shippingAddress?: string | null;
+  billingAddress?: string | null;
   shippingCost: number;
   discount: number;
   items: OrderItem[];
-  orderStatus: string;
-  paymentMethod?: string | null;
-  paymentStatus?: string | null;
+  paymentMethod: string;
 };
 
 export type Item = {
@@ -163,11 +161,11 @@ export type Category = {
 export type OrderItem = {
   productId: string;
   productName: string;
-  imageUrl: string;
+  productImageUrl: string;
   quantity: number;
   unitPrice: number;
-  brand: string;
-  category: Category;
+  // brand: string;
+  // category: Category;
   orderId?: string | null;
 };
 
@@ -226,7 +224,6 @@ export type CreditCardFormValues = {
 
 export type PaymentInfor = {
   paymentMethod: string;
-  walletType: string | null;
   isValid: boolean;
   stripe?: Stripe | null;
   elements?: StripeElements | null;

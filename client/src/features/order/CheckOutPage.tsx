@@ -43,7 +43,7 @@ export default function CheckOutPage() {
         handleActiveStepChange,
         handlePaymentInforChange,
         handleAddressChange,
-        handleCreateOrderAndPayment: handlePaymentOrder,
+        handleCreateOrderAndPayment,
         isCanCompleteOrder,
     } = useOrderProcessing();
     const { data: addresses } = useFetchAddressQuery()
@@ -162,7 +162,7 @@ export default function CheckOutPage() {
             </Grid>
             
             <Grid size={4}>
-                <OrderSummary isCanCompleteOrder={isCanCompleteOrder()} onPaymentOrder={handlePaymentOrder} />
+                <OrderSummary isCanCompleteOrder={isCanCompleteOrder()} onCreateAndPaymentOrder={handleCreateOrderAndPayment} />
             </Grid>
         </Grid>
     )

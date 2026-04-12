@@ -83,7 +83,7 @@ export default function SuggestionProductCard({product}: Props) {
                     objectFit: 'contain',  
                     mx: 'auto',  // Căn giữa hình ảnh
                 }}
-                image={product.imageUrl}
+                image={product.mainImageUrl}
             >
             </CardMedia>
             <CardContent

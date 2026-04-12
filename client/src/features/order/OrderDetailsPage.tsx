@@ -263,17 +263,17 @@ export default function OrderDetailsPage() {
                                         <Box display="flex" alignItems="center">
                                         <Box
                                             component="img"
-                                            src={item.imageUrl || '/placeholder.png'}
+                                            src={item.productImageUrl || '/placeholder.png'}
                                             alt={item.productName}
                                             sx={{ width: 60, height: 60, borderRadius: 1, mr: 2, objectFit: 'cover' }}
                                         />
                                         <Box>
                                             <Typography variant="body1">{item.productName}</Typography>
-                                            {item.brand && (
+                                            {/* {item.brand && (
                                             <Typography variant="body2" color="text.secondary">
                                                 {item.brand}
                                             </Typography>
-                                            )}
+                                            )} */}
                                         </Box>
                                         </Box>
                                     </TableCell>

@@ -29,7 +29,6 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
     const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
     const [paymentInfor, setPaymentInfor] = useState<PaymentInfor>({
         paymentMethod: '',
-        walletType: null,
         isValid: false,
     })
     const handleNextStep = () => {  
@@ -78,8 +77,7 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
             return false
         if (activeStep === 1 && 
             (paymentInfor.paymentMethod === null || paymentInfor.paymentMethod === ''
-                || (paymentInfor.paymentMethod === 'CreditCard' && paymentInfor.isValid === false)
-                || (paymentInfor.paymentMethod === 'wallet' && paymentInfor.walletType === null))) 
+                || (paymentInfor.paymentMethod === 'CreditCard' && paymentInfor.isValid === false))) 
             return false
         if (activeStep === 2)
             return false

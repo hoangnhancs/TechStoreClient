@@ -4,10 +4,10 @@ import { useOrderProcessing } from "../../app/hooks/useOrderProcessing";
 
 type Props = {
     isCanCompleteOrder?: boolean
-    onPaymentOrder?: () => void
+    onCreateAndPaymentOrder?: () => void
 }
 
-export default function OrderSummary({ isCanCompleteOrder, onPaymentOrder }: Props) {
+export default function OrderSummary({ isCanCompleteOrder, onCreateAndPaymentOrder }: Props) {
     const location = useLocation()
     const { selectedItems, handleCreateOrder, getTotalPrice, shippingCost, discount } = useOrderProcessing()
 
@@ -127,7 +127,7 @@ export default function OrderSummary({ isCanCompleteOrder, onPaymentOrder }: Pro
                         fullWidth
                         size="large"
                         sx={{ mt: 2, py: 1.5 }}
-                        onClick={onPaymentOrder}                           
+                        onClick={onCreateAndPaymentOrder}                           
                     >
                         Hoàn tất thanh toán
                     </Button>

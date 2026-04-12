@@ -24,7 +24,7 @@ export const orderApi = createApi({
     }),
     createOrder: builder.mutation<Order, CreateOrderInput>({
       query: (input) => ({
-        url: "/order/createorder",
+        url: "/orders",
         method: "POST",
         body: input,
       }),

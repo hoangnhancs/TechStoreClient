@@ -12,6 +12,7 @@ class PaymentSignalRServiceClass {
     public createHubConnection = async (
         orderId: string
     ): Promise<void> => {
+        console.log(`Attempting to connect to payment hub for order: ${orderId}`);
         // Nếu đang kết nối, đợi cho đến khi hoàn tất
         if (this.isConnecting) {
             // console.log("Connection already in progress, waiting...");
@@ -46,18 +47,21 @@ class PaymentSignalRServiceClass {
         
             // Tạo kết nối mới
             const paymentHubUrl = import.meta.env.VITE_PAYMENT_URL;
+            console.log("Payment hub URL from environment:", paymentHubUrl);
             if (!paymentHubUrl) {
                 throw new Error(
                 "VITE_PAYMENT_URL is not defined in the environment variables."
                 );
             }
+
             const newConnection = new signalR.HubConnectionBuilder()
                 .withUrl(paymentHubUrl, {
-                    withCredentials: true,
-                    transport: signalR.HttpTransportType.WebSockets,
-                    skipNegotiation: true,})
+                        withCredentials: true,
+                        transport: signalR.HttpTransportType.WebSockets,
+                        skipNegotiation: true,
+                    })
                 .withAutomaticReconnect([0, 2000, 5000, 10000, 20000])
-                // .configureLogging(signalR.LogLevel.Debug)
+                .configureLogging(signalR.LogLevel.Debug) // ← bật cái này
                 .build();
         
             // Lưu connection vào biến tạm thời, không gán vào this.hubConnection ngay
@@ -97,6 +101,7 @@ class PaymentSignalRServiceClass {
             throw err;
         } finally {
             this.isConnecting = false;
+            console.log(`Finished connection process for order: ${orderId}`);
         }
     };
     public stopConnection = async () => {

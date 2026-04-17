@@ -44,7 +44,7 @@ export const router = createBrowserRouter([
                 {path: '/profile', element: <UserProfilePage />},
                 {path: '/basket', element: <BasketPage />},
                 {path: '/order', element: <CheckOutPage />},
-                {path: '/order-success', element: <OrderSuccessPage />},
+                {path: '/order-success/:orderId?', element: <OrderSuccessPage />},
                 {path: '/my-orders', element: <MyOrdersPage />},
                 {path: '/my-orders/:orderId', element: <OrderDetailsPage />},
                 {path: '/change-password', element: <ChangePasswordForm />},

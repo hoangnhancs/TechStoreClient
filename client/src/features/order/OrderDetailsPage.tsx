@@ -122,7 +122,7 @@ export default function OrderDetailsPage() {
                 
                 <Box display="flex" justifyContent="space-between" alignItems="center">
                 <Typography variant="h4" gutterBottom>
-                    Chi tiết đơn hàng #{order.id ? order.id.substring(0, 8).toUpperCase() : 'N/A'}
+                    Chi tiết đơn hàng #{order.orderNo ? order.orderNo : 'N/A'}
                 </Typography>
                 <Box>
                     <StatusChip 
@@ -158,14 +158,14 @@ export default function OrderDetailsPage() {
                             <Person fontSize="small" sx={{ mr: 2, color: 'text.secondary' }} />
                             <ListItemText 
                                 primary="Người nhận" 
-                                secondary={`${order.userName ?? 'N/A'}`} 
+                                secondary={`${order.recipientName ?? 'N/A'}`} 
                             />
                             </ListItem>
                             <ListItem>
                             <Phone fontSize="small" sx={{ mr: 2, color: 'text.secondary' }} />
                             <ListItemText 
                                 primary="Số điện thoại" 
-                                secondary={order.userPhone ?? 'N/A'} 
+                                secondary={order.recipientPhone ?? 'N/A'} 
                             />
                             </ListItem>
                             <ListItem>

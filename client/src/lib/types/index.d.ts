@@ -117,9 +117,9 @@ export type Order = {
   id: string;
   orderNo: string;
   userId: string;
-  userName: string;
+  recipientName: string;
   userEmail: string | null;
-  userPhone: string;
+  recipientPhone: string;
   shippingAddress: string;
   billingAddress: string;
   subToTal: number;

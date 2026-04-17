@@ -58,8 +58,10 @@ export const useOrderProcessing = () => {
         quantity: item.quantity,
         unitPrice: item.price,
       })),
-    shippingAddress: currentAddress?.detailAddress,
-    billingAddress: currentAddress?.detailAddress,
+    recipientName: currentAddress?.fullName || "",
+    recipientPhone: currentAddress?.phoneNumber || "",
+    shippingAddress: currentAddress?.detailAddress + " " + currentAddress?.ward + " " + currentAddress?.district + " " + currentAddress?.province,
+    billingAddress: currentAddress?.detailAddress + " " + currentAddress?.ward + " " + currentAddress?.district + " " + currentAddress?.province,
     shippingCost: shippingCost,
     discount: discount,
     paymentMethod: currentPaymentInfor.paymentMethod,
@@ -174,7 +176,9 @@ export const useOrderProcessing = () => {
     toast.success("Thanh toán thành công!");
     // await completePayment().unwrap();
     await clearPurchasedItemsFromBasket();
-    navigate("/order-success");
+    navigate(`/order-success/${order.id}`, {
+      state: { orderNo: order.orderNo, orderId: order.id },
+    });
   };
 
   // const handleDefaultOrderAndPayment = async () => {

@@ -1,8 +1,20 @@
 import { Box, Button, Container, Divider, Paper, Typography } from "@mui/material";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import { Link } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
+
+type OrderSuccessLocationState = {
+  orderId?: string;
+  orderNo?: string;
+};
 
 export default function OrderSuccessPage() {
+  const { orderId: orderIdFromParams } = useParams<{ orderId?: string }>();
+  const location = useLocation();
+  const state = location.state as OrderSuccessLocationState | null;
+  const orderIdFromState = state?.orderId;
+  const orderNoFromState = state?.orderNo;
+  const orderId = orderIdFromParams || orderIdFromState;
+  const orderNo = orderNoFromState;
 
   return (
     <Container>
@@ -31,6 +43,12 @@ export default function OrderSuccessPage() {
           Cảm ơn bạn đã mua sắm tại cửa hàng của chúng tôi. Đơn hàng của bạn đã được xác nhận
           và đang được xử lý.
         </Typography>
+
+        {orderId && (
+          <Typography variant="body2" color="primary.main" fontWeight="medium" sx={{ mb: 2 }}>
+            Mã đơn hàng: #{orderNo}
+          </Typography>
+        )}
         
         <Box sx={{ bgcolor: 'background.default', p: 2, borderRadius: 1, width: '100%', mt: 2, mb: 3 }}>
           <Typography variant="body2" color="text.secondary">
@@ -44,8 +62,9 @@ export default function OrderSuccessPage() {
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
           <Button 
             variant="outlined" 
-            color="primary" 
-            onClick={() => console.log("Xem đơn hàng")}
+            color="primary"
+            component={Link}
+            to={orderId ? `/my-orders/${orderId}` : "/my-orders"}
             sx={{ pl: 4, pr: 4, margin: 1, width: '200px' }}
           >
             Xem đơn hàng

@@ -63,9 +63,14 @@ export const basketApi = createApi({
     }),
     removeBasketItem: builder.mutation<Basket, { productId: string; quantity: number }>({
       query: ({ productId, quantity }) => ({
-        url: `/basket/mybasket/items/${productId}?quantity=${quantity}`,
-        method: "DELETE",
+        url: `/basket/mybasket/items`,
+        method: "PUT",
+        body: {
+          productId,
+          quantity,
+        },
       }),
+      invalidatesTags: ["Basket"],
       async onQueryStarted(
         { productId, quantity },
         { dispatch, queryFulfilled }

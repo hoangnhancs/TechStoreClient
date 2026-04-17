@@ -37,7 +37,7 @@
             dispatch(setAnalysEndDate({endDate: selectedEndDate}));
         }
         const salesCount = orders?.reduce((total, order) => {
-            return order.orderStatus === "Completed" ? total + 1 : total;
+            return order.status === "Completed" ? total + 1 : total;
         }, 0);
 
         const totalSold = orders?.reduce(

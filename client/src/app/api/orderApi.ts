@@ -33,7 +33,7 @@ export const orderApi = createApi({
       async onQueryStarted(arg, {dispatch, queryFulfilled}) {
         try {
           const { data } = await queryFulfilled;
-          if (data.orderStatus === "Completed") {
+          if (data.status === "Completed") {
             const productIds = arg.items.map((item) => item.productId);
             dispatch(
             productApi.util.invalidateTags([
@@ -47,14 +47,14 @@ export const orderApi = createApi({
     }),
     getOrderDetails: builder.query<Order, string>({
       query: (orderId) => ({
-        url: `/order/myorders/${orderId}`,
+        url: `/orders/${orderId}`,
         method: "GET",
       }),
       providesTags: (_, __, orderId) => [{ type: "Order", id: orderId }],
     }),
     getListOrdersInDateRange: builder.query<Order[], { startDate: string; endDate: string }>({
       query: ({ startDate, endDate }) => ({
-        url: "/order/list-orders?startDate=" + startDate + "&endDate=" + endDate,
+        url: "/orders/list-orders?startDate=" + startDate + "&endDate=" + endDate,
         method: "GET",
       }),
       providesTags: (result) => result ? 

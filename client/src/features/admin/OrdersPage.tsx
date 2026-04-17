@@ -196,13 +196,13 @@ export default function OrdersPage() {
             </StyledGridItem>
             <StyledGridItem size={1.5} sx={{ justifyContent: "unset" }} >
               <Box sx={{ ml: 2, gap: 0.5 }} display={"flex"}>
-                {order.orderStatus === "Created" ? (
+                {order.status === "Created" ? (
                   <AccessTimeIcon color="warning" />
                 ) : (
                   <CheckCircleIcon color="success" />
                 )}
                 <StyledTypography>
-                  {order.orderStatus}
+                  {order.status}
                 </StyledTypography>
               </Box>
               

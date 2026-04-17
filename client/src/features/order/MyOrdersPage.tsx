@@ -139,13 +139,13 @@ export default function MyOrdersPage() {
                                             </Typography>
                                             <Box>
                                                 <StatusChip 
-                                                    label={order.orderStatus} 
-                                                    status={order.orderStatus} 
+                                                    label={order.status} 
+                                                    status={order.status} 
                                                     size="small"
                                                 />
                                                 <StatusChip 
-                                                    label={order.paymentStatus} 
-                                                    status={order.paymentStatus === 'Paid' ? 'Completed' : 'Pending'} 
+                                                    label={order.pmtStatus} 
+                                                    status={order.pmtStatus === 'Paid' ? 'Completed' : 'Pending'} 
                                                     size="small"
                                                     sx={{ ml: 1 }}
                                                 />

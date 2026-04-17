@@ -115,17 +115,20 @@ export type Payment = {
 
 export type Order = {
   id: string;
+  orderNo: string;
   userId: string;
-  user: User;
-  shippingAddressId: string;
-  billingAddressId: string;
+  userName: string;
+  userEmail: string | null;
+  userPhone: string;
+  shippingAddress: string;
+  billingAddress: string;
   subToTal: number;
   shippingCost: number;
   discount: number;
   items: OrderItem[];
-  orderStatus: string;
-  paymentMethod: string;
-  paymentStatus: string;
+  status: string;
+  pmtMethod: string;
+  pmtStatus: string;
   updatedAt: Date;
 };
 

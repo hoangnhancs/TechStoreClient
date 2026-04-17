@@ -31,7 +31,6 @@ import {
     CreditCard,
 } from '@mui/icons-material';
 import { useGetOrderDetailsQuery } from '../../app/api/orderApi';
-import { useGetAddressQuery } from '../../app/api/addressApi';
 import LoadingComponent from '../../components/LoadingComponent';
 import { formatCurrency, formatVNDate } from '../../lib/util/util';
 
@@ -72,12 +71,6 @@ export default function OrderDetailsPage() {
     const fromAdminOrdersDashboard = location.state?.fromAdminOrdersDashboard;
     const { orderId } = useParams<{ orderId: string }>();
     const { data: order, isLoading, error } = useGetOrderDetailsQuery(orderId || '');
-    const { data: address } = useGetAddressQuery(
-        order?.shippingAddressId || '', 
-        { 
-            skip: !order?.shippingAddressId 
-        }
-    );
 
     if (isLoading) {
         return (
@@ -133,13 +126,13 @@ export default function OrderDetailsPage() {
                 </Typography>
                 <Box>
                     <StatusChip 
-                        label={order.orderStatus} 
-                        status={order.orderStatus} 
+                        label={order.status} 
+                        status={order.status} 
                         size="medium"
                     />
                     <StatusChip 
-                        label={order.paymentStatus} 
-                        status={order.paymentStatus === 'Paid' ? 'Completed' : 'Pending'} 
+                        label={order.pmtStatus} 
+                        status={order.pmtStatus === 'Paid' ? 'Completed' : 'Pending'} 
                         size="medium"
                         sx={{ ml: 1 }}
                     />
@@ -165,21 +158,21 @@ export default function OrderDetailsPage() {
                             <Person fontSize="small" sx={{ mr: 2, color: 'text.secondary' }} />
                             <ListItemText 
                                 primary="Người nhận" 
-                                secondary={`${address?.fullName ?? 'N/A'}`} 
+                                secondary={`${order.userName ?? 'N/A'}`} 
                             />
                             </ListItem>
                             <ListItem>
                             <Phone fontSize="small" sx={{ mr: 2, color: 'text.secondary' }} />
                             <ListItemText 
                                 primary="Số điện thoại" 
-                                secondary={address?.phoneNumber ?? 'N/A'} 
+                                secondary={order.userPhone ?? 'N/A'} 
                             />
                             </ListItem>
                             <ListItem>
                             <Home fontSize="small" sx={{ mr: 2, color: 'text.secondary' }} />
                             <ListItemText 
                                 primary="Địa chỉ" 
-                                secondary={`${address?.detailAddress}, ${address?.ward}, ${address?.district}, ${address?.province}`} 
+                                secondary={`${order.shippingAddress ?? 'N/A'}`} 
                             />
                             </ListItem>
                         </List>
@@ -201,7 +194,7 @@ export default function OrderDetailsPage() {
                                 Phương thức thanh toán:
                             </Typography>
                             <Typography variant="body1" fontWeight={500}>
-                                {order.paymentMethod || 'Thanh toán khi nhận hàng'}
+                                {order.pmtMethod || 'Thanh toán khi nhận hàng'}
                             </Typography>
                             </Box>
                             
@@ -210,8 +203,8 @@ export default function OrderDetailsPage() {
                                 Trạng thái thanh toán:
                             </Typography>
                             <StatusChip 
-                                label={order.paymentStatus} 
-                                status={order.paymentStatus === 'Paid' ? 'Completed' : 'Pending'} 
+                                label={order.pmtStatus} 
+                                status={order.pmtStatus} 
                                 size="small"
                             />
                             </Box>
@@ -231,8 +224,8 @@ export default function OrderDetailsPage() {
                                 Trạng thái hiện tại:
                             </Typography>
                             <StatusChip 
-                                label={order.orderStatus} 
-                                status={order.orderStatus} 
+                                label={order.status} 
+                                status={order.status} 
                                 size="small"
                             />
                             </Box>

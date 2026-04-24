@@ -284,27 +284,26 @@ export default function OrderDetailsPage() {
                         </TableContainer>
 
                         <Box sx={{ mt: 3, p: 2, bgcolor: 'background.default', borderRadius: 1 }}>
-                        <Grid container spacing={2}>
-                            <Grid size={12} >
+                            <Box display="flex" justifyContent="space-between">
                                 <Typography variant="body2">Tổng tiền hàng:</Typography>
-                                <Typography variant="body2">Phí vận chuyển:</Typography>
-                                <Typography variant="body2">Giảm giá:</Typography>
-                                <Divider sx={{ my: 1 }} />
-                                <Typography variant="subtitle1" fontWeight="bold">
-                                    Tổng thanh toán:
-                                </Typography>
-                            </Grid>
-                            <Grid size={12} sx={{ textAlign: 'right' }}>
                                 <Typography variant="body2">{formatCurrency(order.subToTal)}</Typography>
+                            </Box>
+                            <Box display="flex" justifyContent="space-between">
+                                <Typography variant="body2">Phí vận chuyển:</Typography>
                                 <Typography variant="body2">{formatCurrency(order.shippingCost)}</Typography>
-                                <Typography variant="body2">{formatCurrency(order.discount)}</Typography>
-                                <Divider sx={{ my: 1 }} />
+                            </Box>
+                            <Box display="flex" justifyContent="space-between">
+                                <Typography variant="body2">Giảm giá:</Typography>
+                                <Typography variant="body2">- {formatCurrency(order.discount)}</Typography>
+                            </Box>
+                            <Divider sx={{ my: 1 }} />
+                            <Box display="flex" justifyContent="space-between">
+                                <Typography variant="subtitle1" fontWeight="bold">Tổng thanh toán:</Typography>
                                 <Typography variant="subtitle1" fontWeight="bold" color="primary">
                                     {formatCurrency(orderTotal)}
                                 </Typography>
-                            </Grid>
-                        </Grid>
-                    </Box>
+                            </Box>
+                        </Box>
                 </Paper>
                 </Grid>
             </Grid>

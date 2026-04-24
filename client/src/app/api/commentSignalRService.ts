@@ -60,7 +60,7 @@ class CommentSignalRServiceClass {
           skipNegotiation: true,
         })
         .withAutomaticReconnect([0, 2000, 5000, 10000, 20000])
-        // .configureLogging(signalR.LogLevel.Debug)
+        .configureLogging(signalR.LogLevel.Debug)
         .build();
 
       // Lưu connection vào biến tạm thời, không gán vào this.hubConnection ngay

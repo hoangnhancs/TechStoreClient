@@ -36,7 +36,7 @@ export default function OrderSuccessPage() {
         <CheckCircleOutlineIcon sx={{ fontSize: 80, color: 'success.main', mb: 2 }} />
         
         <Typography variant="h4" fontWeight="bold" gutterBottom>
-          Thanh toán thành công!
+          Đặt hàng thành công!
         </Typography>
         
         <Typography variant="body1" color="text.secondary" paragraph>

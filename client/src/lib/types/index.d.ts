@@ -315,6 +315,12 @@ export type Notification = {
   title: string;
   message: string;
   link: string;
+  category: string;
+  type: string;
+  referenceId: string;
+  referenceType: string;
+  parentReferenceId: string;
+  parentReferenceType: string;
   isRead: boolean;
   receiverId: string;
   groupId: string;

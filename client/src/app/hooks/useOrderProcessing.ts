@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 
-import { Address, Basket, Item, PaymentInfor } from "../../lib/types";
+import { Address, Basket, Item, Order, PaymentInfor } from "../../lib/types";
 import { setBasketStates } from "../../features/basket/basketSlice";
 import { toast } from "react-toastify";
 import { useCreateOrderMutation } from "../api/orderApi";
@@ -174,6 +174,7 @@ export const useOrderProcessing = () => {
     }
 
     toast.success("Thanh toán thành công!");
+    toast.success("Đặt hàng thành công!");
     // await completePayment().unwrap();
     await clearPurchasedItemsFromBasket();
     navigate(`/order-success/${order.id}`, {
@@ -181,19 +182,24 @@ export const useOrderProcessing = () => {
     });
   };
 
-  // const handleDefaultOrderAndPayment = async () => {
-  //   await createPayment().unwrap();
-  //   // await completePayment().unwrap();
-  //   await createOrder({
-  //     ...createOrderParas,
-  //     shippingAddress: currentAddress?.detailAddress,
-  //     billingAddress: currentAddress?.detailAddress,
-  //     paymentMethod: currentPaymentInfor.paymentMethod,
-  //   }).unwrap();
+  const handleDefaultOrderAndPayment = async () => {
+    const order = await createOrder(createOrderParas).unwrap();
+    // await clearPurchasedItemsFromBasket();
+    console.log("Order created:", order);
+    toast.success("Đặt hàng thành công!");
+    handleNavigateToOrderResult(order);
+  };
 
-  //   await clearPurchasedItemsFromBasket();
-  //   navigate("/order-success");
-  // };
+  const handleNavigateToOrderResult = (order: Order) => {
+    if (order.status == "Processing")
+      navigate(`/order-success/${order.id}`, {
+        state: { orderNo: order.orderNo, orderId: order.id },
+      });
+    else
+      navigate(`/order-success/${order.id}`, {
+        state: { orderNo: order.orderNo, orderId: order.id },
+      });
+  }
 
   const handleCreateOrder = async () => {
     try {
@@ -218,7 +224,7 @@ export const useOrderProcessing = () => {
       ) {
         await handleCreditCardOrderAndPayment();
       } else {
-        // await handleDefaultOrderAndPayment();
+        await handleDefaultOrderAndPayment();
       }
     } catch (error: unknown) {
       console.error("Error creating order:", error);
@@ -246,6 +252,8 @@ export const useOrderProcessing = () => {
     if (currentAddress === null) return false;
     return true;
   };
+
+  
 
   return {
     // State

@@ -1,10 +1,9 @@
 import { createContext, useContext } from "react";
-import { Notification, NotificationGroup } from "../../lib/types";
+import { Notification } from "../../lib/types";
 
 type NotificationContextType = {
   allNotifications: Notification[];
   onlineNotifications: Notification[];
-  adminGroup: NotificationGroup | undefined
 };
 
 export const NotificationContext = createContext<NotificationContextType | null>(null);

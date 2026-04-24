@@ -5,6 +5,9 @@ import LoadingComponent from "../../components/LoadingComponent"
 import { Product } from "../../lib/types"
 import { useNavigate } from "react-router"
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import { ReviewSignalRService } from "../../app/api/reviewSignalRService"
+import { CommentSignalRService } from "../../app/api/commentSignalRService"
+import { NotificationSignalRService } from "../../app/api/notificationSignalRService"
 
 export default function ProductList() {
     const {data, isLoading} = useFetchTop10ProductsQuery()
@@ -36,6 +39,15 @@ export default function ProductList() {
         <Box
             sx={{ flexGrow: 1, mt:6}} 
         >
+            <Button
+                onClick={() => ReviewSignalRService.createHubConnection("351d95fb-42f2-4f97-ae0d-707e2683b86b", false)}
+            >test1</Button>
+            <Button
+                onClick={() => CommentSignalRService.createHubConnection("351d95fb-42f2-4f97-ae0d-707e2683b86b", false)}
+            >test2</Button>
+            <Button
+                onClick={() => NotificationSignalRService.createHubConnection()}
+            >test3</Button>
             {Object.entries(groupedProductByCategory).map(([catId, group]) => (
                 <Box display={"flex"} key={catId} flexDirection={"column"} gap={1} mb={2} >
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -62,22 +74,22 @@ export default function ProductList() {
                             variant="text"
                             endIcon={<ArrowForwardIosIcon fontSize="small" />}
                             sx={{
-                            textTransform: 'none',
-                            color: '#222', // hoặc 'text.primary'
-                            fontWeight: 500,
-                            fontSize: '16px',
-                            transition: 'all 0.2s ease',
-                            '&:hover': {
-                                color: '#1976d2', // Màu primary (hoặc tùy ý)
-                                backgroundColor: 'transparent',
-                            },
-                            '& .MuiButton-endIcon': {
-                                ml: 0.5, // icon cách chữ
-                                transition: 'transform 0.2s ease',
-                            },
-                            '&:hover .MuiButton-endIcon': {
-                                transform: 'translateX(2px)', // icon trượt nhẹ sang phải khi hover
-                            },
+                                textTransform: 'none',
+                                color: '#222', // hoặc 'text.primary'
+                                fontWeight: 500,
+                                fontSize: '16px',
+                                transition: 'all 0.2s ease',
+                                '&:hover': {
+                                    color: '#1976d2', // Màu primary (hoặc tùy ý)
+                                    backgroundColor: 'transparent',
+                                },
+                                '& .MuiButton-endIcon': {
+                                    ml: 0.5, // icon cách chữ
+                                    transition: 'transform 0.2s ease',
+                                },
+                                '&:hover .MuiButton-endIcon': {
+                                    transform: 'translateX(2px)', // icon trượt nhẹ sang phải khi hover
+                                },
                             }}
                         >
                             Xem tất cả

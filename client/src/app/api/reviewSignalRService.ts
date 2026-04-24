@@ -55,6 +55,7 @@ class ReviewSignalRServiceClass {
           skipNegotiation: true,
         })
         .withAutomaticReconnect([0, 2000, 5000, 10000, 20000])
+        .configureLogging(signalR.LogLevel.Debug)
         .build();
 
       newConnection.off("ReceiveReview");

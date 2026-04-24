@@ -13,7 +13,7 @@ class NotificationSignalRServiceClass {
 
     public createHubConnection = async (): Promise<void> => {
         if (this.isConnecting) {
-            console.log("Connection reviews already in progress, waiting...");
+            console.log("Connection notifications already in progress, waiting...");
             await new Promise((resolve) => setTimeout(resolve, 100));
             this.createHubConnection();
         }
@@ -25,7 +25,7 @@ class NotificationSignalRServiceClass {
             const notificationHubUrl = import.meta.env.VITE_NOTIFICATION_URL;
             if (!notificationHubUrl) {
               throw new Error(
-                "VITE_REVIEW_URL is not defined in the environment variables."
+                "VITE_NOTIFICATION_URL is not defined in the environment variables."
               );
             }
             const newConnection = new signalR.HubConnectionBuilder()
@@ -35,6 +35,7 @@ class NotificationSignalRServiceClass {
                     skipNegotiation: true,
                 })
                 .withAutomaticReconnect([0, 2000, 5000, 10000, 20000])
+                .configureLogging(signalR.LogLevel.Debug)
                 .build();
             newConnection.off("ReceiveNotification");
             newConnection.on("ReceiveNotification", (notification: Notification) => {
@@ -56,19 +57,19 @@ class NotificationSignalRServiceClass {
                     retries--;
                     if (retries === 0) {
                       console.log(
-                        "Reviews hub Failed to connect after multiple attempts:",
+                        "Notifications hub Failed to connect after multiple attempts:",
                         error
                       );
                       throw error;
                     }
                     console.warn(
-                      `Reviews hub Connection attempt failed, retrying... (${retries} attempts left)`
+                      `Notifications hub Connection attempt failed, retrying... (${retries} attempts left)`
                     );
                     await new Promise((resolve) => setTimeout(resolve, 2000));
                 }
             }
         } catch (error) {
-            console.error("Reviews hub Error while starting connection: ", error);
+            console.error("Notifications hub Error while starting connection: ", error);
             throw error;
         } finally {
             this.isConnecting = false;
@@ -133,7 +134,7 @@ class NotificationSignalRServiceClass {
         }
         this.hubConnection
           .invoke("MarkAsReadListNotifications", notificationIds)
-          .catch((err) => console.error("Error sending notification: ", err));
+          .catch((err) => console.error("Error marking notifications as read: ", err));
     }
 
     public onReceiveReadNotifications = (callback: (id: string[]) => void): void => {

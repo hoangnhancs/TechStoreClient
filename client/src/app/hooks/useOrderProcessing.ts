@@ -163,6 +163,9 @@ export const useOrderProcessing = () => {
       }
     );
 
+    console.log("PaymentIntent:", paymentIntent);
+    console.log("Payment error:", error);
+
     if (error) {
       toast.error(error.message);
       return;
@@ -201,20 +204,20 @@ export const useOrderProcessing = () => {
       });
   }
 
-  const handleCreateOrder = async () => {
-    try {
-      try {
-        // await createOrUpdateOrder(createOrderParas).unwrap();
-        navigate("/order");
-      } catch (error) {
-        console.error("Error creating order:", error);
-        toast.error("Không thể tạo đơn hàng.");
-      }
-    } catch (error) {
-      console.error("Error creating order:", error);
-      toast.error("Không thể tạo đơn hàng. Vui lòng thử lại.");
-    }
-  };
+  // const handleCreateOrder = async () => {
+  //   try {
+  //     try {
+  //       // await createOrUpdateOrder(createOrderParas).unwrap();
+  //       navigate("/order");
+  //     } catch (error) {
+  //       console.error("Error creating order:", error);
+  //       toast.error("Không thể tạo đơn hàng.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating order:", error);
+  //     toast.error("Không thể tạo đơn hàng. Vui lòng thử lại.");
+  //   }
+  // };
 
   const handleCreateOrderAndPayment = async () => {
     try {
@@ -273,7 +276,7 @@ export const useOrderProcessing = () => {
     handleActiveStepChange,
     handlePaymentInforChange,
     handleAddressChange,
-    handleCreateOrder,
+    // handleCreateOrder,
     handleCreateOrderAndPayment,
     isCanCompleteOrder,
     completePayment,

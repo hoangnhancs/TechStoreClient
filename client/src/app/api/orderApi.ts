@@ -10,7 +10,7 @@ export const orderApi = createApi({
   tagTypes: ["Product", "Order"],
   endpoints: (builder) => ({
     fetchOrder: builder.query<Order[], void>({
-      query: () => ({ url: "/order/myorders", method: "GET" }),
+      query: () => ({ url: "/orders", method: "GET" }),
       providesTags: (result) =>
         result
           ? [
@@ -52,6 +52,13 @@ export const orderApi = createApi({
       }),
       providesTags: (_, __, orderId) => [{ type: "Order", id: orderId }],
     }),
+    getOrderDetailsWithHistoryAndShipment: builder.query<Order, string>({
+      query: (orderId) => ({
+        url: `/orders/${orderId}/with-history`,
+        method: "GET",
+      }),
+      providesTags: (_, __, orderId) => [{ type: "Order", id: orderId }],
+    }),
     getListOrdersInDateRange: builder.query<Order[], { startDate: string; endDate: string }>({
       query: ({ startDate, endDate }) => ({
         url: "/orders/list-orders?startDate=" + startDate + "&endDate=" + endDate,
@@ -70,6 +77,7 @@ export const {
   useFetchOrderQuery,
   useCreateOrderMutation,
   useGetOrderDetailsQuery,
+  useGetOrderDetailsWithHistoryAndShipmentQuery,
   useGetListOrdersInDateRangeQuery,
   useLazyGetListOrdersInDateRangeQuery,
 } = orderApi;

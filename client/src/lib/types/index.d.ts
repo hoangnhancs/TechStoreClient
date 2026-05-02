@@ -113,6 +113,16 @@ export type Payment = {
   status: string;
 };
 
+export type OrderStatusHistory = {
+  orderId: string;
+  fromStatus: string;
+  toStatus: string;
+  note: string | null;
+  changeBy: string;
+  changedAt: Date;
+  note?: string | null;
+};
+
 export type Order = {
   id: string;
   orderNo: string;
@@ -130,6 +140,7 @@ export type Order = {
   pmtMethod: string;
   pmtStatus: string;
   updatedAt: Date;
+  statusHistories?: OrderStatusHistory[];
 };
 
 export type CreateOrderInput = {

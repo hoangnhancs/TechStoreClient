@@ -135,7 +135,7 @@ export default function MyOrdersPage() {
                                     title={
                                         <Box display="flex" alignItems="center" justifyContent="space-between">
                                             <Typography variant="h6">
-                                                #{order.id.substring(0, 8).toUpperCase()}
+                                                #{order.orderNo.toUpperCase()}
                                             </Typography>
                                             <Box>
                                                 <StatusChip 
@@ -145,7 +145,7 @@ export default function MyOrdersPage() {
                                                 />
                                                 <StatusChip 
                                                     label={order.pmtStatus} 
-                                                    status={order.pmtStatus === 'Paid' ? 'Completed' : 'Pending'} 
+                                                    status={order.pmtStatus} 
                                                     size="small"
                                                     sx={{ ml: 1 }}
                                                 />

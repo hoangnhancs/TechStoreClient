@@ -1,4 +1,5 @@
 import { useParams, Link, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 import { 
     Box, 
     Container,
@@ -29,10 +30,124 @@ import {
     Person,
     Phone,
     CreditCard,
+    HourglassEmpty,
+    Autorenew,
+    CheckCircle,
+    Cancel,
+    DirectionsBike,
+    ExpandMore,
+    ExpandLess,
 } from '@mui/icons-material';
-import { useGetOrderDetailsQuery } from '../../app/api/orderApi';
+import { OrderStatusHistory } from '../../lib/types';
+import { useGetOrderDetailsWithHistoryAndShipmentQuery } from '../../app/api/orderApi';
 import LoadingComponent from '../../components/LoadingComponent';
 import { formatCurrency, formatVNDate } from '../../lib/util/util';
+
+const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactElement }> = {
+    pending:    { label: 'Chờ xác nhận',     color: '#FF9800', icon: <HourglassEmpty fontSize="small" /> },
+    processing: { label: 'Đang xử lý',       color: '#2196F3', icon: <Autorenew fontSize="small" /> },
+    shipped:    { label: 'Đang giao hàng',   color: '#9C27B0', icon: <DirectionsBike fontSize="small" /> },
+    delivering: { label: 'Shipper đã lấy',   color: '#673AB7', icon: <LocalShipping fontSize="small" /> },
+    completed:  { label: 'Hoàn thành',       color: '#4CAF50', icon: <CheckCircle fontSize="small" /> },
+    cancelled:  { label: 'Đã huỷ',           color: '#F44336', icon: <Cancel fontSize="small" /> },
+};
+
+function getStatusConfig(status: string) {
+    return STATUS_CONFIG[status.toLowerCase()] ?? {
+        label: status,
+        color: '#9E9E9E',
+        icon: <HourglassEmpty fontSize="small" />,
+    };
+}
+
+const COLLAPSED_COUNT = 3;
+
+function OrderTimeline({ history }: { history: OrderStatusHistory[] }) {
+    const [expanded, setExpanded] = useState(false);
+    const sorted = [...history].sort(
+        (a, b) => new Date(b.changedAt).getTime() - new Date(a.changedAt).getTime()
+    );
+    const visible = expanded ? sorted : sorted.slice(0, COLLAPSED_COUNT);
+    const hasMore = sorted.length > COLLAPSED_COUNT;
+
+    return (
+        <Box>
+            {visible.map((entry, idx) => {
+                const cfg = getStatusConfig(entry.toStatus);
+                const isFirst = idx === 0;
+                const isLast = idx === visible.length - 1;
+                return (
+                    <Box key={idx} display="flex" position="relative">
+                        {/* vertical line */}
+                        {!isLast && (
+                            <Box
+                                sx={{
+                                    position: 'absolute',
+                                    left: 15,
+                                    top: 32,
+                                    bottom: 0,
+                                    width: 2,
+                                    bgcolor: 'divider',
+                                    zIndex: 0,
+                                }}
+                            />
+                        )}
+
+                        {/* dot */}
+                        <Box
+                            flexShrink={0}
+                            width={32}
+                            height={32}
+                            borderRadius="50%"
+                            display="flex"
+                            alignItems="center"
+                            justifyContent="center"
+                            sx={{
+                                bgcolor: isFirst ? cfg.color : 'background.paper',
+                                border: `2px solid ${cfg.color}`,
+                                color: isFirst ? '#fff' : cfg.color,
+                                zIndex: 1,
+                                mt: '4px',
+                            }}
+                        >
+                            {cfg.icon}
+                        </Box>
+
+                        {/* content */}
+                        <Box ml={2} pb={isLast ? 0 : 2.5} flex={1}>
+                            <Typography
+                                variant="body2"
+                                fontWeight={isFirst ? 700 : 500}
+                                sx={{ color: isFirst ? cfg.color : 'text.primary' }}
+                            >
+                                {cfg.label}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                                {formatVNDate(entry.changedAt.toString(), 'ddmmyyyyhhmm')}
+                            </Typography>
+                            {entry.note && (
+                                <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.25 }}>
+                                    {entry.note}
+                                </Typography>
+                            )}
+                        </Box>
+                    </Box>
+                );
+            })}
+
+            {hasMore && (
+                <Button
+                    size="small"
+                    startIcon={expanded ? <ExpandLess /> : <ExpandMore />}
+                    onClick={() => setExpanded((p) => !p)}
+                    sx={{ mt: 0.5, ml: '40px', textTransform: 'none' }}
+                >
+                    {expanded ? 'Thu gọn' : `Xem thêm ${sorted.length - COLLAPSED_COUNT} trạng thái`}
+                </Button>
+            )}
+        </Box>
+    );
+}
 
 const StatusChip = styled(Chip)<{ status: string }>(({ theme, status }) => {
 let color;
@@ -70,7 +185,7 @@ export default function OrderDetailsPage() {
     const location = useLocation();
     const fromAdminOrdersDashboard = location.state?.fromAdminOrdersDashboard;
     const { orderId } = useParams<{ orderId: string }>();
-    const { data: order, isLoading, error } = useGetOrderDetailsQuery(orderId || '');
+    const { data: order, isLoading, error } = useGetOrderDetailsWithHistoryAndShipmentQuery(orderId || '');
 
     if (isLoading) {
         return (
@@ -216,20 +331,29 @@ export default function OrderDetailsPage() {
                         <SectionTitle variant="h6">
                         Trạng thái đơn hàng
                         </SectionTitle>
-                        
+
                         <Box sx={{ pl: 2 }}>
-                        <Stack spacing={2}>
-                            <Box>
-                            <Typography variant="body2" color="text.secondary">
-                                Trạng thái hiện tại:
-                            </Typography>
-                            <StatusChip 
-                                label={order.status} 
-                                status={order.status} 
-                                size="small"
-                            />
+                            <Box mb={order.statusHistories && order.statusHistories.length > 0 ? 2 : 0}>
+                                <Typography variant="body2" color="text.secondary" gutterBottom>
+                                    Trạng thái hiện tại:
+                                </Typography>
+                                <StatusChip
+                                    label={getStatusConfig(order.status).label || order.status}
+                                    status={order.status}
+                                    size="small"
+                                />
                             </Box>
-                        </Stack>
+
+                            {order.statusHistories && order.statusHistories.length > 0 && (
+                                <>
+                                    <Divider sx={{ mb: 2 }}>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Lịch sử trạng thái
+                                        </Typography>
+                                    </Divider>
+                                    <OrderTimeline history={order.statusHistories} />
+                                </>
+                            )}
                         </Box>
                     </Paper>
 

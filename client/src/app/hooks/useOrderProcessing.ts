@@ -145,41 +145,41 @@ export const useOrderProcessing = () => {
       toast.error("Stripe chưa được khởi tạo.");
       return;
     }
+    try {
+      const order = await createOrder(createOrderParas).unwrap();
 
-    const order = await createOrder(createOrderParas).unwrap();
+      const clientSecret = await getPaymentIntentFromPaymentHub(order.id);
 
-    if (!order?.id) {
-      throw new Error("Không thể tạo đơn hàng.");
-    }
+      const { paymentIntent, error } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: cardElement,
+          },
+        }
+      );
 
-    const clientSecret = await getPaymentIntentFromPaymentHub(order.id);
-
-    const { paymentIntent, error } = await stripe.confirmCardPayment(
-      clientSecret,
-      {
-        payment_method: {
-          card: cardElement,
-        },
+      if (error) {
+        toast.error(error.message);
+        return;
       }
-    );
 
-    if (error) {
-      toast.error(error.message);
-      return;
+      if (paymentIntent?.status !== "succeeded") {
+        toast.warning(`Trạng thái thanh toán: ${paymentIntent?.status || "unknown"}`);
+        return;
+      }
+
+      toast.success("Thanh toán thành công!");
+      toast.success("Đặt hàng thành công!");
+      // await completePayment().unwrap();
+      await clearPurchasedItemsFromBasket();
+      navigate(`/order-success/${order.id}`, {
+        state: { orderNo: order.orderNo, orderId: order.id },
+      });
+    } catch (error) {
+      toast.error(`Lỗi khi xử lý đơn hàng và thanh toán: ${error instanceof Error ? error.message : "Vui lòng thử lại."}`);
     }
-
-    if (paymentIntent?.status !== "succeeded") {
-      toast.warning(`Trạng thái thanh toán: ${paymentIntent?.status || "unknown"}`);
-      return;
-    }
-
-    toast.success("Thanh toán thành công!");
-    toast.success("Đặt hàng thành công!");
-    // await completePayment().unwrap();
-    await clearPurchasedItemsFromBasket();
-    navigate(`/order-success/${order.id}`, {
-      state: { orderNo: order.orderNo, orderId: order.id },
-    });
+    
   };
 
   const handleDefaultOrderAndPayment = async () => {

@@ -178,8 +178,8 @@ export const useOrderProcessing = () => {
       });
     } catch (error) {
       toast.error(`Lỗi khi xử lý đơn hàng và thanh toán: ${error instanceof Error ? error.message : "Vui lòng thử lại."}`);
+      return;
     }
-    
   };
 
   const handleDefaultOrderAndPayment = async () => {
@@ -201,20 +201,20 @@ export const useOrderProcessing = () => {
       });
   }
 
-  const handleCreateOrder = async () => {
-    try {
-      try {
-        // await createOrUpdateOrder(createOrderParas).unwrap();
-        navigate("/order");
-      } catch (error) {
-        console.error("Error creating order:", error);
-        toast.error("Không thể tạo đơn hàng.");
-      }
-    } catch (error) {
-      console.error("Error creating order:", error);
-      toast.error("Không thể tạo đơn hàng. Vui lòng thử lại.");
-    }
-  };
+  // const handleCreateOrder = async () => {
+  //   try {
+  //     try {
+  //       // await createOrUpdateOrder(createOrderParas).unwrap();
+  //       navigate("/order");
+  //     } catch (error) {
+  //       console.error("Error creating order:", error);
+  //       toast.error("Không thể tạo đơn hàng.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error creating order:", error);
+  //     toast.error("Không thể tạo đơn hàng. Vui lòng thử lại.");
+  //   }
+  // };
 
   const handleCreateOrderAndPayment = async () => {
     try {
@@ -273,7 +273,7 @@ export const useOrderProcessing = () => {
     handleActiveStepChange,
     handlePaymentInforChange,
     handleAddressChange,
-    handleCreateOrder,
+    // handleCreateOrder,
     handleCreateOrderAndPayment,
     isCanCompleteOrder,
     completePayment,

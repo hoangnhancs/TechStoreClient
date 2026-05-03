@@ -149,7 +149,8 @@ export const useOrderProcessing = () => {
       const order = await createOrder(createOrderParas).unwrap();
 
       const clientSecret = await getPaymentIntentFromPaymentHub(order.id);
-
+      console.log("Received client secret from payment hub:", clientSecret);
+      console.log(cardElement);
       const { paymentIntent, error } = await stripe.confirmCardPayment(
         clientSecret,
         {
@@ -172,7 +173,7 @@ export const useOrderProcessing = () => {
       toast.success("Thanh toán thành công!");
       toast.success("Đặt hàng thành công!");
       // await completePayment().unwrap();
-      await clearPurchasedItemsFromBasket();
+      // await clearPurchasedItemsFromBasket();
       navigate(`/order-success/${order.id}`, {
         state: { orderNo: order.orderNo, orderId: order.id },
       });
@@ -184,7 +185,7 @@ export const useOrderProcessing = () => {
 
   const handleDefaultOrderAndPayment = async () => {
     const order = await createOrder(createOrderParas).unwrap();
-    // await clearPurchasedItemsFromBasket();
+    await clearPurchasedItemsFromBasket();
     console.log("Order created:", order);
     toast.success("Đặt hàng thành công!");
     handleNavigateToOrderResult(order);
@@ -201,20 +202,20 @@ export const useOrderProcessing = () => {
       });
   }
 
-  // const handleCreateOrder = async () => {
-  //   try {
-  //     try {
-  //       // await createOrUpdateOrder(createOrderParas).unwrap();
-  //       navigate("/order");
-  //     } catch (error) {
-  //       console.error("Error creating order:", error);
-  //       toast.error("Không thể tạo đơn hàng.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error creating order:", error);
-  //     toast.error("Không thể tạo đơn hàng. Vui lòng thử lại.");
-  //   }
-  // };
+  const handleCreateOrder = async () => {
+    try {
+      try {
+        // await createOrUpdateOrder(createOrderParas).unwrap();
+        navigate("/order");
+      } catch (error) {
+        console.error("Error creating order:", error);
+        toast.error("Không thể tạo đơn hàng.");
+      }
+    } catch (error) {
+      console.error("Error creating order:", error);
+      toast.error("Không thể tạo đơn hàng. Vui lòng thử lại.");
+    }
+  };
 
   const handleCreateOrderAndPayment = async () => {
     try {
@@ -273,7 +274,7 @@ export const useOrderProcessing = () => {
     handleActiveStepChange,
     handlePaymentInforChange,
     handleAddressChange,
-    // handleCreateOrder,
+    handleCreateOrder,
     handleCreateOrderAndPayment,
     isCanCompleteOrder,
     completePayment,

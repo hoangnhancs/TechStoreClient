@@ -44,12 +44,47 @@ import LoadingComponent from '../../components/LoadingComponent';
 import { formatCurrency, formatVNDate } from '../../lib/util/util';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactElement }> = {
-    pending:    { label: 'Chờ xác nhận',     color: '#FF9800', icon: <HourglassEmpty fontSize="small" /> },
-    processing: { label: 'Đang xử lý',       color: '#2196F3', icon: <Autorenew fontSize="small" /> },
-    shipped:    { label: 'Đang giao hàng',   color: '#9C27B0', icon: <DirectionsBike fontSize="small" /> },
-    delivering: { label: 'Shipper đã lấy',   color: '#673AB7', icon: <LocalShipping fontSize="small" /> },
-    completed:  { label: 'Hoàn thành',       color: '#4CAF50', icon: <CheckCircle fontSize="small" /> },
-    cancelled:  { label: 'Đã huỷ',           color: '#F44336', icon: <Cancel fontSize="small" /> },
+    pending: {
+        label: 'Đang xử lý',
+        color: '#FB8C00', // cam đậm hơn, rõ hơn
+        icon: <HourglassEmpty fontSize="small" />
+    },
+
+    waitingforconfirmation: {
+        label: 'Chờ xác nhận',
+        color: '#FFA726', // cam nhạt hơn chút để phân biệt
+        icon: <HourglassEmpty fontSize="small" />
+    },
+
+    processing: {
+        label: 'Đang chuẩn bị hàng',
+        color: '#1E88E5', // xanh dương rõ ràng
+        icon: <Autorenew fontSize="small" />
+    },
+
+    shipped: {
+        label: 'Đã giao cho vận chuyển',
+        color: '#5E35B1', // tím đậm (handover)
+        icon: <LocalShipping fontSize="small" />
+    },
+
+    delivering: {
+        label: 'Đang giao hàng',
+        color: '#3949AB', // xanh indigo (in transit)
+        icon: <DirectionsBike fontSize="small" />
+    },
+
+    completed: {
+        label: 'Hoàn thành',
+        color: '#43A047', // xanh lá dịu, đỡ chói
+        icon: <CheckCircle fontSize="small" />
+    },
+
+    cancelled: {
+        label: 'Đã huỷ',
+        color: '#E53935', // đỏ chuẩn material
+        icon: <Cancel fontSize="small" />
+    },
 };
 
 function getStatusConfig(status: string) {

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 
-import { Address, Basket, Item, Order, PaymentInfor } from "../../lib/types";
+import { Address, Basket, Item, Order, OrderNotification, PaymentInfor } from "../../lib/types";
 import { setBasketStates } from "../../features/basket/basketSlice";
 import { toast } from "react-toastify";
 import { useCreateOrderMutation } from "../api/orderApi";
@@ -13,11 +13,13 @@ import { useRemovePermanentlyBasketItemsMutation } from "../api/basketApi";
 import { useState } from "react";
 
 import { PaymentSignalRService } from "../api/paymentSignalRService";
+import { OrderSignalRService } from "../api/orderSignalRService";
 
 export const useOrderProcessing = () => {
   const shippingCost = 1000;
   const discount = 3000;
   const paymentIntentTimeoutMs = 30000;
+  const orderCreationMessageTimeoutMs = 3000;
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -136,6 +138,50 @@ export const useOrderProcessing = () => {
     });
   };
 
+
+  const getOrderNotificationFromOrderHub = async (orderId: string) => {
+    await OrderSignalRService.createHubConnection(orderId);
+
+    return new Promise<OrderNotification>((resolve, reject) => {
+      let isResolved = false;
+
+      const resolveWithCleanup = (message: OrderNotification) => {
+        if (isResolved) return;
+        isResolved = true;
+        window.clearTimeout(timeoutId);
+        void OrderSignalRService.stopConnection();
+        resolve(message);
+      };
+
+      const rejectWithCleanup = (error: Error) => {
+        if (isResolved) return;
+        isResolved = true;
+        window.clearTimeout(timeoutId);
+        void OrderSignalRService.stopConnection();
+        reject(error);
+      };
+
+      const timeoutId = window.setTimeout(() => {
+        rejectWithCleanup(
+          new Error("Có lỗi không xác định. Vui lòng kiểm tra lại đơn hàng.")
+        );
+      }, orderCreationMessageTimeoutMs);
+
+      OrderSignalRService.onReceiverErrorMessage((message) => {
+        if (!message) return;
+        // if (message.orderId && message.orderId !== orderId) return;
+
+        resolveWithCleanup(message);
+      });
+
+      // void createOrUpdatePaymentIntent()
+      //   .unwrap()
+      //   .catch((error) => {
+      //     rejectWithCleanup(new Error(`Không thể tạo payment intent: ${error}`));
+      //   });
+    });
+  };
+
   const handleCreditCardOrderAndPayment = async () => {
     const stripe = currentPaymentInfor.stripe;
     const elements = currentPaymentInfor.elements;
@@ -147,6 +193,29 @@ export const useOrderProcessing = () => {
     }
     try {
       const order = await createOrder(createOrderParas).unwrap();
+
+      if (!order.id)
+      {
+        toast.error("Lỗi khi tạo đơn hàng. Vui lòng thử lại.");
+        return;
+      }
+
+      await getOrderNotificationFromOrderHub(order.id)
+        .then((message) => {
+          if (message.isSuccess){
+            toast.success("Đơn hàng được tạo thành công. Đang xử lý...");
+            return;
+          }
+          toast.error(`Đơn hàng thất bại: ${message.errorMessage}`);
+          throw new Error(`Order creation failed: ${message.errorMessage}`);
+        })
+        .catch((error) => {
+          if (error instanceof Error && error.message.startsWith("Order creation failed:")) {
+            console.log(error)
+            throw error; // Đẩy lỗi lên để xử lý ở cấp trên
+          }
+          // Nếu không phải lỗi về tạo đơn hàng, bỏ qua và tiếp tục
+        });
 
       const clientSecret = await getPaymentIntentFromPaymentHub(order.id);
       console.log("Received client secret from payment hub:", clientSecret);
@@ -185,6 +254,12 @@ export const useOrderProcessing = () => {
 
   const handleDefaultOrderAndPayment = async () => {
     const order = await createOrder(createOrderParas).unwrap();
+    if (!order.id)
+    {
+      toast.error("Lỗi khi tạo đơn hàng. Vui lòng thử lại.");
+      return;
+    }
+
     await clearPurchasedItemsFromBasket();
     console.log("Order created:", order);
     toast.success("Đặt hàng thành công!");

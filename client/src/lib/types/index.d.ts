@@ -358,3 +358,10 @@ export type UserActionTracking = {
   productId: string,
   actionType: string
 }
+
+export type OrderNotification = {
+    isSuccess: boolean;
+    orderId?: string; //neu k fail o order ma fail o service khác
+    userId: string;
+    errorMessage?: string; //neu fail o order
+}

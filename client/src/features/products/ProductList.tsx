@@ -8,6 +8,7 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { ReviewSignalRService } from "../../app/api/reviewSignalRService"
 import { CommentSignalRService } from "../../app/api/commentSignalRService"
 import { NotificationSignalRService } from "../../app/api/notificationSignalRService"
+import { OrderSignalRService } from "../../app/api/orderSignalRService"
 
 export default function ProductList() {
     const {data, isLoading} = useFetchTop10ProductsQuery()
@@ -48,6 +49,9 @@ export default function ProductList() {
             <Button
                 onClick={() => NotificationSignalRService.createHubConnection()}
             >test3</Button>
+            <Button
+                onClick={() => OrderSignalRService.createHubConnection("359d9c4c-d32a-4717-8eb0-f63c64ce0319")}
+            >test4</Button>
             {Object.entries(groupedProductByCategory).map(([catId, group]) => (
                 <Box display={"flex"} key={catId} flexDirection={"column"} gap={1} mb={2} >
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>

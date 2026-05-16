@@ -50,7 +50,7 @@ class CommentSignalRServiceClass {
       const commentHubUrl = import.meta.env.VITE_COMMENT_URL;
       if (!commentHubUrl) {
         throw new Error(
-          "VITE_REVIEW_URL is not defined in the environment variables."
+          "VITE_COMMENT_URL is not defined in the environment variables."
         );
       }
       const newConnection = new signalR.HubConnectionBuilder()

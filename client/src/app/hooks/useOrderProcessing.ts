@@ -19,7 +19,7 @@ export const useOrderProcessing = () => {
   const shippingCost = 1000;
   const discount = 3000;
   const paymentIntentTimeoutMs = 30000;
-  const orderCreationMessageTimeoutMs = 3000;
+  const orderNotificationTimeoutMs = 15000;
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -165,20 +165,12 @@ export const useOrderProcessing = () => {
         rejectWithCleanup(
           new Error("Có lỗi không xác định. Vui lòng kiểm tra lại đơn hàng.")
         );
-      }, orderCreationMessageTimeoutMs);
+      }, orderNotificationTimeoutMs);
 
       OrderSignalRService.onReceiverErrorMessage((message) => {
         if (!message) return;
-        // if (message.orderId && message.orderId !== orderId) return;
-
         resolveWithCleanup(message);
       });
-
-      // void createOrUpdatePaymentIntent()
-      //   .unwrap()
-      //   .catch((error) => {
-      //     rejectWithCleanup(new Error(`Không thể tạo payment intent: ${error}`));
-      //   });
     });
   };
 
@@ -192,34 +184,20 @@ export const useOrderProcessing = () => {
       return;
     }
     try {
+      // Step 1: Create order → saga enters WaitingForStockReservation
       const order = await createOrder(createOrderParas).unwrap();
-
-      if (!order.id)
-      {
+      if (!order.id) {
         toast.error("Lỗi khi tạo đơn hàng. Vui lòng thử lại.");
         return;
       }
 
-      await getOrderNotificationFromOrderHub(order.id)
-        .then((message) => {
-          if (message.isSuccess){
-            toast.success("Đơn hàng được tạo thành công. Đang xử lý...");
-            return;
-          }
-          toast.error(`Đơn hàng thất bại: ${message.errorMessage}`);
-          throw new Error(`Order creation failed: ${message.errorMessage}`);
-        })
-        .catch((error) => {
-          if (error instanceof Error && error.message.startsWith("Order creation failed:")) {
-            console.log(error)
-            throw error; // Đẩy lỗi lên để xử lý ở cấp trên
-          }
-          // Nếu không phải lỗi về tạo đơn hàng, bỏ qua và tiếp tục
-        });
-
+      // Step 2: Wait for clientSecret from PaymentHub
+      // Saga: StockReserved → CreatePayment → PaymentCreated → WaitingForPayment
+      // Receiving clientSecret means stock was reserved and payment intent was created successfully.
+      // If payment creation fails, the saga sends OrderNotification(IsSuccess=false) and we'll timeout here.
       const clientSecret = await getPaymentIntentFromPaymentHub(order.id);
-      console.log("Received client secret from payment hub:", clientSecret);
-      console.log(cardElement);
+
+      // Step 3: Confirm card payment with Stripe
       const { paymentIntent, error } = await stripe.confirmCardPayment(
         clientSecret,
         {
@@ -239,10 +217,19 @@ export const useOrderProcessing = () => {
         return;
       }
 
+      // Step 4: Wait for final OrderNotification from OrderHub
+      // Saga: PaymentCompleted (Stripe webhook) → ConfirmOrder → Processing → OrderConfirmed → Completed
+      // IsSuccess=true means saga completed; IsSuccess=false means something failed post-payment.
+      const notification = await getOrderNotificationFromOrderHub(order.id);
+      if (!notification.isSuccess) {
+        toast.error(`Đặt hàng thất bại: ${notification.errorMessage}`);
+        return;
+      }
+
+      // Step 5: Clear basket and navigate
+      await clearPurchasedItemsFromBasket();
       toast.success("Thanh toán thành công!");
       toast.success("Đặt hàng thành công!");
-      // await completePayment().unwrap();
-      // await clearPurchasedItemsFromBasket();
       navigate(`/order-success/${order.id}`, {
         state: { orderNo: order.orderNo, orderId: order.id },
       });

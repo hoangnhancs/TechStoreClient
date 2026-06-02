@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 
-import { Address, Basket, Item, Order, OrderNotification, PaymentInfor } from "../../lib/types";
+import { Address, Basket, Item, Order, /* OrderNotification ,*/ PaymentInfor } from "../../lib/types";
 import { setBasketStates } from "../../features/basket/basketSlice";
 import { toast } from "react-toastify";
 import { useCreateOrderMutation } from "../api/orderApi";
@@ -13,13 +13,13 @@ import { useRemovePermanentlyBasketItemsMutation } from "../api/basketApi";
 import { useState } from "react";
 
 import { PaymentSignalRService } from "../api/paymentSignalRService";
-import { OrderSignalRService } from "../api/orderSignalRService";
+// import { OrderSignalRService } from "../api/orderSignalRService";
 
 export const useOrderProcessing = () => {
   const shippingCost = 1000;
   const discount = 3000;
-  const paymentIntentTimeoutMs = 30000;
-  const orderNotificationTimeoutMs = 15000;
+  const paymentIntentTimeoutMs = 300000;
+  // const orderNotificationTimeoutMs = 150000;
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -139,40 +139,40 @@ export const useOrderProcessing = () => {
   };
 
 
-  const getOrderNotificationFromOrderHub = async (orderId: string) => {
-    await OrderSignalRService.createHubConnection(orderId);
+  // const getOrderNotificationFromOrderHub = async (orderId: string) => {
+  //   await OrderSignalRService.createHubConnection(orderId);
 
-    return new Promise<OrderNotification>((resolve, reject) => {
-      let isResolved = false;
+  //   return new Promise<OrderNotification>((resolve, reject) => {
+  //     let isResolved = false;
 
-      const resolveWithCleanup = (message: OrderNotification) => {
-        if (isResolved) return;
-        isResolved = true;
-        window.clearTimeout(timeoutId);
-        void OrderSignalRService.stopConnection();
-        resolve(message);
-      };
+  //     const resolveWithCleanup = (message: OrderNotification) => {
+  //       if (isResolved) return;
+  //       isResolved = true;
+  //       window.clearTimeout(timeoutId);
+  //       void OrderSignalRService.stopConnection();
+  //       resolve(message);
+  //     };
 
-      const rejectWithCleanup = (error: Error) => {
-        if (isResolved) return;
-        isResolved = true;
-        window.clearTimeout(timeoutId);
-        void OrderSignalRService.stopConnection();
-        reject(error);
-      };
+  //     const rejectWithCleanup = (error: Error) => {
+  //       if (isResolved) return;
+  //       isResolved = true;
+  //       window.clearTimeout(timeoutId);
+  //       void OrderSignalRService.stopConnection();
+  //       reject(error);
+  //     };
 
-      const timeoutId = window.setTimeout(() => {
-        rejectWithCleanup(
-          new Error("Có lỗi không xác định. Vui lòng kiểm tra lại đơn hàng.")
-        );
-      }, orderNotificationTimeoutMs);
+  //     const timeoutId = window.setTimeout(() => {
+  //       rejectWithCleanup(
+  //         new Error("Có lỗi không xác định. Vui lòng kiểm tra lại đơn hàng.")
+  //       );
+  //     }, orderNotificationTimeoutMs);
 
-      OrderSignalRService.onReceiverErrorMessage((message) => {
-        if (!message) return;
-        resolveWithCleanup(message);
-      });
-    });
-  };
+  //     OrderSignalRService.onReceiverErrorMessage((message) => {
+  //       if (!message) return;
+  //       resolveWithCleanup(message);
+  //     });
+  //   });
+  // };
 
   const handleCreditCardOrderAndPayment = async () => {
     const stripe = currentPaymentInfor.stripe;
@@ -220,11 +220,11 @@ export const useOrderProcessing = () => {
       // Step 4: Wait for final OrderNotification from OrderHub
       // Saga: PaymentCompleted (Stripe webhook) → ConfirmOrder → Processing → OrderConfirmed → Completed
       // IsSuccess=true means saga completed; IsSuccess=false means something failed post-payment.
-      const notification = await getOrderNotificationFromOrderHub(order.id);
-      if (!notification.isSuccess) {
-        toast.error(`Đặt hàng thất bại: ${notification.errorMessage}`);
-        return;
-      }
+      // const notification = await getOrderNotificationFromOrderHub(order.id);
+      // if (!notification.isSuccess) {
+      //   toast.error(`Đặt hàng thất bại: ${notification.errorMessage}`);
+      //   return;
+      // }
 
       // Step 5: Clear basket and navigate
       await clearPurchasedItemsFromBasket();

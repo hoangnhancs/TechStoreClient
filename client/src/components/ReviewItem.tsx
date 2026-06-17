@@ -42,7 +42,7 @@ export default function ReviewItem({ review }: Props) {
                 </Stack>
                 <Stack direction={"column"} spacing={1}  mt={3}>
                     <Typography variant="body2">
-                        {review.comment}
+                        {review.content}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
                         {new Date(review.createdAt).toLocaleDateString('vi-VN', {

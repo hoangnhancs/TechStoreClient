@@ -274,7 +274,7 @@ export type Review = {
   userDisplayName: string;
   userImageUrl: string;
   rating: number;
-  comment: string;
+  content: string;
   createdAt: Date;
   updatedAt: Date;
 };

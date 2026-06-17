@@ -8,7 +8,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import React from "react";
 import { useDispatch } from "react-redux";
 import { setNotiCreateAtSort, setNotiStatusFilter, setNotiTypeFilter } from "../filter/filterSlice";
-import { Notification } from "../../lib/types";
+import { UserNotification } from "../../lib/types";
 import CloseIcon from '@mui/icons-material/Close';
 import { NotificationSignalRService } from "../../app/api/notificationSignalRService";
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -27,17 +27,17 @@ export const StyledButton = styled(Button, {shouldForwardProp: (prop) => prop !=
 }));
 
 export default function NotificationPage() {
-  const { allNotifications } = useNotificationContext();
+  const { myNotifications } = useNotificationContext();
   const reduxNotiCreatedAtSort = useAppSelector(state => state.filter.notiCreateAtSort);
   const [selectedSortNotiCreatedAt, setSelectedSortNotiCreatedAt] = useState<'asc' | 'desc'>(reduxNotiCreatedAtSort);
   const reduxNotiStatusFilter = useAppSelector(state => state.filter.notiStatusFilter);
   const [selectedNotiStatusFilter, setSelectedNotiStatusFilter] = useState<'read' | 'unread' | 'all'>(reduxNotiStatusFilter);
   const reduxNotiTypeFilter = useAppSelector(state => state.filter.notiTypeFilter);
   const [selectedNotiTypeFilter, setSelectedNotiTypeFilter] = useState<'all' | 'review' | 'comment' | 'system'>(reduxNotiTypeFilter);
-  const [selectedNoti, setSelectedNoti] = useState<Notification[]>([]);
+  const [selectedNoti, setSelectedNoti] = useState<UserNotification[]>([]);
   const [isSelectMode, setIsSelectMode] = useState<boolean>(false);
   const dispath = useDispatch();
-  const toogleSetSelectedNoti = (noti: Notification) => {
+  const toogleSetSelectedNoti = (noti: UserNotification) => {
     if (selectedNoti.find((item) => item.id === noti.id)) {
       setSelectedNoti(selectedNoti.filter((item) => item.id !== noti.id));
     } else {
@@ -70,11 +70,11 @@ export default function NotificationPage() {
     return false;
   }
   const filteredNotifications = React.useMemo(() => {
-    if (allNotifications === null || allNotifications.length === 0) {
+    if (myNotifications === null || myNotifications.length === 0) {
       return [];
     }
 
-    let tmp = [...allNotifications];
+    let tmp = [...myNotifications];
 
     if (selectedSortNotiCreatedAt === 'asc') {
       tmp.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
@@ -110,7 +110,7 @@ export default function NotificationPage() {
         break;
       }   
     return tmp;
-  }, [selectedSortNotiCreatedAt, allNotifications, selectedNotiStatusFilter, selectedNotiTypeFilter]);
+  }, [selectedSortNotiCreatedAt, myNotifications, selectedNotiStatusFilter, selectedNotiTypeFilter]);
   useEffect(() => {
     console.log('selectedNoti', selectedNoti);
   }, [selectedNoti]);

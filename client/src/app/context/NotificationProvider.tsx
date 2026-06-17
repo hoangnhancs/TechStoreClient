@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Notification } from "../../lib/types";
+import { UserNotification } from "../../lib/types";
 import { NotificationSignalRService } from "../api/notificationSignalRService";
 import { NotificationContext } from "./notificationContext";
 import { useGetCurrentUserQuery } from "../../features/user/userApi";
@@ -7,8 +7,8 @@ import { useGetCurrentUserQuery } from "../../features/user/userApi";
 
 
 export const NotificationProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
-    const [allNotifications, setAllNotifications] = useState<Notification[]>([]);
-    const [onlineNotifications, setOnlineNotifications] = useState<Notification[]>([]);
+    const [myNotifications, setMyNotifications] = useState<UserNotification[]>([]);
+    const [onlineNotifications, setOnlineNotifications] = useState<UserNotification[]>([]);
     const { data: currentUser } = useGetCurrentUserQuery();
     // const { data: adminGroup } = useFetchAdminNotificationGroupQuery(undefined, { skip: !currentUser?.id });
     // console.log("admin group", adminGroup)
@@ -20,7 +20,7 @@ export const NotificationProvider: React.FC<{children: React.ReactNode}> = ({chi
 
             NotificationSignalRService.onReceiveNewNotification((notification) => {
                 console.log("Received new notification:", notification);
-                setAllNotifications((prevNotifications) => [notification, ...prevNotifications]);
+                setMyNotifications((prevNotifications) => [notification, ...prevNotifications]);
                 setOnlineNotifications((prevNotifications) => [notification, ...prevNotifications]);
                 setTimeout(() => {
                     setOnlineNotifications((prevNotifications) => prevNotifications.filter((n) => n.id !== notification.id));
@@ -29,11 +29,11 @@ export const NotificationProvider: React.FC<{children: React.ReactNode}> = ({chi
             })
 
             NotificationSignalRService.loadAllNotifications((allNotifications) => {
-                setAllNotifications(allNotifications)
+                setMyNotifications(allNotifications)
             });
 
             NotificationSignalRService.onReceiveReadNotifications((notificationIds) => {
-                setAllNotifications((prevNotifications) => prevNotifications.map((notification) => {
+                setMyNotifications((prevNotifications) => prevNotifications.map((notification) => {
                     if (notificationIds.includes(notification.id)) {
                         return { ...notification, isRead: true };
                     }
@@ -42,7 +42,7 @@ export const NotificationProvider: React.FC<{children: React.ReactNode}> = ({chi
             });
 
             NotificationSignalRService.onReceiveDeletedNotifications((notificationIds) => {
-                setAllNotifications((prevNotifications) => prevNotifications.filter((notification) => !notificationIds.includes(notification.id)));
+                setMyNotifications((prevNotifications) => prevNotifications.filter((notification) => !notificationIds.includes(notification.id)));
             })
         } 
 
@@ -53,7 +53,7 @@ export const NotificationProvider: React.FC<{children: React.ReactNode}> = ({chi
         }   
     }, [currentUser?.id, currentUser?.notificationGroupIds])
     return (
-        <NotificationContext.Provider value={{allNotifications: allNotifications, onlineNotifications: onlineNotifications}}>
+        <NotificationContext.Provider value={{myNotifications: myNotifications, onlineNotifications: onlineNotifications}}>
             {children}
         </NotificationContext.Provider>
     )

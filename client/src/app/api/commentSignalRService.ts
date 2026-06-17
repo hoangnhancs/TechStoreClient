@@ -173,7 +173,8 @@ class CommentSignalRServiceClass {
   };
 
   public sendComment = async (
-    productId: string,
+    referenceId: string,
+    referenceType: string,
     content: string,
     parentCommentId?: string
   ) => {
@@ -188,7 +189,7 @@ class CommentSignalRServiceClass {
    
     try {
       const result = await this.hubConnection
-        .invoke("SendComment", productId, content, parentCommentId || null);
+        .invoke("SendComment", referenceId, referenceType, content, parentCommentId || null);
       console.log("comment id result:", result);
       return result;
     } catch (error) {

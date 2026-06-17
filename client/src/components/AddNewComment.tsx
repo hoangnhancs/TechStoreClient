@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import React from "react";
 import { User } from "../lib/types";
 import LoginPromptDialog from "./LoginPromptDialog";
-import { NotificationSignalRService } from "../app/api/notificationSignalRService";
-import { useNotificationContext } from "../app/context/notificationContext";
-import { toast } from "react-toastify";
+// import { NotificationSignalRService } from "../app/api/notificationSignalRService";
+// import { useNotificationContext } from "../app/context/notificationContext";
+// import { toast } from "react-toastify";
 
 type Props = {
     onSendComment: (content: string, parentId?: string) => Promise<string>;
@@ -17,21 +17,13 @@ type Props = {
 const AddNewComment: React.FC<Props> = React.memo(({onSendComment, onDraftChange, currentUser}) => {
     const [commentContent, setCommentContent] = useState("");
     const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
-    const { adminGroup } = useNotificationContext();
     
     const handleSendComment = async () => {
         if (commentContent.trim().length > 0) {
-            const commentId = await onSendComment(commentContent);
+            await onSendComment(commentContent);
             setCommentContent("");
-            if (!currentUser?.isAdmin) {
-                if (adminGroup) {
-                    NotificationSignalRService
-                        .sendNotification("Bình luận mới", commentContent, location.pathname, undefined, 
-                            adminGroup?.id, currentUser?.id || "", commentId, undefined, "Comment");
-                } else {
-                    toast.error("Admin group not found");
-                }
-            }
+            
+            
         }
     }
 

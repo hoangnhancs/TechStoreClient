@@ -1,8 +1,8 @@
-import { Notification } from "../../lib/types";
+import { UserNotification } from "../../lib/types";
 import * as signalR from "@microsoft/signalr";
 
-type NotificationCallback = (notification: Notification) => void;
-type NotificationsCallback = (notifications: Notification[]) => void;
+type NotificationCallback = (notification: UserNotification) => void;
+type NotificationsCallback = (notifications: UserNotification[]) => void;
 
 class NotificationSignalRServiceClass {
     private hubConnection: signalR.HubConnection | null = null;
@@ -38,7 +38,7 @@ class NotificationSignalRServiceClass {
                 .configureLogging(signalR.LogLevel.Debug)
                 .build();
             newConnection.off("ReceiveNotification");
-            newConnection.on("ReceiveNotification", (notification: Notification) => {
+            newConnection.on("ReceiveNotification", (notification: UserNotification) => {
                 if (this.notificationCallback) {
                     // console.log("Received notification: ", notification);
                     this.notificationCallback(notification);
@@ -103,7 +103,7 @@ class NotificationSignalRServiceClass {
             return
         }
         this.hubConnection.off("ReceiveAllNotifications");
-        this.hubConnection.on("ReceiveAllNotifications", (notifications: Notification[]) => {
+        this.hubConnection.on("ReceiveAllNotifications", (notifications: UserNotification[]) => {
             // console.log("Received all notifications: ", notifications);
             callback(notifications);
         })

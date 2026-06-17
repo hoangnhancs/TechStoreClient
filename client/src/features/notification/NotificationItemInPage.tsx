@@ -3,17 +3,17 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { Notification } from "../../lib/types";
+import { UserNotification } from "../../lib/types";
 import { useNavigate } from "react-router";
 import { NotificationSignalRService } from "../../app/api/notificationSignalRService";
 import { Checkbox } from "@mui/material";
 import { useState } from "react";
 
 interface Props {
-  notification: Notification;
+  notification: UserNotification;
   selectMode?: boolean;
   isChoose?: boolean
-  onChangeSelectedNotification?: (notification: Notification) => void
+  onChangeSelectedNotification?: (notification: UserNotification) => void
 }
 
 export default function NotificationItemInPage({ notification, selectMode, isChoose, onChangeSelectedNotification }: Props) {
@@ -76,7 +76,7 @@ export default function NotificationItemInPage({ notification, selectMode, isCho
       <Box flex={1} overflow="hidden">
         <Box display="flex" gap={1} alignItems="center" flexWrap="wrap">
           <Typography fontSize={15} fontWeight={500}>
-            {notification.senderName}
+            {notification.senderDisplayName}
           </Typography>
           <Typography fontSize={15} fontWeight="bold">
             {notification.title}

@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { Comment, User } from "../../lib/types";
 import CommentItem from "../../components/CommentItem";
 import AddNewComment from "../../components/AddNewComment";
+import { ReferenceTypes } from "../../lib/types";
 
 
 type Props = {
@@ -42,7 +43,7 @@ export default function CommentList({currentUser}: Props) {
     // console.log(commentTree)
     const tmpComments = structuredClone(commentTree);
     if (newComment.parentCommentId == null) {
-      return [...tmpComments, newComment];
+      return [newComment, ...tmpComments];
     }
     const insertRecursive = (comments: Comment[]): boolean => {
       for (const comment of comments) {
@@ -106,14 +107,14 @@ export default function CommentList({currentUser}: Props) {
     if (id && content.trim()) {
       // console.log("Sending comment:", content, "Product ID:", id);
       if (!parentId) {
-        const result = await CommentSignalRService.sendComment(id, content);
+        const result = await CommentSignalRService.sendComment(id, ReferenceTypes.Product, content);
         //send noti to admin group
         //send noti to personal user id (not me)
         //will check and send in commentitem (has parent comment id, and user that commented)
         return result as string;
       }
       else{
-        const result = await CommentSignalRService.sendComment(id, content, parentId);
+        const result = await CommentSignalRService.sendComment(id, ReferenceTypes.Product, content, parentId);
         return result as string;
       }
     }

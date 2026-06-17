@@ -1,9 +1,9 @@
 import { createContext, useContext } from "react";
-import { Notification } from "../../lib/types";
+import { UserNotification } from "../../lib/types";
 
 type NotificationContextType = {
-  allNotifications: Notification[];
-  onlineNotifications: Notification[];
+  myNotifications: UserNotification[];
+  onlineNotifications: UserNotification[];
 };
 
 export const NotificationContext = createContext<NotificationContextType | null>(null);

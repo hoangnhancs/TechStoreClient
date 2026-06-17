@@ -1,12 +1,12 @@
 import { Box, Typography } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications"; // hoặc thay bằng icon khác
-import { Notification } from "../../lib/types";
+import { UserNotification } from "../../lib/types";
 import { useNavigate } from "react-router";
 import { formatVNDate } from "../../lib/util/util";
 import { NotificationSignalRService } from "../../app/api/notificationSignalRService";
 
 interface Props {
-  notification: Notification
+  notification: UserNotification
 }
 
 const NotificationItem = ({ notification }: Props) => {
@@ -49,7 +49,7 @@ const NotificationItem = ({ notification }: Props) => {
       </Box>
 
       {/* Title */}
-      <Typography sx={{ fontWeight: 600, fontSize: 14 }}>{notification.senderName}</Typography>
+      <Typography sx={{ fontWeight: 600, fontSize: 14 }}>{notification.senderDisplayName}</Typography>
 
       {/* Message */}
       <Typography sx={{ fontSize: 13, opacity: 0.85 }}>{notification.message}</Typography>

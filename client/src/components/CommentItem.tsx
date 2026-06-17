@@ -2,10 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Box, Typography, Button, TextField, Avatar, Stack } from "@mui/material";
 import { Comment, User } from '../lib/types';
 import LoginPromptDialog from './LoginPromptDialog';
-import { NotificationSignalRService } from '../app/api/notificationSignalRService';
-import { useLocation } from 'react-router';
-import { useNotificationContext } from '../app/context/notificationContext';
-import { toast } from 'react-toastify';
+// import { useLocation } from 'react-router';
+// import { toast } from 'react-toastify';
 import { formatVNDate } from '../lib/util/util';
 
 
@@ -30,32 +28,17 @@ const CommentItem: React.FC<Props> = React.memo(({
   const [replyContent, setReplyContent] = useState('');
   const [isOpenReply, setOpenReply] = useState<boolean>(false);
   const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
-  const location = useLocation();
-  const { adminGroup } = useNotificationContext();
+  // const location = useLocation();
   
-  const isOwnComment = currentUser && currentUser.id === comment.user?.id;
+  const isOwnComment = currentUser && currentUser.id === comment.userId;
   const handleSendReply = async () => {
-    const commentId = await onSendReply(replyContent, comment.id);
-    if (currentUser?.id.toString() !== comment.user.id.toString()) {
-      if (comment.isAdminComment) {
-        if (!currentUser?.isAdmin) {
-          if (adminGroup) {
-            NotificationSignalRService
-            .sendNotification("Bình luận mới", replyContent, location.pathname, undefined, 
-              adminGroup?.id, currentUser?.id || "", commentId, undefined, "Comment");
-          } else {
-            toast.error("Admin group not found");
-          }
-        }
-      }
-      else {
-        NotificationSignalRService
-          .sendNotification("Bình luận mới", replyContent, location.pathname, comment.user.id, undefined, 
-            currentUser?.id || "", commentId, undefined, "Comment");
-      }   
-    }
-    setReplyContent('');
+    try {
+      await onSendReply(replyContent, comment.id);
+          setReplyContent('');
     setOpenReply(false);
+    } catch (error) {
+      console.error("Error sending reply: ", error);
+    }
   }
   const isDrafting = useRef(false);
   useEffect(() => {
@@ -122,16 +105,16 @@ const CommentItem: React.FC<Props> = React.memo(({
         {/* Header: Avatar + User Info */}
         <Stack direction="row" spacing={1} alignItems="center" mb={1}>
           <Avatar 
-            src={comment.user?.imageUrl} 
-            alt={comment.user?.displayName || 'Unknown'}
+            src={comment.userImageUrl || undefined} 
+            alt={comment.userDisplayName || 'Người dùng ẩn'}
             sx={{ width: 38, height: 38 }}
           >
-            {comment.user?.displayName?.[0] || '?'}
+            {comment.userDisplayName?.[0] || '?'}
           </Avatar>
           
           <Box>
             <Typography variant="subtitle2" fontWeight="bold">
-              {comment.user?.displayName || 'Người dùng ẩn'}
+              {comment.userDisplayName || 'Người dùng ẩn'}
             </Typography>
             
             <Typography variant="caption" color="text.secondary">

@@ -8,9 +8,6 @@ import StarIcon from '@mui/icons-material/Star';
 import AddProductReviewPrompt from "../../components/AddProductReviewPrompt"
 import LoginPromptDialog from "../../components/LoginPromptDialog"
 import ReviewItem from "../../components/ReviewItem"
-import { NotificationSignalRService } from "../../app/api/notificationSignalRService"
-import { useNotificationContext } from "../../app/context/notificationContext"
-import { toast } from "react-toastify"
 
 type Props = {
     productName: string
@@ -25,7 +22,6 @@ export default function ReviewList({ productName, currentUser }: Props) {
     const [openAddReview, setOpenAddReview] = useState(false)
     const [openLoginPrompt, setOpenLoginPrompt] = useState(false)
     const [displayedReviews, setDisplayedReviews] = useState<Review[]>([])
-    const { adminGroup } = useNotificationContext();
     const [searchParams] = useSearchParams();
     const reviewId = searchParams.get("reviewId");
     // console.log("list reviews:", reviews)
@@ -134,13 +130,11 @@ export default function ReviewList({ productName, currentUser }: Props) {
     }, [selectedFilterTag, reviews]);
 
     const handleAddReview = async (productId: string, review: string, rating: number) => {
-        const reviewId = await ReviewSignalRService.sendReview(productId, review, rating)
+        await ReviewSignalRService.sendReview(productId, review, rating)
         setOpenAddReview(false)
-        if (adminGroup) {
-            await NotificationSignalRService.sendNotification("Đánh giá mới", review, location.pathname, undefined, adminGroup?.id, currentUser?.id || "", undefined, reviewId, "Review");
-        } else {
-            toast.error("Admin group not found");
-        }
+
+        // await NotificationSignalRService.sendNotification("Đánh giá mới", review, location.pathname, undefined, adminGroup?.id, currentUser?.id || "", undefined, reviewId, "Review");
+
     }
 
     const handleOpenAddNewReviewPrompt = () => {

@@ -250,14 +250,19 @@ export type Comment = {
   content: string;
   isVisible: boolean;
   isEdited: boolean;
-  user: User;
-  productId: string;
+  // user: User;
+  userId: string;
+  userName: string | null;
+  userDisplayName: string | null;
+  userImageUrl: string | null;
+  referenceId: string;
+  referenceType: string;
   parentCommentId?: string | null;
   isAdminComment: boolean;
   hasAdminReply: boolean;
   createdAt: Date;
   updatedAt: Date;
-  canReply: boolean;
+  // canReply: boolean;
   replies: Comment[];
 };
 
@@ -332,14 +337,42 @@ export type Notification = {
   referenceType: string;
   parentReferenceId: string;
   parentReferenceType: string;
-  isRead: boolean;
-  receiverId: string;
-  groupId: string;
+  recipients: NotificationRecipient[];
   senderId: string;
   senderName: string;
   senderImageUrl: string;
-  type: string;
   createdAt: Date;
+}
+
+export type UserNotification = {
+  id: string;
+  title: string;
+  message: string;
+  link: string;
+  category: string;
+  type: string;
+  referenceId: string;
+  referenceType: string;
+  parentReferenceId: string;
+  parentReferenceType: string;
+  senderId: string;
+  senderName: string;
+  senderDisplayName: string;
+  senderImageUrl: string;
+  isRead: boolean;
+  readAt?: Date | null;
+  sentAt: Date;
+  createdAt: Date;
+}
+
+export type NotificationRecipient = {
+  id: number;
+  notificationId: string;
+  notification?: Notification;
+  userId: string;
+  isRead: boolean;
+  readAt?: string | null;
+  sentAt: string;
 }
 
 export type NotificationGroup = {
@@ -364,4 +397,11 @@ export type OrderNotification = {
     orderId?: string; //neu k fail o order ma fail o service khác
     userId: string;
     errorMessage?: string; //neu fail o order
+}
+
+export enum ReferenceTypes {
+    Product = "Product",
+    Comment = "Comment",
+    Review = "Review",
+    Order = "Order",
 }

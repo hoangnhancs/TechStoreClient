@@ -17,14 +17,14 @@ export default function ReviewItem({ review }: Props) {
         <Box display={"flex"} id={review.id} sx={{ p: 1 }}>
             <Stack direction={"row"} spacing={2} alignItems="center" sx={{ width: 200 }} >
                 <Avatar 
-                    src={review.user?.imageUrl} 
-                    alt={review.user?.displayName || 'Unknown'}
+                    src={review.userImageUrl} 
+                    alt={review.userDisplayName || 'Unknown'}
                     sx={{ width: 35, height: 35 }}
                 >
-                    {review.user?.displayName?.[0] || '?'}
+                    {review.userDisplayName?.[0] || '?'}
                 </Avatar>
                 <Typography variant="body1" sx={{ ml: 2}}>
-                    {review.user?.displayName || 'Người dùng ẩn'}
+                    {review.userDisplayName || 'Người dùng ẩn'}
                 </Typography>
             </Stack>
             <Box display={"flex"} flexDirection={"column"} ml={5} mt={1}>

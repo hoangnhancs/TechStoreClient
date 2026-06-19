@@ -143,6 +143,19 @@ export type Order = {
   statusHistories?: OrderStatusHistory[];
 };
 
+export type UserInforDto = {
+  userId: string;
+  userName: string;
+  userDisplayName: string;
+  userEmail: string;
+  userImageUrl: string;
+  totalSpent: number;
+}
+
+export type OrderWithUserInforDto = Order & {
+  userInfor: UserInforDto;
+};
+
 export type CreateOrderInput = {
   shippingAddress?: string | null;
   billingAddress?: string | null;

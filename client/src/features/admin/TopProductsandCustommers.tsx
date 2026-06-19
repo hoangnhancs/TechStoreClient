@@ -1,9 +1,9 @@
 import { Avatar, Box, Divider, Grid, Paper, styled, Typography } from "@mui/material";
-import { Order } from "../../lib/types";
+import { OrderWithUserInforDto, UserInforDto } from "../../lib/types";
 import { formatCurrency } from "../../lib/util/util";
 
 type Props = {
-    orders: Order[];
+    orders: OrderWithUserInforDto[];
 }
 
 const StyledGridItem = styled(Grid)(() => ({
@@ -35,14 +35,14 @@ export default function TopProductsandCustommers({ orders }: Props) {
         return sortedProducts.slice(0, 5);
     }
     const topCustommers = () => {
-        const custommerSales = orders.reduce((acc: Record<string, {custommer: string, totalOrders: number, totalSpent: number}>, order) => {
+        const custommerSales = orders.reduce((acc: Record<string, {custommer: UserInforDto, totalOrders: number, totalSpent: number}>, order) => {
             order.items.forEach(orderItem => {
-                if (!acc[order.userId]) {
-                    acc[order.userId] = { custommer: order.userId, totalOrders: 0, totalSpent: 0 };
+                if (!acc[order.userInfor?.userId]) {
+                    acc[order.userInfor?.userId] = { custommer: order.userInfor, totalOrders: 0, totalSpent: 0 };
                 }
-                acc[order.userId].totalSpent += orderItem.unitPrice * orderItem.quantity;
+                acc[order.userInfor?.userId].totalSpent += orderItem.unitPrice * orderItem.quantity;
             })
-            acc[order.userId].totalOrders += 1;  
+            acc[order.userInfor?.userId].totalOrders += 1;  
             return acc;
         }, {})
         const sortedCustommers = Object.values(custommerSales).sort((a, b) => b.totalSpent - a.totalSpent);
@@ -158,16 +158,16 @@ export default function TopProductsandCustommers({ orders }: Props) {
                             }}>
                             <StyledGridItem size={5.5} display={"flex"} alignItems="center" gap={1} sx={{ justifyContent: "unset" }}> 
                                 <Avatar
-                                    src={topCustommer.custommer.imageUrl}
-                                    alt={topCustommer.custommer.displayName}
+                                    src={topCustommer.custommer?.userImageUrl}
+                                    alt={topCustommer.custommer?.userDisplayName}
                                 />
                                 <Typography variant="body1">
-                                    {topCustommer.custommer.displayName}
+                                    {topCustommer.custommer?.userDisplayName}
                                 </Typography>
                             </StyledGridItem>
                             <StyledGridItem size={3.5} >
                                 <Typography>
-                                    {topCustommer.custommer.id.toUpperCase()}
+                                    {topCustommer.custommer?.userId?.toUpperCase()}
                                 </Typography>
                             </StyledGridItem>
                             <StyledGridItem size={1.5} >

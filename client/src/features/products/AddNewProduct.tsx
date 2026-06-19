@@ -62,8 +62,12 @@ export default function AddNewProduct() {
   const selectedCategoryId = useWatch({ control, name: "categoryId" });
   useEffect(() => {
     setValue("productFilterTagValues", []);
-    setValue("brandId", '');
-  }, [selectedCategoryId, setValue]);
+
+    // Chỉ reset brand khi tạo mới hoặc khi user đổi category
+    if (!id) {
+      setValue("brandId", "");
+    }
+  }, [selectedCategoryId, setValue, id]);
 
   // Lọc filter tags theo category
   const [filters, setFilters] = useState<FilterTag[]>([]);

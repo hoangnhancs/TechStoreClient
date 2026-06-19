@@ -5,7 +5,6 @@
     import { useEffect, useState } from "react";
     import { useGetListOrdersInDateRangeQuery } from "../../app/api/orderApi";
     import { useAppDispatch, useAppSelector } from "../../hooks";
-    import { User } from "../../lib/types";
     import { setAnalysStartDate, setAnalysEndDate } from "../order/orderSlice";
     import { useCountUp } from "../../app/hooks/useCountUp";
     import AnalystCard from "./AnalystCard";
@@ -14,18 +13,19 @@
     import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
     import SalesChart from "./SalesChart";
     import { formatCurrency } from "../../lib/util/util";
+import { UserInforDto } from "../../lib/types";
 
     export default function AnalystPage() {
         const dispatch = useAppDispatch();
         const { analysStartDate: startDate, analysEndDate: endDate } = useAppSelector(state => state.order);
         const [ selectedStartDate, setSelectedStartDate ] = useState(startDate);
         const [ selectedEndDate, setSelectedEndDate ] = useState(endDate);
-        const [ custommers, setCustommers ] = useState<User[]>([]); // Placeholder for customers data
+        const [ custommers, setCustommers ] = useState<UserInforDto[]>([]); // Placeholder for customers data
         const { data: orders, isLoading: isLoadingGetOrders } = useGetListOrdersInDateRangeQuery({ startDate: startDate, endDate: endDate});
         useEffect(() => {
-            const tmpCustommers = orders?.reduce((acc: User[], order) => {
-            if (order.user && !acc.some(u => u.id === order.user.id)) {
-                acc.push(order.user);
+            const tmpCustommers = orders?.reduce((acc: UserInforDto[], order) => {
+            if (order.userInfor && !acc.some(u => u.userId === order.userInfor.userId)) {
+                acc.push(order.userInfor);
             }
             return acc;
             }, []);

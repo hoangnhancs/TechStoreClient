@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithErrorHandling } from "./baseApi";
-import { CreateOrderInput, Order } from "../../lib/types";
+import { CreateOrderInput, Order, OrderWithUserInforDto } from "../../lib/types";
 import { LoadingPriority } from "../../layouts/uiSlice";
 import { productApi } from "./productApi";
 
@@ -59,7 +59,7 @@ export const orderApi = createApi({
       }),
       providesTags: (_, __, orderId) => [{ type: "Order", id: orderId }],
     }),
-    getListOrdersInDateRange: builder.query<Order[], { startDate: string; endDate: string }>({
+    getListOrdersInDateRange: builder.query<OrderWithUserInforDto[], { startDate: string; endDate: string }>({
       query: ({ startDate, endDate }) => ({
         url: "/orders/list-orders?startDate=" + startDate + "&endDate=" + endDate,
         method: "GET",

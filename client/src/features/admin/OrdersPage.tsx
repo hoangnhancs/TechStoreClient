@@ -150,11 +150,11 @@ export default function OrdersPage() {
           >
             <StyledGridItem size={1.5} display={"flex"} alignItems="center" gap={1} sx={{ justifyContent: "unset" }}> 
               <Avatar
-                src={order.user.imageUrl}
-                alt={order.user.displayName}
+                src={order.userInfor.userImageUrl}
+                alt={order.userInfor.userDisplayName}
               />
               <StyledTypography variant="body1">
-                {order.user.displayName}
+                {order.userInfor.userDisplayName}
               </StyledTypography>
             </StyledGridItem>
             

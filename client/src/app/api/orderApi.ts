@@ -61,7 +61,7 @@ export const orderApi = createApi({
     }),
     getListOrdersInDateRange: builder.query<OrderWithUserInforDto[], { startDate: string; endDate: string }>({
       query: ({ startDate, endDate }) => ({
-        url: "/orders/list-orders?startDate=" + startDate + "&endDate=" + endDate,
+        url: "/orders/range?startDate=" + startDate + "&endDate=" + endDate,
         method: "GET",
       }),
       providesTags: (result) => result ? 

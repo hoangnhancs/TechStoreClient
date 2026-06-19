@@ -1,5 +1,5 @@
 import { Avatar, Box, Divider, Grid, Paper, styled, Typography } from "@mui/material";
-import { Order, User } from "../../lib/types";
+import { Order } from "../../lib/types";
 import { formatCurrency } from "../../lib/util/util";
 
 type Props = {
@@ -35,14 +35,14 @@ export default function TopProductsandCustommers({ orders }: Props) {
         return sortedProducts.slice(0, 5);
     }
     const topCustommers = () => {
-        const custommerSales = orders.reduce((acc: Record<string, {custommer: User, totalOrders: number, totalSpent: number}>, order) => {
+        const custommerSales = orders.reduce((acc: Record<string, {custommer: string, totalOrders: number, totalSpent: number}>, order) => {
             order.items.forEach(orderItem => {
-                if (!acc[order.user.id]) {
-                    acc[order.user.id] = { custommer: order.user, totalOrders: 0, totalSpent: 0 };
+                if (!acc[order.userId]) {
+                    acc[order.userId] = { custommer: order.userId, totalOrders: 0, totalSpent: 0 };
                 }
-                acc[order.user.id].totalSpent += orderItem.unitPrice * orderItem.quantity;
+                acc[order.userId].totalSpent += orderItem.unitPrice * orderItem.quantity;
             })
-            acc[order.user.id].totalOrders += 1;  
+            acc[order.userId].totalOrders += 1;  
             return acc;
         }, {})
         const sortedCustommers = Object.values(custommerSales).sort((a, b) => b.totalSpent - a.totalSpent);

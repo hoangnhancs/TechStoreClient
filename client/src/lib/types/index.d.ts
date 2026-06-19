@@ -120,7 +120,7 @@ export type OrderStatusHistory = {
   note: string | null;
   changeBy: string;
   changedAt: Date;
-  note?: string | null;
+  // note?: string | null;
 };
 
 export type Order = {
@@ -164,13 +164,6 @@ export type Item = {
   categoryName: string;
   categoryDisplayName: string;
 };
-
-export type Category = {
-  id: number;
-  name: string;
-  imageUrl: string | null;
-  description: string | null;
-}
 
 export type OrderItem = {
   productId: string;

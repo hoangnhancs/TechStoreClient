@@ -18,13 +18,13 @@ import { PaymentSignalRService } from "../api/paymentSignalRService";
 export const useOrderProcessing = () => {
   const shippingCost = 1000;
   const discount = 3000;
-  const paymentIntentTimeoutMs = 300000;
+  const paymentIntentTimeoutMs = 30000;
   // const orderNotificationTimeoutMs = 150000;
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { basket, selectedItems } = useAppSelector((state) => state.basket);
-  const [createOrder] = useCreateOrderMutation();
+  const [createOrder, { isLoading: isCreatingOrder }] = useCreateOrderMutation();
   const [completePayment] = useCompletePaymentMutation();
   // const [createPayment] = useCreatePaymentMutation();
   const [removePermanentlyBasketItems] =
@@ -36,6 +36,7 @@ export const useOrderProcessing = () => {
     isValid: false,
   });
   const [currentAddress, setCurrentAddress] = useState<Address | null>(null);
+  const [orderFailedDialogOpen, setOrderFailedDialogOpen] = useState(false);
 
   const getTotalPrice = () => {
     let total = 0;
@@ -195,11 +196,17 @@ export const useOrderProcessing = () => {
       // Saga: StockReserved → CreatePayment → PaymentCreated → WaitingForPayment
       // Receiving clientSecret means stock was reserved and payment intent was created successfully.
       // If payment creation fails, the saga sends OrderNotification(IsSuccess=false) and we'll timeout here.
-      const clientSecret = await getPaymentIntentFromPaymentHub(order.id);
+      let clientSecret: string;
+      try {
+        clientSecret = await getPaymentIntentFromPaymentHub(order.id);
+      } catch {
+        setOrderFailedDialogOpen(true);
+        return;
+      }
 
       // Step 3: Confirm card payment with Stripe
       const { paymentIntent, error } = await stripe.confirmCardPayment(
-        clientSecret,
+        clientSecret!,
         {
           payment_method: {
             card: cardElement,
@@ -300,6 +307,10 @@ export const useOrderProcessing = () => {
     }
   };
 
+  const handleOrderFailedDialogClose = () => {
+    setOrderFailedDialogOpen(false);
+  };
+
   const isCanCompleteOrder = () => {
     if (
       currentPaymentInfor.paymentMethod === "CreditCard" &&
@@ -325,6 +336,8 @@ export const useOrderProcessing = () => {
     currentStep,
     selectedItems,
     basket,
+    orderFailedDialogOpen,
+    isCreatingOrder,
 
     // Constants
     shippingCost,
@@ -338,6 +351,7 @@ export const useOrderProcessing = () => {
     handleAddressChange,
     handleCreateOrder,
     handleCreateOrderAndPayment,
+    handleOrderFailedDialogClose,
     isCanCompleteOrder,
     completePayment,
   };

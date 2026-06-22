@@ -33,6 +33,7 @@ import ProductsPage from "../features/admin/ProductsPage";
 import InventoryPage from "../features/admin/InventoryPage";
 import NotificationPage from "../features/notification/NotificationPage";
 import FlashSalesManagementPage from "../features/admin/FlashSalesManagementPage";
+import ConfirmOrdersPage from "../features/admin/ConfirmOrdersPage";
 import ProductListBySearch from "../features/products/ProductListBySearch";
 
 export const router = createBrowserRouter([
@@ -63,7 +64,8 @@ export const router = createBrowserRouter([
                             {path: 'products/manage/:id', element: <AddNewProduct />},
                             {path: 'inventory', element: <InventoryPage />},
                             {path: 'notifications', element: <NotificationPage />},
-                            {path: 'flash-sales', element: <FlashSalesManagementPage />}
+                            {path: 'flash-sales', element: <FlashSalesManagementPage />},
+                            {path: 'confirm-orders', element: <ConfirmOrdersPage />}
                         ]
                     },
                 ]}

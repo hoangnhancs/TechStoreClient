@@ -20,6 +20,7 @@ import {
   Widgets,
   Category,
   History,
+  AssignmentTurnedIn,
 } from "@mui/icons-material";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -72,6 +73,10 @@ export default function Sidebar() {
                         <ListItemButton sx={{ pl: 4 }} component={Link} to="/dashboard/orders">
                             <ListItemIcon><History /></ListItemIcon>
                             <ListItemText primary="Order History" />
+                        </ListItemButton>
+                        <ListItemButton sx={{ pl: 4 }} component={Link} to="/dashboard/confirm-orders">
+                            <ListItemIcon><AssignmentTurnedIn /></ListItemIcon>
+                            <ListItemText primary="Xác nhận đơn hàng" />
                         </ListItemButton>
                         <ListItemButton sx={{ pl: 4 }} component={Link} to="/dashboard/products">
                             <ListItemIcon><ShoppingCart /></ListItemIcon>

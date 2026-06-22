@@ -1,11 +1,11 @@
 import { Box, Paper, Typography } from "@mui/material";
 import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Order } from "../../lib/types";
+import { OrderWithUserInforDto } from "../../lib/types";
 import React from "react";
 import { formatCurrency } from "../../lib/util/util";
 
 type SalesChartProps = {
-  orders: Order[];
+  orders: OrderWithUserInforDto[];
 };
 
 const SalesChart = React.memo(function SalesChart({ orders }: SalesChartProps) {

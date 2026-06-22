@@ -29,21 +29,22 @@ export const orderApi = createApi({
         body: input,
       }),
       invalidatesTags: [{ type: "Order", id: "LIST" }],
-      extraOptions: { loadingPriority: LoadingPriority.HIGH }, // Set loading priority for this mutation
-      async onQueryStarted(arg, {dispatch, queryFulfilled}) {
+      extraOptions: { loadingPriority: LoadingPriority.HIGH },
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled;
           if (data.status === "Completed") {
             const productIds = arg.items.map((item) => item.productId);
             dispatch(
-            productApi.util.invalidateTags([
-              ...productIds.map((id) => ({ type: "Product" as const, id })),
-            ]));
+              productApi.util.invalidateTags([
+                ...productIds.map((id) => ({ type: "Product" as const, id })),
+              ])
+            );
           }
         } catch (error) {
           console.error("Error creating order:", error);
         }
-      }
+      },
     }),
     getOrderDetails: builder.query<Order, string>({
       query: (orderId) => ({
@@ -59,16 +60,44 @@ export const orderApi = createApi({
       }),
       providesTags: (_, __, orderId) => [{ type: "Order", id: orderId }],
     }),
-    getListOrdersInDateRange: builder.query<OrderWithUserInforDto[], { startDate: string; endDate: string }>({
+    getListOrdersInDateRange: builder.query<
+      OrderWithUserInforDto[],
+      { startDate: string; endDate: string }
+    >({
       query: ({ startDate, endDate }) => ({
         url: "/orders/range?startDate=" + startDate + "&endDate=" + endDate,
         method: "GET",
       }),
-      providesTags: (result) => result ? 
-        [...result.map((order) => 
-          ({ type: "Order" as const, id: order.id })),
-          { type: "Order", id: "LIST" }
-        ] : [{ type: "Order", id: "LIST" }]
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map((order) => ({
+                type: "Order" as const,
+                id: order.id,
+              })),
+              { type: "Order", id: "LIST" },
+            ]
+          : [{ type: "Order", id: "LIST" }],
+    }),
+    getOrdersWaitingForConfirmation: builder.query<OrderWithUserInforDto[], void>({
+      query: () => ({ url: "/orders/wait-confirm-order", method: "GET" }),
+      providesTags: (result) =>
+        result
+          ? [
+              ...result.map((order) => ({ type: "Order" as const, id: order.id })),
+              { type: "Order", id: "WAITING_CONFIRM" },
+            ]
+          : [{ type: "Order", id: "WAITING_CONFIRM" }],
+    }),
+    confirmOrder: builder.mutation<void, string>({
+      query: (orderId) => ({
+        url: `/orders/${orderId}/confirm-cod`,
+        method: "POST",
+      }),
+      invalidatesTags: (_, __, orderId) => [
+        { type: "Order", id: orderId },
+        { type: "Order", id: "WAITING_CONFIRM" },
+      ],
     }),
   }),
 });
@@ -80,4 +109,6 @@ export const {
   useGetOrderDetailsWithHistoryAndShipmentQuery,
   useGetListOrdersInDateRangeQuery,
   useLazyGetListOrdersInDateRangeQuery,
+  useGetOrdersWaitingForConfirmationQuery,
+  useConfirmOrderMutation,
 } = orderApi;

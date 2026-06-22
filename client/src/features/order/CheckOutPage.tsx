@@ -12,6 +12,7 @@ import { stripePromise } from "../../app/stripe/stripePromise";
 import { useFetchAddressQuery } from "../../app/api/addressApi";
 import LoadingComponent from "../../components/LoadingComponent";
 import { formatCurrency } from "../../lib/util/util";
+import YesNoDialog from "../../components/YesNoDialog";
 
 
 const SummarySection = styled(Paper)(({ theme }) => ({
@@ -44,6 +45,9 @@ export default function CheckOutPage() {
         handlePaymentInforChange,
         handleAddressChange,
         handleCreateOrderAndPayment,
+        handleOrderFailedDialogClose,
+        orderFailedDialogOpen,
+        isCreatingOrder,
         isCanCompleteOrder,
     } = useOrderProcessing();
     const { data: addresses } = useFetchAddressQuery()
@@ -162,8 +166,23 @@ export default function CheckOutPage() {
             </Grid>
             
             <Grid size={4}>
-                <OrderSummary isCanCompleteOrder={isCanCompleteOrder()} onCreateAndPaymentOrder={handleCreateOrderAndPayment} />
+                <OrderSummary
+                    isCanCompleteOrder={isCanCompleteOrder()}
+                    isCreatingOrder={isCreatingOrder}
+                    onCreateAndPaymentOrder={handleCreateOrderAndPayment}
+                />
             </Grid>
+
+            <YesNoDialog
+                open={orderFailedDialogOpen}
+                onClose={handleOrderFailedDialogClose}
+                onOk={handleOrderFailedDialogClose}
+                type="error"
+                title="Đặt hàng không thành công"
+                description="Hệ thống không nhận được xác nhận thanh toán. Vui lòng thử lại hoặc chọn phương thức thanh toán khác."
+                okText="Thử lại"
+                cancelText="Đóng"
+            />
         </Grid>
     )
 }

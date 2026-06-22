@@ -48,6 +48,7 @@ export default function TopProductsandCustommers({ orders }: Props) {
         const sortedCustommers = Object.values(custommerSales).sort((a, b) => b.totalSpent - a.totalSpent);
         return sortedCustommers.slice(0, 5);
     }
+    console.log(topCustommers())
     return (
         <Box display={"flex"} flexDirection={"column"} gap={0.5}>
             {/* Top product section */}
@@ -149,6 +150,7 @@ export default function TopProductsandCustommers({ orders }: Props) {
                         </StyledGridItem>
                     </Grid>  
                     <Divider sx={{ borderBottomWidth: 3 }} /> 
+   
                     {topCustommers().map((topCustommer, index) => (
                         <Grid container key={index} 
                             sx={{ 
@@ -158,11 +160,11 @@ export default function TopProductsandCustommers({ orders }: Props) {
                             }}>
                             <StyledGridItem size={5.5} display={"flex"} alignItems="center" gap={1} sx={{ justifyContent: "unset" }}> 
                                 <Avatar
-                                    src={topCustommer.custommer?.userImageUrl}
-                                    alt={topCustommer.custommer?.userDisplayName}
+                                    src={topCustommer.custommer?.imageUrl}
+                                    alt={topCustommer.custommer?.displayName}
                                 />
                                 <Typography variant="body1">
-                                    {topCustommer.custommer?.userDisplayName}
+                                    {topCustommer.custommer?.displayName}
                                 </Typography>
                             </StyledGridItem>
                             <StyledGridItem size={3.5} >

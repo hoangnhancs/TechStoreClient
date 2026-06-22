@@ -48,6 +48,7 @@ export const basketSlice = createSlice({
 
     addItem: (state, action: { payload: Item }) => {
       const newItem = action.payload;
+      // if (!state.basket.items) state.basket.items = [];
       const existingItemInBasket = state.basket.items.find(
         (item) => item.productId === newItem.productId
       );

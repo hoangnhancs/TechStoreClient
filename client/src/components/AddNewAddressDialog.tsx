@@ -1,313 +1,462 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, MenuItem, Select, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  Checkbox,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Grid,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Checkbox } from "@mui/material";
 import { Address, District, Province, Ward } from "../lib/types";
-import { useCreateAddressMutation, useUpdateAddressMutation } from "../app/api/addressApi";
+import {
+  useCreateAddressMutation,
+  useUpdateAddressMutation,
+} from "../app/api/addressApi";
 
 type Props = {
-    open: boolean,
-    onClose: () => void
-    mode: "add" | "update"
-    selectedAddress: Address | null
-    inputWards: Ward[] | null
-    inputDistricts: District[] | null
-    inputProvinces: Province[] | null
-    canDisableDefaultAddress: boolean
-    onClearDialogData?: () => void
-    // onRefetchAddresses: () => void
-}
+  open: boolean;
+  onClose: () => void;
+  mode: "add" | "update";
+  selectedAddress: Address | null;
+  inputWards: Ward[] | null;
+  inputDistricts: District[] | null;
+  inputProvinces: Province[] | null;
+  canDisableDefaultAddress: boolean;
+  onClearDialogData?: () => void;
+};
 
-export default function AddNewAddressDialog({ open, onClose, mode, selectedAddress, inputProvinces, 
-    inputDistricts, inputWards, canDisableDefaultAddress, onClearDialogData}: Props ) {
-    const API_URL = import.meta.env.VITE_API_URL;
-    const [form, setForm] = useState<Address>({
-        fullName: "",
-        phoneNumber: "",
-        province: "",
-        district: "",
-        ward: "",
-        detailAddress: "",
-        isDefault: false
-    });
+type AddressForm = {
+  fullName: string;
+  phoneNumber: string;
+  provinceId: string;
+  districtId: string;
+  wardCode: string;
+  detailAddress: string;
+  isDefault: boolean;
+};
 
-    const [tracking, setTracking] = useState(0);
-    const [provinces, setProvinces] = useState<Province[]>(inputProvinces || []);
-    const [districts, setDistricts] = useState<District[]>(inputDistricts || []);
-    const [wards, setWards] = useState<Ward[]>(inputWards || []);
+const emptyForm: AddressForm = {
+  fullName: "",
+  phoneNumber: "",
+  provinceId: "",
+  districtId: "",
+  wardCode: "",
+  detailAddress: "",
+  isDefault: false,
+};
 
+export default function AddNewAddressDialog({
+  open,
+  onClose,
+  mode,
+  selectedAddress,
+  inputProvinces,
+  inputDistricts,
+  inputWards,
+  canDisableDefaultAddress,
+  onClearDialogData,
+}: Props) {
+  const API_URL = import.meta.env.VITE_API_URL;
 
-    const [updateAddress, { isLoading: isLoadingUpdateAddress }] = useUpdateAddressMutation();
-    const [addAddress, { isLoading: isLoadingAddAddress }] = useCreateAddressMutation();
+  const [form, setForm] = useState<AddressForm>(emptyForm);
+  const [provinces, setProvinces] = useState<Province[]>(inputProvinces ?? []);
+  const [districts, setDistricts] = useState<District[]>(inputDistricts ?? []);
+  const [wards, setWards] = useState<Ward[]>(inputWards ?? []);
 
-    useEffect(() => {
-        axios.get(`${API_URL}/address/provinces`, 
-                {withCredentials: true,}) //important to get the data from the API GHN
-            .then((response) => {
-            setProvinces(response.data.data);
-        });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+  const [createAddress, { isLoading: isCreating }] = useCreateAddressMutation();
+  const [updateAddress, { isLoading: isUpdating }] = useUpdateAddressMutation();
 
+  const isSaving = isCreating || isUpdating;
 
-    useEffect(() => {
-  
-        if (mode === "update" && selectedAddress && tracking === 0 && provinces.length > 0) {
-            const provinceId = provinces.find((p) => p.ProvinceName === selectedAddress.province)?.ProvinceID;
-            const districtId = districts.find((d) => d.DistrictName === selectedAddress.district)?.DistrictID;
-            const wardCode = wards.find((w) => w.WardName === selectedAddress.ward)?.WardCode;
-            setForm({
-                fullName: selectedAddress.fullName || "",
-                phoneNumber: selectedAddress.phoneNumber || "",
-                province: provinceId,
-                district: districtId,
-                ward: wardCode || "",
-                detailAddress: selectedAddress.detailAddress || "",
-                isDefault: selectedAddress.isDefault || false,
-            });
-            setTracking(1);
-        };
-    }, [mode, selectedAddress, provinces, districts, wards, tracking]);
+  const selectedProvince = useMemo(
+    () => provinces.find((x) => x.provinceID?.toString() === form.provinceId),
+    [provinces, form.provinceId]
+  );
 
-    useEffect(() => {
-        if (open && !canDisableDefaultAddress) {
-            setForm(prev => ({ ...prev, isDefault: true }));
-        }
-    }, [open, mode, canDisableDefaultAddress]);
+  const selectedDistrict = useMemo(
+    () => districts.find((x) => x.districtID?.toString() === form.districtId),
+    [districts, form.districtId]
+  );
 
-    const canSubmit = Boolean(
-        form.fullName &&
-        form.phoneNumber &&
-        form.province &&
-        form.district &&
-        form.ward &&
-        form.detailAddress
+  const selectedWard = useMemo(
+    () => wards.find((x) => x.wardCode?.toString() === form.wardCode),
+    [wards, form.wardCode]
+  );
+
+  const canSubmit = Boolean(
+    form.fullName &&
+      form.phoneNumber &&
+      form.provinceId &&
+      form.districtId &&
+      form.wardCode &&
+      form.detailAddress
+  );
+
+  const fetchProvinces = useCallback(async () => {
+    try {
+      const response = await axios.get<Province[]>(
+        `${API_URL}/address/provinces`,
+        { withCredentials: true }
+      );
+
+      setProvinces(response.data);
+    } catch (err) {
+      console.error("Failed to fetch provinces", err);
+      setProvinces([]);
+    }
+  }, [API_URL]);
+
+  const fetchDistricts = useCallback(
+    async (provinceId: string) => {
+      try {
+        const response = await axios.get<District[]>(
+          `${API_URL}/address/districts?provinceId=${provinceId}`,
+          { withCredentials: true }
+        );
+
+        setDistricts(response.data);
+      } catch (err) {
+        console.error("Failed to fetch districts", err);
+        setDistricts([]);
+      }
+    },
+    [API_URL]
+  );
+
+  const fetchWards = useCallback(
+    async (districtId: string) => {
+      try {
+        const response = await axios.get<Ward[]>(
+          `${API_URL}/address/wards?districtId=${districtId}`,
+          { withCredentials: true }
+        );
+
+        setWards(response.data);
+      } catch (err) {
+        console.error("Failed to fetch wards", err);
+        setWards([]);
+      }
+    },
+    [API_URL]
+  );
+
+  useEffect(() => {
+    if (!open) return;
+
+    if (inputProvinces?.length) {
+      setProvinces(inputProvinces);
+      return;
+    }
+
+    fetchProvinces();
+  }, [open, inputProvinces, fetchProvinces]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    if (mode === "add") {
+      setForm({
+        ...emptyForm,
+        isDefault: !canDisableDefaultAddress,
+      });
+      setDistricts(inputDistricts ?? []);
+      setWards(inputWards ?? []);
+      return;
+    }
+
+    if (mode === "update" && selectedAddress) {
+      const province = provinces.find(
+        (x) => x.code?.toString() === selectedAddress.provinceCode?.toString()
+      );
+      console.log("Selected province:", province);
+      setForm({
+        fullName: selectedAddress.fullName ?? "",
+        phoneNumber: selectedAddress.phoneNumber ?? "",
+        provinceId: province?.provinceID?.toString() ?? "",
+        districtId: "",
+        wardCode: selectedAddress.wardCode?.toString() ?? "",
+        detailAddress: selectedAddress.detailAddress ?? "",
+        isDefault: selectedAddress.isDefault || !canDisableDefaultAddress,
+      });
+    }
+  }, [
+    open,
+    mode,
+    selectedAddress,
+    provinces,
+    canDisableDefaultAddress,
+    inputDistricts,
+    inputWards,
+  ]);
+
+  useEffect(() => {
+    if (!open || !form.provinceId) return;
+
+    fetchDistricts(form.provinceId);
+  }, [open, form.provinceId, fetchDistricts]);
+
+  useEffect(() => {
+    if (!open || !form.districtId) return;
+
+    fetchWards(form.districtId);
+  }, [open, form.districtId, fetchWards]);
+
+  useEffect(() => {
+    if (!open || mode !== "update" || !selectedAddress || !districts.length) {
+      return;
+    }
+
+    if (form.districtId) return;
+
+    const district = districts.find(
+      (x) => x.code?.toString() === selectedAddress.districtCode?.toString()
     );
 
-    const handleChange = (field: keyof Address, value: string | boolean) => {
-        if (field === "province") {
-            fetchDistricts(value as string);
-            setForm((prev) => ({
-                ...prev,
-                province: value as string,
-                district: "",
-                ward: ""
-            }));
-            setWards([]);
+    if (!district) return;
 
-        } 
-        else if (field === "district") {
-            fetchWards(value as string);
-            setForm((prev) => ({
-                ...prev,
-                district: value as string,
-                ward: ""
-            }));
-
-        }
-        else {
-            setForm((prev) => ({
-                ...prev,
-                [field]: value,
-            }));
-
-        }
-    };
-
-    const fetchDistricts = (provinceId: string) => {
-        try {
-            axios.get(`${API_URL}/address/districts?provinceId=${provinceId}`, 
-                        {withCredentials: true,}) 
-                .then((response) => {
-                setDistricts(response.data.data)});
-        } catch (err) {
-            console.error("Failed to fetch districts", err);
-            setDistricts([]);
-            return [];
-        }
-    };
-
-    const fetchWards = (districtId: string) => {
-    try {
-        axios.get(`${API_URL}/address/wards?districtId=${districtId}`, 
-                        {withCredentials: true,}) 
-                .then((response) => {
-                setWards(response.data.data)});
-        } catch (err) {
-            console.error("Failed to fetch wards", err);
-            setWards([]);
-            return [];
-        }
-    };
-
-    const handleCancel = () => {
-        setForm({
-            fullName: "",
-            phoneNumber: "",
-            province: "",
-            district: "",
-            ward: "",
-            detailAddress: "",
-            isDefault: false
-        });
-        setTracking(0)
-        onClose()
-    }
-
-    const toogleDefaultAddress = () => {
-        setForm(prev => ({
-        ...prev,
-        isDefault: !prev.isDefault
+    setForm((prev) => ({
+      ...prev,
+      districtId: district.districtID?.toString() ?? "",
     }));
+  }, [open, mode, selectedAddress, districts, form.districtId]);
+
+  const handleChange = (field: keyof AddressForm, value: string | boolean) => {
+    if (field === "provinceId") {
+      setForm((prev) => ({
+        ...prev,
+        provinceId: value as string,
+        districtId: "",
+        wardCode: "",
+      }));
+
+      setDistricts([]);
+      setWards([]);
+      return;
     }
 
-    const handleAddNewAddress = () => {  
-        addAddress({
-            fullName: form.fullName,
-            phoneNumber: form.phoneNumber?.toString(),
-            province: provinces.find((province: Province) => province.ProvinceID === form.province)?.ProvinceName,
-            district: districts.find((district: District) => district.DistrictID === form.district)?.DistrictName,
-            ward: wards.find((ward: Ward) => ward.WardCode === form.ward)?.WardName,
-            detailAddress: form.detailAddress,
-            isDefault: form.isDefault                
-        }).unwrap().then(() => {if(onClearDialogData){onClearDialogData();}onClose();})
+    if (field === "districtId") {
+      setForm((prev) => ({
+        ...prev,
+        districtId: value as string,
+        wardCode: "",
+      }));
+
+      setWards([]);
+      return;
     }
 
-    const handleUpdateAddress = () => {
-        updateAddress({id: selectedAddress?.id || "", address: {
-            fullName: form.fullName,
-            phoneNumber: form.phoneNumber?.toString(),
-            province: provinces.find((province: Province) => province.ProvinceID === form.province)?.ProvinceName,
-            district: districts.find((district: District) => district.DistrictID === form.district)?.DistrictName,
-            ward: wards.find((ward: Ward) => ward.WardCode === form.ward)?.WardName,
-            detailAddress: form.detailAddress,
-            isDefault: form.isDefault                
-        }}).unwrap().then(() => {if (onClearDialogData){onClearDialogData();};onClose()})
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const buildPayload = (): Address => ({
+    id: selectedAddress?.id,
+    fullName: form.fullName,
+    phoneNumber: form.phoneNumber?.toString(),
+
+    province: selectedProvince?.provinceName ?? "",
+    provinceCode: selectedProvince?.code?.toString() ?? "",
+
+    district: selectedDistrict?.districtName ?? "",
+    districtCode: selectedDistrict?.code?.toString() ?? "",
+
+    ward: selectedWard?.wardName ?? "",
+    wardCode: selectedWard?.wardCode?.toString() ?? "",
+
+    detailAddress: form.detailAddress,
+    isDefault: form.isDefault,
+  });
+
+  const resetAndClose = () => {
+    setForm(emptyForm);
+    setDistricts(inputDistricts ?? []);
+    setWards(inputWards ?? []);
+    onClearDialogData?.();
+    onClose();
+  };
+
+  const handleSave = async () => {
+    try {
+      const payload = buildPayload();
+
+      if (mode === "add") {
+        await createAddress(payload).unwrap();
+      } else {
+        if (!selectedAddress?.id) return;
+
+        await updateAddress({
+          id: selectedAddress.id,
+          address: payload,
+        }).unwrap();
+      }
+
+      resetAndClose();
+    } catch (err) {
+      console.error("Failed to save address", err);
     }
+  };
 
+  return (
+    <Dialog
+      open={open}
+      onClose={resetAndClose}
+      maxWidth="lg"
+      sx={{
+        "& .MuiDialog-paper": {
+          width: "40%",
+          maxHeight: "80vh",
+        },
+      }}
+    >
+      <DialogTitle>
+        {mode === "add" ? "Thêm địa chỉ mới" : "Cập nhật địa chỉ"}
+      </DialogTitle>
 
+      <DialogContent>
+        <Grid container spacing={1}>
+          <Grid size={6} display="flex" flexDirection="column">
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Họ và tên
+            </Typography>
 
-    return (
-        <Dialog 
-            open={open} 
-            onClose={onClose} 
-            maxWidth="lg"
-            sx={{
-            '& .MuiDialog-paper': {
-                width: '40%', // 40% cua maxwidth
-                maxHeight: '80vh', // 80% height cua vp
-            },}}
+            <TextField
+              fullWidth
+              value={form.fullName}
+              onChange={(e) => handleChange("fullName", e.target.value)}
+              placeholder="Nhập họ và tên"
+            />
+
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Số điện thoại
+            </Typography>
+
+            <TextField
+              fullWidth
+              value={form.phoneNumber}
+              onChange={(e) => handleChange("phoneNumber", e.target.value)}
+              placeholder="Nhập số điện thoại"
+            />
+          </Grid>
+
+          <Grid size={6} display="flex" flexDirection="column">
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Tỉnh/Thành phố
+            </Typography>
+
+            <Select
+              fullWidth
+              value={form.provinceId}
+              onChange={(e) => handleChange("provinceId", e.target.value)}
+            >
+              {provinces.map((province) => (
+                <MenuItem
+                  key={province.provinceID}
+                  value={province.provinceID?.toString()}
+                >
+                  {province.provinceName}
+                </MenuItem>
+              ))}
+            </Select>
+
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Quận/Huyện
+            </Typography>
+
+            <Select
+              fullWidth
+              value={form.districtId}
+              onChange={(e) => handleChange("districtId", e.target.value)}
+              disabled={!form.provinceId}
+            >
+              {districts.map((district) => (
+                <MenuItem
+                  key={district.districtID}
+                  value={district.districtID?.toString()}
+                >
+                  {district.districtName}
+                </MenuItem>
+              ))}
+            </Select>
+
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Phường/Xã
+            </Typography>
+
+            <Select
+              fullWidth
+              value={form.wardCode}
+              onChange={(e) => handleChange("wardCode", e.target.value)}
+              disabled={!form.provinceId || !form.districtId}
+            >
+              {wards.map((ward) => (
+                <MenuItem
+                  key={ward.wardCode}
+                  value={ward.wardCode?.toString()}
+                >
+                  {ward.wardName}
+                </MenuItem>
+              ))}
+            </Select>
+
+            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+              Địa chỉ chi tiết
+            </Typography>
+
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              value={form.detailAddress}
+              onChange={(e) => handleChange("detailAddress", e.target.value)}
+              placeholder="Số nhà, tên đường, tổ dân phố, thôn, xóm..."
+            />
+          </Grid>
+
+          <Divider sx={{ width: "100%", mt: 1 }} />
+
+          <Box display="flex" flexDirection="row" alignItems="center">
+            <Checkbox
+              checked={!canDisableDefaultAddress ? true : form.isDefault}
+              onChange={() =>
+                setForm((prev) => ({
+                  ...prev,
+                  isDefault: !prev.isDefault,
+                }))
+              }
+              disabled={!canDisableDefaultAddress || selectedAddress?.isDefault}
+            />
+
+            <Typography variant="subtitle1" sx={{ ml: 1 }}>
+              Đặt làm địa chỉ mặc định
+            </Typography>
+          </Box>
+        </Grid>
+      </DialogContent>
+
+      <DialogActions>
+        <Button onClick={resetAndClose} color="secondary">
+          Hủy
+        </Button>
+
+        <Button
+          disabled={!canSubmit || isSaving}
+          onClick={handleSave}
+          variant="contained"
+          color="primary"
         >
-            <DialogTitle>{mode === "add" ? "Thêm địa chỉ mới" : "Cập nhật địa chỉ"}</DialogTitle>
-            <DialogContent>
-                <Grid container spacing={1}>
-                    <Grid size={6} display={'flex'} flexDirection={'column'}>
-                        <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                            Họ và tên
-                        </Typography>
-                        <TextField 
-                            fullWidth
-                            onChange={(e) => handleChange("fullName", e.target.value)}
-                            placeholder="Nhập họ và tên"
-                            value={form.fullName}
-                        >
-                        </TextField>
-                        <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                            Số điện thoại
-                        </Typography>
-                        <TextField 
-                            fullWidth
-                            onChange={(e) => handleChange("phoneNumber", e.target.value)}
-                            placeholder="Nhập số điện thoại"
-                            value={form.phoneNumber}
-                        >
-                        </TextField>
-                    </Grid>
-                    <Grid size={6} display={'flex'} flexDirection={'column'}>
-                        <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                            Tinh/Thành phố
-                        </Typography>
-                        <Select 
-                            fullWidth 
-                            value={form.province || ""} 
-                            onChange={(e) => handleChange("province", e.target.value ?? "")}
-                        >
-                            {provinces.map((province: Province) => (                                
-                                <MenuItem 
-                                    key={province.ProvinceID} 
-                                    value={province.ProvinceID}
-                                    
-                                >
-                                    {province.ProvinceName}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                            Quận/Huyện
-                        </Typography>
-                        <Select 
-                            fullWidth 
-                            value={form.district || ""} 
-                            onChange={(e) => handleChange("district", e.target.value ?? "")}
-                            disabled={!form.province}
-                        >
-                            {districts.map((district: District) => (                                
-                                <MenuItem key={district.DistrictID} value={district.DistrictID}>
-                                    {district.DistrictName}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                            Phường/Xã
-                        </Typography>
-                        <Select
-                            fullWidth
-                            onChange={(e) => handleChange("ward", e.target.value ?? "")} 
-                            value={form.ward || ""}
-                            disabled={!form.district || !form.province}
-                        >
-                            {wards.map((ward: Ward) => (  
-                                <MenuItem key={ward.WardCode} value={ward.WardCode}>
-                                    {ward.WardName}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                        <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                            Địa chỉ chi tiết
-                        </Typography>
-                        <TextField  
-                            fullWidth 
-                            multiline 
-                            rows={4} 
-                            value={form.detailAddress}
-                            onChange={(e) => handleChange("detailAddress", (e.target.value))}
-                            placeholder="Số nhà, tên đường, tổ dân phố, thôn, xóm..."
-                        >
-                        </TextField>
-                    </Grid>
-                    <Divider sx={{width: '100%', mt: 1}}></Divider>
-                    <Box display={"flex"} flexDirection={"row"} alignItems={"center"}>
-                        <Checkbox
-                            checked={!canDisableDefaultAddress ? true : form.isDefault} 
-                            onChange={toogleDefaultAddress}   
-                            disabled={!canDisableDefaultAddress || selectedAddress?.isDefault}
-                        />
-                        <Typography variant="subtitle1" sx={{ ml: 1 }}>                       
-                            Đặt làm địa chỉ mặc định
-                        </Typography>
-                    </Box>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button 
-                    onClick={handleCancel} 
-                    color="secondary">
-                    Hủy
-                </Button>
-                <Button disabled={!canSubmit || isLoadingAddAddress || isLoadingUpdateAddress} onClick={(mode == "add") ? handleAddNewAddress : handleUpdateAddress} variant="contained" color="primary">
-                    {isLoadingAddAddress || isLoadingUpdateAddress ? "Đang lưu..." : "Lưu địa chỉ"}
-                </Button>
-            </DialogActions>
-        </Dialog>
-    )
+          {isSaving ? "Đang lưu..." : "Lưu địa chỉ"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }

@@ -139,6 +139,7 @@ export type Order = {
   status: string;
   pmtMethod: string;
   pmtStatus: string;
+  createdAt: Date;
   updatedAt: Date;
   statusHistories?: OrderStatusHistory[];
 };
@@ -146,9 +147,10 @@ export type Order = {
 export type UserInforDto = {
   userId: string;
   userName: string;
-  userDisplayName: string;
+  displayName: string;
   userEmail: string;
-  userImageUrl: string;
+  imageUrl: string;
+  phoneNumber: string;
   totalSpent: number;
 }
 
@@ -211,8 +213,11 @@ export type Address = {
   userId?: string | null;
   fullName?: string | null;
   province?: string | null;
+  provinceCode?: string | null;
   district?: string | null;
+  districtCode?: string | null;
   ward?: string | null;
+  wardCode?: string | null;
   detailAddress?: string | null;
   state?: string | null;
   phoneNumber?: string | null;
@@ -221,18 +226,20 @@ export type Address = {
 };
 
 export type Province = {
-  ProvinceID: string;
-  ProvinceName: string;
+  provinceID: string;
+  provinceName: string;
+  code: string;
 };
 
 export type District = {
-  DistrictID: string;
-  DistrictName: string;
+  districtID: string;
+  districtName: string;
+  code: string;
 };
 
 export type Ward = {
-  WardCode: string;
-  WardName: string;
+  wardCode: string;
+  wardName: string;
 };
 
 export type CreditCardFormValues = {

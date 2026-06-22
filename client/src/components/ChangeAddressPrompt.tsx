@@ -1,7 +1,6 @@
 import { Box, Dialog, DialogContent, DialogTitle, Typography, Checkbox, Button, DialogActions, Grid, Divider } from "@mui/material";
 
-import { Address, District, Province, Ward } from "../lib/types";
-import axios from "axios";
+import { Address } from "../lib/types";
 import { useEffect, useState } from "react";
 import AddNewAddressDialog from "./AddNewAddressDialog";
 
@@ -19,10 +18,6 @@ export default function ChangeAddressPrompt({open, addresses, selectedAddress, o
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
     const [currentSelectedAddress, setCurrentSelectedAddress] = useState<Address | null>(null);
-    const [dialogData, setDialogData] = useState<{
-        provinces: Province[] | null,
-        districts: District[] | null,
-        wards: Ward[] | null}>({provinces: null, districts: null, wards: null});
     const tmpAddress = selectedAddress || null;
     useEffect(() => {
         if (open && selectedAddress) {
@@ -44,60 +39,11 @@ export default function ChangeAddressPrompt({open, addresses, selectedAddress, o
         setIsDialogOpen(true)
     }
 
-    const handleOpenUpdateAddress = async (address: Address) => {
-        try {
-            setDialogMode("update");
-            setEditingAddress(address);
-            let tempProvinces: Province[] = [];
-            let tempDistricts: District[] = [];
-            let tempWards: Ward[] = [];
-            const provincesResponse = await axios.get(
-                `${import.meta.env.VITE_API_URL}/address/provinces`, 
-                {withCredentials: true}
-            );
-            tempProvinces = provincesResponse.data.data || [];
-            
-            const provinceId = tempProvinces.find(
-                (p: Province) => p.ProvinceName === address.province
-            )?.ProvinceID;
-            
-            if (provinceId) {
-                const districtsResponse = await axios.get(
-                    `${import.meta.env.VITE_API_URL}/address/districts?provinceId=${provinceId}`, 
-                    {withCredentials: true}
-                );
-                tempDistricts = districtsResponse.data.data || [];
-
-            
-                const districtId = tempDistricts.find(
-                    (d: District) => d.DistrictName === address.district
-                )?.DistrictID;
-                
-                if (districtId) {
-                    const wardsResponse = await axios.get(
-                        `${import.meta.env.VITE_API_URL}/address/wards?districtId=${districtId}`, 
-                        {withCredentials: true}
-                    );
-                    tempWards = wardsResponse.data.data || [];
-                }
-            }
-            setDialogData({
-                provinces: tempProvinces,
-                districts: tempDistricts,
-                wards: tempWards
-            });
-            setIsDialogOpen(true);
-        } catch (error) {
-            console.error("Error loading address data:", error);
-        }
+    const handleOpenUpdateAddress = (address: Address) => {
+        setDialogMode("update");
+        setEditingAddress(address);
+        setIsDialogOpen(true);
     };
-
-    // useEffect(() => {
-    //     if (dialogMode == "update" && dialogData.provinces && dialogData.districts && dialogData.wards) {
-    //         console.log("change address", selectedAddress?.id)
-    //         setIsDialogOpen(true);
-    //     }
-    // }, [dialogData, dialogMode, selectedAddress]);
 
 
     const handleCancel = () => {
@@ -126,11 +72,6 @@ export default function ChangeAddressPrompt({open, addresses, selectedAddress, o
             return true
         }
         return false    
-    }
-
-    const handleClearDialogData = () => {
-        if (dialogMode === "update")
-            setDialogData({provinces: null, districts: null, wards: null});
     }
 
     return (
@@ -168,8 +109,23 @@ export default function ChangeAddressPrompt({open, addresses, selectedAddress, o
                                             <Typography>{flattenedAddress(address)[1]}</Typography>
                                             <Typography>{flattenedAddress(address)[2]}</Typography>
                                             <Typography>{flattenedAddress(address)[3]}</Typography>
-                                            {address.isDefault && (<Typography>Mặc định</Typography>)}
-                                            
+                                            {address.isDefault && (
+                                                <Box
+                                                    sx={{
+                                                        border: "1px solid #1976d2",
+                                                        color: "#1976d2",
+                                                        backgroundColor: "#e3f2fd",
+                                                        borderRadius: "4px",
+                                                        px: 1,
+                                                        py: 0.25,
+                                                        fontSize: 12,
+                                                        fontWeight: 600,
+                                                        width: "fit-content",
+                                                    }}
+                                                >
+                                                    MẶC ĐỊNH
+                                                </Box>
+                                            )}
                                         </Box>
                                     </Grid>
                                     <Grid size={2} sx={{display: "flex", justifyContent: "right"}}>
@@ -194,15 +150,13 @@ export default function ChangeAddressPrompt({open, addresses, selectedAddress, o
             </DialogContent>
             {isDialogOpen && <AddNewAddressDialog
                 canDisableDefaultAddress={canDisableDefaultAddress()}
-                inputWards={dialogData.wards}
-                inputDistricts={dialogData.districts}
-                inputProvinces={dialogData.provinces}
+                inputWards={null}
+                inputDistricts={null}
+                inputProvinces={null}
                 mode={dialogMode}
                 selectedAddress={editingAddress}
-                open={isDialogOpen} 
+                open={isDialogOpen}
                 onClose={() => setIsDialogOpen(false)}
-                onClearDialogData={handleClearDialogData}
-                // onRefetchAddresses={onRefetchAddresses}
             />}
             <DialogActions >
                 <Button 

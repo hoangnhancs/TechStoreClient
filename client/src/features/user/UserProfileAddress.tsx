@@ -1,8 +1,7 @@
 import { useDeleteAddressMutation, useFetchAddressQuery } from "../../app/api/addressApi"
 import { Box, Button, Divider, Grid, Typography } from "@mui/material"
-import { Address, District, Province, Ward } from "../../lib/types";
+import { Address } from "../../lib/types";
 import { useState } from "react";
-import axios from "axios";
 import AddNewAddressDialog from "../../components/AddNewAddressDialog";
 import { toast } from "react-toastify";
 import YesNoDialog from "../../components/YesNoDialog";
@@ -14,10 +13,6 @@ export default function UserProfileAddress() {
   const [deleteAddress] = useDeleteAddressMutation();
   const [addressToDeleteId, setAddressToDeleteId] = useState<string | null>(null);
   const [deleteAddressDialogOpen, setDeleteAddressDialogOpen] = useState(false);
-  const [dialogData, setDialogData] = useState<{
-      provinces: Province[] | null,
-      districts: District[] | null,
-      wards: Ward[] | null}>({provinces: null, districts: null, wards: null});
   const {data: addresses} = useFetchAddressQuery()
   const handleDeleteAddress = async() => {
     try {
@@ -57,62 +52,15 @@ export default function UserProfileAddress() {
     }
     return false    
   }
-  const handleClearDialogData = () => {
-    if (dialogMode === "update")
-      setDialogData({provinces: null, districts: null, wards: null});
-  }
   const handleOpenAddNewAddress = () => {
     setDialogMode("add")
     setEditingAddress(null)
     setIsDialogOpen(true)
   }
-  const handleOpenUpdateAddress = async (address: Address) => {
-    try {
-      setDialogMode("update");
-      setEditingAddress(address);
-      
-      let tempProvinces: Province[] = [];
-      let tempDistricts: District[] = [];
-      let tempWards: Ward[] = [];
-      const provincesResponse = await axios.get(
-          `${import.meta.env.VITE_API_URL}/address/provinces`, 
-          {withCredentials: true}
-      );
-      tempProvinces = provincesResponse.data.data || [];
-      
-      const provinceId = tempProvinces.find(
-          (p: Province) => p.ProvinceName === address.province
-      )?.ProvinceID;
-        
-      if (provinceId) {
-          const districtsResponse = await axios.get(
-              `${import.meta.env.VITE_API_URL}/address/districts?provinceId=${provinceId}`, 
-              {withCredentials: true}
-          );
-          tempDistricts = districtsResponse.data.data || [];
-
-      
-          const districtId = tempDistricts.find(
-              (d: District) => d.DistrictName === address.district
-          )?.DistrictID;
-          
-          if (districtId) {
-              const wardsResponse = await axios.get(
-                  `${import.meta.env.VITE_API_URL}/address/wards?districtId=${districtId}`, 
-                  {withCredentials: true}
-              );
-              tempWards = wardsResponse.data.data || [];
-          }
-      }
-      setDialogData({
-          provinces: tempProvinces,
-          districts: tempDistricts,
-          wards: tempWards
-      });
-      setIsDialogOpen(true)
-    } catch (error) {
-      console.error("Error loading address data:", error);
-    }
+  const handleOpenUpdateAddress = (address: Address) => {
+    setDialogMode("update");
+    setEditingAddress(address);
+    setIsDialogOpen(true);
   };
   return (
     <>
@@ -155,15 +103,13 @@ export default function UserProfileAddress() {
       </Box>
       {isDialogOpen && <AddNewAddressDialog
         canDisableDefaultAddress={canDisableDefaultAddress()}
-        inputWards={dialogData.wards}
-        inputDistricts={dialogData.districts}
-        inputProvinces={dialogData.provinces}
+        inputWards={null}
+        inputDistricts={null}
+        inputProvinces={null}
         mode={dialogMode}
         selectedAddress={editingAddress}
-        open={isDialogOpen} 
+        open={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
-        onClearDialogData={handleClearDialogData}
-        // onRefetchAddresses={onRefetchAddresses}
       />}
       {(
         <YesNoDialog

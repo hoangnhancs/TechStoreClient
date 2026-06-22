@@ -31,6 +31,7 @@ export default function BasketPage() {
     const debouncedQuantities = useDebounce(localQuantities, 400);
 
     useEffect(() => {
+        console.log(basket)
         dispatch(setBasket(basket || {id: "", userId: "", items: []}))
         const initQuantities = basket?.items.reduce((acc, item) => {
             acc[item.productId] = item.quantity;
@@ -61,7 +62,7 @@ export default function BasketPage() {
                 return groups
             }, {} as Record<number, Item[]>)
             setGroupedItems(groups)
-            console.log(groups)
+            // console.log(groups)
         }
 
     }, [basket])

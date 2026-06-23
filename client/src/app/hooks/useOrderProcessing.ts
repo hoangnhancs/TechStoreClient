@@ -245,6 +245,7 @@ export const useOrderProcessing = () => {
 
       if (result === null) {
         // Timeout — webhook chưa đến, KHÔNG phải fail
+        await clearPurchasedItemsFromBasket();
         // Reconciliation job sẽ xử lý sau
         navigate(`/order-pending/${order.id}`, {
           state: { orderNo: order.orderNo, message: "Thanh toán đang được xác nhận. Vui lòng kiểm tra lại đơn hàng sau ít phút." }
@@ -297,6 +298,16 @@ export const useOrderProcessing = () => {
 
       const result = await Promise.race([failurePromise, timeoutPromise]);
       await OrderSignalRService.stopConnection();
+
+      if (result === null) {
+        // Timeout — webhook chưa đến, KHÔNG phải fail
+        await clearPurchasedItemsFromBasket();
+        // Reconciliation job sẽ xử lý sau
+        navigate(`/order-pending/${order.id}`, {
+          state: { orderNo: order.orderNo, message: "Thanh toán đang được xác nhận. Vui lòng kiểm tra lại đơn hàng sau ít phút." }
+        });
+        return;
+      }
 
       if (result !== null && !result.isSuccess) {
         setErrorMessage(result.errorMessage || "Đặt hàng thất bại.");

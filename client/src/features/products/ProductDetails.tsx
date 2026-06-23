@@ -5,7 +5,9 @@ import ProductInformation from "./ProductInformation";
 import { useFetchProductByIdQuery } from "../../app/api/productApi";
 import LoadingComponent from "../../components/LoadingComponent";
 import { useGetCurrentUserQuery } from "../user/userApi";
-// import { useCreateUserActionTrackingMutation } from "../../app/api/userActionTrackingApi";
+import { useCreateUserActionTrackingMutation } from "../../app/api/userActionTrackingApi";
+import { useEffect } from "react";
+
 // import { useEffect } from "react";
 
 
@@ -13,14 +15,14 @@ export default function ProductDetails() {
     const { id } = useParams();
     const {data: product, isLoading: isLoadingProduct} = useFetchProductByIdQuery(id ?? '')
     const {data: currentUser, isLoading: isLoadingCurrentUser} = useGetCurrentUserQuery()
-    // const [ createTracking ] = useCreateUserActionTrackingMutation()
-    // const currentUser = useAppSelector(state => state.user.currentUser)
+    const [ createTracking ] = useCreateUserActionTrackingMutation()
 
-    // useEffect(() => {
-    //     if (currentUser && product) {
-    //         createTracking({ actionType: 'View', productId: product.id });
-    //     }
-    // }, [currentUser, product, createTracking]);
+
+    useEffect(() => {
+        if (currentUser && product) {
+            createTracking({ actionType: 'View', productId: product.id });
+        }
+    }, [currentUser, product, createTracking]);
 
     
     if (isLoadingProduct || isLoadingCurrentUser || !product) {

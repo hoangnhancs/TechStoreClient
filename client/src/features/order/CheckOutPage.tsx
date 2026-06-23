@@ -49,6 +49,7 @@ export default function CheckOutPage() {
         orderFailedDialogOpen,
         isCreatingOrder,
         isCanCompleteOrder,
+        errorMessage,
     } = useOrderProcessing();
     const { data: addresses } = useFetchAddressQuery()
     const [selectGroupedItems, setSelectGroupedItems] = useState<Record<string, Item[]>>({})
@@ -179,7 +180,7 @@ export default function CheckOutPage() {
                 onOk={handleOrderFailedDialogClose}
                 type="error"
                 title="Đặt hàng không thành công"
-                description="Hệ thống không nhận được xác nhận thanh toán. Vui lòng thử lại hoặc chọn phương thức thanh toán khác."
+                description={errorMessage}
                 okText="Thử lại"
                 cancelText="Đóng"
             />

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 
-import { Address, Basket, Item, Order, /* OrderNotification ,*/ PaymentInfor } from "../../lib/types";
+import { Address, Basket, Item, Order, OrderNotification, /* OrderNotification ,*/ PaymentInfor } from "../../lib/types";
 import { setBasketStates } from "../../features/basket/basketSlice";
 import { toast } from "react-toastify";
 import { useCreateOrderMutation } from "../api/orderApi";
@@ -13,6 +13,7 @@ import { useRemovePermanentlyBasketItemsMutation } from "../api/basketApi";
 import { useState } from "react";
 
 import { PaymentSignalRService } from "../api/paymentSignalRService";
+import { OrderSignalRService } from "../api/orderSignalRService";
 // import { OrderSignalRService } from "../api/orderSignalRService";
 
 export const useOrderProcessing = () => {
@@ -37,6 +38,7 @@ export const useOrderProcessing = () => {
   });
   const [currentAddress, setCurrentAddress] = useState<Address | null>(null);
   const [orderFailedDialogOpen, setOrderFailedDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("Lỗi khi tạo đơn hàng. Vui lòng thử lại.");
 
   const getTotalPrice = () => {
     let total = 0;
@@ -184,81 +186,140 @@ export const useOrderProcessing = () => {
       toast.error("Stripe chưa được khởi tạo.");
       return;
     }
+
     try {
-      // Step 1: Create order → saga enters WaitingForStockReservation
+      // Step 1: Tạo order
       const order = await createOrder(createOrderParas).unwrap();
       if (!order.id) {
         toast.error("Lỗi khi tạo đơn hàng. Vui lòng thử lại.");
         return;
       }
 
-      // Step 2: Wait for clientSecret from PaymentHub
-      // Saga: StockReserved → CreatePayment → PaymentCreated → WaitingForPayment
-      // Receiving clientSecret means stock was reserved and payment intent was created successfully.
-      // If payment creation fails, the saga sends OrderNotification(IsSuccess=false) and we'll timeout here.
+      // Step 2: Join OrderHub ngay sau khi order được tạo
+      // để không bỏ lỡ bất kỳ event nào từ saga (kể cả StockReservationFailed)
+      await OrderSignalRService.createHubConnection(order.id);
+
+      const orderNotificationPromise = new Promise<OrderNotification>((resolve) => {
+        OrderSignalRService.onReceiveOrderNotification((notification) => {
+          resolve(notification);
+        });
+      });
+
+      // Step 3: Chờ clientSecret từ PaymentHub
+      // Saga: StockReserved → CreatePayment → PaymentCreated → signal client
       let clientSecret: string;
       try {
         clientSecret = await getPaymentIntentFromPaymentHub(order.id);
       } catch {
+        // Timeout hoặc payment creation fail — orderNotification cũng sẽ đến qua OrderHub
+        // nhưng ta không cần đợi nó ở đây, show dialog luôn
+        await OrderSignalRService.stopConnection();
         setOrderFailedDialogOpen(true);
         return;
       }
 
-      // Step 3: Confirm card payment with Stripe
-      const { paymentIntent, error } = await stripe.confirmCardPayment(
-        clientSecret!,
-        {
-          payment_method: {
-            card: cardElement,
-          },
-        }
-      );
+      // Step 4: Confirm thanh toán phía client (Stripe)
+      const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: cardElement },
+      });
 
       if (error) {
         toast.error(error.message);
+        await OrderSignalRService.stopConnection();
         return;
       }
 
       if (paymentIntent?.status !== "succeeded") {
-        toast.warning(`Trạng thái thanh toán: ${paymentIntent?.status || "unknown"}`);
+        toast.warning(`Trạng thái thanh toán: ${paymentIntent?.status ?? "unknown"}`);
+        await OrderSignalRService.stopConnection();
         return;
       }
 
-      // Step 4: Wait for final OrderNotification from OrderHub
-      // Saga: PaymentCompleted (Stripe webhook) → ConfirmOrder → Processing → OrderConfirmed → Completed
-      // IsSuccess=true means saga completed; IsSuccess=false means something failed post-payment.
-      // const notification = await getOrderNotificationFromOrderHub(order.id);
-      // if (!notification.isSuccess) {
-      //   toast.error(`Đặt hàng thất bại: ${notification.errorMessage}`);
-      //   return;
-      // }
+      // Step 5: Chờ OrderNotification
+      const timeoutPromise = new Promise<null>((resolve) =>   // resolve null, không reject
+        window.setTimeout(() => resolve(null), 30000)
+      );
 
-      // Step 5: Clear basket and navigate
+      const result = await Promise.race([orderNotificationPromise, timeoutPromise]);
+      await OrderSignalRService.stopConnection();
+
+      if (result === null) {
+        // Timeout — webhook chưa đến, KHÔNG phải fail
+        // Reconciliation job sẽ xử lý sau
+        navigate(`/order-pending/${order.id}`, {
+          state: { orderNo: order.orderNo, message: "Thanh toán đang được xác nhận. Vui lòng kiểm tra lại đơn hàng sau ít phút." }
+        });
+        return;
+      }
+
+      if (!result.isSuccess) {
+        // Saga xác nhận fail thật sự
+        setErrorMessage(result.errorMessage || "Đặt hàng thất bại.");
+        setOrderFailedDialogOpen(true);
+        return;
+      }
+
+      // Step 6: Success
       await clearPurchasedItemsFromBasket();
-      toast.success("Thanh toán thành công!");
       toast.success("Đặt hàng thành công!");
       navigate(`/order-success/${order.id}`, {
         state: { orderNo: order.orderNo, orderId: order.id },
       });
+
     } catch (error) {
-      toast.error(`Lỗi khi xử lý đơn hàng và thanh toán: ${error instanceof Error ? error.message : "Vui lòng thử lại."}`);
-      return;
+      toast.error(`Lỗi khi xử lý đơn hàng: ${error instanceof Error ? error.message : "Vui lòng thử lại."}`);
     }
   };
+
 
   const handleDefaultOrderAndPayment = async () => {
-    const order = await createOrder(createOrderParas).unwrap();
-    if (!order.id)
-    {
-      toast.error("Lỗi khi tạo đơn hàng. Vui lòng thử lại.");
-      return;
-    }
+    try {
+      const order = await createOrder(createOrderParas).unwrap();
+      if (!order.id) {
+        toast.error("Lỗi khi tạo đơn hàng. Vui lòng thử lại.");
+        return;
+      }
 
-    await clearPurchasedItemsFromBasket();
-    console.log("Order created:", order);
-    toast.success("Đặt hàng thành công!");
-    handleNavigateToOrderResult(order);
+      // Join OrderHub ngay để bắt StockReservationFailed nếu có
+      await OrderSignalRService.createHubConnection(order.id);
+
+      const failurePromise = new Promise<OrderNotification>((resolve) => {
+        OrderSignalRService.onReceiveOrderNotification((notification) => {
+          if (!notification.isSuccess) resolve(notification);
+          // IsSuccess=true không cần xử lý ở đây (COD không gửi success notification)
+        });
+      });
+
+      // Timeout = không có gì xấu xảy ra → order đang WaitingForConfirmation → success
+      const timeoutPromise = new Promise<null>((resolve) =>
+        window.setTimeout(() => resolve(null), 15000)
+      );
+
+      const result = await Promise.race([failurePromise, timeoutPromise]);
+      await OrderSignalRService.stopConnection();
+
+      if (result !== null && !result.isSuccess) {
+        setErrorMessage(result.errorMessage || "Đặt hàng thất bại.");
+        setOrderFailedDialogOpen(true);
+        return;
+      }
+
+      if (result !== null && result?.isSuccess)
+      {
+        await clearPurchasedItemsFromBasket();
+        toast.success("Đặt hàng thành công!");
+        handleNavigateToOrderResult(order);
+        return;
+      }
+
+      await clearPurchasedItemsFromBasket();
+      toast.success("Đặt hàng thành công!");
+      handleNavigateToOrderResult(order);
+    } catch (error) {
+      toast.error(`Lỗi khi tạo đơn hàng: ${error instanceof Error ? error.message : "Vui lòng thử lại."}`);
+    }
   };
+
 
   const handleNavigateToOrderResult = (order: Order) => {
     if (order.status == "Processing")
@@ -308,6 +369,7 @@ export const useOrderProcessing = () => {
   };
 
   const handleOrderFailedDialogClose = () => {
+    setErrorMessage("Lỗi khi tạo đơn hàng. Vui lòng thử lại.");
     setOrderFailedDialogOpen(false);
   };
 
@@ -354,5 +416,6 @@ export const useOrderProcessing = () => {
     handleOrderFailedDialogClose,
     isCanCompleteOrder,
     completePayment,
+    errorMessage,
   };
 };

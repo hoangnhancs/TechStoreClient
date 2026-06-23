@@ -14,6 +14,7 @@ import LoginForm from "../features/user/LoginForm";
 import RegisterForm from "../features/user/RegisterForm";
 import CheckOutPage from "../features/order/CheckOutPage";
 import OrderSuccessPage from "../features/order/OrderSuccessPage";
+import OrderPendingPage from "../features/order/OrderPendingPage";
 import MyOrdersPage from "../features/order/MyOrdersPage";
 import OrderDetailsPage from "../features/order/OrderDetailsPage";
 import ProductListByCategory from "../features/products/ProductListByCategory";
@@ -46,6 +47,7 @@ export const router = createBrowserRouter([
                 {path: '/basket', element: <BasketPage />},
                 {path: '/order', element: <CheckOutPage />},
                 {path: '/order-success/:orderId?', element: <OrderSuccessPage />},
+                {path: '/order-pending/:orderId?', element: <OrderPendingPage />},
                 {path: '/my-orders', element: <MyOrdersPage />},
                 {path: '/my-orders/:orderId', element: <OrderDetailsPage />},
                 {path: '/change-password', element: <ChangePasswordForm />},

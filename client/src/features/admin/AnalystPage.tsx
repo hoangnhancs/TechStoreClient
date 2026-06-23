@@ -37,7 +37,9 @@ import { UserInforDto } from "../../lib/types";
             dispatch(setAnalysEndDate({endDate: selectedEndDate}));
         }
         const salesCount = orders?.reduce((total, order) => {
-            return order.status === "Completed" ? total + 1 : total;
+            // return order.status === "Completed" ? total + 1 : total;
+            console.log(order)
+            return total + 1;
         }, 0);
 
         const totalSold = orders?.reduce(

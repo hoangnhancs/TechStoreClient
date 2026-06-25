@@ -24,25 +24,23 @@ export default function ReviewList({ productName, currentUser }: Props) {
     const [displayedReviews, setDisplayedReviews] = useState<Review[]>([])
     const [searchParams] = useSearchParams();
     const reviewId = searchParams.get("reviewId");
-    // console.log("list reviews:", reviews)
-
 
     useEffect(() => {
-        // console.log("commentId:", reviewId);
-        // console.log("list comments:", reviews)
-        if (reviewId && reviews && reviews.length > 0) {
+        // console.log("reviewId:", reviewId);
+        // console.log("list reviews:", reviews)
+        if (reviewId && reviews.length > 0) {
         // Delay nhẹ để đợi DOM render xong
         requestAnimationFrame(() => {
             const element = document.getElementById(reviewId);
             // console.log("element:", element);
 
-            if (element) {
-                element.scrollIntoView({ behavior: "smooth", block: "center" });
-                element.classList.add("highlight-comment");
-                // setTimeout(() => {
-                //   element.classList.remove("highlight-comment");
-                // }, 6000);
-            }
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+            element.classList.add("highlight-comment");
+            // setTimeout(() => {
+            //   element.classList.remove("highlight-comment");
+            // }, 6000);
+        }
         });
     }}, [reviewId, reviews]);
 

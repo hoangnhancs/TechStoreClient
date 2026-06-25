@@ -42,6 +42,7 @@ import { OrderStatusHistory } from '../../lib/types';
 import { useGetOrderDetailsWithHistoryAndShipmentQuery } from '../../app/api/orderApi';
 import LoadingComponent from '../../components/LoadingComponent';
 import { formatCurrency, formatVNDate } from '../../lib/util/util';
+import { useAppSelector } from '../../hooks';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactElement }> = {
     pending: {
@@ -221,14 +222,14 @@ export default function OrderDetailsPage() {
     const fromAdminOrdersDashboard = location.state?.fromAdminOrdersDashboard;
     const { orderId } = useParams<{ orderId: string }>();
     const { data: order, isLoading, error } = useGetOrderDetailsWithHistoryAndShipmentQuery(orderId || '');
-
+    const currentUser = useAppSelector((state) => state.user.currentUser);
     if (isLoading) {
         return (
             <LoadingComponent />
         );
     }
 
-    if (error) {
+    if (error || currentUser === null || (currentUser && !currentUser.isAdmin && order?.userId !== currentUser.id)) {
         return (
             <Container maxWidth="lg" sx={{ py: 4 }}>
                 <Alert severity="error" sx={{ mb: 2 }}>

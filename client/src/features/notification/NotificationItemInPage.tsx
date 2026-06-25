@@ -8,6 +8,8 @@ import { useNavigate } from "react-router";
 import { NotificationSignalRService } from "../../app/api/notificationSignalRService";
 import { Checkbox } from "@mui/material";
 import { useState } from "react";
+import { buildNotificationLink } from "../../lib/util/util";
+import { useAppSelector } from "../../hooks";
 
 interface Props {
   notification: UserNotification;
@@ -20,11 +22,15 @@ export default function NotificationItemInPage({ notification, selectMode, isCho
   const navigate = useNavigate();
   const [anchorE1, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorE1);
+  const currentUser = useAppSelector((state) => state.user.currentUser);
   const handleClick = () => {
     if (!notification.isRead) {
       NotificationSignalRService.markAsReadNotifications([notification.id]);
     }
-    navigate(notification.link || "/");
+    const link = buildNotificationLink(notification, currentUser);
+    if (link) {
+      navigate(link);
+    } 
   };
    
 
@@ -86,10 +92,12 @@ export default function NotificationItemInPage({ notification, selectMode, isCho
           {notification.message}
         </Typography>
         <Typography variant="caption" color="text.disabled">
-          {formatDistanceToNow(new Date(notification.createdAt), {
-            addSuffix: true,
-            locale: vi,
-          })}
+          {(() => {
+            const date = new Date(notification.createdAt);
+            return isNaN(date.getTime())
+              ? ""
+              : formatDistanceToNow(date, { addSuffix: true, locale: vi });
+          })()}
         </Typography>
       </Box>
 

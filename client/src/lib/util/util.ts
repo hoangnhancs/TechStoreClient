@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { format, DateArg } from "date-fns";
 import { FieldError, FieldErrors, FieldValues } from "react-hook-form";
+import { BasicUser, UserNotification } from "../types";
 
 export type DateFormatStyle = 'ddmmyyyy' | 'ddmmyyyyhhmm' | 'hhmm' | 'iso' | 'full';
 
@@ -101,3 +102,25 @@ export const flattenErrors = <T extends FieldValues>(errObj: FieldErrors<T>): st
   }
   return msgs;
 };
+
+export const buildNotificationLink = (notification: UserNotification, currentUser: BasicUser | null) => {
+  if (notification.referenceType.toLocaleLowerCase() === "order") {
+    if (currentUser?.isAdmin) {
+      return `/dashboard/orders/${notification.referenceId}`;
+    }
+    return `/my-orders/${notification.referenceId}`;
+  }
+
+  if (notification.referenceType.toLocaleLowerCase() === "comment") {
+    if (notification.parentReferenceType.toLocaleLowerCase() === "product") {
+      return `/products/${notification.parentReferenceId}?commentId=${notification.referenceId}`;
+    }
+  }
+
+  if (notification.referenceType.toLocaleLowerCase() === "review") {
+    if (notification.parentReferenceType.toLocaleLowerCase() === "product") {
+      return `/products/${notification.parentReferenceId}?reviewId=${notification.referenceId}`;
+    }
+  }
+  return "";
+}; 

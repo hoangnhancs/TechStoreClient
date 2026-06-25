@@ -98,13 +98,13 @@ export default function NotificationPage() {
       case 'all':
         break;
       case 'review':
-        tmp = tmp.filter((noti) => noti.type.toLowerCase() === 'review');
+        tmp = tmp.filter((noti) => noti.referenceType.toLowerCase() === 'review');
         break;
       case 'comment':
-        tmp = tmp.filter((noti) => noti.type.toLowerCase() === 'comment');
+        tmp = tmp.filter((noti) => noti.referenceType.toLowerCase() === 'comment');
         break;
       case 'system':
-        tmp = tmp.filter((noti) => noti.type.toLowerCase() === 'system');
+        tmp = tmp.filter((noti) => noti.referenceType.toLowerCase() === 'system');
         break;
       default:
         break;

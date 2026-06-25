@@ -2,8 +2,9 @@ import { Box, Typography } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications"; // hoặc thay bằng icon khác
 import { UserNotification } from "../../lib/types";
 import { useNavigate } from "react-router";
-import { formatVNDate } from "../../lib/util/util";
+import { buildNotificationLink, formatVNDate } from "../../lib/util/util";
 import { NotificationSignalRService } from "../../app/api/notificationSignalRService";
+import { useAppSelector } from "../../hooks";
 
 interface Props {
   notification: UserNotification
@@ -12,10 +13,15 @@ interface Props {
 const NotificationItem = ({ notification }: Props) => {
   console.log("notification: ",notification);
   const navigate = useNavigate();
+  const currentUser = useAppSelector((state) => state.user.currentUser);
+  
   return (
     <Box
       onClick={() => {
-        navigate(notification.link || "/")
+        const link = buildNotificationLink(notification, currentUser);
+        if (link) {
+          navigate(link);
+        }
         NotificationSignalRService.markAsReadNotifications([notification.id]);
       }}
       sx={{

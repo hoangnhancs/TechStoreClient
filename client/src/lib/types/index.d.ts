@@ -5,13 +5,14 @@ export interface SearchParams {
   pageNumber?: number;
   pageSize?: number;
   orderBy?: string;
-  filterTagValues?: string[]; 
+  filterTagValues?: number[];
 }
 
 export interface GetResult<T> {
   results: T[];
   pageCount: number;
   totalCount: number;
+  relatedCats: number[];
 }
 
 export type Product = {

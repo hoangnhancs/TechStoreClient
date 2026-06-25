@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom"
 import { useEffect, useState } from "react";
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import CloseIcon from "@mui/icons-material/Close";
-import { Brand, Product, SearchParams } from "../../lib/types";
+import { Brand, Product } from "../../lib/types";
 import React from "react";
 import { useFetchFilterTagsByCatIdQuery } from "../../app/api/filterTagApi";
 import { useAppDispatch, useAppSelector } from "../../hooks";
@@ -32,15 +32,16 @@ export default function ProductListByCategory() {
     const [products, setProducts] = useState<Product[]>([]);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [openTagId, setOpenTagId] = useState<number | null>(null);
-    const selectedFilters = useAppSelector((state) => state.filter.filter);//type Record<number, number[]>: {filtertagId: [filterTagValueIds]}
+    const selectedFilters = useAppSelector((state) => state.filter.filter);
     const [tmpSelectedFilters, setTmpSelectedFilters] = useState<Record<number, number[]>>(selectedFilters);
-    const { data: brandsByCatId, isLoading: isLoadingBrands } = useFetchBrandsByCatIdQuery(Number(id), {skip: !id});
-    const reduxSelectedBrands = useAppSelector(state => state.filter.brand);
-    const [selectedBrands, setSelectedBrands] = useState<Brand[] | null>(reduxSelectedBrands);
-    const reduxPriceSort = useAppSelector(state => state.filter.priceSort);
-    const [selectedPriceSort, setSelectedPriceSort] = useState<'asc' | 'desc' | 'discount'>(reduxPriceSort);
+    const { data: brandsByCatId, isLoading: isLoadingBrands } = useFetchBrandsByCatIdQuery(Number(id), { skip: !id });
+    const selectedBrand = useAppSelector(state => state.filter.brand);
+    const selectedPriceSort = useAppSelector(state => state.filter.priceSort);
 
-    console.log("brandbycat", brandsByCatId)
+    const buildOrderBy = (sort: 'asc' | 'desc' | 'discount') =>
+        sort === 'asc' ? 'priceasc' : sort === 'desc' ? 'pricedesc' : 'discount';
+
+    // Clear filters when category changes
     useEffect(() => {
         dispatch(clearAllFilters());
     }, [categoryIdNumber, dispatch]);
@@ -48,38 +49,50 @@ export default function ProductListByCategory() {
     useEffect(() => {
         setTmpSelectedFilters(selectedFilters);
     }, [selectedFilters]);
-    // Cleanup chỉ gọi 1 lần khi component unmount
-    // useEffect(() => {
-    //     return () => {
-    //         dispatch(clearAllFilters()); 
-    //     };
-    // }, [dispatch]);
-    useEffect(() => {
-        setSelectedBrands(reduxSelectedBrands);
-    }, [reduxSelectedBrands]);
 
+    // Re-trigger search (reset to page 1) whenever category/brand/filter/sort changes
     useEffect(() => {
-        setSelectedPriceSort(reduxPriceSort);
-    }, [reduxPriceSort]);
+        if (!categoryIdNumber) return;
+        setProducts([]);
+        setPageNumber(1);
+        const filterTagValues = Object.values(selectedFilters).flat();
+        trigger({
+            categoryId: categoryIdNumber,
+            brandId: selectedBrand?.id,
+            params: {
+                pageNumber: 1,
+                orderBy: buildOrderBy(selectedPriceSort),
+                ...(filterTagValues.length > 0 && { filterTagValues }),
+            },
+        });
+    }, [categoryIdNumber, selectedBrand, selectedFilters, selectedPriceSort, trigger]);
 
-    // Trigger lazy fetch on component mount
-    useEffect(() => {
-        if (categoryIdNumber) {
-            trigger({ categoryId: categoryIdNumber, params: { pageNumber } });
-        }
-    }, [categoryIdNumber, pageNumber, trigger]);
-
-    // Update products state when result data changes
+    // Append results when data changes (handles both initial load and load-more)
     useEffect(() => {
         if (data?.results) {
-            setProducts((prevProducts) => [...prevProducts, ...data.results]);
+            setProducts(prev => {
+                const existingIds = new Set(prev.map(p => p.id));
+                const newItems = data.results.filter(p => !existingIds.has(p.id));
+                return newItems.length > 0 ? [...prev, ...newItems] : prev;
+            });
         }
     }, [data]);
 
-    const handleSearch = (page: number, seachParams: SearchParams) => {
-        trigger({ categoryId: categoryIdNumber as number, params: seachParams });
-        setPageNumber(page);
-    }
+    const handleLoadMore = () => {
+        if (!categoryIdNumber) return;
+        const nextPage = pageNumber + 1;
+        setPageNumber(nextPage);
+        const filterTagValues = Object.values(selectedFilters).flat();
+        trigger({
+            categoryId: categoryIdNumber,
+            brandId: selectedBrand?.id,
+            params: {
+                pageNumber: nextPage,
+                orderBy: buildOrderBy(selectedPriceSort),
+                ...(filterTagValues.length > 0 && { filterTagValues }),
+            },
+        });
+    };
 
     const handleSetTmpFilter = (tagId: number, valueId: number) => {
         setTmpSelectedFilters((prev) => {
@@ -123,12 +136,8 @@ export default function ProductListByCategory() {
     }
 
     const handleBrandChange = (brand: Brand) => {
-        if (selectedBrands?.find(b => b.id === brand.id)) {
-            dispatch(setBrand(selectedBrands.filter(b => b.id !== brand.id)));
-        }
-        else {
-            dispatch(setBrand([...(selectedBrands || []), brand]));
-        }
+        // Toggle: click same brand deselects, click different brand selects
+        dispatch(setBrand(selectedBrand?.id === brand.id ? null : brand));
     }
 
     const filterTextMapping: {mappingFilterTags: Record<number, string>, mappingFilterTagValues: Record<number, string>} = React.useMemo(() => {
@@ -161,7 +170,7 @@ export default function ProductListByCategory() {
     return (
         <LoadingComponent />
     );
-    console.log("filter", selectedPriceSort, selectedBrands, selectedFilters)
+    console.log("filter", selectedPriceSort, selectedBrand, selectedFilters)
 
     return (
         <Box
@@ -187,7 +196,7 @@ export default function ProductListByCategory() {
                                         borderRadius: 3,
                                         height: 50,         
                                         width: 120,         
-                                        border: (selectedBrands?.find(b => b.id === brand.id))
+                                        border: selectedBrand?.id === brand.id
                                             ? '1px solid red'
                                             : '1px solid #ccc',
                                     }}
@@ -366,7 +375,7 @@ export default function ProductListByCategory() {
                                     borderRadius: 'inherit',  
                                     textTransform: 'none',
                                 }}
-                                onClick={() => {dispatch(clearAllFilters()); setSelectedBrands(null)}}
+                                onClick={() => dispatch(clearAllFilters())}
                             >
 
                                 <CloseIcon sx={{mr: 0.5}} color="error" fontSize="small" />
@@ -473,16 +482,16 @@ export default function ProductListByCategory() {
                         height: '100%', // hoặc giá trị cụ thể nếu cần
                         py: 1, // padding theo chiều dọc để cân đối
                     }}
-                    onClick={handleSearch.bind(null, pageNumber + 1, { pageNumber: pageNumber + 1 })}
+                    onClick={handleLoadMore}
                     endIcon={!isFetching && <ExpandMoreIcon sx={{ ml: -1 }}/>}
-                    disabled={isFetching || (data ? data.totalCount <= 20*pageNumber : true)}
+                    disabled={isFetching || (data ? data.totalCount <= 20 * pageNumber : true)}
                 >
                     {isFetching ? (
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <LoadingComponent isMaxHeight={false} />
                         </Box>
                     ) : (
-                        <Typography>Hiển thị thêm {data ? (data.totalCount - 20 * pageNumber) : 0} sản phẩm</Typography>
+                        <Typography>Hiển thị thêm {(data && (data.totalCount - 20 * pageNumber) > 0) ? (data.totalCount - 20 * pageNumber) : 0} sản phẩm</Typography>
                     )}
                     
                 </Button>

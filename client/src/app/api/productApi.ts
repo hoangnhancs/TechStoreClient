@@ -24,12 +24,12 @@ export const productApi = createApi({
           ? result.map((p) => ({ type: "Product" as const, id: p.id }))
           : [],
     }),
-    fetchProductsByCat: builder.query<GetResult<Product>, { categoryId: number, params: SearchParams }>({
-      query: ({ categoryId, params }) => ({
-        url: `/search/${categoryId}`,
-        method: "GET",
-        params: params
-      }),
+    fetchProductsByCat: builder.query<GetResult<Product>, { categoryId: number; brandId?: number; params: SearchParams }>({
+      query: ({ categoryId, brandId, params }) => {
+        let url = `/search/${categoryId}`;
+        if (brandId) url += `/${brandId}`;
+        return { url, method: "GET", params };
+      },
       providesTags: (result) =>
         result?.results
           ? result.results.map((p) => ({ type: "Product" as const, id: p.id }))

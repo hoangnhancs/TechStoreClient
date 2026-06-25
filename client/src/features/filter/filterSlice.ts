@@ -5,7 +5,7 @@ const initialState = {
     filter: {} as Record<number, number[]>,
     priceSort: 'asc' as 'asc' | 'desc' | 'discount',
     searchQuery: '' as string,
-    brand: [] as Brand[],
+    brand: null as Brand | null,
     notiCreateAtSort: 'desc' as 'asc' | 'desc',
     notiStatusFilter: 'all' as 'read' | 'unread' | 'all',
     notiTypeFilter: 'all' as 'all' | 'review' | 'comment' | 'system'
@@ -30,7 +30,7 @@ const filterSlice = createSlice({
         setSearchQuery: (state, action: { payload: string }) => {
             state.searchQuery = action.payload;
         },
-        setBrand: (state, action: { payload: Brand[] }) => {
+        setBrand: (state, action: { payload: Brand | null }) => {
             state.brand = action.payload;
         },
         setNotiCreateAtSort: (state, action: { payload: 'asc' | 'desc' }) => {

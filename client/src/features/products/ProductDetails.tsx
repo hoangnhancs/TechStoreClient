@@ -4,7 +4,7 @@ import ReviewList from "../review/ReviewList";
 import ProductInformation from "./ProductInformation";
 import { useFetchProductByIdQuery } from "../../app/api/productApi";
 import LoadingComponent from "../../components/LoadingComponent";
-import { useGetCurrentUserQuery } from "../user/userApi";
+import { useAppSelector } from "../../hooks";
 import { useCreateUserActionTrackingMutation } from "../../app/api/userActionTrackingApi";
 import { useEffect } from "react";
 
@@ -14,7 +14,7 @@ import { useEffect } from "react";
 export default function ProductDetails() {
     const { id } = useParams();
     const {data: product, isLoading: isLoadingProduct} = useFetchProductByIdQuery(id ?? '')
-    const {data: currentUser, isLoading: isLoadingCurrentUser} = useGetCurrentUserQuery()
+    const currentUser = useAppSelector((state) => state.user.currentUser)
     const [ createTracking ] = useCreateUserActionTrackingMutation()
 
 
@@ -25,7 +25,7 @@ export default function ProductDetails() {
     }, [currentUser, product, createTracking]);
 
     
-    if (isLoadingProduct || isLoadingCurrentUser || !product) {
+    if (isLoadingProduct || !product) {
         return (
             <LoadingComponent />
         );

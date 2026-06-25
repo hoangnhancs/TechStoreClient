@@ -281,48 +281,37 @@ export const useOrderProcessing = () => {
         return;
       }
 
-      // Join OrderHub ngay để bắt StockReservationFailed nếu có
       await OrderSignalRService.createHubConnection(order.id);
 
-      const failurePromise = new Promise<OrderNotification>((resolve) => {
-        OrderSignalRService.onReceiveOrderNotification((notification) => {
-          if (!notification.isSuccess) resolve(notification);
-          // IsSuccess=true không cần xử lý ở đây (COD không gửi success notification)
-        });
+      // Resolve trên cả success lẫn failure
+      const orderNotificationPromise = new Promise<OrderNotification>((resolve) => {
+        OrderSignalRService.onReceiveOrderNotification(resolve);
       });
 
-      // Timeout = không có gì xấu xảy ra → order đang WaitingForConfirmation → success
+      // Timeout fallback nếu saga/signalr có vấn đề
       const timeoutPromise = new Promise<null>((resolve) =>
         window.setTimeout(() => resolve(null), 15000)
       );
 
-      const result = await Promise.race([failurePromise, timeoutPromise]);
+      const result = await Promise.race([orderNotificationPromise, timeoutPromise]);
       await OrderSignalRService.stopConnection();
 
       if (result === null) {
-        // Timeout — webhook chưa đến, KHÔNG phải fail
+        // Timeout — saga chưa phản hồi, navigate pending an toàn
         await clearPurchasedItemsFromBasket();
-        // Reconciliation job sẽ xử lý sau
         navigate(`/order-pending/${order.id}`, {
-          state: { orderNo: order.orderNo, message: "Thanh toán đang được xác nhận. Vui lòng kiểm tra lại đơn hàng sau ít phút." }
+          state: { orderNo: order.orderNo }
         });
         return;
       }
 
-      if (result !== null && !result.isSuccess) {
+      if (!result.isSuccess) {
         setErrorMessage(result.errorMessage || "Đặt hàng thất bại.");
         setOrderFailedDialogOpen(true);
         return;
       }
 
-      if (result !== null && result?.isSuccess)
-      {
-        await clearPurchasedItemsFromBasket();
-        toast.success("Đặt hàng thành công!");
-        handleNavigateToOrderResult(order);
-        return;
-      }
-
+      // IsSuccess=true → StockReserved, order đang WaitingForConfirmation
       await clearPurchasedItemsFromBasket();
       toast.success("Đặt hàng thành công!");
       handleNavigateToOrderResult(order);
@@ -330,6 +319,7 @@ export const useOrderProcessing = () => {
       toast.error(`Lỗi khi tạo đơn hàng: ${error instanceof Error ? error.message : "Vui lòng thử lại."}`);
     }
   };
+
 
 
   const handleNavigateToOrderResult = (order: Order) => {

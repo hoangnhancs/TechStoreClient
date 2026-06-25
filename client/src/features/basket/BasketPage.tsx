@@ -4,7 +4,6 @@ import { Item } from "../../lib/types";
 import { useEffect, useState } from "react";
 import { Add, Delete, Remove } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { useGetCurrentUserQuery } from "../user/userApi";
 import OrderSummary from "../order/OrderSummary";
 import { useDispatch } from "react-redux";
 import { setBasket, setBasketStates } from "./basketSlice";
@@ -26,7 +25,7 @@ export default function BasketPage() {
     const dispatch = useDispatch()
     const [groupedItems, setGroupedItems] = useState<GroupedItems>({})
     const [selectedItems, setSelectedItems] = useState<Array<Item>>([])
-    const {data: currentUser} = useGetCurrentUserQuery()
+    const currentUser = useAppSelector((state) => state.user.currentUser)
     const [localQuantities, setLocalQuantities] = useState<Record<string, number>>({})
     const debouncedQuantities = useDebounce(localQuantities, 400);
 

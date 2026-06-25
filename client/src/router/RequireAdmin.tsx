@@ -1,15 +1,13 @@
-
-import { useGetCurrentUserQuery } from "../features/user/userApi"
 import { Link, Outlet } from "react-router"
 import LoadingComponent from "../components/LoadingComponent"
 import { Button, Paper, Typography } from "@mui/material"
+import { useAppSelector } from "../hooks"
 
 export default function RequireAdmin() {
-    const {data: currentUser, isLoading} = useGetCurrentUserQuery()
+    const currentUser = useAppSelector((state) => state.user.currentUser)
+    const isInitialized = useAppSelector((state) => state.user.isInitialized)
 
-    if (isLoading) return (
-        <LoadingComponent />
-    )
+    if (!isInitialized) return <LoadingComponent />
 
     if (!currentUser?.roles.includes("Admin")) {
         return (
@@ -25,7 +23,5 @@ export default function RequireAdmin() {
             </Paper>
         );
     }
-    return (
-        <Outlet />
-    )
+    return <Outlet />
 }

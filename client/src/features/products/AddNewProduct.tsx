@@ -10,7 +10,6 @@ import AttributeGroups from "./AttributeGroups";
 import LoadingComponent from "../../components/LoadingComponent";
 import { useFetchCategoriesQuery } from "../../app/api/categoryApi";
 import { useFetchAllFilterTagsQuery } from "../../app/api/filterTagApi";
-// import { useGetCurrentUserQuery } from "../user/userApi";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 import { Brand, CreateProductInput, FilterTag, UpdateProductInput } from "../../lib/types";
@@ -18,7 +17,7 @@ import { useCreateProductMutation, useFetchProductByIdQuery, useUpdateProductMut
 import { Link, useLocation, useParams } from "react-router";
 import { ArrowBack } from "@mui/icons-material";
 import { useFetchAllBrandsQuery } from "../../app/api/brandApi";
-import { useGetCurrentUserQuery } from "../user/userApi";
+import { useAppSelector } from "../../hooks";
 import { flattenErrors } from "../../lib/util/util";
 
 
@@ -26,7 +25,7 @@ import { flattenErrors } from "../../lib/util/util";
 export default function AddNewProduct() {
   const { data: categories, isLoading: isCategoryLoading } = useFetchCategoriesQuery();
   const { data: allFilterTags, isLoading: isFilterTagLoading } = useFetchAllFilterTagsQuery();
-  const { data: currentUser } = useGetCurrentUserQuery();
+  const currentUser = useAppSelector((state) => state.user.currentUser);
   const { data: allBrands, isLoading: isBrandLoading } = useFetchAllBrandsQuery();
   const location = useLocation()
   const [ createProduct, { isLoading: isLoadingCreateProduct } ] = useCreateProductMutation();

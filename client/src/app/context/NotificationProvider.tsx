@@ -2,14 +2,18 @@ import { useEffect, useState } from "react";
 import { UserNotification } from "../../lib/types";
 import { NotificationSignalRService } from "../api/notificationSignalRService";
 import { NotificationContext } from "./notificationContext";
-import { useGetCurrentUserQuery } from "../../features/user/userApi";
+// import { useGetCurrentUserQuery } from "../../features/user/userApi";
+// import { useSelector } from "react-redux";
+import { useAppSelector } from "../../hooks";
 // import { useFetchAdminNotificationGroupQuery } from "../api/notificationGroupsApi";
 
 
 export const NotificationProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const [myNotifications, setMyNotifications] = useState<UserNotification[]>([]);
     const [onlineNotifications, setOnlineNotifications] = useState<UserNotification[]>([]);
-    const { data: currentUser } = useGetCurrentUserQuery();
+    // const { data: currentUser } = useGetCurrentUserQuery();
+    const currentUser = useAppSelector((state) => state.user.currentUser);
+    console.log("currentUser in NotificationProvider:", currentUser);
     // const { data: adminGroup } = useFetchAdminNotificationGroupQuery(undefined, { skip: !currentUser?.id });
     // console.log("admin group", adminGroup)
     useEffect(() => {
@@ -51,7 +55,7 @@ export const NotificationProvider: React.FC<{children: React.ReactNode}> = ({chi
             NotificationSignalRService.stopConnection()
             console.log("stop connection")
         }   
-    }, [currentUser?.id, currentUser?.notificationGroupIds])
+    }, [currentUser?.id])
     return (
         <NotificationContext.Provider value={{myNotifications: myNotifications, onlineNotifications: onlineNotifications}}>
             {children}

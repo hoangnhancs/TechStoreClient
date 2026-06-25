@@ -6,8 +6,7 @@ import { useState } from "react";
 import LoginPromptDialog from "../../components/LoginPromptDialog";
 import { toast } from "react-toastify";
 import { useAddBasketItemMutation } from "../../app/api/basketApi";
-import { useGetCurrentUserQuery } from "../user/userApi";
-import { useAppDispatch } from "../../hooks";
+import { useAppDispatch, useAppSelector } from "../../hooks";
 import { addItem } from "../basket/basketSlice";
 import { formatCurrency } from "../../lib/util/util";
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
@@ -22,7 +21,7 @@ type Props = {
 
 export default function ProductCard({product}: Props) {
     const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
-    const {data: currentUser} = useGetCurrentUserQuery()
+    const currentUser = useAppSelector((state) => state.user.currentUser)
     const [addBasketItem, {isLoading}] = useAddBasketItemMutation()
     const dispatch = useAppDispatch();
     const navigate = useNavigate();

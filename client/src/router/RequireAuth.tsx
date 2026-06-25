@@ -1,20 +1,16 @@
-
-import { useGetCurrentUserQuery } from "../features/user/userApi"
 import { Navigate, Outlet, useLocation } from "react-router"
 import LoadingComponent from "../components/LoadingComponent"
+import { useAppSelector } from "../hooks"
 
 export default function RequireAuth() {
-    const {data: currentUser, isLoading} = useGetCurrentUserQuery()
+    const currentUser = useAppSelector((state) => state.user.currentUser)
+    const isInitialized = useAppSelector((state) => state.user.isInitialized)
     const location = useLocation()
 
-    if (isLoading) return (
-        <LoadingComponent />
-    )
+    if (!isInitialized) return <LoadingComponent />
 
     if (!currentUser) {
-        return <Navigate to="/login" state={{from: location}} replace />
+        return <Navigate to="/login" state={{ from: location }} replace />
     }
-    return (
-        <Outlet />
-    )
+    return <Outlet />
 }

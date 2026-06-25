@@ -7,7 +7,7 @@ import 'swiper/swiper-bundle.css';
 import ProductAttributesPrompt from "../../components/ProductAttributesPrompt";
 import type { Swiper as SwiperType } from 'swiper';
 import { useAddBasketItemMutation } from "../../app/api/basketApi";
-import { Item, Product, User } from "../../lib/types";
+import { BasicUser, Item, Product } from "../../lib/types";
 import LoadingComponent from "../../components/LoadingComponent";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../hooks";
@@ -25,7 +25,7 @@ import { formatCurrency } from "../../lib/util/util";
 
 type Props = {
     product: Product | undefined;
-    currentUser: User | undefined;
+    currentUser: BasicUser | null | undefined;
 }
 
 export default function ProductInformation({product, currentUser}: Props) { 

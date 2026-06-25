@@ -9,124 +9,108 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';  // This single import replaces all individual CSS imports
 import { useNavigate } from 'react-router-dom';
 import { useFetchBannersQuery } from '../app/api/bannerApi';
+import { useFetchCategoriesQuery } from '../app/api/categoryApi';
 
-// Import modules
-
-interface Category {
-    id: number;
-    name: string;
-    icon: React.ReactNode;
-}
-
-// Data mẫu với icons
-const categories: Category[] = [
-    { id: 1, name: 'Camera', icon: <Camera /> },
-    { id: 2, name: 'Laptop', icon: <Laptop /> },
-    { id: 3, name: 'Mic thu âm', icon: <Mic /> },
-    { id: 4, name: 'Màn hình', icon: <Monitor /> },
-    { id: 5, name: 'PC', icon: <Computer /> },
-    { id: 6, name: 'Điện thoại', icon: <Phone /> },
-    { id: 7, name: 'Máy in', icon: <Print /> },
-    { id: 8, name: 'Máy tính bảng', icon: <Tablet /> },
-    { id: 9, name: 'Tivi', icon: <Tv /> },
-    { id: 10, name: 'Đồng hồ', icon: <Watch /> },
-];
+const getCategoryIcon = (catName: string) => {
+    const nameLower = catName.toLowerCase();
+    if (nameLower.includes('camera') || nameLower.includes('máy ảnh')) return <Camera />;
+    if (nameLower.includes('laptop')) return <Laptop />;
+    if (nameLower.includes('mic') || nameLower.includes('thu âm')) return <Mic />;
+    if (nameLower.includes('màn hình')) return <Monitor />;
+    if (nameLower.includes('pc') || nameLower.includes('máy tính')) return <Computer />;
+    if (nameLower.includes('điện thoại')) return <Phone />;
+    if (nameLower.includes('in') || nameLower.includes('printer')) return <Print />;
+    if (nameLower.includes('tablet') || nameLower.includes('bảng')) return <Tablet />;
+    if (nameLower.includes('tivi') || nameLower.includes('tv')) return <Tv />;
+    if (nameLower.includes('đồng hồ') || nameLower.includes('watch')) return <Watch />;
+    return <Laptop />; // fallback default icon
+};
 
 export default function SidePanel() {
     const {data: bannerItems} = useFetchBannersQuery()
+    const {data: dbCategories, isLoading: isLoadingCats} = useFetchCategoriesQuery()
     const navigate = useNavigate();
     return (
         <Box 
             sx={{
                 width: '100%',
-                height: 356,
+                height: { xs: 'auto', md: 356 },
                 display: 'flex',
-                flexDirection: 'row', // Đặt Categories và Carousel ngang hàng
+                flexDirection: { xs: 'column', md: 'row' },
                 gap: 2,
                 mb: 3,
                 mt: 2,
             }}
         >
             <Paper 
-                elevation={3}
+                elevation={1}
                 sx={{
-                    width: '25%', // Chiếm 30% chiều rộng
-                    height: '100%',
+                    width: { xs: '100%', md: '25%' },
+                    height: { xs: 220, md: '100%' },
                     overflow: 'auto', // Cho phép scroll nếu có nhiều categories
-                    borderRadius: 5,
-                    
+                    borderRadius: '16px',
+                    border: '1px solid',
+                    borderColor: 'divider',
                 }}
             >
-                <List sx={{ p: 1 , }}>
-                    {categories.map((category) => (
-                        <ListItemButton
-                            key={category.id}
-                            sx={{
-                                position: 'relative', 
-                                overflow: 'hidden',
-                                height: 30,
-                                borderRadius: 1,
-                                mb: 0.5,
-                                '&:hover': {
-                                    backgroundColor: '#abd5f1ff',
-                                },
-                                '&::before': {
-                                    content: '""',
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: '-75%',
-                                    width: '50%',
-                                    height: '100%',
-                                    background: 'linear-gradient(120deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.2) 100%)',
-                                    transform: 'skewX(-20deg)',
-                                },
-                                '&:hover::before': {
-                                    animation: 'sweep 0.5s ease-in-out',
-                                },
-                                '@keyframes sweep': {
-                                    '0%': {
-                                        left: '-75%',
-                                    },
-                                    '100%': {
-                                        left: '125%',
-                                    },
-                                },
-                            }}
-                            onClick={() => navigate(`/products/category/${category.id}`)}
-                        >
-                            <ListItemIcon sx={{ minWidth: 40 }}>
-                                {category.icon}
-                            </ListItemIcon>
-                            <ListItemText 
-                                primary={category.name}
+                <List sx={{ p: 1 }}>
+                    {isLoadingCats ? (
+                        <Box sx={{ p: 2, textAlign: 'center', color: 'text.secondary' }}>
+                            Đang tải danh mục...
+                        </Box>
+                    ) : (
+                        dbCategories?.map((category) => (
+                            <ListItemButton
+                                key={category.id}
                                 sx={{
-                                    fontSize: '0.9rem',
-                                    fontWeight: 500,
-                                    
+                                    position: 'relative', 
+                                    overflow: 'hidden',
+                                    height: 32,
+                                    borderRadius: '8px',
+                                    mb: 0.5,
+                                    '&:hover': {
+                                        backgroundColor: 'action.hover',
+                                        color: 'primary.main',
+                                    },
                                 }}
-                            />
-                            <KeyboardArrowRight 
-                                sx={{ 
-                                    opacity: 0.5,
-                                    transition: '0.5s',
-                                    '.MuiListItemButton-root:hover &': {
-                                        opacity: 1,
-                                        transform: 'translateX(4px)'
-                                    }
-                                }}
-                            />
-                        </ListItemButton>
-                    ))}
+                                onClick={() => navigate(`/products/category/${category.id}`)}
+                            >
+                                <ListItemIcon sx={{ minWidth: 32, color: 'inherit' }}>
+                                    {getCategoryIcon(category.displayName || category.name)}
+                                </ListItemIcon>
+                                <ListItemText 
+                                    primary={category.displayName || category.name}
+                                    primaryTypographyProps={{
+                                        fontSize: '0.85rem',
+                                        fontWeight: 600,
+                                    }}
+                                />
+                                <KeyboardArrowRight 
+                                    sx={{ 
+                                        opacity: 0.5,
+                                        fontSize: '18px',
+                                        transition: 'all 0.2s ease',
+                                        '.MuiListItemButton-root:hover &': {
+                                            opacity: 1,
+                                            transform: 'translateX(3px)'
+                                        }
+                                    }}
+                                />
+                            </ListItemButton>
+                        ))
+                    )}
                 </List>
             </Paper>
             <Paper 
                 elevation={3}
                 sx={{ 
                     flex: 1,
-                    height: '100%',
+                    width: '100%',
+                    height: { xs: 220, md: '100%' },
                     overflow: 'hidden',
-                    borderRadius: 5,
-                    
+                    borderRadius: '16px',
+                    border: '1px solid',
+                    borderColor: 'divider',
                     '& .swiper-button-next, & .swiper-button-prev': {
                         color: 'white',
                         background: 'rgba(0,0,0,0.5)',

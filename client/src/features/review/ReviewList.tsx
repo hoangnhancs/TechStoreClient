@@ -1,7 +1,7 @@
 import {  useEffect, useState } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { ReviewSignalRService } from "../../app/api/reviewSignalRService"
-import { Review, User } from "../../lib/types"
+import { BasicUser, Review } from "../../lib/types"
 import { Box, Button, Divider, Rating, Typography } from "@mui/material"
 import { LinearProgress } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
@@ -11,7 +11,7 @@ import ReviewItem from "../../components/ReviewItem"
 
 type Props = {
     productName: string
-    currentUser: User | undefined | null
+    currentUser: BasicUser | undefined | null
 }
 
 export default function ReviewList({ productName, currentUser }: Props) {

@@ -1,10 +1,11 @@
 import { useSearchParams } from "react-router"
 import { useFetchProductsQuery } from "../../app/api/productApi";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography, Chip } from "@mui/material";
 import ProductCard from "./ProductCard";
 import { useEffect, useState } from "react";
 import { Product } from "../../lib/types";
 import { useFetchCategoriesQuery } from "../../app/api/categoryApi";
+import LoadingComponent from "../../components/LoadingComponent";
 
 export default function ProductListBySearch() {
   const [searchParams] = useSearchParams();
@@ -33,18 +34,27 @@ export default function ProductListBySearch() {
     setAvaiCats(Array.from(cats));
   }, [products])
 
-  if (!fetchResult || !products || !fetchResult.totalCount) {
-    return <div>Loading...</div>;
+  if (!fetchResult || !products) {
+    return <LoadingComponent />;
   }
+
+  const remainingCount = fetchResult.totalCount - products.length;
 
   return (
     <>
       {
-        avaiCats.length > 0 && avaiCats.map((catId) => (
-          <div key={catId}>
-            {categories?.find(cat => cat.id === catId)?.name}
-          </div>
-        ))
+        avaiCats.length > 0 && (
+          <Box display="flex" gap={1} flexWrap="wrap" mb={2}>
+            {avaiCats.map((catId) => (
+              <Chip 
+                key={catId} 
+                label={categories?.find(cat => cat.id === catId)?.name || `Danh mục ${catId}`}
+                variant="outlined"
+                size="small"
+              />
+            ))}
+          </Box>
+        )
       }
       <Box sx={{ 
           display: "flex", 
@@ -54,8 +64,8 @@ export default function ProductListBySearch() {
           mb: 3 
         }}
       >
-        <Typography variant="h6" sx={{ my: 3, width: "auto" }} fontWeight={400} >
-          Tìm thấy <strong>{fetchResult?.totalCount}</strong> sản phẩm cho từ khoá <strong>'{searchTerm}'</strong>
+        <Typography variant="h6" sx={{ my: 3, width: "auto" }} fontWeight={400} color="text.primary">
+          Tìm thấy <strong>{fetchResult.totalCount}</strong> sản phẩm cho từ khoá <strong>'{searchTerm}'</strong>
         </Typography>
       </Box>
       
@@ -68,15 +78,32 @@ export default function ProductListBySearch() {
           ))) 
           : 
           (
-            <Grid container sx={{ textAlign: 'center', mt: 4 }}>
-                <Box sx={{ fontSize: '1.2rem', color: 'text.secondary' }}>
+            <Grid container sx={{ textAlign: 'center', mt: 4, width: '100%', justifyContent: 'center' }}>
+                <Typography sx={{ fontSize: '1.2rem', color: 'text.secondary' }}>
                     Không có sản phẩm nào.
-                </Box>
+                </Typography>
             </Grid>
           )
         }
       </Grid>
-      <Button onClick={() => setPage(page + 1)}>Xem thêm {((fetchResult?.totalCount - page*20) > 0 ? (fetchResult?.totalCount - page*20) : 0)}</Button>
+      
+      {remainingCount > 0 && (
+        <Box display="flex" justifyContent="center" sx={{ mt: 4, mb: 2 }}>
+          <Button 
+            variant="contained"
+            color="primary"
+            onClick={() => setPage(page + 1)}
+            sx={{
+              px: 4,
+              py: 1,
+              borderRadius: '20px',
+              fontWeight: 600,
+            }}
+          >
+            Xem thêm ({remainingCount} sản phẩm)
+          </Button>
+        </Box>
+      )}
     </>  
   )
 }

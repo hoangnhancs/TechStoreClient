@@ -2,7 +2,7 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import comment_pet from "../assets/logo_pet.png";
 import { useEffect, useRef, useState } from "react";
 import React from "react";
-import { User } from "../lib/types";
+import { BasicUser } from "../lib/types";
 import LoginPromptDialog from "./LoginPromptDialog";
 // import { NotificationSignalRService } from "../app/api/notificationSignalRService";
 // import { useNotificationContext } from "../app/context/notificationContext";
@@ -11,7 +11,7 @@ import LoginPromptDialog from "./LoginPromptDialog";
 type Props = {
     onSendComment: (content: string, parentId?: string) => Promise<string>;
     onDraftChange: (hasDraft: boolean) => void;
-    currentUser: User | undefined;
+    currentUser: BasicUser | null | undefined;
 }
 
 const AddNewComment: React.FC<Props> = React.memo(({onSendComment, onDraftChange, currentUser}) => {

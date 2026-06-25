@@ -1,5 +1,4 @@
-
-import { Box, Container, createTheme, CssBaseline, ThemeProvider } from "@mui/material"
+import { Box, Container, CssBaseline, ThemeProvider } from "@mui/material"
 import NavBar from "./layouts/NavBar"
 import { Outlet, useLocation } from "react-router-dom"
 import { useAppSelector } from "./hooks"
@@ -8,6 +7,7 @@ import { SnackbarProvider } from 'notistack';
 import HomePage from "./pages/HomePage"
 import { NotificationContainer } from "./features/notification/NotificationContainer"
 import "./style/global.css"
+import { getAppTheme } from "./style/theme"
 
 
 function App() {
@@ -34,49 +34,7 @@ function App() {
   //     dispatch(clearCurrentUser());
   //   }
   // }, [dispatch]);
-  const theme = createTheme({
-    palette: {
-      mode: palletteType,
-      background: {
-        default: palletteType === 'dark' 
-          ? '#121212' 
-          : '#f5f5f5',
-        paper: palletteType === 'dark' 
-          ? '#1e1e1e' 
-          : '#ffffff'
-      },
-      primary: {
-        main: palletteType === 'dark' 
-          ? '#90caf9' 
-          : '#1976d2',
-        light: palletteType === 'dark' 
-          ? '#e3f2fd' 
-          : '#42a5f5',
-        dark: palletteType === 'dark' 
-          ? '#42a5f5' 
-          : '#1565c0'
-      },
-      secondary: {
-        main: palletteType === 'dark' 
-          ? '#ce93d8' 
-          : '#9c27b0',
-        light: palletteType === 'dark' 
-          ? '#f3e5f5' 
-          : '#ba68c8',
-        dark: palletteType === 'dark' 
-          ? '#ab47bc' 
-          : '#7b1fa2'
-      },
-      text: {
-        primary: palletteType === 'dark' 
-          ? '#ffffff' 
-          : '#000000',
-        secondary: palletteType === 'dark' 
-          ? '#b0b0b0' 
-          : '#666666'
-      }
-    }
-  })
+  const theme = getAppTheme(palletteType)
 
 
   return (
@@ -89,8 +47,8 @@ function App() {
           <Box
             sx={{
               background: isDarkMode 
-                ? 'linear-gradient(to bottom, #1a237e 0%, #121212 100%)' 
-                : 'linear-gradient(to bottom, #bbdefb 0%, #f5f5f5 100%)',
+                ? 'linear-gradient(to bottom, #090d16 0%, #111827 100%)' 
+                : 'linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%)',
               minHeight: '100vh',
               display: 'flex',
               flexDirection: 'column',
@@ -100,7 +58,8 @@ function App() {
               <HomePage /> 
                 : 
               <Container maxWidth="xl" sx={{ 
-                mt: 10  // marginTop responsive
+                mt: { xs: 12, md: 14 },
+                mb: 4
               }}>
                 <NotificationContainer />
                 <Outlet /> 

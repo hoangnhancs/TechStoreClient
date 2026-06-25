@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Box, Typography, Button, TextField, Avatar, Stack } from "@mui/material";
-import { Comment, User } from '../lib/types';
+import { Comment, BasicUser } from '../lib/types';
 import LoginPromptDialog from './LoginPromptDialog';
 // import { useLocation } from 'react-router';
 // import { toast } from 'react-toastify';
@@ -11,7 +11,7 @@ import { useSearchParams } from 'react-router-dom';
 type Props = {
   comment: Comment;
   depth: number;
-  currentUser?: User;
+  currentUser?: BasicUser | null;
   onSendReply: (content: string, parent?: string) => Promise<string>;
   onDraftChange: (hasDraft: boolean) => void;
   isLastChild?: boolean; //kiem tra xem sau comment nay, con comment nao cung level khong

@@ -1,7 +1,6 @@
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Rating, Typography } from "@mui/material";
 import {  Item, Product } from "../../lib/types";
 import { Link, useNavigate } from "react-router-dom";
-import discount from '../../assets/discount.png';
 import { useState } from "react";
 import LoginPromptDialog from "../../components/LoginPromptDialog";
 import { toast } from "react-toastify";
@@ -56,238 +55,240 @@ export default function ProductCard({product}: Props) {
     }
   return (
     <Card
-    elevation={3}
-    sx={{
-        padding: 0.5,
+      elevation={2}
+      sx={{
+        padding: 1,
         position: 'relative',
-        height: 460,
-        borderRadius: 2,
+        height: 480,
+        borderRadius: '16px',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        overflow: 'visible',
-        transition: 'all 0.3s ease',
+        overflow: 'hidden',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-            transform: 'scale(1.03) translateY(-10px)',
-            boxShadow: 5,
+          transform: 'translateY(-8px)',
+          boxShadow: (theme) => theme.palette.mode === 'dark'
+            ? '0 12px 24px -10px rgba(56, 189, 248, 0.15)'
+            : '0 12px 24px -10px rgba(148, 163, 184, 0.3)',
+          borderColor: 'primary.light',
         },
         cursor: 'pointer',
-    }}
-    onClick={() => navigate(`/products/${product.id}`)}
->
-    {/* Discount Badge */}
-    {product.discountPercentage ? (
-        <Box
-            sx={{
-                position: 'absolute',
-                top: 0,
-                left: -4,
-                color: 'white',
-                padding: '6px 12px',
-                fontSize: '13px',
-                fontWeight: 500,
-                display: 'flex',
-                width: {
-                    xs: '80px',
-                    sm: '90px',
-                    md: '100px',
-                },
-                height: {
-                    xs: '32px',
-                    sm: '36px',
-                    md: '40px',
-                },
-                alignItems: 'center',
-                backgroundSize: 'contain',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'left center',
-                backgroundImage: `url(${discount})`,
-            }}
-        >
-            <Typography
-                variant="subtitle2"
-                sx={{
-                    fontSize: {
-                        xs: '0.6rem',
-                        sm: '0.7rem',
-                        md: '0.8rem',
-                    },
-                    transform: 'translateY(-2px)',
-                }}
-            >
-                Giảm {product.discountPercentage}%
-            </Typography>
-        </Box>
-    ) : null}
-
-    {/* Product Image */}
-    <CardMedia
-        component="img"
-        sx={{
-            height: 230,
-            width: '100%',
-            backgroundSize: 'cover',
-            objectFit: 'contain',
-            mx: 'auto',
-        }}
-        image={product.mainImageUrl}
-    />
-
-    {/* Product Details */}
-    <CardContent
-        sx={{
-            flexGrow: 1,
-            minHeight: 150,
-            padding: 2,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 1,
-            alignItems: 'flex-start',
-        }}
+        border: '1px solid',
+        borderColor: 'divider',
+        backgroundColor: 'background.paper',
+      }}
+      onClick={() => navigate(`/products/${product.id}`)}
     >
-        {/* Product Name */}
-        <Typography
+      {/* Discount Badge */}
+      {product.discountPercentage ? (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 12,
+            left: 12,
+            color: 'white',
+            padding: '4px 10px',
+            borderRadius: '8px',
+            fontSize: '11px',
+            fontWeight: 700,
+            zIndex: 10,
+            background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.35)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+          }}
+        >
+          -{product.discountPercentage}%
+        </Box>
+      ) : null}
+
+      {/* Product Image Container */}
+      <Box 
+        sx={{ 
+          height: 220, 
+          width: '100%', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          overflow: 'hidden',
+          backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.01)',
+          borderRadius: '12px',
+          p: 2,
+        }}
+      >
+        <CardMedia
+          component="img"
+          sx={{
+            maxHeight: '100%',
+            maxWidth: '100%',
+            objectFit: 'contain',
+            transition: 'transform 0.5s ease',
+            '.MuiCard-root:hover &': {
+              transform: 'scale(1.05)',
+            }
+          }}
+          image={product.mainImageUrl}
+          alt={product.name}
+        />
+      </Box>
+
+      {/* Product Details */}
+      <CardContent
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          px: 1,
+          py: 2,
+          '&:last-child': { pb: 1 }
+        }}
+      >
+        <Box display="flex" flexDirection="column" gap={1}>
+          {/* Product Name */}
+          <Typography
             gutterBottom
             sx={{
-                textTransform: 'uppercase',
-                width: '100%',
-                height: '3.5em',
-                lineHeight: '1.2em',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-                margin: 0,
+              fontWeight: 600,
+              fontSize: '0.925rem',
+              lineHeight: '1.4',
+              height: '2.8em',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              margin: 0,
+              color: 'text.primary',
+              '&:hover': {
+                color: 'primary.main',
+              }
             }}
             variant="subtitle2"
-        >
+          >
             {product.name}
-        </Typography>
+          </Typography>
 
-        {/* Rating */}
-        {product.averageRating > 0 && (
-            <Box display="flex" alignItems="center" gap={1}>
-                <Rating
-                    name="read-only-rating"
-                    value={product.averageRating}
-                    readOnly
-                    precision={0.1}
-                    size="medium"
-                    sx={{
-                        color: '#fbc02d',
-                        '& .MuiRating-iconEmpty': {
-                            color: '#ccc',
-                        },
-                    }}
-                />
-                <Typography
-                    color="gray"
-                    sx={{ transform: 'translateY(3px)' }}
-                    variant="body2"
-                    alignSelf="center"
-                >
-                    ({product.averageRating}/5)
-                </Typography>
+          {/* Rating */}
+          {product.averageRating > 0 ? (
+            <Box display="flex" alignItems="center" gap={0.5}>
+              <Rating
+                name="read-only-rating"
+                value={product.averageRating}
+                readOnly
+                precision={0.1}
+                size="small"
+                sx={{ color: '#ffb300' }}
+              />
+              <Typography
+                color="text.secondary"
+                sx={{ fontSize: '0.75rem', fontWeight: 600 }}
+              >
+                ({product.averageRating.toFixed(1)})
+              </Typography>
             </Box>
-        )}
+          ) : (
+            <Box sx={{ height: 18 }} /> // Spacing if no rating
+          )}
+        </Box>
 
         {/* Price Section */}
-        <Box display="flex" flexDirection="column" gap={0.5} mt="auto">
-            {product.discountPercentage ? (
-                <>
-                    {/* Old Price */}
-                    <Typography
-                        sx={{
-                            color: 'gray',
-                            textDecoration: 'line-through',
-                            fontSize: '0.9rem',
-                        }}
-                        variant="body2"
-                    >
-                        {formatCurrency(product.price)}
-                    </Typography>
-                    {/* Discounted Price */}
-                    <Typography
-                        sx={{
-                            color: 'secondary.main',
-                            fontWeight: 'bold',
-                            fontSize: '1.2rem',
-                        }}
-                        variant="body1"
-                    >
-                        {formatCurrency(
-                            product.price -
-                                (product.price * product.discountPercentage) /
-                                    100
-                        )}
-                    </Typography>
-                </>
-            ) : (
-                <Typography
-                    sx={{
-                        color: 'secondary.main',
-                        fontWeight: 'bold',
-                        fontSize: '1.2rem',
-                    }}
-                    variant="body1"
-                >
-                    {formatCurrency(product.price)}
-                </Typography>
-            )}
+        <Box display="flex" flexDirection="column" mt={1}>
+          {product.discountPercentage ? (
+            <>
+              {/* Old Price */}
+              <Typography
+                sx={{
+                  color: 'text.secondary',
+                  textDecoration: 'line-through',
+                  fontSize: '0.8rem',
+                  opacity: 0.7,
+                }}
+                variant="body2"
+              >
+                {formatCurrency(product.price)}
+              </Typography>
+              {/* Discounted Price */}
+              <Typography
+                sx={{
+                  color: 'primary.main',
+                  fontWeight: 700,
+                  fontSize: '1.25rem',
+                }}
+                variant="body1"
+              >
+                {formatCurrency(
+                  product.price - (product.price * product.discountPercentage) / 100
+                )}
+              </Typography>
+            </>
+          ) : (
+            <Typography
+              sx={{
+                color: 'primary.main',
+                fontWeight: 700,
+                fontSize: '1.25rem',
+                mt: 1.6, // Keep height alignment consistent with discounted items
+              }}
+              variant="body1"
+            >
+              {formatCurrency(product.price)}
+            </Typography>
+          )}
         </Box>
-    </CardContent>
+      </CardContent>
 
-    {/* Actions */}
-    <CardActions
+      {/* Actions */}
+      <CardActions
         sx={{
-            justifyContent: 'space-between',
-            paddingTop: 0,
+          justifyContent: 'space-between',
+          gap: 1,
+          px: 1,
+          pb: 1.5,
+          pt: 0,
         }}
-    >
+      >
         <Button
-            sx={{
-                background: 'linear-gradient(135deg, #44b4d6ff, #1b4594ff)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                    transform: 'scale(1.03) translateY(-2px)',
-                    boxShadow: 5,
-                },
-                color: 'white',
-                width: '100px',
-            }}
-            startIcon={<AddShoppingCartIcon />}
-            onClick={(e) => {
-                handleAddToCart();
-                e.stopPropagation();
-            }}
-            disabled={isLoading}
+          variant="contained"
+          color="primary"
+          sx={{
+            flex: 1,
+            py: 0.75,
+            fontSize: '0.8rem',
+            borderRadius: '8px',
+          }}
+          startIcon={<AddShoppingCartIcon fontSize="small" />}
+          onClick={(e) => {
+            handleAddToCart();
+            e.stopPropagation();
+          }}
+          disabled={isLoading}
         >
-            Thêm
+          Thêm
         </Button>
         <Button
-            sx={{
-                background: 'linear-gradient(135deg, #44b4d6ff, #1b4594ff)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                    transform: 'scale(1.03) translateY(-2px)',
-                    boxShadow: 5,
-                },
-                color: 'white',
-                width: '100px',
-            }}
-            startIcon={<InfoIcon />}
-            component={Link}
-            to={`/products/${product.id}`}
+          variant="outlined"
+          color="primary"
+          sx={{
+            flex: 1,
+            py: 0.75,
+            fontSize: '0.8rem',
+            borderRadius: '8px',
+          }}
+          startIcon={<InfoIcon fontSize="small" />}
+          component={Link}
+          to={`/products/${product.id}`}
+          onClick={(e) => e.stopPropagation()}
         >
-            Chi tiết
+          Chi tiết
         </Button>
-    </CardActions>
+      </CardActions>
 
-    {/* Login Prompt Dialog */}
-    <LoginPromptDialog
+      {/* Login Prompt Dialog */}
+      <LoginPromptDialog
         open={openLoginPrompt}
         onClose={() => setOpenLoginPrompt(false)}
-    />
-</Card>
+      />
+    </Card>
   )
 }

@@ -13,9 +13,16 @@ export default function ProductSwiper() {
         <Box 
             sx={{ 
                 padding: 3, 
-                background: 'linear-gradient(to right, #f8c7d1, #e981e9ff, #df9b64ff)',
-                borderRadius: 5, 
-                overflow: 'visible'
+                background: (theme) => theme.palette.mode === 'dark'
+                    ? 'linear-gradient(135deg, #0b0f19 0%, #1e1b4b 50%, #0f172a 100%)'
+                    : 'linear-gradient(135deg, #f0f9ff 0%, #f5f3ff 50%, #faf5ff 100%)',
+                borderRadius: '16px', 
+                overflow: 'visible',
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: (theme) => theme.palette.mode === 'dark'
+                    ? '0 8px 32px rgba(0,0,0,0.3)'
+                    : '0 8px 32px rgba(99,102,241,0.05)',
             }} 
         >
             {/* <Box
@@ -62,10 +69,10 @@ export default function ProductSwiper() {
                     <defs><radialGradient id="paint0_radial_2525_777" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(670.447 474.006) rotate(78.858) scale(665.5 665.824)"><stop stopColor="#1BA1E3"></stop> <stop offset="0.0001" stopColor="#1BA1E3"></stop> <stop offset="0.300221" stopColor="#5489D6"></stop> <stop offset="0.545524" stopColor="#9B72CB"></stop> <stop offset="0.825372" stopColor="#D96570"></stop> <stop offset="1" stopColor="#F49C46"></stop></radialGradient> <radialGradient id="paint1_radial_2525_777" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(670.447 474.006) rotate(78.858) scale(665.5 665.824)"><stop stopColor="#1BA1E3"></stop> <stop offset="0.0001" stopColor="#1BA1E3"></stop> <stop offset="0.300221" stopColor="#5489D6"></stop> <stop offset="0.545524" stopColor="#9B72CB"></stop> <stop offset="0.825372" stopColor="#D96570"></stop> <stop offset="1" stopColor="#F49C46"></stop></radialGradient>
                     </defs>
                 </svg>
-                <Typography variant="h5" sx={{ ml: 2, fontWeight: 'bold', flexGrow: 1, color: 'rgb(4, 41, 122)'}}>
+                <Typography variant="h5" sx={{ ml: 2, fontWeight: 700, flexGrow: 1, color: 'text.primary'}}>
                     GỢI Ý CHO BẠN
                 </Typography>
-                <Button sx={{ color: '#FF6347', fontWeight: 'bold' }}>
+                <Button sx={{ color: 'secondary.main', fontWeight: 'bold' }}>
                     Xem thêm
                 </Button>
             </Box>
@@ -110,7 +117,6 @@ export default function ProductSwiper() {
                 <Swiper 
                     style={{ height: 450 }}
                     spaceBetween={5} 
-                    slidesPerView={5} 
                     modules={[Navigation, Autoplay]}
                     navigation={true} 
                     pagination={{
@@ -122,6 +128,13 @@ export default function ProductSwiper() {
                         disableOnInteraction: false
                     }}
                     loop={true}
+                    breakpoints={{
+                        0: { slidesPerView: 1.5, spaceBetween: 10 },
+                        480: { slidesPerView: 2.2, spaceBetween: 12 },
+                        768: { slidesPerView: 3.2, spaceBetween: 16 },
+                        1024: { slidesPerView: 4, spaceBetween: 20 },
+                        1200: { slidesPerView: 5, spaceBetween: 20 }
+                    }}
                 >
                     {suggestionProducts?.map((product, index) => (
                         <SwiperSlide key={index} style={{ display: "flex", height: "100%", alignItems: "center" }}>

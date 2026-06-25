@@ -36,11 +36,11 @@ createRoot(document.getElementById('root')!).render(
               </Box>
           } 
             persistor={persistor}>
+          <ToastContainer position='bottom-right' hideProgressBar theme='colored'/>
+          <NotificationProvider>
+            <RouterProvider router={router} />
+          </NotificationProvider>
         </PersistGate>
-        <ToastContainer position='bottom-right' hideProgressBar theme='colored'/>
-        <NotificationProvider>
-          <RouterProvider router={router} />
-        </NotificationProvider>
       </Provider>  
     </LocalizationProvider>
   </StrictMode>,

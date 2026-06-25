@@ -2,13 +2,13 @@ import { Box, Button } from "@mui/material";
 import { useCallback, useEffect, useState } from "react";
 import { CommentSignalRService } from "../../app/api/commentSignalRService";
 import { useParams, useSearchParams } from "react-router-dom";
-import { Comment, User } from "../../lib/types";
+import { Comment, BasicUser } from "../../lib/types";
 import CommentItem from "../../components/CommentItem";
 import AddNewComment from "../../components/AddNewComment";
 
 
 type Props = {
-  currentUser: User | undefined;
+  currentUser: BasicUser | null | undefined;
 }
 
 export default function CommentList({currentUser}: Props) {

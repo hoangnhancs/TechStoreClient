@@ -389,12 +389,21 @@ export default function ProductListByCategory() {
                 </Box>
             }
 
-            <Box display={"flex"} justifyContent={"space-between"}>
-                <Typography color="text.primary" variant="h6" sx={{ mb: 1.5, fontWeight: 'bold' }}>
+            <Box 
+                display={"flex"} 
+                sx={{ 
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    justifyContent: "space-between",
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    gap: 1.5,
+                    mb: 2,
+                }}
+            >
+                <Typography color="text.primary" variant="h6" sx={{ fontWeight: 'bold' }}>
                     Sắp xếp theo
                 </Typography>
                 
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, width: { xs: '100%', sm: 'auto' } }}>
                     <Box 
                         key='pricesort' 
                         sx={{ display: 'flex', p: 0.5, alignItems: 'center' }}
@@ -403,17 +412,20 @@ export default function ProductListByCategory() {
                             sx={{  
                                 mr: 1, 
                                 mb: 1, 
-                                bgcolor: 'white', 
+                                bgcolor: (selectedPriceSort === 'discount') ? 'action.selected' : 'background.paper', 
                                 color: (selectedPriceSort === 'discount')
-                                    ? 'rgb(59, 130, 246)'
-                                    : 'black',
-                                borderRadius: 10,
+                                    ? 'primary.main'
+                                    : 'text.primary',
+                                borderRadius: '20px',
                                 height: 40,         
                                 width: 170,         
-                                border: (selectedPriceSort === 'discount')
-                                    ? '1px solid rgb(59, 130, 246)'
-                                    : '1px solid #ccc',
-                                alignContent: 'center',
+                                border: '1px solid',
+                                borderColor: (selectedPriceSort === 'discount')
+                                    ? 'primary.main'
+                                    : 'divider',
+                                '&:hover': {
+                                    bgcolor: 'action.hover',
+                                },
                             }}
                             onClick={() => dispatch(setPriceSort('discount'))}
                             startIcon={<LocalOfferIcon />}
@@ -424,21 +436,23 @@ export default function ProductListByCategory() {
                             sx={{  
                                 mr: 1, 
                                 mb: 1, 
-                                bgcolor: 'white', 
+                                bgcolor: (selectedPriceSort === 'asc') ? 'action.selected' : 'background.paper', 
                                 color: (selectedPriceSort === 'asc')
-                                    ? 'rgb(59, 130, 246)'
-                                    : 'black',
-                                borderRadius: 10,
+                                    ? 'primary.main'
+                                    : 'text.primary',
+                                borderRadius: '20px',
                                 height: 40,         
                                 width: 170,         
-                                border: (selectedPriceSort === 'asc')
-                                    ? '1px solid rgb(59, 130, 246)'
-                                    : '1px solid #ccc',
-                                alignContent: 'center',
+                                border: '1px solid',
+                                borderColor: (selectedPriceSort === 'asc')
+                                    ? 'primary.main'
+                                    : 'divider',
+                                '&:hover': {
+                                    bgcolor: 'action.hover',
+                                },
                             }}
                             onClick={() => dispatch(setPriceSort('asc'))}
                             startIcon={<ArrowUpwardIcon />}
-
                         >  
                             Giá Thấp - Cao
                         </Button>
@@ -446,17 +460,20 @@ export default function ProductListByCategory() {
                             sx={{  
                                 mr: 1, 
                                 mb: 1, 
-                                bgcolor: 'white', 
+                                bgcolor: (selectedPriceSort === 'desc') ? 'action.selected' : 'background.paper', 
                                 color: (selectedPriceSort === 'desc')
-                                    ? 'rgb(59, 130, 246)'
-                                    : 'black',
-                                borderRadius: 10,
+                                    ? 'primary.main'
+                                    : 'text.primary',
+                                borderRadius: '20px',
                                 height: 40,         
                                 width: 170,         
-                                border: (selectedPriceSort === 'desc')
-                                    ? '1px solid rgb(59, 130, 246)'
-                                    : '1px solid #ccc',
-                                alignContent: 'center'
+                                border: '1px solid',
+                                borderColor: (selectedPriceSort === 'desc')
+                                    ? 'primary.main'
+                                    : 'divider',
+                                '&:hover': {
+                                    bgcolor: 'action.hover',
+                                },
                             }}  
                             onClick={() => dispatch(setPriceSort('desc'))}
                             startIcon={<ArrowDownwardIcon />}

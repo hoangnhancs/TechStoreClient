@@ -19,23 +19,24 @@ export default function CommentList({currentUser}: Props) {
   const commentId = searchParams.get("commentId");
 
   useEffect(() => {
-    // console.log("commentId:", commentId);
-    // console.log("list comments:", comments)
-    if (commentId && comments.length > 0) {
-      // Delay nhẹ để đợi DOM render xong
-      requestAnimationFrame(() => {
-        const element = document.getElementById(commentId);
-        // console.log("element:", element);
+    if (!commentId || comments.length === 0) return;
 
+    let attempts = 0;
+    const tryScroll = () => {
+      const element = document.getElementById(commentId);
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
         element.classList.add("highlight-comment");
-        // setTimeout(() => {
-        //   element.classList.remove("highlight-comment");
-        // }, 6000);
+      } else if (attempts < 8) {
+        attempts++;
+        setTimeout(tryScroll, 200);
       }
-    });
-  }}, [commentId, comments]);
+    };
+
+    // setTimeout thay vì requestAnimationFrame để đợi React commit xong DOM
+    const timer = setTimeout(tryScroll, 100);
+    return () => clearTimeout(timer);
+  }, [commentId, comments]);
 
 
   function insertCommentToTree(commentTree: Comment[],newComment: Comment): Comment[] {

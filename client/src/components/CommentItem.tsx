@@ -5,6 +5,7 @@ import LoginPromptDialog from './LoginPromptDialog';
 // import { useLocation } from 'react-router';
 // import { toast } from 'react-toastify';
 import { formatVNDate } from '../lib/util/util';
+import { useSearchParams } from 'react-router-dom';
 
 
 type Props = {
@@ -31,6 +32,38 @@ const CommentItem: React.FC<Props> = React.memo(({
   const [openLoginPrompt, setOpenLoginPrompt] = useState(false);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   // const location = useLocation();
+
+  const [searchParams] = useSearchParams();
+  const commentId = searchParams.get("commentId");
+
+  // Tự động mở rộng khi có commentId trùng khớp với comment con/cháu bên trong
+  useEffect(() => {
+    if (!commentId || !comment.replies || comment.replies.length === 0) return;
+    
+    const hasMatchingDescendant = (replies: Comment[]): boolean => {
+      return replies.some(reply => 
+        reply.id === commentId || 
+        (reply.replies && reply.replies.length > 0 && hasMatchingDescendant(reply.replies))
+      );
+    };
+
+    if (hasMatchingDescendant(comment.replies)) {
+      setIsExpanded(true);
+    }
+  }, [commentId, comment.replies]);
+
+  // Tự động cuộn đến comment và highlight nếu id trùng khớp với commentId khi component mount
+  useEffect(() => {
+    if (comment.id === commentId) {
+      requestAnimationFrame(() => {
+        const element = document.getElementById(commentId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+          element.classList.add("highlight-comment");
+        }
+      });
+    }
+  }, [comment.id, commentId]);
 
   const isOwnComment = currentUser && currentUser.id === comment.userId;
   const handleSendReply = async () => {

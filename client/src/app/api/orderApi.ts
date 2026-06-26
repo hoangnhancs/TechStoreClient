@@ -62,12 +62,18 @@ export const orderApi = createApi({
     }),
     getListOrdersInDateRange: builder.query<
       OrderWithUserInforDto[],
-      { startDate: string; endDate: string }
+      { startDate: string; endDate: string; status?: string }
     >({
-      query: ({ startDate, endDate }) => ({
-        url: "/orders/range?startDate=" + startDate + "&endDate=" + endDate,
-        method: "GET",
-      }),
+      query: ({ startDate, endDate, status }) => {
+        let url = `/orders/range?startDate=${startDate}&endDate=${endDate}`;
+        if (status) {
+          url += `&status=${status}`;
+        }
+        return {
+          url,
+          method: "GET",
+        };
+      },
       providesTags: (result) =>
         result
           ? [
@@ -79,8 +85,27 @@ export const orderApi = createApi({
             ]
           : [{ type: "Order", id: "LIST" }],
     }),
-    getOrdersWaitingForConfirmation: builder.query<OrderWithUserInforDto[], void>({
-      query: () => ({ url: "/orders/wait-confirm-order", method: "GET" }),
+    getOrdersWaitingForConfirmation: builder.query<
+      OrderWithUserInforDto[],
+      { startDate?: string; endDate?: string } | void
+    >({
+      query: (params) => {
+        let url = "/orders/wait-confirm-order";
+        if (params) {
+          const { startDate, endDate } = params;
+          const queryParams = new URLSearchParams();
+          if (startDate) queryParams.append("startDate", startDate);
+          if (endDate) queryParams.append("endDate", endDate);
+          const queryString = queryParams.toString();
+          if (queryString) {
+            url += `?${queryString}`;
+          }
+        }
+        return {
+          url,
+          method: "GET",
+        };
+      },
       providesTags: (result) =>
         result
           ? [

@@ -1,23 +1,27 @@
-    import { Box, Button, Paper, Stack, Typography } from "@mui/material";
-    import PieChartIcon from '@mui/icons-material/PieChart';
-    import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-    import { DatePicker } from "@mui/x-date-pickers";
-    import { useEffect, useState } from "react";
-    import { useGetListOrdersInDateRangeQuery } from "../../app/api/orderApi";
-    import { useAppDispatch, useAppSelector } from "../../hooks";
-    import { setAnalysStartDate, setAnalysEndDate } from "../order/orderSlice";
-    import { useCountUp } from "../../app/hooks/useCountUp";
-    import AnalystCard from "./AnalystCard";
-    import TopProductsandCustommers from "./TopProductsandCustommers";
-    import Inventory2Icon from '@mui/icons-material/Inventory2';
-    import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-    import SalesChart from "./SalesChart";
-    import { formatCurrency } from "../../lib/util/util";
+import { Box, Button, Paper, Stack, Typography } from "@mui/material";
+import PieChartIcon from '@mui/icons-material/PieChart';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { DatePicker } from "@mui/x-date-pickers";
+import { useEffect, useState } from "react";
+import dayjs from "dayjs";
+import { useGetListOrdersInDateRangeQuery } from "../../app/api/orderApi";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { setAnalysStartDate, setAnalysEndDate } from "../order/orderSlice";
+import { useCountUp } from "../../app/hooks/useCountUp";
+import AnalystCard from "./AnalystCard";
+import TopProductsandCustommers from "./TopProductsandCustommers";
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import SalesChart from "./SalesChart";
+import { formatCurrency } from "../../lib/util/util";
 import { UserInforDto } from "../../lib/types";
 
     export default function AnalystPage() {
         const dispatch = useAppDispatch();
-        const { analysStartDate: startDate, analysEndDate: endDate } = useAppSelector(state => state.order);
+        const {
+            analysStartDate: startDate = dayjs().subtract(7, "day").startOf("day").toISOString(),
+            analysEndDate: endDate = dayjs().endOf("day").toISOString(),
+        } = useAppSelector(state => state.order);
         const [ selectedStartDate, setSelectedStartDate ] = useState(startDate);
         const [ selectedEndDate, setSelectedEndDate ] = useState(endDate);
         const [ custommers, setCustommers ] = useState<UserInforDto[]>([]); // Placeholder for customers data

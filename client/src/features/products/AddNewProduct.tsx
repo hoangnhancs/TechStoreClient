@@ -14,7 +14,7 @@ import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 import { Brand, CreateProductInput, FilterTag, UpdateProductInput } from "../../lib/types";
 import { useCreateProductMutation, useFetchProductByIdQuery, useUpdateProductMutation } from "../../app/api/productApi";
-import { Link, useLocation, useParams } from "react-router";
+import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { ArrowBack } from "@mui/icons-material";
 import { useFetchAllBrandsQuery } from "../../app/api/brandApi";
 import { useAppSelector } from "../../hooks";
@@ -36,6 +36,7 @@ export default function AddNewProduct() {
   const [ isFormInitialized, setIsFormInitialized ] = useState(false);
   const [ lastCategoryId, setLastCategoryId ] = useState<string>("");
   const { data: updatedProduct,  } = useFetchProductByIdQuery(id || "", {skip: !id});
+  const navigate = useNavigate();
   console.log("updatedProduct", updatedProduct);
   const { control, handleSubmit, setValue, reset } = useForm<AddProductFormValues>({
     mode: "onTouched",
@@ -64,6 +65,7 @@ export default function AddNewProduct() {
   const [filters, setFilters] = useState<FilterTag[]>([]);
   // Lọc brand theo category
   const [brands, setBrands] = useState<Brand[]>([]);
+
 
   useEffect(() => {
     setIsFormInitialized(false);
@@ -271,11 +273,14 @@ export default function AddNewProduct() {
         productFilterTagValues: (data.productFilterTagValues ?? []).filter(v => v && v.filterTagValueId && v.filterTagValueId !== ""),
       } as CreateProductInput)
         .unwrap()
-        .then(() => {
+        .then((res) => {
           enqueueSnackbar("Tạo sản phẩm thành công", { variant: "success" });
           reset();
           setResetkey(true);
-          setFilters([])
+          setFilters([]);
+          if (res?.id) {
+            navigate(`/dashboard/products/manage/${res.id}`);
+          }
         })
         .catch((error) => {
           console.error("Error creating product:", error);

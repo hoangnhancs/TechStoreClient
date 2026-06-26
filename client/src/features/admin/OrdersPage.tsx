@@ -11,14 +11,29 @@ import {
   styled,
   TablePagination,
   Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { KeyboardArrowRight } from "@mui/icons-material";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
+import dayjs from "dayjs";
 
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import { setOrderEndDate, setOrderStartDate } from "../order/orderSlice";
+import {
+  setOrderEndDate,
+  setOrderStartDate,
+  setOrderStatus,
+  setOrdersPage,
+  setOrdersRowsPerPage,
+} from "../order/orderSlice";
 import { useGetListOrdersInDateRangeQuery } from "../../app/api/orderApi";
 import { getOrderStatusConfig } from "../order/orderStatusConfig";
 
@@ -49,12 +64,13 @@ function formatDateTime(value: string) {
 }
 
 export default function OrdersPage() {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-
-  const { orderStartDate: startDate, orderEndDate: endDate } = useAppSelector(
-    (state) => state.order
-  );
+  const {
+    orderStartDate: startDate = dayjs().subtract(7, "day").startOf("day").toISOString(),
+    orderEndDate: endDate = dayjs().endOf("day").toISOString(),
+    orderStatus: status = "",
+    ordersPage: page = 0,
+    ordersRowsPerPage: rowsPerPage = 5,
+  } = useAppSelector((state) => state.order);
 
   const [selectedStartDate, setSelectedStartDate] = useState<string | null>(
     startDate ?? null
@@ -62,6 +78,7 @@ export default function OrdersPage() {
   const [selectedEndDate, setSelectedEndDate] = useState<string | null>(
     endDate ?? null
   );
+  const [selectedStatus, setSelectedStatus] = useState<string>(status);
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -71,7 +88,7 @@ export default function OrdersPage() {
     isLoading,
     isFetching,
   } = useGetListOrdersInDateRangeQuery(
-    { startDate, endDate },
+    { startDate, endDate, status: status || undefined },
     { skip: !startDate || !endDate }
   );
 
@@ -99,7 +116,8 @@ export default function OrdersPage() {
 
     dispatch(setOrderStartDate({ startDate: selectedStartDate }));
     dispatch(setOrderEndDate({ endDate: selectedEndDate }));
-    setPage(0);
+    dispatch(setOrderStatus({ status: selectedStatus }));
+    dispatch(setOrdersPage({ page: 0 }));
   };
 
   return (
@@ -131,10 +149,10 @@ export default function OrdersPage() {
         }}
       >
         <Typography variant="h6" fontWeight={700} gutterBottom>
-          Chọn khoảng thời gian
+          Bộ lọc đơn hàng
         </Typography>
 
-        <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+        <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap sx={{ gap: 2 }}>
           <DatePicker
             label="Ngày bắt đầu"
             format="dd/MM/yyyy"
@@ -162,6 +180,24 @@ export default function OrdersPage() {
               },
             }}
           />
+
+          <Select
+            size="small"
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            displayEmpty
+            sx={{ minWidth: 185, height: 40, bgcolor: "background.paper" }}
+          >
+            <MenuItem value=""><em>Tất cả trạng thái</em></MenuItem>
+            <MenuItem value="Pending">Chờ xử lý</MenuItem>
+            <MenuItem value="WaitingForConfirmation">Chờ xác nhận</MenuItem>
+            <MenuItem value="WaitingForPayment">Chờ thanh toán</MenuItem>
+            <MenuItem value="Processing">Đang chuẩn bị hàng</MenuItem>
+            <MenuItem value="HandedOverToCarrier">Đã giao vận chuyển</MenuItem>
+            <MenuItem value="Delivered">Đã giao hàng</MenuItem>
+            <MenuItem value="Completed">Hoàn tất</MenuItem>
+            <MenuItem value="Cancelled">Đã hủy</MenuItem>
+          </Select>
 
           <Button
             variant="contained"
@@ -199,11 +235,11 @@ export default function OrdersPage() {
             component="div"
             count={sortedOrders.length}
             page={page}
-            onPageChange={(_event, newPage) => setPage(newPage)}
+            onPageChange={(_event, newPage) => dispatch(setOrdersPage({ page: newPage }))}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={(event) => {
-              setRowsPerPage(parseInt(event.target.value, 10));
-              setPage(0);
+              dispatch(setOrdersRowsPerPage({ rowsPerPage: parseInt(event.target.value, 10) }));
+              dispatch(setOrdersPage({ page: 0 }));
             }}
             rowsPerPageOptions={[5, 10, 15, 20]}
           />
@@ -211,162 +247,144 @@ export default function OrdersPage() {
 
         <Divider />
 
-        <Grid
-          container
-          sx={{
-            px: 2,
-            bgcolor: "background.default",
-          }}
-        >
-          <StyledGridItem size={2}>
-            <HeaderText>Khách hàng</HeaderText>
-          </StyledGridItem>
+        <TableContainer>
+          <Table sx={{ minWidth: 650, tableLayout: "fixed" }}>
+            <TableHead sx={{ bgcolor: "background.default" }}>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 700, width: "22%" }}>Khách hàng</TableCell>
+                <TableCell sx={{ fontWeight: 700, width: "33%" }}>Sản phẩm</TableCell>
+                <TableCell sx={{ fontWeight: 700, width: "15%" }}>Mã đơn</TableCell>
+                <TableCell sx={{ fontWeight: 700, width: "15%" }}>Thời gian</TableCell>
+                <TableCell sx={{ fontWeight: 700, width: "15%" }}>Trạng thái</TableCell>
+                <TableCell sx={{ width: "50px" }} />
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {(isLoading || isFetching) ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                    <Typography color="text.secondary">Đang tải đơn hàng...</Typography>
+                  </TableCell>
+                </TableRow>
+              ) : paginatedOrders.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                    <Typography fontWeight={600}>Không có đơn hàng</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Không tìm thấy đơn hàng nào khớp với bộ lọc.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginatedOrders.map((order) => {
+                  const status = getOrderStatusConfig(order.status);
+                  const firstItem = order.items?.[0];
 
-          <StyledGridItem size={4}>
-            <HeaderText>Sản phẩm</HeaderText>
-          </StyledGridItem>
-
-          <StyledGridItem size={1.5}>
-            <HeaderText>Mã đơn</HeaderText>
-          </StyledGridItem>
-
-          <StyledGridItem size={2}>
-            <HeaderText>Thời gian</HeaderText>
-          </StyledGridItem>
-
-          <StyledGridItem size={2}>
-            <HeaderText>Trạng thái</HeaderText>
-          </StyledGridItem>
-
-          <StyledGridItem size={0.5} />
-        </Grid>
-
-        <Divider />
-
-        {(isLoading || isFetching) && (
-          <Box sx={{ p: 4, textAlign: "center" }}>
-            <Typography color="text.secondary">Đang tải đơn hàng...</Typography>
-          </Box>
-        )}
-
-        {!isLoading && !isFetching && paginatedOrders.length === 0 && (
-          <Box sx={{ p: 4, textAlign: "center" }}>
-            <Typography fontWeight={600}>Không có đơn hàng</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Không tìm thấy đơn hàng nào trong khoảng thời gian đã chọn.
-            </Typography>
-          </Box>
-        )}
-
-        {!isLoading &&
-          !isFetching &&
-          paginatedOrders.map((order) => {
-            const status = getOrderStatusConfig(order.status);
-            const firstItem = order.items?.[0];
-
-            return (
-              <Grid
-                container
-                key={order.id}
-                sx={{
-                  px: 2,
-                  py: 1,
-                  transition: "0.2s",
-                  borderBottom: "1px solid",
-                  borderColor: "divider",
-                  "&:hover": {
-                    bgcolor: "action.hover",
-                  },
-                }}
-              >
-                <StyledGridItem size={2}>
-                  <Stack direction="row" spacing={1.25} alignItems="center">
-                    <Avatar
-                      src={order.userInfor?.imageUrl}
-                      alt={order.userInfor?.displayName}
-                      sx={{ width: 40, height: 40 }}
-                    />
-                    <Box minWidth={0}>
-                      <BodyText fontWeight={600} noWrap>
-                        {order.userInfor?.displayName ?? "Không rõ"}
-                      </BodyText>
-                    </Box>
-                  </Stack>
-                </StyledGridItem>
-
-                <StyledGridItem size={4}>
-                  <Stack direction="row" spacing={1.5} alignItems="center">
-                    <Box
-                      component="img"
-                      src={firstItem?.productImageUrl}
-                      alt={firstItem?.productName}
+                  return (
+                    <TableRow
+                      key={order.id}
+                      hover
                       sx={{
-                        width: 56,
-                        height: 56,
-                        borderRadius: 1.5,
-                        objectFit: "cover",
-                        border: "1px solid",
-                        borderColor: "divider",
+                        "&:last-child td, &:last-child th": { border: 0 },
                       }}
-                    />
+                    >
+                      <TableCell>
+                        <Stack direction="row" spacing={1.5} alignItems="center">
+                          <Avatar
+                            src={order.userInfor?.imageUrl}
+                            alt={order.userInfor?.displayName}
+                            sx={{ width: 40, height: 40 }}
+                          />
+                          <Box minWidth={0} sx={{ overflow: "hidden" }}>
+                            <Typography variant="body2" fontWeight={600} noWrap>
+                              {order.userInfor?.displayName ?? "Không rõ"}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary" noWrap display="block">
+                              {order.userInfor?.phoneNumber ?? order.recipientPhone ?? ""}
+                            </Typography>
+                          </Box>
+                        </Stack>
+                      </TableCell>
 
-                    <Box minWidth={0}>
-                      <BodyText fontWeight={600} noWrap>
-                        {firstItem?.productName ?? "Không có sản phẩm"}
-                      </BodyText>
+                      <TableCell>
+                        <Stack direction="row" spacing={1.5} alignItems="center">
+                          <Box
+                            component="img"
+                            src={firstItem?.productImageUrl}
+                            alt={firstItem?.productName}
+                            sx={{
+                              width: 50,
+                              height: 50,
+                              borderRadius: 1,
+                              objectFit: "cover",
+                              border: "1px solid",
+                              borderColor: "divider",
+                              flexShrink: 0,
+                            }}
+                          />
+                          <Box minWidth={0} sx={{ overflow: "hidden" }}>
+                            <Typography variant="body2" fontWeight={600} noWrap>
+                              {firstItem?.productName ?? "Không có sản phẩm"}
+                            </Typography>
+                            {order.items.length > 1 && (
+                              <Typography variant="caption" color="text.secondary" display="block">
+                                +{order.items.length - 1} sản phẩm khác
+                              </Typography>
+                            )}
+                          </Box>
+                        </Stack>
+                      </TableCell>
 
-                      {order.items.length > 1 && (
-                        <Typography variant="caption" color="text.secondary">
-                          +{order.items.length - 1} sản phẩm khác
+                      <TableCell>
+                        <Typography variant="body2" fontWeight={600}>
+                          {order.orderNo}
                         </Typography>
-                      )}
-                    </Box>
-                  </Stack>
-                </StyledGridItem>
+                      </TableCell>
 
-                <StyledGridItem size={1.5}>
-                  <BodyText fontWeight={600}>{order.orderNo}</BodyText>
-                </StyledGridItem>
+                      <TableCell>
+                        <Typography variant="body2" color="text.secondary">
+                          {formatDateTime(order.updatedAt.toString())}
+                        </Typography>
+                      </TableCell>
 
-                <StyledGridItem size={2}>
-                  <BodyText color="text.secondary">
-                    {formatDateTime(order.updatedAt.toString())}
-                  </BodyText>
-                </StyledGridItem>
+                      <TableCell>
+                        <Chip
+                          icon={status.icon}
+                          label={status.label}
+                          color={status.color}
+                          size="small"
+                          variant="outlined"
+                          sx={{
+                            fontWeight: 700,
+                            width: "100%",
+                            maxWidth: 150,
+                            justifyContent: "flex-start",
+                            "& .MuiChip-icon": {
+                              fontSize: 16,
+                            },
+                          }}
+                        />
+                      </TableCell>
 
-                <StyledGridItem size={2}>
-                  <Chip
-                    icon={status.icon}
-                    label={status.label}
-                    color={status.color}
-                    size="small"
-                    variant="outlined"
-                    sx={{
-                      fontWeight: 700,
-                      minWidth: 145,
-                      justifyContent: "flex-start",
-                      "& .MuiChip-icon": {
-                        fontSize: 18,
-                      },
-                    }}
-                  />
-                </StyledGridItem>
-
-                <StyledGridItem size={0.5} sx={{ justifyContent: "center" }}>
-                  <IconButton
-                    size="small"
-                    onClick={() =>
-                      navigate(`/dashboard/orders/${order.id}`, {
-                        state: { fromAdminOrdersDashboard: true },
-                      })
-                    }
-                  >
-                    <KeyboardArrowRight />
-                  </IconButton>
-                </StyledGridItem>
-              </Grid>
-            );
-          })}
+                      <TableCell align="center" sx={{ px: 1 }}>
+                        <IconButton
+                          size="small"
+                          onClick={() =>
+                            navigate(`/dashboard/orders/${order.id}`, {
+                              state: { fromAdminOrdersDashboard: true },
+                            })
+                          }
+                        >
+                          <KeyboardArrowRight />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </Paper>
     </Paper>
   );

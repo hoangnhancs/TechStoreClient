@@ -213,10 +213,11 @@ export const useOrderProcessing = () => {
       try {
         clientSecret = await getPaymentIntentFromPaymentHub(order.id);
       } catch {
-        // Timeout hoặc payment creation fail — orderNotification cũng sẽ đến qua OrderHub
-        // nhưng ta không cần đợi nó ở đây, show dialog luôn
+        // Timeout hoặc payment creation fail
         await OrderSignalRService.stopConnection();
-        setOrderFailedDialogOpen(true);
+        await clearPurchasedItemsFromBasket();
+        toast.error("Thanh toán không thành công. Vui lòng kiểm tra lại đơn hàng.");
+        navigate(`/my-orders/${order.id}`);
         return;
       }
 
@@ -226,14 +227,18 @@ export const useOrderProcessing = () => {
       });
 
       if (error) {
-        toast.error(error.message);
         await OrderSignalRService.stopConnection();
+        await clearPurchasedItemsFromBasket();
+        toast.error(`Thanh toán không thành công: ${error.message}. Bạn có thể thanh toán lại trong mục Đơn hàng.`);
+        navigate(`/my-orders/${order.id}`);
         return;
       }
 
       if (paymentIntent?.status !== "succeeded") {
-        toast.warning(`Trạng thái thanh toán: ${paymentIntent?.status ?? "unknown"}`);
         await OrderSignalRService.stopConnection();
+        await clearPurchasedItemsFromBasket();
+        toast.warning(`Thanh toán không thành công. Trạng thái: ${paymentIntent?.status ?? "unknown"}. Vui lòng kiểm tra lại.`);
+        navigate(`/my-orders/${order.id}`);
         return;
       }
 
@@ -256,7 +261,7 @@ export const useOrderProcessing = () => {
       }
 
       if (!result.isSuccess) {
-        // Saga xác nhận fail thật sự
+        // Saga xác nhận fail thật sự (đặt hàng không thành công, ví dụ: hết hàng)
         setErrorMessage(result.errorMessage || "Đặt hàng thất bại.");
         setOrderFailedDialogOpen(true);
         return;
@@ -397,7 +402,7 @@ export const useOrderProcessing = () => {
     return true;
   };
 
-  
+
 
   return {
     // State

@@ -362,7 +362,7 @@ export default function OrderDetailsPage() {
                         </Box>
                     </Paper>
 
-                    <Paper sx={{ p: 3 }}>
+                    <Paper sx={{ p: 3, mb: 3 }}>
                         <SectionTitle variant="h6">
                             Trạng thái đơn hàng
                         </SectionTitle>

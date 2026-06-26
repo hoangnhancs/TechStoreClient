@@ -1,7 +1,7 @@
-import { 
-    Typography, 
-    Box, 
-    Paper, 
+import {
+    Typography,
+    Box,
+    Paper,
     Grid,
     Chip,
     Button,
@@ -21,6 +21,7 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    TablePagination,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { Receipt, Info, Clear } from '@mui/icons-material';
@@ -37,6 +38,8 @@ import {
     setMyOrdersEndDate,
     setMyOrdersStatus,
     setMyOrdersPmtStatus,
+    setMyOrdersPage,
+    setMyOrdersRowsPerPage,
 } from './orderSlice';
 
 const PMT_STATUS_LABEL: Record<string, string> = {
@@ -117,6 +120,8 @@ export default function MyOrdersPage() {
         myOrdersEndDate: endDate = "",
         myOrdersStatus: status = "",
         myOrdersPmtStatus: pmtStatus = "",
+        myOrdersPage: page = 0,
+        myOrdersRowsPerPage: rowsPerPage = 5,
     } = useAppSelector((state) => state.order);
 
     const filteredOrders = useMemo(() => {
@@ -140,7 +145,11 @@ export default function MyOrdersPage() {
             return true;
         });
     }, [orders, status, pmtStatus, startDate, endDate]);
-    
+
+    const paginatedOrders = useMemo(() => {
+        return filteredOrders.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+    }, [filteredOrders, page, rowsPerPage]);
+
     const handleViewOrder = (orderId: string) => {
         navigate(`/my-orders/${orderId}`);
     };
@@ -178,18 +187,18 @@ export default function MyOrdersPage() {
             </OrderContainer>
         ) : (
             <OrderContainer>
-                
+
                 <Typography variant="h4" mb={3}>
                     Đơn hàng của tôi
                 </Typography>
 
-                <Paper 
-                    variant="outlined" 
-                    sx={{ 
-                        p: 2, 
-                        mb: 3, 
-                        borderRadius: 2, 
-                        bgcolor: "background.paper" 
+                <Paper
+                    variant="outlined"
+                    sx={{
+                        p: 2,
+                        mb: 3,
+                        borderRadius: 2,
+                        bgcolor: "background.paper"
                     }}
                 >
                     <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap sx={{ gap: 2 }}>
@@ -200,6 +209,7 @@ export default function MyOrdersPage() {
                             onChange={(value) => {
                                 const iso = value ? value.toISOString() : "";
                                 dispatch(setMyOrdersStartDate({ startDate: iso }));
+                                dispatch(setMyOrdersPage({ page: 0 }));
                             }}
                             slotProps={{
                                 textField: {
@@ -216,6 +226,7 @@ export default function MyOrdersPage() {
                             onChange={(value) => {
                                 const iso = value ? value.toISOString() : "";
                                 dispatch(setMyOrdersEndDate({ endDate: iso }));
+                                dispatch(setMyOrdersPage({ page: 0 }));
                             }}
                             slotProps={{
                                 textField: {
@@ -233,6 +244,7 @@ export default function MyOrdersPage() {
                                 value={status}
                                 onChange={(e) => {
                                     dispatch(setMyOrdersStatus({ status: e.target.value }));
+                                    dispatch(setMyOrdersPage({ page: 0 }));
                                 }}
                             >
                                 <MenuItem value=""><em>Tất cả trạng thái</em></MenuItem>
@@ -255,6 +267,7 @@ export default function MyOrdersPage() {
                                 value={pmtStatus}
                                 onChange={(e) => {
                                     dispatch(setMyOrdersPmtStatus({ pmtStatus: e.target.value }));
+                                    dispatch(setMyOrdersPage({ page: 0 }));
                                 }}
                             >
                                 <MenuItem value=""><em>Tất cả thanh toán</em></MenuItem>
@@ -275,6 +288,7 @@ export default function MyOrdersPage() {
                                     dispatch(setMyOrdersEndDate({ endDate: "" }));
                                     dispatch(setMyOrdersStatus({ status: "" }));
                                     dispatch(setMyOrdersPmtStatus({ pmtStatus: "" }));
+                                    dispatch(setMyOrdersPage({ page: 0 }));
                                 }}
                                 sx={{ textTransform: 'none', fontWeight: 600 }}
                             >
@@ -293,23 +307,25 @@ export default function MyOrdersPage() {
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                             Hãy thử điều chỉnh bộ lọc ngày hoặc trạng thái để tìm kiếm.
                         </Typography>
-                        <Button 
-                            variant="outlined" 
+                        <Button
+                            variant="outlined"
                             onClick={() => {
                                 dispatch(setMyOrdersStartDate({ startDate: "" }));
                                 dispatch(setMyOrdersEndDate({ endDate: "" }));
                                 dispatch(setMyOrdersStatus({ status: "" }));
                                 dispatch(setMyOrdersPmtStatus({ pmtStatus: "" }));
+                                dispatch(setMyOrdersPage({ page: 0 }));
                             }}
                         >
                             Đặt lại bộ lọc
                         </Button>
                     </Paper>
                 ) : (
-                    <Grid container spacing={3}>
-                        {filteredOrders.map((order) => {
-                            const orderTotal = (order.subToTal + order.shippingCost - order.discount) >= 0 
-                                ? (order.subToTal + order.shippingCost - order.discount) 
+                    <>
+                        <Grid container spacing={3}>
+                        {paginatedOrders.map((order) => {
+                            const orderTotal = (order.subToTal + order.shippingCost - order.discount) >= 0
+                                ? (order.subToTal + order.shippingCost - order.discount)
                                 : 0;
 
                             return (
@@ -322,14 +338,14 @@ export default function MyOrdersPage() {
                                                         #{order.orderNo.toUpperCase()}
                                                     </Typography>
                                                     <Box>
-                                                        <StatusChip 
-                                                            label={getOrderStatusConfig(order.status).label} 
-                                                            status={order.status} 
+                                                        <StatusChip
+                                                            label={getOrderStatusConfig(order.status).label}
+                                                            status={order.status}
                                                             size="small"
                                                         />
-                                                        <StatusChip 
-                                                            label={PMT_STATUS_LABEL[order.pmtStatus] ?? order.pmtStatus} 
-                                                            status={order.pmtStatus} 
+                                                        <StatusChip
+                                                            label={PMT_STATUS_LABEL[order.pmtStatus] ?? order.pmtStatus}
+                                                            status={order.pmtStatus}
                                                             size="small"
                                                             sx={{ ml: 1 }}
                                                         />
@@ -344,19 +360,19 @@ export default function MyOrdersPage() {
                                                 </Box>
                                             }
                                         />
-                                        
+
                                         <Divider />
-                                        
+
                                         <OrderContent>
                                             <Typography variant="subtitle2" gutterBottom sx={{ mb: 2, mt: 1 }}>
                                                 Sản phẩm đã đặt:
                                             </Typography>
-                                            
+
                                             <List disablePadding>
                                                 {order.items.map(item => (
                                                     <ListItem key={item.productId} disablePadding sx={{ mb: 1 }}>
-                                                        <ListItemAvatar sx={{ mr: 2}}>
-                                                            <ProductImage 
+                                                        <ListItemAvatar sx={{ mr: 2 }}>
+                                                            <ProductImage
                                                                 src={item.productImageUrl || '/placeholder.png'}
                                                                 alt={item.productName}
                                                                 variant="rounded"
@@ -373,11 +389,11 @@ export default function MyOrdersPage() {
                                                     </ListItem>
                                                 ))}
                                             </List>
-                                            
+
                                             {order.items.length > 3 && (
                                                 <Box mt={1} display="flex" justifyContent="center">
-                                                    <Button 
-                                                        size="small" 
+                                                    <Button
+                                                        size="small"
                                                         onClick={() => handleViewOrder(order.id)}
                                                         sx={{ textTransform: 'none' }}
                                                     >
@@ -386,9 +402,9 @@ export default function MyOrdersPage() {
                                                 </Box>
                                             )}
                                         </OrderContent>
-                                        
+
                                         <Divider />
-                                        
+
                                         <Box sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                                             <Box display={"flex"} flexDirection="column">
                                                 <Typography variant="caption" color="text.secondary" textAlign="right">
@@ -398,7 +414,7 @@ export default function MyOrdersPage() {
                                                     Giảm giá: {formatCurrency(order.discount)}
                                                 </Typography>
                                             </Box>
-                                            <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"} sx={{ mt: 1}}>
+                                            <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"} sx={{ mt: 1 }}>
                                                 <Button
                                                     variant="outlined"
                                                     size="small"
@@ -416,7 +432,28 @@ export default function MyOrdersPage() {
                                 </Grid>
                             );
                         })}
-                    </Grid>
+                        </Grid>
+                        <Box display="flex" justifyContent="flex-end" sx={{ mt: 3 }}>
+                            <TablePagination
+                                component="div"
+                                count={filteredOrders.length}
+                                page={page}
+                                onPageChange={(_event, newPage) => {
+                                    dispatch(setMyOrdersPage({ page: newPage }));
+                                }}
+                                rowsPerPage={rowsPerPage}
+                                onRowsPerPageChange={(event) => {
+                                    dispatch(setMyOrdersRowsPerPage({ rowsPerPage: parseInt(event.target.value, 10) }));
+                                    dispatch(setMyOrdersPage({ page: 0 }));
+                                }}
+                                rowsPerPageOptions={[5, 10, 15, 20]}
+                                labelRowsPerPage="Số đơn hàng mỗi trang:"
+                                labelDisplayedRows={({ from, to, count }) => 
+                                    `${from}-${to} trong ${count !== -1 ? count : `hơn ${to}`}`
+                                }
+                            />
+                        </Box>
+                    </>
                 )}
             </OrderContainer>
         )

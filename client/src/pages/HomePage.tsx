@@ -114,7 +114,7 @@ export default function HomePage() {
               <Box sx={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
                 <Box
                   component="img"
-                  src="https://res.cloudinary.com/dukhvtyr7/image/upload/v1752691953/ECommerceStore/fuodoseprmj4zyveztav.png"
+                  src="/images/tech_store_banner.png"
                   alt="Tech Store Banner"
                   sx={{
                     width: "100%",

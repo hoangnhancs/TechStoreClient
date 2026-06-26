@@ -17,6 +17,8 @@ const initialState = {
   myOrdersEndDate: "",
   myOrdersStatus: "",
   myOrdersPmtStatus: "",
+  myOrdersPage: 0,
+  myOrdersRowsPerPage: 5,
 };
 
 export const orderSlice = createSlice({
@@ -68,6 +70,12 @@ export const orderSlice = createSlice({
         setMyOrdersPmtStatus: (state, action: { payload: { pmtStatus: string } }) => {
             state.myOrdersPmtStatus = action.payload.pmtStatus;
         },
+        setMyOrdersPage: (state, action: { payload: { page: number } }) => {
+            state.myOrdersPage = action.payload.page;
+        },
+        setMyOrdersRowsPerPage: (state, action: { payload: { rowsPerPage: number } }) => {
+            state.myOrdersRowsPerPage = action.payload.rowsPerPage;
+        },
     }
 })
 
@@ -87,5 +95,7 @@ export const {
   setMyOrdersEndDate,
   setMyOrdersStatus,
   setMyOrdersPmtStatus,
+  setMyOrdersPage,
+  setMyOrdersRowsPerPage,
 } = orderSlice.actions;
 export default orderSlice.reducer;

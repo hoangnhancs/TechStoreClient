@@ -97,7 +97,7 @@ client/src/
 ### Requirements
 
 - Node.js v18+
-- A running instance of the backend (see [backend repo](#))
+- A running instance of the backend (see [backend repo](#https://github.com/hoangnhancs/TechStore))
 - Stripe publishable key
 
 ### Setup

@@ -206,7 +206,7 @@ export default function ConfirmOrdersPage() {
             format="dd/MM/yyyy"
             value={selectedStartDate ? new Date(selectedStartDate) : null}
             onChange={(value) => {
-              if (value) setSelectedStartDate(value.toISOString());
+              setSelectedStartDate(value ? dayjs(value).startOf('day').toISOString() : null);
             }}
             slotProps={{
               textField: {
@@ -220,7 +220,7 @@ export default function ConfirmOrdersPage() {
             format="dd/MM/yyyy"
             value={selectedEndDate ? new Date(selectedEndDate) : null}
             onChange={(value) => {
-              if (value) setSelectedEndDate(value.toISOString());
+              setSelectedEndDate(value ? dayjs(value).endOf('day').toISOString() : null);
             }}
             slotProps={{
               textField: {

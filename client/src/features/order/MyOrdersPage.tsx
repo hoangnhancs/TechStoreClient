@@ -207,7 +207,7 @@ export default function MyOrdersPage() {
                             format="dd/MM/yyyy"
                             value={startDate ? new Date(startDate) : null}
                             onChange={(value) => {
-                                const iso = value ? value.toISOString() : "";
+                                const iso = value ? dayjs(value).startOf('day').toISOString() : "";
                                 dispatch(setMyOrdersStartDate({ startDate: iso }));
                                 dispatch(setMyOrdersPage({ page: 0 }));
                             }}
@@ -224,7 +224,7 @@ export default function MyOrdersPage() {
                             format="dd/MM/yyyy"
                             value={endDate ? new Date(endDate) : null}
                             onChange={(value) => {
-                                const iso = value ? value.toISOString() : "";
+                                const iso = value ? dayjs(value).endOf('day').toISOString() : "";
                                 dispatch(setMyOrdersEndDate({ endDate: iso }));
                                 dispatch(setMyOrdersPage({ page: 0 }));
                             }}
@@ -323,115 +323,115 @@ export default function MyOrdersPage() {
                 ) : (
                     <>
                         <Grid container spacing={3}>
-                        {paginatedOrders.map((order) => {
-                            const orderTotal = (order.subToTal + order.shippingCost - order.discount) >= 0
-                                ? (order.subToTal + order.shippingCost - order.discount)
-                                : 0;
+                            {paginatedOrders.map((order) => {
+                                const orderTotal = (order.subToTal + order.shippingCost - order.discount) >= 0
+                                    ? (order.subToTal + order.shippingCost - order.discount)
+                                    : 0;
 
-                            return (
-                                <Grid size={12} key={order.id}>
-                                    <OrderCard>
-                                        <OrderHeader
-                                            title={
-                                                <Box display="flex" alignItems="center" justifyContent="space-between">
-                                                    <Typography variant="h6">
-                                                        #{order.orderNo.toUpperCase()}
-                                                    </Typography>
-                                                    <Box>
-                                                        <StatusChip
-                                                            label={getOrderStatusConfig(order.status).label}
-                                                            status={order.status}
-                                                            size="small"
-                                                        />
-                                                        <StatusChip
-                                                            label={PMT_STATUS_LABEL[order.pmtStatus] ?? order.pmtStatus}
-                                                            status={order.pmtStatus}
-                                                            size="small"
-                                                            sx={{ ml: 1 }}
-                                                        />
-                                                    </Box>
-                                                </Box>
-                                            }
-                                            subheader={
-                                                <Box display="flex" justifyContent="space-between" alignItems="center">
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {formatVNDate(order.updatedAt, "ddmmyyyyhhmm")}
-                                                    </Typography>
-                                                </Box>
-                                            }
-                                        />
-
-                                        <Divider />
-
-                                        <OrderContent>
-                                            <Typography variant="subtitle2" gutterBottom sx={{ mb: 2, mt: 1 }}>
-                                                Sản phẩm đã đặt:
-                                            </Typography>
-
-                                            <List disablePadding>
-                                                {order.items.map(item => (
-                                                    <ListItem key={item.productId} disablePadding sx={{ mb: 1 }}>
-                                                        <ListItemAvatar sx={{ mr: 2 }}>
-                                                            <ProductImage
-                                                                src={item.productImageUrl || '/placeholder.png'}
-                                                                alt={item.productName}
-                                                                variant="rounded"
+                                return (
+                                    <Grid size={12} key={order.id}>
+                                        <OrderCard>
+                                            <OrderHeader
+                                                title={
+                                                    <Box display="flex" alignItems="center" justifyContent="space-between">
+                                                        <Typography variant="h6">
+                                                            #{order.orderNo.toUpperCase()}
+                                                        </Typography>
+                                                        <Box>
+                                                            <StatusChip
+                                                                label={getOrderStatusConfig(order.status).label}
+                                                                status={order.status}
+                                                                size="small"
                                                             />
-                                                        </ListItemAvatar>
-                                                        <ListItemText
-                                                            primary={item.productName}
-                                                            secondary={
-                                                                <Typography variant="body2" color="text.secondary">
-                                                                    {formatCurrency(item.unitPrice)} x {item.quantity}
-                                                                </Typography>
-                                                            }
-                                                        />
-                                                    </ListItem>
-                                                ))}
-                                            </List>
+                                                            <StatusChip
+                                                                label={PMT_STATUS_LABEL[order.pmtStatus] ?? order.pmtStatus}
+                                                                status={order.pmtStatus}
+                                                                size="small"
+                                                                sx={{ ml: 1 }}
+                                                            />
+                                                        </Box>
+                                                    </Box>
+                                                }
+                                                subheader={
+                                                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {formatVNDate(order.updatedAt, "ddmmyyyyhhmm")}
+                                                        </Typography>
+                                                    </Box>
+                                                }
+                                            />
 
-                                            {order.items.length > 3 && (
-                                                <Box mt={1} display="flex" justifyContent="center">
-                                                    <Button
-                                                        size="small"
-                                                        onClick={() => handleViewOrder(order.id)}
-                                                        sx={{ textTransform: 'none' }}
-                                                    >
-                                                        Xem tất cả {order.items.length} sản phẩm
-                                                    </Button>
+                                            <Divider />
+
+                                            <OrderContent>
+                                                <Typography variant="subtitle2" gutterBottom sx={{ mb: 2, mt: 1 }}>
+                                                    Sản phẩm đã đặt:
+                                                </Typography>
+
+                                                <List disablePadding>
+                                                    {order.items.map(item => (
+                                                        <ListItem key={item.productId} disablePadding sx={{ mb: 1 }}>
+                                                            <ListItemAvatar sx={{ mr: 2 }}>
+                                                                <ProductImage
+                                                                    src={item.productImageUrl || '/placeholder.png'}
+                                                                    alt={item.productName}
+                                                                    variant="rounded"
+                                                                />
+                                                            </ListItemAvatar>
+                                                            <ListItemText
+                                                                primary={item.productName}
+                                                                secondary={
+                                                                    <Typography variant="body2" color="text.secondary">
+                                                                        {formatCurrency(item.unitPrice)} x {item.quantity}
+                                                                    </Typography>
+                                                                }
+                                                            />
+                                                        </ListItem>
+                                                    ))}
+                                                </List>
+
+                                                {order.items.length > 3 && (
+                                                    <Box mt={1} display="flex" justifyContent="center">
+                                                        <Button
+                                                            size="small"
+                                                            onClick={() => handleViewOrder(order.id)}
+                                                            sx={{ textTransform: 'none' }}
+                                                        >
+                                                            Xem tất cả {order.items.length} sản phẩm
+                                                        </Button>
+                                                    </Box>
+                                                )}
+                                            </OrderContent>
+
+                                            <Divider />
+
+                                            <Box sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
+                                                <Box display={"flex"} flexDirection="column">
+                                                    <Typography variant="caption" color="text.secondary" textAlign="right">
+                                                        Phí giao hàng: {formatCurrency(order.shippingCost)}
+                                                    </Typography>
+                                                    <Typography variant="caption" color="text.secondary" textAlign="right">
+                                                        Giảm giá: {formatCurrency(order.discount)}
+                                                    </Typography>
                                                 </Box>
-                                            )}
-                                        </OrderContent>
-
-                                        <Divider />
-
-                                        <Box sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                                            <Box display={"flex"} flexDirection="column">
-                                                <Typography variant="caption" color="text.secondary" textAlign="right">
-                                                    Phí giao hàng: {formatCurrency(order.shippingCost)}
-                                                </Typography>
-                                                <Typography variant="caption" color="text.secondary" textAlign="right">
-                                                    Giảm giá: {formatCurrency(order.discount)}
-                                                </Typography>
+                                                <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"} sx={{ mt: 1 }}>
+                                                    <Button
+                                                        variant="outlined"
+                                                        size="small"
+                                                        startIcon={<Info />}
+                                                        onClick={() => handleViewOrder(order.id)}
+                                                    >
+                                                        Chi tiết
+                                                    </Button>
+                                                    <Typography variant="body2" fontWeight="bold">
+                                                        Thành tiền: {formatCurrency(orderTotal)}
+                                                    </Typography>
+                                                </Box>
                                             </Box>
-                                            <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"} sx={{ mt: 1 }}>
-                                                <Button
-                                                    variant="outlined"
-                                                    size="small"
-                                                    startIcon={<Info />}
-                                                    onClick={() => handleViewOrder(order.id)}
-                                                >
-                                                    Chi tiết
-                                                </Button>
-                                                <Typography variant="body2" fontWeight="bold">
-                                                    Thành tiền: {formatCurrency(orderTotal)}
-                                                </Typography>
-                                            </Box>
-                                        </Box>
-                                    </OrderCard>
-                                </Grid>
-                            );
-                        })}
+                                        </OrderCard>
+                                    </Grid>
+                                );
+                            })}
                         </Grid>
                         <Box display="flex" justifyContent="flex-end" sx={{ mt: 3 }}>
                             <TablePagination
@@ -448,7 +448,7 @@ export default function MyOrdersPage() {
                                 }}
                                 rowsPerPageOptions={[5, 10, 15, 20]}
                                 labelRowsPerPage="Số đơn hàng mỗi trang:"
-                                labelDisplayedRows={({ from, to, count }) => 
+                                labelDisplayedRows={({ from, to, count }) =>
                                     `${from}-${to} trong ${count !== -1 ? count : `hơn ${to}`}`
                                 }
                             />

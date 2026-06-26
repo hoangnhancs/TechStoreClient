@@ -85,7 +85,7 @@ export default function MyOrdersPage() {
     };
 
     if (isLoading) return (
-        <LoadingComponent />
+        <LoadingComponent isMaxHeight={true} />
     );
 
     if (error) return (

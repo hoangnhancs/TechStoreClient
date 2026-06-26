@@ -7,7 +7,7 @@ export default function RequireAuth() {
     const isInitialized = useAppSelector((state) => state.user.isInitialized)
     const location = useLocation()
 
-    if (!isInitialized) return <LoadingComponent />
+    if (!isInitialized) return <LoadingComponent isMaxHeight={true} />
 
     if (!currentUser) {
         return <Navigate to="/login" state={{ from: location }} replace />

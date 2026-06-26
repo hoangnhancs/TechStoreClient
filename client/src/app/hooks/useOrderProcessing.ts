@@ -14,6 +14,7 @@ import { useState } from "react";
 
 import { PaymentSignalRService } from "../api/paymentSignalRService";
 import { OrderSignalRService } from "../api/orderSignalRService";
+import { uiUtil } from "../../lib/util/uiUtil";
 // import { OrderSignalRService } from "../api/orderSignalRService";
 
 export const useOrderProcessing = () => {
@@ -39,6 +40,7 @@ export const useOrderProcessing = () => {
   const [currentAddress, setCurrentAddress] = useState<Address | null>(null);
   const [orderFailedDialogOpen, setOrderFailedDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("Lỗi khi tạo đơn hàng. Vui lòng thử lại.");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const getTotalPrice = () => {
     let total = 0;
@@ -350,6 +352,8 @@ export const useOrderProcessing = () => {
 
   const handleCreateOrderAndPayment = async () => {
     try {
+      setIsProcessing(true);
+      uiUtil.startLoading();
       if (
         currentPaymentInfor.paymentMethod === "CreditCard" &&
         currentPaymentInfor.isValid
@@ -366,6 +370,9 @@ export const useOrderProcessing = () => {
       } else {
         toast.error("Không thể tạo đơn hàng. Vui lòng thử lại.");
       }
+    } finally {
+      uiUtil.stopLoading();
+      setIsProcessing(false);
     }
   };
 
@@ -400,7 +407,7 @@ export const useOrderProcessing = () => {
     selectedItems,
     basket,
     orderFailedDialogOpen,
-    isCreatingOrder,
+    isCreatingOrder: isProcessing || isCreatingOrder,
 
     // Constants
     shippingCost,

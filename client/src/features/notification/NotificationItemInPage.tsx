@@ -1,15 +1,19 @@
-import { Avatar, Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { Avatar, Box, IconButton, Menu, MenuItem, Typography, Checkbox } from "@mui/material";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { UserNotification } from "../../lib/types";
 import { useNavigate } from "react-router";
 import { NotificationSignalRService } from "../../app/api/notificationSignalRService";
-import { Checkbox } from "@mui/material";
 import { useState } from "react";
 import { buildNotificationLink } from "../../lib/util/util";
 import { useAppSelector } from "../../hooks";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import SettingsIcon from '@mui/icons-material/Settings';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import ForumIcon from '@mui/icons-material/Forum';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 
 interface Props {
   notification: UserNotification;
@@ -18,11 +22,35 @@ interface Props {
   onChangeSelectedNotification?: (notification: UserNotification) => void
 }
 
+const getCategoryDetails = (category: string | number) => {
+  const catStr = category?.toString().toLowerCase();
+  switch (catStr) {
+    case "system":
+    case "0":
+      return { icon: <SettingsIcon sx={{ fontSize: 10, color: 'white' }} />, color: '#3b82f6', label: "Hệ thống" };
+    case "order":
+    case "1":
+      return { icon: <ShoppingBagIcon sx={{ fontSize: 10, color: 'white' }} />, color: '#10b981', label: "Đơn hàng" };
+    case "payment":
+    case "2":
+      return { icon: <CreditCardIcon sx={{ fontSize: 10, color: 'white' }} />, color: '#f59e0b', label: "Thanh toán" };
+    case "interaction":
+    case "3":
+      return { icon: <ForumIcon sx={{ fontSize: 10, color: 'white' }} />, color: '#8b5cf6', label: "Tương tác" };
+    case "promotion":
+    case "4":
+      return { icon: <LocalOfferIcon sx={{ fontSize: 10, color: 'white' }} />, color: '#ef4444', label: "Khuyến mãi" };
+    default:
+      return { icon: <NotificationsIcon sx={{ fontSize: 10, color: 'white' }} />, color: '#6b7280', label: "Thông báo" };
+  }
+};
+
 export default function NotificationItemInPage({ notification, selectMode, isChoose, onChangeSelectedNotification }: Props) {
   const navigate = useNavigate();
   const [anchorE1, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorE1);
   const currentUser = useAppSelector((state) => state.user.currentUser);
+  
   const handleClick = () => {
     if (!notification.isRead) {
       NotificationSignalRService.markAsReadNotifications([notification.id]);
@@ -32,7 +60,8 @@ export default function NotificationItemInPage({ notification, selectMode, isCho
       navigate(link);
     } 
   };
-   
+
+  const catDetails = getCategoryDetails(notification.category);
 
   return (
     <Box
@@ -44,54 +73,67 @@ export default function NotificationItemInPage({ notification, selectMode, isCho
       py={1.5}
       sx={{
         borderBottom: "1px solid #eee",
-        bgcolor: notification.isRead ? "#f0f0f0" : "#ffffff",
-        transition: "background 0.2s",
+        borderLeft: notification.isRead ? "4px solid transparent" : `4px solid ${catDetails.color}`,
+        bgcolor: notification.isRead ? "#fcfcfc" : "#ffffff",
+        transition: "all 0.2s ease",
         "&:hover": {
-          bgcolor: "#f0f4ff",
+          bgcolor: "#f4f7fe",
           cursor: "pointer",
         },
       }}
       onClick={handleClick}
     >
-      {selectMode && <Checkbox
-        checked={isChoose}
-        onClick={(e) => {
-          e.stopPropagation();
-          onChangeSelectedNotification?.(notification);
-        }}
-      >
-
-      </Checkbox>}
+      {selectMode && (
+        <Checkbox
+          checked={isChoose}
+          onClick={(e) => {
+            e.stopPropagation();
+            onChangeSelectedNotification?.(notification);
+          }}
+          sx={{ mr: 1 }}
+        />
+      )}
       <Box position="relative" mr={2}>
-        <Avatar src={notification.senderImageUrl} sx={{ width: 48, height: 48 }} />
-        {!notification.isRead && (
-          <Box
-            sx={{
-              width: 10,
-              height: 10,
-              bgcolor: "primary.main",
-              borderRadius: "50%",
-              position: "absolute",
-              bottom: 2,
-              right: 2,
-            }}
-          />
-        )}
+        <Avatar src={notification.senderImageUrl} sx={{ width: 48, height: 48, boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }} />
+        {/* Category Badge Icon */}
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: -2,
+            right: -2,
+            width: 18,
+            height: 18,
+            borderRadius: '50%',
+            bgcolor: catDetails.color,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '2px solid white',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+          }}
+        >
+          {catDetails.icon}
+        </Box>
       </Box>
 
       <Box flex={1} overflow="hidden">
         <Box display="flex" gap={1} alignItems="center" flexWrap="wrap">
-          <Typography fontSize={15} fontWeight={500}>
+          <Typography fontSize={14} fontWeight={600} color="text.primary">
             {notification.senderDisplayName}
           </Typography>
-          <Typography fontSize={15} fontWeight="bold">
+          <Typography fontSize={14} fontWeight={500} color="text.secondary">
             {notification.title}
           </Typography>
         </Box>
-        <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <Typography 
+          variant="body2" 
+          color="text.primary" 
+          fontWeight={notification.isRead ? 400 : 500} 
+          sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", my: 0.25 }}
+        >
           {notification.message}
         </Typography>
-        <Typography variant="caption" color="text.disabled">
+        <Typography variant="caption" color="text.disabled" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
           {(() => {
             const date = new Date(notification.createdAt);
             return isNaN(date.getTime())
@@ -101,14 +143,28 @@ export default function NotificationItemInPage({ notification, selectMode, isCho
         </Typography>
       </Box>
 
-      <Box display="flex" alignItems="center" ml={1}>
-        <ChatBubbleOutlineIcon fontSize="small" color="action" />
+      <Box display="flex" alignItems="center" gap={1} ml={1}>
+        <Box
+          sx={{
+            fontSize: '10px',
+            fontWeight: 600,
+            px: 1,
+            py: 0.25,
+            borderRadius: '10px',
+            bgcolor: `${catDetails.color}15`,
+            color: catDetails.color,
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {catDetails.label}
+        </Box>
         <IconButton
           size="small"
           onClick={(e) => {
-            e.stopPropagation(); // Ngăn lan sự kiện
+            e.stopPropagation(); 
             setAnchorEl(e.currentTarget);
-            console.log("Clicked more options");
           }}
         >
           <MoreHorizIcon fontSize="small" />
@@ -120,16 +176,17 @@ export default function NotificationItemInPage({ notification, selectMode, isCho
           variant="caption"
           sx={{
             position: "absolute",
-            top: 6,
-            right: 10,
-            fontSize: 11,
-            color: "info.main",
+            top: 4,
+            right: 12,
+            fontSize: 10,
+            color: "text.disabled",
             fontStyle: "italic",
           }}
         >
-          Đã xem
+          Đã đọc
         </Typography>
       )}
+      
       <Menu
         open={open}
         anchorEl={anchorE1}
@@ -137,52 +194,48 @@ export default function NotificationItemInPage({ notification, selectMode, isCho
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         onClick={(e) => e.stopPropagation()}
-        sx={{
-          elevation: 3, // đổ bóng
-          sx: {
-            borderRadius: 2, // bo góc
-            minWidth: 180,
-            mt: 1, // margin top
-            py: 1, // padding dọc
-          },
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 2,
+              minWidth: 160,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+              mt: 0.5,
+            }
+          }
         }}
       >
         <MenuItem
           onClick={() => {
-            console.log("Xóa bình luận", notification.id);
             NotificationSignalRService.deleteNotifications([notification.id]);
             setAnchorEl(null);
           }}
           sx={{
-            fontSize: 14,
-            px: 2.5,
+            fontSize: 13,
+            py: 1,
+            px: 2,
+            color: 'error.main',
             "&:hover": {
               bgcolor: "error.lighter",
-              color: "error.main",
             },
           }}
         >
-          Xóa bình luận
+          Xóa thông báo
         </MenuItem>
         <MenuItem
           onClick={() => {
-            console.log("Đánh dấu là đã đọc", notification.id);
             NotificationSignalRService.markAsReadNotifications([notification.id]);
             setAnchorEl(null);
           }}
           sx={{
-            fontSize: 14,
-            px: 2.5,
-            "&:hover": {
-              bgcolor: "error.lighter",
-              color: "error.main",
-            },
+            fontSize: 13,
+            py: 1,
+            px: 2,
           }}
           disabled={notification.isRead}
         >
-          Đánh dấu là đã đọc
+          Đánh dấu đã đọc
         </MenuItem>
-        
       </Menu>
     </Box>
   );

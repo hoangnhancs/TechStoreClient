@@ -33,6 +33,8 @@ export default function AddNewProduct() {
   const { enqueueSnackbar } = useSnackbar();
   const { id } = useParams();
   const [ resetKey, setResetkey ] = useState(false);
+  const [ isFormInitialized, setIsFormInitialized ] = useState(false);
+  const [ lastCategoryId, setLastCategoryId ] = useState<string>("");
   const { data: updatedProduct,  } = useFetchProductByIdQuery(id || "", {skip: !id});
   console.log("updatedProduct", updatedProduct);
   const { control, handleSubmit, setValue, reset } = useForm<AddProductFormValues>({
@@ -55,50 +57,96 @@ export default function AddNewProduct() {
     }
   });
 
-  
-
   // Lấy category đang chọn
   const selectedCategoryId = useWatch({ control, name: "categoryId" });
-  useEffect(() => {
-    setValue("productFilterTagValues", []);
-
-    // Chỉ reset brand khi tạo mới hoặc khi user đổi category
-    if (!id) {
-      setValue("brandId", "");
-    }
-  }, [selectedCategoryId, setValue, id]);
-
+  
   // Lọc filter tags theo category
   const [filters, setFilters] = useState<FilterTag[]>([]);
   // Lọc brand theo category
   const [brands, setBrands] = useState<Brand[]>([]);
 
-  // useEffect(() => {
-  //   console.log("allBrands", allBrands);
-  //   console.log("isBrandLoading", isBrandLoading);
-  // }, [allBrands, isBrandLoading]);
+  useEffect(() => {
+    setIsFormInitialized(false);
+    setLastCategoryId("");
+  }, [id]);
 
+  // Chỉ reset brandId và khởi tạo bộ lọc mặc định khi người dùng thực sự thay đổi category
+  useEffect(() => {
+    if (!selectedCategoryId) return;
+
+    // Nếu đang chỉnh sửa và form chưa khởi tạo xong, ghi nhận category ban đầu và thoát
+    if (id && !isFormInitialized) {
+      setLastCategoryId(selectedCategoryId);
+      return;
+    }
+
+    // Xác định xem đây có phải là thay đổi thực sự từ user không
+    // Đối với CREATE mode: lastCategoryId bắt đầu từ "" và đổi sang categoryId hợp lệ
+    // Đối với EDIT mode: lastCategoryId bắt đầu từ category ban đầu của sản phẩm và đổi sang categoryId khác
+    const isUserChange = id 
+      ? (lastCategoryId && selectedCategoryId !== lastCategoryId) // EDIT mode: phải có giá trị trước đó và khác nhau
+      : (selectedCategoryId !== lastCategoryId); // CREATE mode: chỉ cần khác nhau
+
+    if (isUserChange) {
+      // 1. Reset brand
+      setValue("brandId", "");
+
+      // 2. Điền bộ lọc trống cho category mới chọn
+      if (allFilterTags) {
+        const newFilters = allFilterTags.filter(
+          tag => tag.categoryId.toString() === selectedCategoryId
+        );
+        const defaultFilterValues = newFilters.map(filterTag => ({
+          filterTagId: filterTag.id.toString(),
+          filterTagValueId: ""
+        }));
+        setValue("productFilterTagValues", defaultFilterValues);
+      } else {
+        setValue("productFilterTagValues", []);
+      }
+    }
+
+    setLastCategoryId(selectedCategoryId);
+  }, [selectedCategoryId, setValue, id, isFormInitialized, lastCategoryId, allFilterTags]);
+
+  // Cập nhật danh sách filters và brands tương ứng khi thay đổi category
   useEffect(() => {
     if (selectedCategoryId && allFilterTags) {
       const filteredTags = allFilterTags.filter(
         tag => tag.categoryId.toString() === selectedCategoryId
       );
-      console.log("filteredTags", filteredTags);
       setFilters(filteredTags);
+    } else {
+      setFilters([]);
     }
     if (selectedCategoryId && allBrands) {
       const filteredBrands = allBrands.filter(
         brand => brand.categoryId.toString() === selectedCategoryId
       );
-      console.log("filteredBrands", filteredBrands);
       setBrands(filteredBrands);
+    } else {
+      setBrands([]);
     }
-  }, [selectedCategoryId, allFilterTags, setValue, allBrands]);
+  }, [selectedCategoryId, allFilterTags, allBrands]);
 
-  // Map productFilterTagValues đúng theo thứ tự của filters khi cả updatedProduct và filters đều đã load
+  // Khởi tạo toàn bộ giá trị form cho chế độ UPDATE một lần duy nhất
   useEffect(() => {
-    if (updatedProduct && filters.length > 0 && id) {
-      const mappedValues = filters.map(filterTag => {
+    if (id && updatedProduct && allFilterTags && allBrands && !isFormInitialized) {
+      const catIdStr = updatedProduct.categoryId.toString();
+
+      // 1. Lọc filters và brands trước
+      const filteredTags = allFilterTags.filter(
+        tag => tag.categoryId.toString() === catIdStr
+      );
+      setFilters(filteredTags);
+
+      const filteredBrands = allBrands.filter(
+        brand => brand.categoryId.toString() === catIdStr
+      );
+      setBrands(filteredBrands);
+
+      // 2. Ánh xạ các giá trị bộ lọc hiện có
+      const mappedFilterValues = filteredTags.map(filterTag => {
         const existingValue = updatedProduct.productFilterTagValues.find(
           pftv => pftv.filterTagId === filterTag.id
         );
@@ -110,41 +158,39 @@ export default function AddNewProduct() {
             }
           : {
               filterTagId: filterTag.id.toString(),
-              filterTagValueId: "" // để trống nếu không có giá trị
+              filterTagValueId: ""
             };
       });
-      setValue("productFilterTagValues", mappedValues);
-    }
-  }, [updatedProduct, filters, id, setValue]);
 
-
-  useEffect(() => {
-    if (updatedProduct) {
+      // 3. Reset form đồng thời với toàn bộ thuộc tính
       reset({
         name: updatedProduct.name,
         description: updatedProduct.description,
-        categoryId: updatedProduct.categoryId.toString(),
+        categoryId: catIdStr,
         brandId: updatedProduct.brandId.toString(),
         oldPrice: updatedProduct.oldPrice,
         discount: updatedProduct.discountPercentage,
         price: updatedProduct.price,
-        stockIn: id ? updatedProduct.quantityInStock : 0,
+        stockIn: updatedProduct.quantityInStock,
         mainImageFile: updatedProduct.mainImageUrl,
         detailImageFiles: updatedProduct.detailImages.map(image => image.imageUrl),
         quantityInStock: updatedProduct.quantityInStock,
         attributeGroups: updatedProduct.attributes.reduce<{groupName: string, attributes:{id?: string, key: string, value: string}[]}[]>((acc, attribute) => {
-          const group = acc.find(group => group.groupName === attribute.attributeType);
+          const group = acc.find(g => g.groupName === attribute.attributeType);
           if (group) {
             group.attributes.push({ id: attribute.id.toString(), key: attribute.name, value: attribute.value });
           } else {
             acc.push({ groupName: attribute.attributeType, attributes: [{ id: attribute.id.toString(), key: attribute.name, value: attribute.value }] });
           }
           return acc;
-        }, []), //mapping from fetched template to submit template(add product schema)
-        // productFilterTagValues sẽ được set trong useEffect riêng để map đúng theo filters
-      })
+        }, []),
+        productFilterTagValues: mappedFilterValues,
+      });
+
+      setLastCategoryId(catIdStr);
+      setIsFormInitialized(true);
     }
-  }, [updatedProduct, reset, id])
+  }, [updatedProduct, allFilterTags, allBrands, isFormInitialized, id, reset]);
   // Tính giá sau giảm giá
   const oldPrice = useWatch({ control, name: "oldPrice" }) ?? 0;
   const discount = useWatch({ control, name: "discount" }) ?? 0;
@@ -244,11 +290,11 @@ export default function AddNewProduct() {
     console.error("Form errors:", errors);
   };
 
-  if (!categories || isCategoryLoading || isFilterTagLoading || isLoadingUpdateProduct) {
-    return <LoadingComponent />;
+  if (!categories || isCategoryLoading || isFilterTagLoading) {
+    return <LoadingComponent isMaxHeight={true} />;
   }
 
-  if (isBrandLoading) return <LoadingComponent />;
+  if (isBrandLoading) return <LoadingComponent isMaxHeight={true} />;
   if (!allBrands) return <div>Lỗi tải thương hiệu</div>;
 
   if (!currentUser || !currentUser.roles.includes("Admin")) {
@@ -276,7 +322,7 @@ export default function AddNewProduct() {
           {id ? "Cập nhật sản phẩm" : "Tạo sản phẩm mới"}
         </Typography>
       </Box>
-      {(isLoadingCreateProduct) && <Box
+      {(isLoadingCreateProduct || isLoadingUpdateProduct) && <Box
         sx={{
           position: 'fixed',
           top: 0,

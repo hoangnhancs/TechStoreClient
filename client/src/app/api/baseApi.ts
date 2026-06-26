@@ -5,7 +5,8 @@ import {
 } from "@reduxjs/toolkit/query";
 import { toast } from "react-toastify";
 import { router } from "../../router/Routes";
-import { LoadingPriority, startLoading, stopLoading } from "../../layouts/uiSlice";
+import { LoadingPriority } from "../../layouts/uiSlice";
+import { uiUtil } from "../../lib/util/uiUtil";
 import { clearCurrentUser } from "../../features/user/userSlice";
 
 
@@ -23,11 +24,13 @@ export const baseQueryWithErrorHandling = async (
   api: BaseQueryApi,
   extraOptions: { loadingPriority?: LoadingPriority } = {}
 ) => {
-  const priority = extraOptions.loadingPriority || LoadingPriority.LOW
-  api.dispatch(startLoading(priority)); 
+  const isMutation = typeof args !== 'string' && args.method && args.method.toUpperCase() !== 'GET';
+  const priority = extraOptions.loadingPriority || (isMutation ? LoadingPriority.HIGH : LoadingPriority.LOW);
+  
+  uiUtil.startLoading(priority);
   await sleep();
   const result = await customBaseQuery(args, api, extraOptions);
-  api.dispatch(stopLoading()); 
+  uiUtil.stopLoading(priority);  
   if (result.error) {
     const originalStatus = result.error.status === 'PARSING_ERROR' && result.error.originalStatus 
         ? result.error.originalStatus 

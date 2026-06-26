@@ -7,7 +7,7 @@ export default function RequireAdmin() {
     const currentUser = useAppSelector((state) => state.user.currentUser)
     const isInitialized = useAppSelector((state) => state.user.isInitialized)
 
-    if (!isInitialized) return <LoadingComponent />
+    if (!isInitialized) return <LoadingComponent isMaxHeight={true} />
 
     if (!currentUser?.roles.includes("Admin")) {
         return (

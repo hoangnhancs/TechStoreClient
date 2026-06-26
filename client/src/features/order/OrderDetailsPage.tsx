@@ -225,7 +225,7 @@ export default function OrderDetailsPage() {
     const currentUser = useAppSelector((state) => state.user.currentUser);
     if (isLoading) {
         return (
-            <LoadingComponent />
+            <LoadingComponent isMaxHeight={true} />
         );
     }
 

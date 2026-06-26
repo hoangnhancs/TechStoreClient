@@ -62,7 +62,7 @@ export const baseGraphqlQueryWithErrorHandling = async (
         },
     };
     const result = await customBaseGraphqlQuery(graphqlArgs, api, extraOptions);
-    api.dispatch(stopLoading());
+    api.dispatch(stopLoading(priority));
 
     const isDev = import.meta.env.MODE === "development";
     const originalStatus =

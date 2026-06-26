@@ -8,7 +8,7 @@ const initialState = {
     brand: null as Brand | null,
     notiCreateAtSort: 'desc' as 'asc' | 'desc',
     notiStatusFilter: 'all' as 'read' | 'unread' | 'all',
-    notiTypeFilter: 'all' as 'all' | 'review' | 'comment' | 'system'
+    notiTypeFilter: 'all' as 'all' | 'system' | 'order' | 'payment' | 'interaction' | 'promotion'
 }
 const filterSlice = createSlice({
     initialState,
@@ -39,7 +39,7 @@ const filterSlice = createSlice({
         setNotiStatusFilter: (state, action: { payload: 'read' | 'unread' | 'all' }) => {
             state.notiStatusFilter = action.payload;
         },
-        setNotiTypeFilter: (state, action: { payload: 'all' | 'review' | 'comment' | 'system' }) => {
+        setNotiTypeFilter: (state, action: { payload: 'all' | 'system' | 'order' | 'payment' | 'interaction' | 'promotion' }) => {
             state.notiTypeFilter = action.payload;
         },
     },

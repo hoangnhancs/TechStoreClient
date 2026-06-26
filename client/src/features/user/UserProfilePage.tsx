@@ -7,7 +7,7 @@ export default function UserProfilePage() {
   const { data: profile, isLoading } = useGetCurrentUserQuery(undefined, {
     refetchOnMountOrArgChange: false,
   });
-  if (isLoading || !profile) return <LoadingComponent />;
+  if (isLoading || !profile) return <LoadingComponent isMaxHeight={true} />;
   return (
     <>
       <UserProfileHeader profile={profile} />

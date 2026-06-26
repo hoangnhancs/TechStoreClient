@@ -6,6 +6,8 @@ export interface SearchParams {
   pageSize?: number;
   orderBy?: string;
   filterTagValues?: number[];
+  categoryId?: number;
+  brandId?: number;
 }
 
 export interface GetResult<T> {

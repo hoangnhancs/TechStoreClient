@@ -81,7 +81,7 @@ export default function BannerPage() {
 
   if (isLoadingFetchBanners) {
     return (
-      <LoadingComponent />
+      <LoadingComponent isMaxHeight={true} />
     )
   }
 

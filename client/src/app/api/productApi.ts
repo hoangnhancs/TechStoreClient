@@ -8,7 +8,16 @@ export const productApi = createApi({
   baseQuery: baseQueryWithErrorHandling, //custom base query with error handling
   endpoints: (builder) => ({
     fetchProducts: builder.query<GetResult<Product>, SearchParams>({
-      query: (params) => ({ url: "/search", method: "GET", params }),
+      query: ({ categoryId, brandId, ...params }) => {
+        let url = "/search";
+        if (categoryId !== undefined && categoryId !== null && categoryId !== -1) {
+          url += `/${categoryId}`;
+          if (brandId !== undefined && brandId !== null && brandId !== -1) {
+            url += `/${brandId}`;
+          }
+        }
+        return { url, method: "GET", params };
+      },
       providesTags: (result) =>
         result
           ? [

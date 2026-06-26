@@ -18,16 +18,31 @@ export const uiSlice = createSlice({
         isLoading: false,
         loadingPriority: LoadingPriority.NONE,
         isDarkMode: getInitDarkMode(),
+        loadingCount: 0,
     },
     reducers: {
         startLoading: (state, action: PayloadAction<LoadingPriority>) => {
-            if (action.payload >= LoadingPriority.HIGH)
-                state.isLoading = true
-            state.loadingPriority = action.payload
+            const priority = action.payload;
+            if (priority >= LoadingPriority.HIGH) {
+                state.loadingCount = (state.loadingCount || 0) + 1;
+                state.isLoading = true;
+            }
+            if (priority > state.loadingPriority) {
+                state.loadingPriority = priority;
+            }
         },
-        stopLoading: (state) => {
-            state.isLoading = false
-            state.loadingPriority = LoadingPriority.NONE
+        stopLoading: (state, action: PayloadAction<LoadingPriority | undefined>) => {
+            const priority = action.payload ?? LoadingPriority.HIGH;
+            if (priority >= LoadingPriority.HIGH) {
+                if (state.loadingCount > 0) {
+                    state.loadingCount -= 1;
+                }
+            }
+            if (state.loadingCount <= 0) {
+                state.isLoading = false;
+                state.loadingPriority = LoadingPriority.NONE;
+                state.loadingCount = 0;
+            }
         },
         toggleDarkMode: (state) => {
             localStorage.setItem('darkMode', JSON.stringify(!state.isDarkMode))

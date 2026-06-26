@@ -106,6 +106,9 @@ export const store = configureStore({
     ),
 });
 
+import { uiUtil } from "../../lib/util/uiUtil";
+uiUtil.registerStore(store);
+
 //Persistor instance
 export const persistor = persistStore(store);
 

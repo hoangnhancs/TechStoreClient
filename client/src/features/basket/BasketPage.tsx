@@ -168,7 +168,7 @@ export default function BasketPage() {
 
     if (isLoading) 
         return (
-            <LoadingComponent />
+            <LoadingComponent isMaxHeight={true} />
         );
 
     if (!basket || basket.items.length === 0) 

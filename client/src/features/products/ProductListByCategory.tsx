@@ -168,7 +168,7 @@ export default function ProductListByCategory() {
     console.log(isLoadingFilterTagValue, isLoadingBrands)
     if (isLoadingFilterTagValue || isLoadingBrands || !brandsByCatId) 
     return (
-        <LoadingComponent />
+        <LoadingComponent isMaxHeight={true} />
     );
     console.log("filter", selectedPriceSort, selectedBrand, selectedFilters)
 

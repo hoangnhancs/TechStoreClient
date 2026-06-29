@@ -23,6 +23,7 @@ import ForgotPasswordForm from "../features/user/ForgotPasswordForm";
 import VerifyEmail from "../features/user/VerifyEmail";
 import ResetPasswordForm from "../features/user/ResetPasswordForm";
 import RequireAuth from "./RequireAuth";
+import GuestOnly from "./GuestOnly";
 import ChangePasswordForm from "../features/user/ChangePasswordForm";
 import AddNewProduct from "../features/products/AddNewProduct";
 import DashboardPage from "../features/admin/DashboardPage";
@@ -81,8 +82,10 @@ export const router = createBrowserRouter([
             {path: '/about', element: <AboutPage />},
             {path: '/contact', element: <ContactPage />},
             {path: '/counter', element: <Counter />},
-            {path: '/login', element: <LoginForm />},
-            {path: '/register', element: <RegisterForm />},
+            {element: <GuestOnly />, children: [
+                {path: '/login', element: <LoginForm />},
+                {path: '/register', element: <RegisterForm />},
+            ]},
             {path: '/confirm-email', element: <VerifyEmail />},
             {path: '/forgot-password', element: <ForgotPasswordForm />},
             {path: '/reset-password', element: <ResetPasswordForm />},

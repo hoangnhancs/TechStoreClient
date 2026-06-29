@@ -30,7 +30,7 @@ import dayjs from 'dayjs';
 import { useFetchOrderQuery } from '../../app/api/orderApi';
 import LoadingComponent from '../../components/LoadingComponent';
 import { formatCurrency, formatVNDate } from '../../lib/util/util';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { getOrderStatusConfig } from './orderStatusConfig';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import {

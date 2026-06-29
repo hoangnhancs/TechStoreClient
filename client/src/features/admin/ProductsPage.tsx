@@ -5,7 +5,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import TablePagination from '@mui/material/TablePagination';
 import { useDeleteProductMutation, useFetchProductsQuery } from "../../app/api/productApi";
 import LoadingComponent from "../../components/LoadingComponent";
-import { Category, Product } from "../../lib/types";
+import { Category } from "../../lib/types";
 import { toast } from "react-toastify";
 import StarIcon from '@mui/icons-material/Star';
 import DeleteIcon from "@mui/icons-material/Delete";

@@ -4,11 +4,11 @@ import {
   Button,
   Chip,
   Divider,
-  Grid,
+  // Grid,
   IconButton,
   Paper,
   Stack,
-  styled,
+  // styled,
   TablePagination,
   Typography,
   Table,
@@ -37,21 +37,21 @@ import {
 import { useGetListOrdersInDateRangeQuery } from "../../app/api/orderApi";
 import { getOrderStatusConfig } from "../order/orderStatusConfig";
 
-const StyledGridItem = styled(Grid)(() => ({
-  minHeight: 72,
-  display: "flex",
-  alignItems: "center",
-}));
+// const StyledGridItem = styled(Grid)(() => ({
+//   minHeight: 72,
+//   display: "flex",
+//   alignItems: "center",
+// }));
 
-const HeaderText = styled(Typography)(() => ({
-  fontSize: 13,
-  fontWeight: 700,
-  color: "text.secondary",
-}));
+// const HeaderText = styled(Typography)(() => ({
+//   fontSize: 13,
+//   fontWeight: 700,
+//   color: "text.secondary",
+// }));
 
-const BodyText = styled(Typography)(() => ({
-  fontSize: 14,
-}));
+// const BodyText = styled(Typography)(() => ({
+//   fontSize: 14,
+// }));
 
 function formatDateTime(value: string) {
   return new Date(value).toLocaleString("vi-VN", {

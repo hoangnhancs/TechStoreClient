@@ -14,7 +14,7 @@ import {
   ExpandLess,
   ExpandMore,
   ShoppingCart,
-  People,
+//   People,
   AddBox,
   Reviews,
   Widgets,
@@ -44,7 +44,7 @@ export default function Sidebar() {
         return location.pathname.startsWith(path);
     };
 
-    const getButtonStyle = (path: string, pl?: number) => ({
+    const getButtonStyle = (_path: string, pl?: number) => ({
         pl: pl ?? 2,
         borderRadius: "8px",
         mx: 1,

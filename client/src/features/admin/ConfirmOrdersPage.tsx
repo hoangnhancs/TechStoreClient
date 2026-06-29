@@ -4,11 +4,11 @@ import {
   Button,
   Chip,
   Divider,
-  Grid,
+  // Grid,
   IconButton,
   Paper,
   Stack,
-  styled,
+  // styled,
   TablePagination,
   Tooltip,
   Typography,
@@ -42,21 +42,21 @@ import { formatCurrency } from "../../lib/util/util";
 import YesNoDialog from "../../components/YesNoDialog";
 import { OrderWithUserInforDto } from "../../lib/types";
 
-const StyledGridItem = styled(Grid)(() => ({
-  minHeight: 72,
-  display: "flex",
-  alignItems: "center",
-}));
+// const StyledGridItem = styled(Grid)(() => ({
+//   minHeight: 72,
+//   display: "flex",
+//   alignItems: "center",
+// }));
 
-const HeaderText = styled(Typography)(() => ({
-  fontSize: 13,
-  fontWeight: 700,
-  color: "text.secondary",
-}));
+// const HeaderText = styled(Typography)(() => ({
+//   fontSize: 13,
+//   fontWeight: 700,
+//   color: "text.secondary",
+// }));
 
-const BodyText = styled(Typography)(() => ({
-  fontSize: 14,
-}));
+// const BodyText = styled(Typography)(() => ({
+//   fontSize: 14,
+// }));
 
 const PMT_METHOD_LABEL: Record<string, string> = {
   CashOnDelivery: "Tiền mặt (COD)",

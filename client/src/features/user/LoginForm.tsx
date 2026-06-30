@@ -41,7 +41,7 @@ export default function LoginForm() {
             await login(data).unwrap()
         } catch (error: any) {
             console.error("Login failed: ", error)
-            toast.error(error.data.error)
+            toast.error(error.data.error || "Có lỗi xảy ra khi đăng nhập")
             throw error
         }
     }

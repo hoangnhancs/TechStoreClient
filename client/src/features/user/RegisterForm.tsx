@@ -21,7 +21,7 @@ export default function RegisterForm() {
             navigate("/login")
         } catch (error: any) {
             console.error("Đăng ký thất bại: ", error.data.error)
-            toast.error(`Đăng ký thất bại: ${error.data.error}`)
+            toast.error(error.data.error || "Có lỗi xảy ra khi đăng ký")
             throw error
         }
     }

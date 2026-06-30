@@ -22,7 +22,7 @@ export default function ChangePasswordForm() {
             navigate('/login');
         } catch (error: any) {
             console.error("Failed to change password:", error);
-            toast.error(error.data.error);
+            toast.error(error.data.error || "Có lỗi xảy ra khi đổi mật khẩu");
             throw error;
         }
     }

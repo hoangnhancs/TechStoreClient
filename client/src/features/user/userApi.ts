@@ -49,7 +49,7 @@ export const userApi = createApi({
       invalidatesTags: ["User", "Basket"],
     }),
     register: builder.mutation<
-      User,
+      BasicUser,
       {
         email: string;
         displayName: string;
@@ -112,10 +112,10 @@ export const userApi = createApi({
 });
 
 export const {
-  useGetCurrentUserQuery, 
-  useLoginMutation, 
-  useLogoutMutation, 
-  useRegisterMutation, 
+  useGetCurrentUserQuery,
+  useLoginMutation,
+  useLogoutMutation,
+  useRegisterMutation,
   useResendConfirmEmailMutation,
   useVerifyEmailMutation,
   useForgotPasswordMutation,

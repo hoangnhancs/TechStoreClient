@@ -24,7 +24,7 @@ export default function ForgotPasswordForm() {
             await forgotPassword({ "email": data.email }).unwrap()
         } catch (error: any) {
             console.log(error)
-            toast.error(error.data.error)
+            toast.error(error.data.error || "Có lỗi khi gửi yêu cầu đặt lại mật khẩu")
             throw error
         }
     }

@@ -31,7 +31,7 @@ export default function ResetPasswordForm() {
 
     const handleSubmit = async (data: FieldValues) => {
         try {
-            await resetPassword({"email": email, "newPassword": data.confirmPassword, "resetCode": code}).unwrap()
+            await resetPassword({ "email": email, "newPassword": data.confirmPassword, "resetCode": code }).unwrap()
         } catch (error) {
             console.log(error)
             throw error

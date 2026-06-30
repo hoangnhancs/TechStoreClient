@@ -15,13 +15,14 @@ export default function ChangePasswordForm() {
     const dispatch = useAppDispatch();
     const handleSubmit = async (data: ChangePasswordSchema) => {
         try {
-            await changePw({currentPassword: data.currentPassword, newPassword: data.password, confirmPassword: data.confirmPassword}).unwrap();
-            toast.success("Đổi mật khẩu thành công! Vui lòng đăng nhập lại."); 
+            await changePw({ currentPassword: data.currentPassword, newPassword: data.password, confirmPassword: data.confirmPassword }).unwrap();
+            toast.success("Đổi mật khẩu thành công! Vui lòng đăng nhập lại.");
             dispatch(userApi.util.resetApiState());
             dispatch(basketApi.util.resetApiState());
             navigate('/login');
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to change password:", error);
+            toast.error(error.data.error);
             throw error;
         }
     }
@@ -50,5 +51,5 @@ export default function ChangePasswordForm() {
                 name="confirmPassword"
             />
         </UserFormWrapper>
-  )
+    )
 }

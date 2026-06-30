@@ -14,7 +14,7 @@ import { Box, Typography } from "@mui/material";
 
 export default function LoginForm() {
 
-    const [login, {isSuccess, isError, error, data}] = useLoginMutation()
+    const [login, { isSuccess, isError, error, data }] = useLoginMutation()
     const location = useLocation()
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
@@ -30,40 +30,41 @@ export default function LoginForm() {
     }, [isSuccess, data, navigate, dispatch, location])
 
     useEffect(() => {
-        if (isError && error) { 
+        if (isError && error) {
             toast.error('Đăng nhập thất bại. Vui lòng thử lại.')
-        }   
+        }
     }, [isError, error])
-    
+
 
     const handleSubmit = async (data: LoginSchema) => {
         try {
             await login(data).unwrap()
-        } catch (error) {
+        } catch (error: any) {
             console.error("Login failed: ", error)
+            toast.error(error.data.error)
             throw error
         }
     }
 
-  return (
-    <UserFormWrapper<LoginSchema>
-        title="Đăng nhập"
-        icon={<LockOpen />}
-        onSubmit={handleSubmit}
-        submitButtonText="Đăng nhập"
-        resolver={zodResolver(loginSchema)}
-        reset={true}
-    >
-        <TextInput type="email" label="Email" name="email"></TextInput>
-        <TextInput type="password" label="Mật khẩu" name="password"></TextInput>
-        <Box display={'flex'} justifyContent={'center'} gap={3}>
-            <Typography>
-                Quên mật khẩu? <Link to={'/forgot-password'}>Đặt lại mật khẩu</Link> 
-            </Typography>
-            <Typography>
-                Chưa có tài khoản? <Link to={'/register'}>Đăng ký</Link> 
-            </Typography>
-        </Box>
-    </UserFormWrapper>
-  )
+    return (
+        <UserFormWrapper<LoginSchema>
+            title="Đăng nhập"
+            icon={<LockOpen />}
+            onSubmit={handleSubmit}
+            submitButtonText="Đăng nhập"
+            resolver={zodResolver(loginSchema)}
+            reset={true}
+        >
+            <TextInput type="email" label="Email" name="email"></TextInput>
+            <TextInput type="password" label="Mật khẩu" name="password"></TextInput>
+            <Box display={'flex'} justifyContent={'center'} gap={3}>
+                <Typography>
+                    Quên mật khẩu? <Link to={'/forgot-password'}>Đặt lại mật khẩu</Link>
+                </Typography>
+                <Typography>
+                    Chưa có tài khoản? <Link to={'/register'}>Đăng ký</Link>
+                </Typography>
+            </Box>
+        </UserFormWrapper>
+    )
 }

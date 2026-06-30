@@ -21,9 +21,10 @@ export default function ForgotPasswordForm() {
 
     const handleSubmit = async (data: FieldValues) => {
         try {
-            await forgotPassword({"email": data.email}).unwrap()
-        } catch (error) {
+            await forgotPassword({ "email": data.email }).unwrap()
+        } catch (error: any) {
             console.log(error)
+            toast.error(error.data.error)
             throw error
         }
     }

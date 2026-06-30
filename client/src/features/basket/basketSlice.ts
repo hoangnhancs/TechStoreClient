@@ -16,8 +16,8 @@ export const basketSlice = createSlice({
   initialState,
   reducers: {
     setBasketStates: (state, action: { payload: BasketState }) => {
-      state.selectedItems = action.payload.selectedItems;
-      state.basket = action.payload.basket;
+      state.selectedItems = action.payload?.selectedItems || [];
+      state.basket = action.payload?.basket || { id: "", userId: "", items: [] };
     },
     clearBasketStates: (state) => {
       state.selectedItems = [];
@@ -25,9 +25,9 @@ export const basketSlice = createSlice({
     },
     setBasket: (state, action: { payload: Basket }) => {
       const newBasket = action.payload;
-      state.basket = action.payload;
+      state.basket = action.payload || { id: "", userId: "", items: [] };
 
-      if (state.selectedItems.length > 0) {
+      if (state.selectedItems && state.selectedItems.length > 0 && newBasket && newBasket.items) {
         const updatedSelectedItems: Item[] = [] 
         const newBasketProductIds = new Set(newBasket.items.map((item) => item.productId));
         state.selectedItems.forEach((selectedItem) => {
@@ -43,12 +43,17 @@ export const basketSlice = createSlice({
     },
 
     setSelectedItems: (state, action: { payload: Item[] }) => {
-      state.selectedItems = action.payload;
+      state.selectedItems = action.payload || [];
     },
 
     addItem: (state, action: { payload: Item }) => {
       const newItem = action.payload;
-      // if (!state.basket.items) state.basket.items = [];
+      if (!state.basket) {
+        state.basket = { id: "", userId: "", items: [] };
+      }
+      if (!state.basket.items) {
+        state.basket.items = [];
+      }
       const existingItemInBasket = state.basket.items.find(
         (item) => item.productId === newItem.productId
       );
@@ -56,6 +61,9 @@ export const basketSlice = createSlice({
         existingItemInBasket.quantity += newItem.quantity;
       } else {
         state.basket.items.push(newItem);
+      }
+      if (!state.selectedItems) {
+        state.selectedItems = [];
       }
       const existingItemInSelected = state.selectedItems.find(
         (item) => item.productId === newItem.productId
@@ -66,15 +74,19 @@ export const basketSlice = createSlice({
     },
     removeItemFromBasket: (state, action: { payload: Item }) => {
       const itemToRemove = action.payload;
-      state.basket.items = state.basket.items.filter(
-        (item) => item.productId !== itemToRemove.productId
-      );
+      if (state.basket && state.basket.items) {
+        state.basket.items = state.basket.items.filter(
+          (item) => item.productId !== itemToRemove.productId
+        );
+      }
     },
     removeItemFromSelected: (state, action: { payload: Item }) => {
       const itemToRemove = action.payload;
-      state.selectedItems = state.selectedItems.filter(
-        (item) => item.productId !== itemToRemove.productId
-      );
+      if (state.selectedItems) {
+        state.selectedItems = state.selectedItems.filter(
+          (item) => item.productId !== itemToRemove.productId
+        );
+      }
     },
   },
 });

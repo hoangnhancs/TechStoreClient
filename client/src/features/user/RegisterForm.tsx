@@ -15,14 +15,15 @@ export default function RegisterForm() {
     const [register] = useRegisterMutation()
     const navigate = useNavigate()
     const handleSubmit = async (data: RegisterSchema) => {
-            try {
-                await register(data).unwrap()
-                toast.success("Đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản của bạn.")
-                navigate("/login")
-            } catch (error) {
-                console.error("Đăng ký thất bại: ", error)
-                throw error
-            }
+        try {
+            await register(data).unwrap()
+            toast.success("Đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản của bạn.")
+            navigate("/login")
+        } catch (error: any) {
+            console.error("Đăng ký thất bại: ", error.data.error)
+            toast.error(`Đăng ký thất bại: ${error.data.error}`)
+            throw error
+        }
     }
 
     return (
@@ -40,9 +41,9 @@ export default function RegisterForm() {
             <TextInput type="password" label="Xác nhận mật khẩu" name="confirmPassword"></TextInput>
             <Box display="flex" justifyContent="center" alignItems={"center"}>
                 <Typography>
-                    Đã có tài khoản? <Link to={'/login'}>Đăng nhập</Link> 
+                    Đã có tài khoản? <Link to={'/login'}>Đăng nhập</Link>
                 </Typography>
-            </Box>    
+            </Box>
         </UserFormWrapper>
     )
 }

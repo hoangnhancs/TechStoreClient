@@ -93,7 +93,16 @@ export default function NavBar() {
     <AppBar
       position="fixed"
       elevation={0}
-      
+      sx={{
+        borderTopLeftRadius: '0px !important',
+        borderTopRightRadius: '0px !important',
+        borderBottomLeftRadius: '20px !important',
+        borderBottomRightRadius: '20px !important',
+        borderBottom: (theme) => `1px solid ${theme.palette.mode === 'dark' ? theme.palette.divider : 'rgba(0,0,0,0.1)'}`,
+        borderTop: 'none',
+        borderLeft: 'none',
+        borderRight: 'none'
+      }}
     >
       <Container maxWidth='xl'>
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', height: '80px !important' }}>

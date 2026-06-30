@@ -10,7 +10,7 @@ import { uiUtil } from "../../lib/util/uiUtil";
 import { clearCurrentUser } from "../../features/user/userSlice";
 
 
-type CustomError = | string | {message: string} | {errors: string [], title: string}
+type CustomError = | string | {message: string} | {errors: string[], title: string}
 
 const customBaseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL,
@@ -44,6 +44,12 @@ export const baseQueryWithErrorHandling = async (
     //neu request truoc do bi 401, thuc hien refresh token
     // nếu không có lỗi thì sẽ retry request trước đó
     if (originalStatus === 401) {
+      // Login endpoint: show error directly, no refresh needed
+      if (api.endpoint === 'login') {
+        toast.error(typeof responseData === 'string' ? responseData : 'Email hoặc mật khẩu không đúng.');
+        return result;
+      }
+
       const refresh = await customBaseQuery(
         { url: "/account/refreshToken", method: "POST" },
         api,
@@ -64,13 +70,12 @@ export const baseQueryWithErrorHandling = async (
           toast.error(responseData || "Bad request");
         }
         else if ('errors' in responseData) {
-          toast.error(responseData.title);
-          throw Object.values(responseData.errors).flat().join(', ');
+          const messages = Object.values(responseData.errors).flat().join('\n');
+          toast.error(messages || responseData.title);
         }
-        break;
-      case 401:
-        if (isDev) toast.error((responseData as string) || "Unauthorized");
-
+        else if ('message' in responseData) {
+          toast.error(responseData.message)
+        }
         break;
       case 404:
         if (isDev) toast.error((responseData as string) || "Not found");

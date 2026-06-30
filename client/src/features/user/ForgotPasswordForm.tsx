@@ -11,20 +11,18 @@ import { useEffect } from "react";
 import { FieldValues } from "react-hook-form";
 
 export default function ForgotPasswordForm() {
-    const [forgotPassword, { isSuccess, error }] = useForgotPasswordMutation()
+    const [forgotPassword, { isSuccess }] = useForgotPasswordMutation()
 
     useEffect(() => {
         if (isSuccess) {
             toast.success('Email đã được gửi thành công. Vui lòng kiểm tra hộp thư của bạn.');
         }
-    }, [isSuccess, error])
+    }, [isSuccess])
 
     const handleSubmit = async (data: FieldValues) => {
         try {
             await forgotPassword({ "email": data.email }).unwrap()
-        } catch (error: any) {
-            console.log(error)
-            toast.error(error.data.error || "Có lỗi khi gửi yêu cầu đặt lại mật khẩu")
+        } catch (error) {
             throw error
         }
     }

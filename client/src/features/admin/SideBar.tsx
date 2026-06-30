@@ -1,4 +1,3 @@
-// components/Sidebar.tsx
 import {
   Box,
   Drawer,
@@ -7,20 +6,21 @@ import {
   ListItemIcon,
   ListItemText,
   Collapse,
-
+  Divider,
 } from "@mui/material";
 import {
   Dashboard,
   ExpandLess,
   ExpandMore,
   ShoppingCart,
-//   People,
   AddBox,
   Reviews,
   Widgets,
   Category,
   History,
   AssignmentTurnedIn,
+  ChevronLeft,
+  Menu as MenuIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -28,14 +28,38 @@ import CollectionsIcon from '@mui/icons-material/Collections';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
+import { useTheme } from "@mui/material/styles";
 
+type Props = {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+};
 
-export default function Sidebar() {
+export default function Sidebar({ open, setOpen }: Props) {
+    const theme = useTheme();
     const [openProduct, setOpenProduct] = useState(true);
     const [openWidget, setOpenWidget] = useState(false);
     const toggleProduct = () => setOpenProduct(!openProduct);
     const toggleWidget = () => setOpenWidget(!openWidget);
     const location = useLocation();
+
+    const handleProductClick = () => {
+        if (!open) {
+            setOpen(true);
+            setOpenProduct(true);
+        } else {
+            toggleProduct();
+        }
+    };
+
+    const handleWidgetClick = () => {
+        if (!open) {
+            setOpen(true);
+            setOpenWidget(true);
+        } else {
+            toggleWidget();
+        }
+    };
 
     const isActive = (path: string) => {
         if (path === "/dashboard/analytics") {
@@ -44,12 +68,16 @@ export default function Sidebar() {
         return location.pathname.startsWith(path);
     };
 
-    const getButtonStyle = (_path: string, pl?: number) => ({
-        pl: pl ?? 2,
-        borderRadius: "8px",
-        mx: 1,
+    const getButtonStyle = (_path?: string, pl?: number) => ({
+        justifyContent: open ? 'initial' : 'center',
+        px: open ? 2 : 0,
+        pl: open && pl ? pl : undefined,
+        // borderRadius: "8px",
+        mx: open ? 1 : 0.5,
         mb: 0.5,
-        width: "calc(100% - 16px)",
+        width: open ? "calc(100% - 16px)" : "calc(100% - 8px)",
+        minHeight: 48,
+        transition: 'all 0.2s ease',
         "&.Mui-selected": {
             bgcolor: "primary.main",
             color: "primary.contrastText",
@@ -62,51 +90,88 @@ export default function Sidebar() {
         },
     });
 
+    const getIconStyle = () => ({
+        minWidth: 0,
+        mr: open ? 2 : 0,
+        justifyContent: 'center',
+    });
+
+    const drawerWidth = open ? 240 : 64;
+    const sidebarBg = theme.palette.mode === 'dark' ? 'background.paper' : '#e3f2fd';
+
     return (
         <Drawer
             variant="permanent" 
             anchor="left"
             sx={{
-                width: 240,
+                width: drawerWidth,
                 flexShrink: 0,
+                transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                borderRight: 'none',
                 [`& .MuiDrawer-paper`]: {
-                    width: 240,
+                    width: drawerWidth,
                     boxSizing: 'border-box',
-                    top: 80, // 👈 Thêm dòng này để sidebar không đè navbar
+                    top: 80, 
+                    height: 'calc(100vh - 80px)',
+                    transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    overflowX: 'hidden',
+                    borderRight: 'none',
+                    backgroundColor: sidebarBg,
+                    borderRadius: 0,
                 },
             }}
         >
-            <Box sx={{ width: "100%", bgcolor: "#e3f2fd", height: "100%" }}>
-                <List component="nav">
-                    {/* Dashboards */}
+            <Box sx={{ width: "100%", bgcolor: 'transparent', minHeight: "100%", transition: 'background-color 0.3s' }}>
+                <List component="nav" sx={{ pt: 1 }}>
+                    {/* Toggle Button */}
+                    <ListItemButton 
+                        onClick={() => setOpen(!open)} 
+                        sx={{ 
+                            justifyContent: open ? 'flex-end' : 'center', 
+                            py: 1, 
+                            px: open ? 2 : 0, 
+                            mb: 1,
+                            borderRadius: '8px',
+                            mx: open ? 1 : 0.5,
+                            width: open ? "calc(100% - 16px)" : "calc(100% - 8px)",
+                        }}
+                    >
+                        <ListItemIcon sx={{ minWidth: 0, mr: open ? 1.5 : 0, justifyContent: 'center' }}>
+                            {open ? <ChevronLeft /> : <MenuIcon />}
+                        </ListItemIcon>
+                        {open && <ListItemText primary="Thu gọn" sx={{ color: 'text.secondary', fontSize: '14px' }} />}
+                    </ListItemButton>
+                    <Divider sx={{ mb: 1.5, mx: 1 }} />
+
+                    {/* Thống kê */}
                     <ListItemButton 
                         component={Link} 
                         to="/dashboard/analytics" 
                         selected={isActive("/dashboard/analytics")}
                         sx={getButtonStyle("/dashboard/analytics")}
                     >
-                        <ListItemIcon><Dashboard /></ListItemIcon>
-                        <ListItemText primary="Thống kê" />
+                        <ListItemIcon sx={getIconStyle()}><Dashboard /></ListItemIcon>
+                        {open && <ListItemText primary="Thống kê" />}
                     </ListItemButton>
 
-                    {/*Banner section*/}
+                    {/* Quản lý Banner */}
                     <ListItemButton 
                         component={Link} 
                         to="/dashboard/banners" 
                         selected={isActive("/dashboard/banners")}
                         sx={getButtonStyle("/dashboard/banners")}
                     >
-                        <ListItemIcon><CollectionsIcon /></ListItemIcon>
-                        <ListItemText primary="Quản lý Banner" />
+                        <ListItemIcon sx={getIconStyle()}><CollectionsIcon /></ListItemIcon>
+                        {open && <ListItemText primary="Quản lý Banner" />}
                     </ListItemButton>
 
-                    {/* Product Section */}
-                    <ListItemButton onClick={toggleProduct} sx={getButtonStyle("/dashboard/products-parent")}>
-                        <ListItemIcon><Category /></ListItemIcon>
-                        <ListItemText primary="Sản phẩm" />
-                        {openProduct ? <ExpandLess /> : <ExpandMore />}
+                    {/* Sản phẩm */}
+                    <ListItemButton onClick={handleProductClick} sx={getButtonStyle("/dashboard/products-parent")}>
+                        <ListItemIcon sx={getIconStyle()}><Category /></ListItemIcon>
+                        {open && <ListItemText primary="Sản phẩm" />}
+                        {open && (openProduct ? <ExpandLess /> : <ExpandMore />)}
                     </ListItemButton>
-                    <Collapse in={openProduct} timeout="auto" unmountOnExit>
+                    <Collapse in={open && openProduct} timeout="auto" unmountOnExit>
                         <List component="div" disablePadding>
                             <ListItemButton 
                                 component={Link} 
@@ -114,8 +179,8 @@ export default function Sidebar() {
                                 selected={isActive("/dashboard/orders")}
                                 sx={getButtonStyle("/dashboard/orders", 4)}
                             >
-                                <ListItemIcon><History /></ListItemIcon>
-                                <ListItemText primary="Lịch sử đơn hàng" />
+                                <ListItemIcon sx={getIconStyle()}><History /></ListItemIcon>
+                                {open && <ListItemText primary="Lịch sử đơn hàng" />}
                             </ListItemButton>
                             <ListItemButton 
                                 component={Link} 
@@ -123,8 +188,8 @@ export default function Sidebar() {
                                 selected={isActive("/dashboard/confirm-orders")}
                                 sx={getButtonStyle("/dashboard/confirm-orders", 4)}
                             >
-                                <ListItemIcon><AssignmentTurnedIn /></ListItemIcon>
-                                <ListItemText primary="Xác nhận đơn hàng" />
+                                <ListItemIcon sx={getIconStyle()}><AssignmentTurnedIn /></ListItemIcon>
+                                {open && <ListItemText primary="Xác nhận đơn hàng" />}
                             </ListItemButton>
                             <ListItemButton 
                                 component={Link} 
@@ -132,8 +197,8 @@ export default function Sidebar() {
                                 selected={isActive("/dashboard/products")}
                                 sx={getButtonStyle("/dashboard/products", 4)}
                             >
-                                <ListItemIcon><ShoppingCart /></ListItemIcon>
-                                <ListItemText primary="Quản lý sản phẩm" />
+                                <ListItemIcon sx={getIconStyle()}><ShoppingCart /></ListItemIcon>
+                                {open && <ListItemText primary="Quản lý sản phẩm" />}
                             </ListItemButton>
                             <ListItemButton 
                                 component={Link} 
@@ -141,51 +206,52 @@ export default function Sidebar() {
                                 selected={isActive("/dashboard/inventory")}
                                 sx={getButtonStyle("/dashboard/inventory", 4)}
                             >
-                                <ListItemIcon><Inventory2Icon /></ListItemIcon>
-                                <ListItemText primary="Nhập kho" />
+                                <ListItemIcon sx={getIconStyle()}><Inventory2Icon /></ListItemIcon>
+                                {open && <ListItemText primary="Nhập kho" />}
                             </ListItemButton>
                             <ListItemButton sx={getButtonStyle("/dashboard/add-product", 4)}>
-                                <ListItemIcon><AddBox /></ListItemIcon>
-                                <ListItemText primary="Thêm sản phẩm" />
+                                <ListItemIcon sx={getIconStyle()}><AddBox /></ListItemIcon>
+                                {open && <ListItemText primary="Thêm sản phẩm" />}
                             </ListItemButton>
                             <ListItemButton sx={getButtonStyle("/dashboard/reviews", 4)}>
-                                <ListItemIcon><Reviews /></ListItemIcon>
-                                <ListItemText primary="Đánh giá sản phẩm" />
+                                <ListItemIcon sx={getIconStyle()}><Reviews /></ListItemIcon>
+                                {open && <ListItemText primary="Đánh giá sản phẩm" />}
                             </ListItemButton>
                         </List>
                     </Collapse>
 
-                    {/* Thông báo (Tách ra ngoài) */}
+                    {/* Thông báo */}
                     <ListItemButton 
                         component={Link} 
                         to="/dashboard/notifications" 
                         selected={isActive("/dashboard/notifications")}
                         sx={getButtonStyle("/dashboard/notifications")}
                     >
-                        <ListItemIcon><NotificationsIcon /></ListItemIcon>
-                        <ListItemText primary="Thông báo" />
+                        <ListItemIcon sx={getIconStyle()}><NotificationsIcon /></ListItemIcon>
+                        {open && <ListItemText primary="Thông báo" />}
                     </ListItemButton>
 
-                    {/* Flash Sales (Tách ra ngoài) */}
+                    {/* Flash Sale */}
                     <ListItemButton 
                         component={Link} 
                         to="/dashboard/flash-sales" 
                         selected={isActive("/dashboard/flash-sales")}
                         sx={getButtonStyle("/dashboard/flash-sales")}
                     >
-                        <ListItemIcon><FlashOnIcon /></ListItemIcon>
-                        <ListItemText primary="Flash Sale" />
+                        <ListItemIcon sx={getIconStyle()}><FlashOnIcon /></ListItemIcon>
+                        {open && <ListItemText primary="Flash Sale" />}
                     </ListItemButton>
 
-                    <ListItemButton onClick={toggleWidget} sx={getButtonStyle("/dashboard/widgets-parent")}>
-                        <ListItemIcon><Widgets /></ListItemIcon>
-                        <ListItemText primary="Tiện ích" />
-                        {openWidget ? <ExpandLess /> : <ExpandMore />}
+                    {/* Tiện ích */}
+                    <ListItemButton onClick={handleWidgetClick} sx={getButtonStyle("/dashboard/widgets-parent")}>
+                        <ListItemIcon sx={getIconStyle()}><Widgets /></ListItemIcon>
+                        {open && <ListItemText primary="Tiện ích" />}
+                        {open && (openWidget ? <ExpandLess /> : <ExpandMore />)}
                     </ListItemButton>
-                    <Collapse in={openWidget} timeout="auto" unmountOnExit>
+                    <Collapse in={open && openWidget} timeout="auto" unmountOnExit>
                         <List component="div" disablePadding>
                             <ListItemButton sx={getButtonStyle("/dashboard/widget-1", 4)}>
-                                <ListItemText primary="Tiện ích 1" />
+                                {open && <ListItemText primary="Tiện ích 1" />}
                             </ListItemButton>
                         </List>
                     </Collapse>

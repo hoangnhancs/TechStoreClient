@@ -19,9 +19,7 @@ export default function RegisterForm() {
             await register(data).unwrap()
             toast.success("Đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản của bạn.")
             navigate("/login")
-        } catch (error: any) {
-            console.error("Đăng ký thất bại: ", error.data.error)
-            toast.error(error.data.error || "Có lỗi xảy ra khi đăng ký")
+        } catch (error) {
             throw error
         }
     }

@@ -20,8 +20,6 @@ export default function ResetPasswordForm() {
         if (isSuccess) {
             toast.success('Đặt lại mật khẩu thành công. Vui lòng đăng nhập.');
             navigate('/login')
-        } else {
-            toast.error('Mã token không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.');
         }
     }, [isSuccess, navigate])
 

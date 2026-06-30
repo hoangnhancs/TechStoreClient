@@ -14,7 +14,7 @@ import { Box, Typography } from "@mui/material";
 
 export default function LoginForm() {
 
-    const [login, { isSuccess, isError, error, data }] = useLoginMutation()
+    const [login, { isSuccess, data }] = useLoginMutation()
     const location = useLocation()
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
@@ -29,11 +29,13 @@ export default function LoginForm() {
         }
     }, [isSuccess, data, navigate, dispatch, location])
 
-    useEffect(() => {
-        if (isError && error) {
-            toast.error("Đăng nhập thất bại")
-        }
-    }, [isError, error])
+    // useEffect(() => {
+    //     console.log(isError, error)
+    //     if (isError && error) {
+    //         console.log(error)
+    //         toast.error("Đăng nhập thất bại")
+    //     }
+    // }, [isError, error])
 
 
     const handleSubmit = async (data: LoginSchema) => {

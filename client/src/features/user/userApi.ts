@@ -87,13 +87,13 @@ export const userApi = createApi({
     }),
     verifyEmail: builder.mutation<void, { userId: string; code: string }>({
       query: ({ userId, code }) => ({
-        url: `/confirmEmail?userId=${userId}&code=${code}`,
+        url: `/account/confirmEmail?userId=${userId}&code=${code}`,
         method: "GET",
       }),
     }),
     forgotPassword: builder.mutation<void, { email: string }>({
       query: (credentials) => ({
-        url: "/forgotPassword",
+        url: "/account/forgotPassword",
         method: "POST",
         body: credentials,
       }),
@@ -103,7 +103,7 @@ export const userApi = createApi({
       { email: string; newPassword: string; resetCode: string }
     >({
       query: (credentials) => ({
-        url: "/resetPassword",
+        url: "/account/resetPassword",
         method: "POST",
         body: credentials,
       }),

@@ -11,6 +11,7 @@ import { useAppSelector } from "../../hooks";
 import { useAddBasketItemMutation, useFetchBasketQuery, useRemoveBasketItemMutation } from "../../app/api/basketApi";
 import LoadingComponent from "../../components/LoadingComponent";
 import { useDebounce } from "../../app/hooks/useDebounce";
+import { formatCurrency } from "../../lib/util/util";
 
 
 
@@ -193,19 +194,20 @@ export default function BasketPage() {
     
     
     return (  
-        <Grid container spacing={1} >
+        <Grid container spacing={3}>
             {/*Items list*/}
-            <Grid size={8} sx={{ p: 2 }}>
+            <Grid size={{ xs: 12, md: 8 }} sx={{ p: { xs: 1, sm: 2 } }}>
                 {/*column name*/}
                 <Paper
                     elevation={3}
                     sx={{
                         width: '100%',
                         mb: 2,
-                        p: 2                        
+                        p: 2,
+                        display: { xs: 'none', sm: 'block' }                        
                     }}                    
                 >
-                    <Grid container spacing={0}>
+                    <Grid container spacing={0} alignItems="center">
                         <Grid
                             size={0.5}
                             sx={{ 
@@ -227,7 +229,7 @@ export default function BasketPage() {
                                 p: 0.5,
                             }}
                         >
-                            <Typography sx={{textAlign: 'left'}}>Sản phẩm</Typography>
+                            <Typography sx={{textAlign: 'left', fontWeight: 'medium'}}>Sản phẩm</Typography>
                         </Grid>
                         <Grid
                             size={1}
@@ -239,7 +241,7 @@ export default function BasketPage() {
                                 p: 0.5,
                             }}
                         >
-                            <Typography>Đơn giá</Typography>
+                            <Typography sx={{fontWeight: 'medium'}}>Đơn giá</Typography>
                         </Grid>
                         <Grid
                             size={2.5}
@@ -251,7 +253,7 @@ export default function BasketPage() {
                                 p: 0.5,
                             }}
                         >
-                            <Typography>Số lượng</Typography>
+                            <Typography sx={{fontWeight: 'medium'}}>Số lượng</Typography>
                         </Grid>
                         <Grid
                             size={2}
@@ -263,7 +265,7 @@ export default function BasketPage() {
                                 p: 0.5,
                             }}
                         >
-                            <Typography>Thành tiền</Typography>
+                            <Typography sx={{fontWeight: 'medium'}}>Thành tiền</Typography>
                         </Grid>
                         <Grid
                             size={1}
@@ -275,13 +277,13 @@ export default function BasketPage() {
                                 p: 0.5,
                             }}
                         >
-                            <Typography>Thao tác</Typography>
+                            <Typography sx={{fontWeight: 'medium'}}>Thao tác</Typography>
                         </Grid>
                     </Grid>
                 </Paper>
                 {/*Items details*/}
                 {Object.entries(groupedItems).map(([category, items]) => (
-                    <Paper elevation={3} sx={{ p: 2, mb: 2 }} key={category}>                
+                    <Paper elevation={3} sx={{ p: 2, mb: 2, borderRadius: 3 }} key={category}>                
                         <Box
                             sx={{ 
                                 display: 'flex', 
@@ -296,12 +298,11 @@ export default function BasketPage() {
                             <Box
                                 sx={{
                                     width: '100%',
-
                                 }}
                             >
-                                <Grid container spacing={0}>
+                                <Grid container spacing={0} alignItems="center">
                                     <Grid
-                                        size={0.5}
+                                        size={{ xs: 1.5, sm: 0.5 }}
                                         sx={{ 
                                             display: 'flex',
                                             alignItems: 'center',
@@ -313,7 +314,7 @@ export default function BasketPage() {
                                         <Checkbox checked={isCategorySelectedAll(Number(category))} onChange={() => toogleSelectCategory(Number(category))} />
                                     </Grid>
                                     <Grid
-                                        size={4.5}
+                                        size={{ xs: 10.5, sm: 11.5 }}
                                         sx={{
                                             display: 'flex',                                                                        
                                             bgcolor: 'background.paper',
@@ -321,11 +322,10 @@ export default function BasketPage() {
                                             p: 0.5,
                                         }}
                                     >
-                                        
-                                        <Typography sx={{textAlign: 'left'}}>{items.categoryDisplayName}</Typography>
+                                        <Typography sx={{textAlign: 'left', fontWeight: 'bold'}}>{items.categoryDisplayName}</Typography>
                                     </Grid>                        
                                 </Grid>
-                                <Divider />
+                                <Divider sx={{ my: 1 }} />
                             </Box>
                             {items.productItems.map(item => (
                                 <Box
@@ -334,9 +334,9 @@ export default function BasketPage() {
                                         width: '100%',
                                     }}
                                 >
-                                    <Grid container spacing={0}>
+                                    <Grid container spacing={0} alignItems="center" sx={{ py: 1 }}>
                                         <Grid
-                                            size={0.5}
+                                            size={{ xs: 1.5, sm: 0.5 }}
                                             sx={{ 
                                                 display: 'flex',
                                                 alignItems: 'center',
@@ -348,8 +348,9 @@ export default function BasketPage() {
                                             <Checkbox checked={selectedItems.some(selected => selected.productId === item.productId)} onChange={() => toogleSelectItem(item)} />
                                         </Grid>
                                         <Grid                             
-                                            size={1.5}
+                                            size={{ xs: 3.5, sm: 1.5 }}
                                             sx={{                                                                         
+                                                display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
                                                 bgcolor: 'background.paper',
@@ -361,30 +362,32 @@ export default function BasketPage() {
                                                 src={item.imageUrl}
                                                 alt={item.productName}
                                                 sx={{ 
-                                                    width: 100, 
-                                                    height: 100, 
+                                                    width: { xs: 80, sm: 100 }, 
+                                                    height: { xs: 80, sm: 100 }, 
                                                     objectFit: 'cover',
-                                                    
+                                                    borderRadius: 2
                                                 }}
                                             />
                                         </Grid> 
                                         <Grid
-                                            size={3.5}
+                                            size={{ xs: 7, sm: 3.5 }}
                                             sx={{
-                                                display: 'flex',                                                                        
+                                                display: 'flex',
+                                                flexDirection: 'column',                                                                        
                                                 bgcolor: 'background.paper',
-                                                alignItems: 'center',
+                                                justifyContent: 'center',
                                                 p: 0.5,
                                             }}
                                         >
                                             <Typography 
                                                 component={Link} 
                                                 to={`/products/${item.productId}`} 
-                                                color="#000000"
+                                                color="text.primary"
                                                 sx={{
-
                                                     textAlign: 'left', 
-                                                    textDecoration: 'none', 
+                                                    textDecoration: 'none',
+                                                    fontWeight: 500,
+                                                    fontSize: { xs: '0.9rem', sm: '1rem' },
                                                     "&:hover": {
                                                         color: 'primary.main',
                                                     }
@@ -392,23 +395,85 @@ export default function BasketPage() {
                                             >
                                                 {item.productName}
                                             </Typography>
+                                            
+                                            {/* Mobile-only section for Price, Quantity and Actions */}
+                                            <Box sx={{ display: { xs: 'flex', sm: 'none' }, flexDirection: 'column', gap: 1, mt: 1 }}>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    Đơn giá: {formatCurrency(item.price)}
+                                                </Typography>
+                                                <Box display="flex" alignItems="center" justifyContent="space-between">
+                                                    {/* Mobile Quantity Selector */}
+                                                    <Box display={'flex'} alignItems={'center'}>
+                                                        <IconButton 
+                                                            onClick={() => handleLocalQuantitiesChange(item.productId, -1)}
+                                                            size="small" 
+                                                            sx={{ 
+                                                                border: '1px solid', 
+                                                                borderColor: 'divider',
+                                                                borderRadius: 0,
+                                                                p: 0.25
+                                                            }}
+                                                        >
+                                                            <Remove sx={{ fontSize: '0.75rem' }} />
+                                                        </IconButton>
+                                                        
+                                                        <Typography 
+                                                            sx={{
+                                                                textAlign: 'center',
+                                                                border: '1px solid',
+                                                                borderColor: 'divider',
+                                                                borderRight: 0, 
+                                                                borderLeft: 0, 
+                                                                minWidth: 30,
+                                                                fontSize: '0.85rem',
+                                                            }}
+                                                        >
+                                                            {localQuantities[item.productId]}                                            
+                                                        </Typography>
+                                                        
+                                                        <IconButton 
+                                                            size="small"
+                                                            onClick={() => handleLocalQuantitiesChange(item.productId, 1)}
+                                                            sx={{ 
+                                                                border: '1px solid',
+                                                                borderColor: 'divider', 
+                                                                borderRadius: 0,
+                                                                p: 0.25
+                                                            }}
+                                                        >
+                                                            <Add sx={{ fontSize: '0.75rem' }} />
+                                                        </IconButton>
+                                                    </Box>
+                                                    
+                                                    {/* Mobile Delete Button */}
+                                                    <IconButton 
+                                                        color="error" 
+                                                        onClick={() => handleRemoveItem(item.productId, item.quantity)}
+                                                        size="small"
+                                                    >
+                                                        <Delete fontSize="small" />
+                                                    </IconButton>
+                                                </Box>
+                                            </Box>
                                         </Grid>
+                                        
+                                        {/* Desktop-only columns */}
                                         <Grid
                                             size={1}
                                             sx={{
-                                                display: 'flex',                                                                        
+                                                display: { xs: 'none', sm: 'flex' },                                                                        
                                                 bgcolor: 'background.paper',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
                                                 p: 0.5,
                                             }}
                                         >
-                                            <Typography>{item.price}</Typography>
+                                            <Typography>{formatCurrency(item.price)}</Typography>
                                         </Grid>
                                         <Grid
                                             size={2.5}
                                             sx={{
-                                                display: 'flex',                                                                        
+                                                display: { xs: 'none', sm: 'flex' },                                                                        
                                                 bgcolor: 'background.paper',
                                                 alignItems: 'center',
                                                 p: 0.5,
@@ -416,14 +481,14 @@ export default function BasketPage() {
                                         >
                                             <Box display={'flex'} alignItems={'center'} justifyContent={'center'} sx={{width: '100%',}}>
                                                 <IconButton 
-                                                onClick={() => handleLocalQuantitiesChange(item.productId, -1)}
+                                                    onClick={() => handleLocalQuantitiesChange(item.productId, -1)}
                                                     size="small" 
                                                     sx={{ 
                                                         border: '1px solid', 
                                                         borderColor: 'divider',
                                                         borderRadius: 0,
                                                         '& .MuiSvgIcon-root': {
-                                                            fontSize: '0.85rem' // Icon nhỏ hơn
+                                                            fontSize: '0.85rem'
                                                         } 
                                                     }}
                                                 >
@@ -446,38 +511,36 @@ export default function BasketPage() {
                                                 
                                                 <IconButton 
                                                     size="small"
-                                                    onClick = {() => handleLocalQuantitiesChange(item.productId, 1)}
+                                                    onClick={() => handleLocalQuantitiesChange(item.productId, 1)}
                                                     sx={{ 
-                    
                                                         border: '1px solid',
                                                         borderColor: 'divider', 
                                                         borderRadius: 0,
                                                         '& .MuiSvgIcon-root': {
-                                                            fontSize: '0.85rem' // Icon nhỏ hơn
+                                                            fontSize: '0.85rem'
                                                         } 
                                                     }}
                                                 >
                                                     <Add sx={{borderRadius: 0}} />
                                                 </IconButton>
                                             </Box>
-                                            
                                         </Grid>
                                         <Grid
                                             size={2}
                                             sx={{
-                                                display: 'flex',                                                                        
+                                                display: { xs: 'none', sm: 'flex' },                                                                        
                                                 bgcolor: 'background.paper',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
                                                 p: 0.5,
                                             }}
                                         >
-                                            <Typography>{item.quantity * item.price}</Typography>
+                                            <Typography fontWeight="medium" color="primary.main">{formatCurrency(item.quantity * item.price)}</Typography>
                                         </Grid>
                                         <Grid
                                             size={1}
                                             sx={{
-                                                display: 'flex',                                                                        
+                                                display: { xs: 'none', sm: 'flex' },                                                                        
                                                 bgcolor: 'background.paper',
                                                 alignItems: 'center',
                                                 p: 0.5,
@@ -492,7 +555,7 @@ export default function BasketPage() {
                                             </Button>
                                         </Grid>
                                     </Grid>
-                                    <Divider />
+                                    <Divider sx={{ my: 1 }} />
                                 </Box>                   
                             ))}  
                         </Box>
@@ -501,10 +564,9 @@ export default function BasketPage() {
             </Grid>
 
             {/*Summary order*/}
-            <Grid size={4} sx={{ p: 2 }}>
+            <Grid size={{ xs: 12, md: 4 }} sx={{ p: { xs: 1, sm: 2 } }}>
                 <OrderSummary />
             </Grid>
-            
         </Grid>
     )
 }

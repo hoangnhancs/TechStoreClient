@@ -57,7 +57,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                 })
                 .catch(error => {
                     console.error('Error adding item to cart:', error);
-                    toast.error('Could not add item to cart. Please try again.');
+                    toast.error('Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại.');
                 });
             }
         }
@@ -70,11 +70,11 @@ export default function ProductInformation({product, currentUser}: Props) {
     }
 
     const productDetails = [
-        {label: 'Name', value: product.name},
-        {label: 'Description', value: product.description},
-        {label: 'Category', value: product.categoryName},
-        {label: 'Brand', value: product.brandName},
-        {label: 'Quantity in stock', value: product.quantityInStock},
+        {label: 'Tên', value: product.name},
+        {label: 'Mô tả', value: product.description},
+        {label: 'Danh mục', value: product.categoryName},
+        {label: 'Thương hiệu', value: product.brandName},
+        {label: 'Số lượng tồn kho', value: product.quantityInStock},
     ]
 
     return (
@@ -464,7 +464,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                                     {detail.label}
                                 </TableCell>
                                 <TableCell>
-                                    {detail.label === 'Description' && Array.isArray(detail.value)
+                                    {detail.label === 'Mô tả' && Array.isArray(detail.value)
                                     ? detail.value.join(', ')
                                     : detail.value}
                                 </TableCell>
@@ -475,7 +475,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                     </TableContainer>
                     <Grid container spacing={2} sx={{ mt: 3 }}>
                         <TextField
-                            label="Quantity add to basket"
+                            label="Số lượng thêm vào giỏ hàng"
                             variant="outlined"
                             type="number"
                             value={quantity}
@@ -493,7 +493,7 @@ export default function ProductInformation({product, currentUser}: Props) {
                             onClick={handleAddToCart} 
                             disabled={isLoading || product.quantityInStock <= 0}
                         >
-                            {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Add to Basket'}
+                            {isLoading ? <CircularProgress size={24} color="inherit" /> : 'Thêm vào giỏ hàng'}
                         </Button>
                     </Grid>
                 </Grid>     

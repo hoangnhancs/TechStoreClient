@@ -25,42 +25,43 @@ export default function LoginForm() {
             dispatch(setCurrentUser(data))
             const from = location.state?.from || '/products'
             navigate(from, { replace: true });
-            toast.success("Login successful")
+            toast.success("Đăng nhập thành công")
         }
     }, [isSuccess, data, navigate, dispatch, location])
 
     useEffect(() => {
         if (isError && error) { 
-            toast.error('Authentication failed. Please try again.')
+            toast.error('Đăng nhập thất bại. Vui lòng thử lại.')
         }   
     }, [isError, error])
     
 
     const handleSubmit = async (data: LoginSchema) => {
         try {
-            login(data).unwrap()
+            await login(data).unwrap()
         } catch (error) {
             console.error("Login failed: ", error)
+            throw error
         }
     }
 
   return (
     <UserFormWrapper<LoginSchema>
-        title="Login"
+        title="Đăng nhập"
         icon={<LockOpen />}
         onSubmit={handleSubmit}
-        submitButtonText="Login"
+        submitButtonText="Đăng nhập"
         resolver={zodResolver(loginSchema)}
         reset={true}
     >
         <TextInput type="email" label="Email" name="email"></TextInput>
-        <TextInput type="password" label="Password" name="password"></TextInput>
+        <TextInput type="password" label="Mật khẩu" name="password"></TextInput>
         <Box display={'flex'} justifyContent={'center'} gap={3}>
             <Typography>
-                Forgot password? <Link to={'/forgot-password'}>Reset password</Link> 
+                Quên mật khẩu? <Link to={'/forgot-password'}>Đặt lại mật khẩu</Link> 
             </Typography>
             <Typography>
-                Don't have an account? <Link to={'/register'}>Sign up</Link> 
+                Chưa có tài khoản? <Link to={'/register'}>Đăng ký</Link> 
             </Typography>
         </Box>
     </UserFormWrapper>

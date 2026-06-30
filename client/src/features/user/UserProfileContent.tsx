@@ -16,9 +16,9 @@ export default function UserProfileContent({profile }: Props) {
         setValue(newValue)
     }
     const tabContent = [
-        {label: 'About', content: <UserProfileAbout profile={profile} />},
-        {label: 'Address', content: <UserProfileAddress />},
-        {label: 'Vouchers', content: <UserProfileVoucher />},
+        {label: 'Giới thiệu', content: <UserProfileAbout profile={profile} />},
+        {label: 'Địa chỉ', content: <UserProfileAddress />},
+        {label: 'Voucher', content: <UserProfileVoucher />},
     ]
   return (
     <Box 

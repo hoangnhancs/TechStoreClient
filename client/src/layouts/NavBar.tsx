@@ -24,8 +24,8 @@ import SearchBar from "../components/SearchBar";
 // ]
 
 const rightLinks = [
-  { title: 'login', path: '/login' },
-  { title: 'register', path: '/register' },
+  { title: 'Đăng nhập', path: '/login' },
+  { title: 'Đăng ký', path: '/register' },
 ]
 export default function NavBar() {
 

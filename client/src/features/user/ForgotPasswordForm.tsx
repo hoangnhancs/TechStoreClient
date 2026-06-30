@@ -15,23 +15,24 @@ export default function ForgotPasswordForm() {
 
     useEffect(() => {
         if (isSuccess) {
-            toast.success('Email sent successfully. Please check your inbox.');
+            toast.success('Email đã được gửi thành công. Vui lòng kiểm tra hộp thư của bạn.');
         }
     }, [isSuccess, error])
 
     const handleSubmit = async (data: FieldValues) => {
         try {
-            forgotPassword({"email": data.email})
+            await forgotPassword({"email": data.email}).unwrap()
         } catch (error) {
             console.log(error)
+            throw error
         }
     }
     return (
         <UserFormWrapper
-            title="Please enter your email address"
+            title="Vui lòng nhập địa chỉ email của bạn"
             icon={<LockOpen />}
             onSubmit={handleSubmit}
-            submitButtonText="Request password reset link"
+            submitButtonText="Yêu cầu liên kết đặt lại mật khẩu"
             resolver={zodResolver(forgotPwSchema)}
             reset={true}
         >
@@ -40,7 +41,7 @@ export default function ForgotPasswordForm() {
                 component={Link}
                 to="/login"
             >
-                Back to login page
+                Quay lại trang đăng nhập
             </Button>
         </UserFormWrapper>
     )

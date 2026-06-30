@@ -18,40 +18,41 @@ export default function ResetPasswordForm() {
     const navigate = useNavigate()
     useEffect(() => {
         if (isSuccess) {
-            toast.success('Password reset successfully. Please login.');
+            toast.success('Đặt lại mật khẩu thành công. Vui lòng đăng nhập.');
             navigate('/login')
         } else {
-            toast.error('Token is invalid or expired. Please try again.');
+            toast.error('Mã token không hợp lệ hoặc đã hết hạn. Vui lòng thử lại.');
         }
     }, [isSuccess, navigate])
 
-    if (!code) return <Typography>Invalid reset password code</Typography>
+    if (!code) return <Typography>Mã đặt lại mật khẩu không hợp lệ</Typography>
 
-    if (!email) return <Typography>Invalid reset password email</Typography>
+    if (!email) return <Typography>Email đặt lại mật khẩu không hợp lệ</Typography>
 
     const handleSubmit = async (data: FieldValues) => {
         try {
-            resetPassword({"email": email, "newPassword": data.confirmPassword, "resetCode": code})
+            await resetPassword({"email": email, "newPassword": data.confirmPassword, "resetCode": code}).unwrap()
         } catch (error) {
             console.log(error)
+            throw error
         }
     }
     return (
         <UserFormWrapper
-            title="Please enter your new password"
+            title="Vui lòng nhập mật khẩu mới của bạn"
             icon={<LockOpen />}
             onSubmit={handleSubmit}
-            submitButtonText="Reset password"
+            submitButtonText="Đặt lại mật khẩu"
             resolver={zodResolver(resetPwSchema)}
             reset={true}
         >
-            <TextInput type="password" label="Password" name="password"></TextInput>
-            <TextInput type="password" label="Confirm Password" name="confirmPassword"></TextInput>
+            <TextInput type="password" label="Mật khẩu" name="password"></TextInput>
+            <TextInput type="password" label="Xác nhận mật khẩu" name="confirmPassword"></TextInput>
             <Button
                 component={Link}
                 to="/login"
             >
-                Back to login page
+                Quay lại trang đăng nhập
             </Button>
         </UserFormWrapper>
     )

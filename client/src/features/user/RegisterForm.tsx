@@ -16,30 +16,31 @@ export default function RegisterForm() {
     const navigate = useNavigate()
     const handleSubmit = async (data: RegisterSchema) => {
             try {
-                register(data).unwrap()
-                toast.success("Register successful. Please check your email to confirm your account.")
+                await register(data).unwrap()
+                toast.success("Đăng ký thành công. Vui lòng kiểm tra email để xác nhận tài khoản của bạn.")
                 navigate("/login")
             } catch (error) {
-                console.error("Register failed: ", error)
+                console.error("Đăng ký thất bại: ", error)
+                throw error
             }
     }
 
     return (
         <UserFormWrapper<RegisterSchema>
-            title="Register"
+            title="Đăng ký"
             icon={<LockOpen />}
             onSubmit={handleSubmit}
-            submitButtonText="Sign up"
+            submitButtonText="Đăng ký"
             resolver={zodResolver(registerSchema)}
             reset={true}
         >
             <TextInput type="email" label="Email" name="email"></TextInput>
-            <TextInput type="text" label="Display name" name="displayName"></TextInput>
-            <TextInput type="password" label="Password" name="password"></TextInput>
-            <TextInput type="password" label="Confirm Password" name="confirmPassword"></TextInput>
+            <TextInput type="text" label="Tên hiển thị" name="displayName"></TextInput>
+            <TextInput type="password" label="Mật khẩu" name="password"></TextInput>
+            <TextInput type="password" label="Xác nhận mật khẩu" name="confirmPassword"></TextInput>
             <Box display="flex" justifyContent="center" alignItems={"center"}>
                 <Typography>
-                    Already have an account? <Link to={'/login'}>Login</Link> 
+                    Đã có tài khoản? <Link to={'/login'}>Đăng nhập</Link> 
                 </Typography>
             </Box>    
         </UserFormWrapper>

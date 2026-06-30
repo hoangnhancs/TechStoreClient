@@ -101,7 +101,7 @@ export default function UserMenu({currentUser}: Props) {
                     <ListItemIcon>
                         <Person />
                     </ListItemIcon>
-                    <ListItemText>My Profile</ListItemText>
+                    <ListItemText>Thông tin cá nhân</ListItemText>
                 </MenuItem>
                 <MenuItem component={Link} to={'/notifications'} onClick={handleClose}>
                     <ListItemIcon>
@@ -113,13 +113,13 @@ export default function UserMenu({currentUser}: Props) {
                     <ListItemIcon>
                         <Receipt />
                     </ListItemIcon>
-                    <ListItemText>My orders</ListItemText>
+                    <ListItemText>Đơn hàng của tôi</ListItemText>
                 </MenuItem>
                 <MenuItem component={Link} to={`/change-password`} onClick={handleClose}>
                     <ListItemIcon>
                         <Password />
                     </ListItemIcon>
-                    <ListItemText>Change password</ListItemText>
+                    <ListItemText>Đổi mật khẩu</ListItemText>
                 </MenuItem>
                 <Divider />
                 <MenuItem onClick={() => {
@@ -129,7 +129,7 @@ export default function UserMenu({currentUser}: Props) {
                     <ListItemIcon>
                         <Logout />
                     </ListItemIcon>
-                    <ListItemText>Logout</ListItemText>
+                    <ListItemText>Đăng xuất</ListItemText>
                 </MenuItem>
             </Menu>
         </Box>

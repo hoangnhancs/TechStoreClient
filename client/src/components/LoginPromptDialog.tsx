@@ -20,7 +20,7 @@ export default function LoginPromptDialog({ open, onClose }: Props) {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle sx={{ m: 0, p: 2 }}>
-        Login Required
+        Yêu cầu đăng nhập
         <Button
           aria-label="close"
           onClick={onClose}
@@ -51,7 +51,7 @@ export default function LoginPromptDialog({ open, onClose }: Props) {
             
           }}
         >
-          Register
+          Đăng ký
         </Button>
         <Button 
           variant="contained" 
@@ -61,7 +61,7 @@ export default function LoginPromptDialog({ open, onClose }: Props) {
             navigate('/login', {state: {from: location.pathname}});        
           }}
         >
-          Login
+          Đăng nhập
         </Button>
       </DialogActions>
     </Dialog>

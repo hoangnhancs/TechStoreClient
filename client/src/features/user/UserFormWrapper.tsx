@@ -25,9 +25,13 @@ export default function UserFormWrapper<TFormData extends FieldValues>({
     const methods = useForm<TFormData>({resolver, mode: "onTouched"})
     //cac method cua react-hook-form
     const formSubmit = async (data: TFormData) => {
-        await onSubmit(data)
-        if (reset) {
-            methods.reset()
+        try {
+            await onSubmit(data)
+            if (reset) {
+                methods.reset()
+            }
+        } catch (error) {
+            console.error("Form submit error caught in wrapper:", error)
         }
     }
     

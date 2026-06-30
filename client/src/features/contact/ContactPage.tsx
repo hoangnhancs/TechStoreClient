@@ -1,5 +1,5 @@
 export default function ContactPage() {
   return (
-    <div>ContactPage</div>
+    <div>Trang liên hệ</div>
   )
 }

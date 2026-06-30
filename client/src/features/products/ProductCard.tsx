@@ -50,7 +50,7 @@ export default function ProductCard({product}: Props) {
         })
         .catch(error => {
             console.error('Error adding item to cart:', error);
-            toast.error('Could not add item to cart. Please try again.');
+            toast.error('Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại.');
         });
     }
   return (

@@ -15,19 +15,20 @@ export default function ChangePasswordForm() {
     const dispatch = useAppDispatch();
     const handleSubmit = async (data: ChangePasswordSchema) => {
         try {
-            await changePw({currentPassword: data.currentPassword, newPassword: data.password, confirmPassword: data.confirmPassword});
-            toast.success("Password changed successfully! Please login again."); 
+            await changePw({currentPassword: data.currentPassword, newPassword: data.password, confirmPassword: data.confirmPassword}).unwrap();
+            toast.success("Đổi mật khẩu thành công! Vui lòng đăng nhập lại."); 
             dispatch(userApi.util.resetApiState());
             dispatch(basketApi.util.resetApiState());
             navigate('/login');
         } catch (error) {
             console.error("Failed to change password:", error);
+            throw error;
         }
     }
     return (
         <UserFormWrapper<ChangePasswordSchema>
-            title="Change Password"
-            submitButtonText="Change Password"
+            title="Đổi mật khẩu"
+            submitButtonText="Đổi mật khẩu"
             resolver={zodResolver(changePasswordSchema)}
             icon={<LockOpen />}
             onSubmit={handleSubmit}
@@ -35,17 +36,17 @@ export default function ChangePasswordForm() {
         >
             <TextInput
                 type="password"
-                label="Current Password"
+                label="Mật khẩu hiện tại"
                 name="currentPassword"
             />
             <TextInput
                 type="password"
-                label="New Password"
+                label="Mật khẩu mới"
                 name="password"
             />
             <TextInput
                 type="password"
-                label="Confirm Password"
+                label="Xác nhận mật khẩu mới"
                 name="confirmPassword"
             />
         </UserFormWrapper>

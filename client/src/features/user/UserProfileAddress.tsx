@@ -21,9 +21,9 @@ export default function UserProfileAddress() {
       }
       setDeleteAddressDialogOpen(false);
       setAddressToDeleteId(null);
-      toast.success("Address deleted successfully");
+      toast.success("Xóa địa chỉ thành công");
     } catch (error) {
-      toast.error("Failed to delete address:" + error);
+      toast.error("Xóa địa chỉ thất bại: " + error);
     }
   };
 

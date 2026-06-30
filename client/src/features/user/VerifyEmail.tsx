@@ -28,7 +28,7 @@ export default function VerifyEmail() {
     const getBody = () => {
         switch (status) {
             case 'verifying':
-                return <Typography>Verifying...</Typography>
+                return <Typography>Đang xác thực...</Typography>
             case 'failed':
                 return (
                     <Box 
@@ -38,13 +38,13 @@ export default function VerifyEmail() {
                         justifyContent={"center"}
                     >
                         <Typography>
-                            Verification failed. You can try resending the verify link to your email
+                            Xác thực thất bại. Bạn có thể gửi lại liên kết xác thực đến email của mình.
                         </Typography>
                         <Button 
                             onClick={() => {resendConfirmationEmail({userId})}}
                             disabled={verifyPending}
                         >
-                            Resend verification email
+                            Gửi lại email xác thực
                         </Button>
                     </Box>
                 )
@@ -57,10 +57,10 @@ export default function VerifyEmail() {
                         justifyContent={"center"}
                     >
                         <Typography>
-                            Email has been verified - you can login
+                            Email đã được xác thực - bạn đã có thể đăng nhập.
                         </Typography>
                         <Button component={Link} to='/login'>
-                            Go to login
+                            Đi tới trang đăng nhập
                         </Button>
                     </Box>
                 )
@@ -80,7 +80,7 @@ export default function VerifyEmail() {
         >
             <EmailRounded sx={{fontSize: 100}} color='primary' />
             <Typography gutterBottom variant="h3" >
-                Email verification
+                Xác thực email
             </Typography>
             <Divider />
             {getBody()}

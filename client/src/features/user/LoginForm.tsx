@@ -31,7 +31,7 @@ export default function LoginForm() {
 
     useEffect(() => {
         if (isError && error) {
-            toast.error('Đăng nhập thất bại. Vui lòng thử lại.')
+            toast.error("Đăng nhập thất bại")
         }
     }, [isError, error])
 
@@ -39,9 +39,9 @@ export default function LoginForm() {
     const handleSubmit = async (data: LoginSchema) => {
         try {
             await login(data).unwrap()
-        } catch (error: any) {
+        } catch (error) {
             console.error("Login failed: ", error)
-            toast.error(error.data.error || "Có lỗi xảy ra khi đăng nhập")
+            // toast.error(error.data.error || "Có lỗi xảy ra khi đăng nhập")
             throw error
         }
     }

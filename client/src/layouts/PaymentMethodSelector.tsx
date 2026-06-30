@@ -46,7 +46,7 @@ const MethodIcon = styled(Box)(({ theme }) => ({
   width: 48,
   height: 48,
   borderRadius: '50%',
-  backgroundColor: theme.palette.grey[100],
+  backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : theme.palette.grey[100],
   marginRight: theme.spacing(2),
 }));
 

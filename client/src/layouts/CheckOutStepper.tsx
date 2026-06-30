@@ -22,7 +22,6 @@ type Props = {
 const steps = ['Địa chỉ', 'Phương thức thanh toán', 'Hoàn tất thanh toán'];
 
 export default function CheckOutStepper({ addresses, onActiveStepChange, onPaymentInforChange, onAddressChange }: Props) {
-
     const [activeStep, setActiveStep] = useState(0)
     const [isAddingNewAddress, setIsAddingNewAddress] = useState(false); 
     const [isChangeAddressOpen, setIsChangeAddressOpen] = useState(false);
@@ -109,8 +108,9 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
     }, [addresses, selectedAddress, onAddressChange]);
     
     return (
-        <Paper sx={{p: 3, borderRadius: 3, mt: 1.94}}>
-            <Stepper activeStep={activeStep} >
+        <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, mt: 1.94 }}>
+            {/* Desktop Stepper */}
+            <Stepper activeStep={activeStep} sx={{ display: { xs: 'none', sm: 'flex' } }}>
                 {steps.map((label, index) => {
                     return (
                         <Step key={index}>
@@ -121,8 +121,16 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
                     )
                 })}
             </Stepper>
-            <Box sx={{ mt: 4}}>
-                <Box sx={{ display: activeStep === 0 ? 'block' : 'none'}}>
+            
+            {/* Mobile Step Indicator */}
+            <Box sx={{ display: { xs: 'block', sm: 'none' }, textAlign: 'center', mb: 1 }}>
+                <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
+                    BƯỚC {activeStep + 1} / {steps.length}: {steps[activeStep].toUpperCase()}
+                </Typography>
+            </Box>
+
+            <Box sx={{ mt: { xs: 2, sm: 4 } }}>
+                <Box sx={{ display: activeStep === 0 ? 'block' : 'none' }}>
                     {!addresses || addresses.length == 0 ? (
                         <Box>
                             <Typography variant="h6" sx={{ mb: 2 }}>
@@ -145,25 +153,25 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
                         </Box>  
                     ) : (
                         <Box display={"flex"} flexDirection={"column"} gap={2}>
-                            <Box display={"flex"} flexDirection={"row"}  gap={2}>
-                                <Box display={"flex"} flexDirection={"column"} sx={{width: '100%'}}>
-                                    <Box display={"flex"} flexDirection={"row"} gap={2} >
-                                        <LocationOnIcon style={{ color: 'black' }} />
-                                        <Typography sx={{ml: 1}}>
+                            <Box display={"flex"} flexDirection={"row"} gap={2}>
+                                <Box display={"flex"} flexDirection={"column"} sx={{ width: '100%' }}>
+                                    <Box display={"flex"} flexDirection={"row"} gap={1} alignItems="center">
+                                        <LocationOnIcon color="primary" />
+                                        <Typography fontWeight="medium">
                                             Địa chỉ giao hàng
                                         </Typography>
                                     </Box>
-                                    <Box sx={{ mt: 1 }} display="flex" flexDirection="row" gap={2} justifyContent="space-between" width="100%">
-                                        <Box display="flex" flexDirection="row" alignItems="center">
-                                            <Typography fontWeight="bold" textAlign="center">
+                                    <Box sx={{ mt: 1 }} display="flex" flexDirection={{ xs: 'column', sm: 'row' }} gap={{ xs: 1, sm: 2 }} justifyContent="space-between" width="100%">
+                                        <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }}>
+                                            <Typography fontWeight="bold">
                                                 {selectedAddress ? selectedAddress?.fullName + " " + selectedAddress?.phoneNumber : ""}
                                             </Typography>
-                                            <Typography sx={{ ml: 2 }}>
+                                            <Typography sx={{ ml: { xs: 0, sm: 2 } }} color="text.secondary">
                                                 {selectedAddress ? selectedAddress?.detailAddress + ", " + selectedAddress?.ward + ", " + selectedAddress?.district + ", " + selectedAddress?.province : ""}
                                             </Typography>
                                         </Box>
-                                        <Box display={"flex"} sx={{ mr: 0}} justifyContent={"right"}>
-                                            <Button onClick={handleOpenChangeAddress} variant="text" sx={{ color: 'blue' }}>Thay đổi</Button>
+                                        <Box display={"flex"} justifyContent={{ xs: 'flex-start', sm: 'right' }}>
+                                            <Button onClick={handleOpenChangeAddress} variant="text" sx={{ color: 'primary.main', p: { xs: 0 } }}>Thay đổi</Button>
                                         </Box>
                                         <ChangeAddressPrompt
                                             open={isChangeAddressOpen}

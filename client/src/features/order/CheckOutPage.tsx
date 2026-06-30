@@ -27,7 +27,7 @@ const ColumnHeader = styled(Grid)(({ theme }) => ({
     display: 'flex',
     alignItems: 'center',
     padding: theme.spacing(1),
-    backgroundColor: theme.palette.grey[50],
+    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : theme.palette.grey[50],
     borderRadius: theme.spacing(1),
     marginBottom: theme.spacing(1)
 }));
@@ -71,8 +71,8 @@ export default function CheckOutPage() {
 
     
     return (
-        <Grid container spacing={2}>
-            <Grid size={8}>
+        <Grid container spacing={3}>
+            <Grid size={{ xs: 12, md: 8 }}>
             {!stripePromise ? (
                 <LoadingComponent />
             ) : (
@@ -92,7 +92,7 @@ export default function CheckOutPage() {
                         </Typography>
                         </Box>
                         
-                        <Box sx={{ mb: 2 }}>
+                        <Box sx={{ mb: 2, display: { xs: 'none', sm: 'block' } }}>
                         <Grid container>
                             <ColumnHeader size={6.9}>
                                 <Typography fontWeight="medium">Sản phẩm</Typography>
@@ -115,31 +115,44 @@ export default function CheckOutPage() {
                             mb: 3, 
                             p: 2, 
                             borderRadius: 2,
-                            border: '1px solid rgba(0, 0, 0, 0.08)'
+                            border: '1px solid',
+                            borderColor: 'divider'
                             }}
                         >
-                            <Typography sx={{ p: 1, fontWeight: 'bold', mb: 1, borderBottom: '1px solid rgba(0, 0, 0, 0.08)' }} variant="subtitle1">
+                            <Typography sx={{ p: 1, fontWeight: 'bold', mb: 1, borderBottom: '1px solid', borderBottomColor: 'divider' }} variant="subtitle1">
                                 {category}
                             </Typography>
                             
                             {items.map(item => (
                             <ItemContainer key={item.productId}>
-                                <Grid container alignItems="center">
-                                    <Grid size={6.9} sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Grid container alignItems="center" spacing={1}>
+                                    <Grid size={{ xs: 12, sm: 6.9 }} sx={{ display: 'flex', alignItems: 'center' }}>
                                         <Avatar 
                                         variant="rounded"
                                         src={item.imageUrl} 
                                         alt={item.productName}
-                                        sx={{ width: 80, height: 80, mr: 2 }}
+                                        sx={{ width: { xs: 60, sm: 80 }, height: { xs: 60, sm: 80 }, mr: 2 }}
                                         />
-                                        <Typography fontWeight="medium">{item.productName}</Typography>
+                                        <Box>
+                                            <Typography fontWeight="medium" sx={{ fontSize: { xs: '0.9rem', sm: '1rem' } }}>
+                                                {item.productName}
+                                            </Typography>
+                                            <Box sx={{ display: { xs: 'block', sm: 'none' }, mt: 0.5 }}>
+                                                <Typography variant="body2" color="text.secondary">
+                                                    {formatCurrency(item.price)} x {item.quantity}
+                                                </Typography>
+                                                <Typography variant="body2" fontWeight="bold" color="primary.main">
+                                                    {formatCurrency(item.quantity * item.price)}
+                                                </Typography>
+                                            </Box>
+                                        </Box>
                                     </Grid>
                                 
-                                    <Grid size={1.7} sx={{ display: 'flex', justifyContent: 'center' }}>
+                                    <Grid size={1.7} sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent: 'center' }}>
                                         <Typography>{formatCurrency(item.price)}</Typography>
                                     </Grid>
                                 
-                                    <Grid size={1.7} sx={{ display: 'flex', justifyContent: 'center' }}>
+                                    <Grid size={1.7} sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent: 'center' }}>
                                         <Typography 
                                         sx={{
                                             textAlign: 'center',                                                
@@ -151,7 +164,7 @@ export default function CheckOutPage() {
                                         </Typography>
                                     </Grid>
                                 
-                                    <Grid size={1.7} sx={{ display: 'flex', justifyContent: 'center' }}>
+                                    <Grid size={1.7} sx={{ display: { xs: 'none', sm: 'flex' }, justifyContent: 'center' }}>
                                         <Typography fontWeight="medium" color="primary">
                                             {formatCurrency(item.quantity * item.price)}
                                         </Typography>
@@ -166,7 +179,7 @@ export default function CheckOutPage() {
             )}
             </Grid>
             
-            <Grid size={4}>
+            <Grid size={{ xs: 12, md: 4 }}>
                 <OrderSummary
                     isCanCompleteOrder={isCanCompleteOrder()}
                     isCreatingOrder={isCreatingOrder}

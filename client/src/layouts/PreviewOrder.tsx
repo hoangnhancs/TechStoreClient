@@ -86,7 +86,7 @@ export default function PreviewOrder({
         </Box>
         
         {selectedAddress ? (
-          <Box ml={4}>
+          <Box ml={{ xs: 2, sm: 4 }}>
             <Typography fontWeight="bold">
               {selectedAddress.fullName} - {selectedAddress.phoneNumber}
             </Typography>
@@ -95,7 +95,7 @@ export default function PreviewOrder({
             </Typography>
           </Box>
         ) : (
-          <Typography color="error" ml={4}>
+          <Typography color="error" ml={{ xs: 2, sm: 4 }}>
             Chưa chọn địa chỉ giao hàng
           </Typography>
         )}
@@ -109,7 +109,7 @@ export default function PreviewOrder({
             Phương thức thanh toán
           </Typography>
         </Box>
-        <Box sx={{ml: 4}}>
+        <Box sx={{ml: { xs: 2, sm: 4 }}}>
           <Typography fontWeight={"medium"}>
             {getPaymentMethodName()}
           </Typography>

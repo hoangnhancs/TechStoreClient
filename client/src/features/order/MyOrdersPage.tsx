@@ -67,7 +67,7 @@ const OrderCard = styled(Card)(({ theme }) => ({
 }));
 
 const OrderHeader = styled(CardHeader)(({ theme }) => ({
-    backgroundColor: theme.palette.grey[50],
+    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : theme.palette.grey[50],
 }));
 
 const OrderContent = styled(CardContent)(() => ({

@@ -132,6 +132,16 @@ export const getAppTheme = (mode: 'light' | 'dark'): Theme => {
           },
         },
       },
+      MuiAppBar: {
+  styleOverrides: {
+    root: {
+      borderRadius: 0,
+      boxShadow: mode === 'dark'
+        ? '0 1px 0 rgba(255, 255, 255, 0.12)'
+        : '0 2px 4px rgba(0, 0, 0, 0.15)',
+    },
+  },
+},
     },
   });
 };

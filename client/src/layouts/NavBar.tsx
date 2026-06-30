@@ -24,19 +24,20 @@ import SearchBar from "../components/SearchBar";
 // ]
 
 const rightLinks = [
-    {title: 'login', path: '/login'},
-    {title: 'register', path: '/register'},
+  { title: 'login', path: '/login' },
+  { title: 'register', path: '/register' },
 ]
 export default function NavBar() {
 
-  const {isLoading, isDarkMode} = useAppSelector(state => state.ui)
+  const { isLoading, isDarkMode } = useAppSelector(state => state.ui)
   // const currentUser = useAppSelector(state => state.user.currentUser);
-  const {data: currentUser} = useGetCurrentUserQuery()
-  const {data: basket} = useFetchBasketQuery(undefined, {
-    skip: !currentUser})
+  const { data: currentUser } = useGetCurrentUserQuery()
+  const { data: basket } = useFetchBasketQuery(undefined, {
+    skip: !currentUser
+  })
   const dispatch = useAppDispatch()
   const theme = useTheme();
-   
+
 
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -54,7 +55,7 @@ export default function NavBar() {
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
-  };  
+  };
 
   const mobileMenu = (
     <Box sx={{ width: 250 }}>
@@ -76,28 +77,31 @@ export default function NavBar() {
       <Divider />
       {currentUser ? (<UserMenu currentUser={currentUser} />) : (
         <List>
-          {rightLinks.map(({title, path}) => (
-            <MenuItemLink 
-              key={path} 
+          {rightLinks.map(({ title, path }) => (
+            <MenuItemLink
+              key={path}
               to={path}
             >
               {title.toUpperCase()}
             </MenuItemLink>
           ))}
         </List>
-      )} 
+      )}
     </Box>
   );
-
   return (
-    <AppBar position="fixed" >
+    <AppBar
+      position="fixed"
+      elevation={0}
+      
+    >
       <Container maxWidth='xl'>
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', height: '80px !important' }}>
           {/* Logo và Brand */}
           <Box display="flex" alignItems="center" component={NavLink}
-              to="/" sx={{textDecoration: 'none', color: 'inherit'}}>
+            to="/" sx={{ textDecoration: 'none', color: 'inherit' }}>
             <StoreMallDirectory sx={{ fontSize: '2.5rem' }} />
-            <Typography 
+            <Typography
               variant="h6"
               sx={{
                 fontSize: { xs: '1.5rem', md: '2rem' },
@@ -109,8 +113,8 @@ export default function NavBar() {
             >
               TECH STORE
             </Typography>
-            <IconButton sx={{ml: 2}} onClick={() => dispatch(toggleDarkMode())}>
-              {!isDarkMode ? <LightMode sx={{color: 'yellow'}} /> : <DarkMode />}
+            <IconButton sx={{ ml: 2, display: { xs: 'none', md: 'inline-flex' } }} onClick={() => dispatch(toggleDarkMode())}>
+              {!isDarkMode ? <LightMode sx={{ color: 'yellow' }} /> : <DarkMode />}
             </IconButton>
             <Box>
               {isLoading && (
@@ -130,11 +134,11 @@ export default function NavBar() {
                 ))}
               </List> */}
 
-                <SearchBar />
+              <SearchBar />
               <Box display="flex" alignItems="center" sx={{ minWidth: 300, justifyContent: 'flex-end' }}>
                 <IconButton onClick={handleClickShoppingCart} color="inherit" sx={{ mr: 3 }}>
                   <Badge badgeContent={currentUser ? basket?.items.length || 0 : 0} color="secondary">
-                    <ShoppingCart sx={{borderRadius: '25%'}} />
+                    <ShoppingCart sx={{ borderRadius: '25%' }} />
                   </Badge>
                 </IconButton>
                 <Box sx={{ width: 220, display: 'flex', justifyContent: 'flex-start' }}>
@@ -142,14 +146,14 @@ export default function NavBar() {
                     <UserMenu currentUser={currentUser} />
                   ) : (
                     <List sx={{ display: 'flex', gap: 1 }}>
-                      {rightLinks.map(({title, path}) => (
+                      {rightLinks.map(({ title, path }) => (
                         <MenuItemLink key={path} to={path}>
                           {title.toUpperCase()}
                         </MenuItemLink>
                       ))}
                     </List>
                   )}
-                </Box>  
+                </Box>
               </Box>
               <LoginPromptDialog open={openLoginPrompt} onClose={() => setOpenLoginPrompt(false)} />
             </>
@@ -159,7 +163,7 @@ export default function NavBar() {
           {isMobile && (
             <Box display="flex" alignItems="center">
               <IconButton onClick={() => dispatch(toggleDarkMode())} sx={{ mr: 1 }}>
-                {!isDarkMode ? <LightMode sx={{color: 'yellow'}} /> : <DarkMode />}
+                {!isDarkMode ? <LightMode sx={{ color: 'yellow' }} /> : <DarkMode />}
               </IconButton>
               <IconButton onClick={handleClickShoppingCart} color="inherit" sx={{ mr: 1 }}>
                 <Badge badgeContent={currentUser ? basket?.items.length || 0 : 0} color="secondary">
@@ -174,7 +178,7 @@ export default function NavBar() {
               </IconButton>
             </Box>
           )}
-        </Toolbar>      
+        </Toolbar>
       </Container>
 
       {/* Mobile Drawer */}

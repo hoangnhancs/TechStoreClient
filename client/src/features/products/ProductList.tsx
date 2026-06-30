@@ -86,10 +86,10 @@ export default function ProductList() {
                             Xem tất cả
                         </Button>
                     </Box>
-                    <Grid container spacing={{ xs: 2, sm: 2, md: 3 }} columns={{ xs: 2, sm: 8, md: 12 }}>
+                    <Grid container spacing={{ xs: 2, sm: 2, md: 3 }}>
                         {group.products.map((product: Product) => (
                             <Grid
-                                size={{ xs: 1, sm: 2, md: 2.4 }}
+                                size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
                                 key={product.id}
                             >
                                 <ProductCard product={product} />

@@ -523,10 +523,10 @@ type Props = {
 
 const ProductGrid = React.memo(function ProductGrid({ products }: Props) {
     return (
-        <Grid container spacing={{ xs: 2, sm: 2, md: 3 }} columns={{ xs: 2, sm: 8, md: 12 }}>
+        <Grid container spacing={{ xs: 2, sm: 2, md: 3 }}>
             {(products && products.length > 0) ?
                 (products.map((product) => (
-                    <Grid size={{ xs: 1, sm: 2, md: 2.4 }}  key={product.id}>
+                    <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}  key={product.id}>
                         <ProductCard product={product} />
                     </Grid>
                 ))) 

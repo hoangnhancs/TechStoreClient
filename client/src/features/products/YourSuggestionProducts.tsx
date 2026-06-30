@@ -138,10 +138,9 @@ export default function ProductSwiper() {
                 >
                     {suggestionProducts?.map((product, index) => (
                         <SwiperSlide key={index} style={{ display: "flex", height: "100%", alignItems: "center" }}>
-                            <Box sx={{ padding: "0 10px" }}>
+                            <Box sx={{ padding: "0 10px", width: "100%", boxSizing: "border-box" }}>
                                 <SuggestionProductCard product={product} />
                             </Box>
-                            
                         </SwiperSlide>
                     ))}
                 </Swiper>

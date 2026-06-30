@@ -253,7 +253,7 @@ export default function ProductCard({product}: Props) {
             variant="contained"
             color="primary"
             sx={{
-              flex: 1,
+              width: '50%',
               py: 0.75,
               fontSize: '0.8rem',
               borderRadius: '8px',
@@ -271,7 +271,7 @@ export default function ProductCard({product}: Props) {
             variant="outlined"
             color="primary"
             sx={{
-              flex: 1,
+              width: '50%',
               py: 0.75,
               fontSize: '0.8rem',
               borderRadius: '8px',

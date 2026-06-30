@@ -36,8 +36,8 @@ class OrderSignalRServiceClass {
             const connection = new signalR.HubConnectionBuilder()
                 .withUrl(orderHubUrl, {
                     withCredentials: true,
-                    transport: signalR.HttpTransportType.WebSockets,
-                    skipNegotiation: true,
+                    transport: signalR.HttpTransportType.LongPolling,
+                    // skipNegotiation: true,
                 })
                 .withAutomaticReconnect([0, 2000, 5000, 10000, 20000])
                 .configureLogging(signalR.LogLevel.Warning)

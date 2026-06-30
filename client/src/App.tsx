@@ -8,9 +8,11 @@ import HomePage from "./pages/HomePage"
 import { NotificationContainer } from "./features/notification/NotificationContainer"
 import "./style/global.css"
 import { getAppTheme } from "./style/theme"
+import { useGetCurrentUserQuery } from "./features/user/userApi"
 
 
 function App() {
+  useGetCurrentUserQuery()
   const hideNavRoutes = ['/', '/login', '/register', '/forgot-password', '/confirm-email', '/reset-password'];
   const isDarkMode = useAppSelector(state => state.ui.isDarkMode) 
   const palletteType = isDarkMode ? 'dark' : 'light'

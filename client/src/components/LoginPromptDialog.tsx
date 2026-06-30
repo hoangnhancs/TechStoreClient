@@ -6,7 +6,7 @@ import {
   DialogContentText, 
   DialogTitle 
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import CloseIcon from '@mui/icons-material/Close';
 
 type Props = {
@@ -16,6 +16,7 @@ type Props = {
 
 export default function LoginPromptDialog({ open, onClose }: Props) {
   const navigate = useNavigate();
+  const location = useLocation();
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle sx={{ m: 0, p: 2 }}>

@@ -9,6 +9,7 @@ import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { motion } from 'framer-motion';
 import { PaymentInfor } from '../lib/types';
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
@@ -50,6 +51,8 @@ const MethodIcon = styled(Box)(({ theme }) => ({
   marginRight: theme.spacing(2),
 }));
 
+const COMING_SOON_METHODS = ['BankTransfer', 'Momo', 'VNpay'];
+
 type Props = {
   onPaymentInforChange: (paymentInfor: PaymentInfor) => void;
 }
@@ -69,7 +72,7 @@ export default function PaymentMethodSelector({ onPaymentInforChange }: Props) {
       const cardElement = (method === 'CreditCard' && elements) ? elements.getElement(CardElement) : null;
       const paymentInfor: PaymentInfor = {
         paymentMethod: method,
-        isValid: method === 'CreditCard' ? isValid : true,
+        isValid: method === 'CreditCard' ? isValid : !COMING_SOON_METHODS.includes(method),
         stripe: method === 'CreditCard' ? stripe : null,
         elements: method === 'CreditCard' ? elements : null,
         cardElement: method === 'CreditCard' ? cardElement : null,
@@ -257,17 +260,14 @@ export default function PaymentMethodSelector({ onPaymentInforChange }: Props) {
               </Box>
               
               <Collapse in={selectedMethod === 'BankTransfer'} timeout="auto" unmountOnExit>
-                <Box mt={3} px={2}>
-                  <Divider sx={{ mb: 3 }} />
-                  <Fade in={selectedMethod === 'BankTransfer'} timeout={800}>
-                    <Box>
-                      <Typography fontWeight="bold" gutterBottom>Thông tin tài khoản:</Typography>
-                      <Typography>Ngân hàng: VietcomBankTransfer</Typography>
-                      <Typography>Số tài khoản: 1234567890</Typography>
-                      <Typography>Chủ tài khoản: NGUYEN VAN A</Typography>
-                      <Typography mt={2}>Nội dung chuyển khoản: [Mã đơn hàng]</Typography>
-                    </Box>
-                  </Fade>
+                <Box mt={2} px={2}>
+                  <Divider sx={{ mb: 2 }} />
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <InfoOutlinedIcon fontSize="small" color="warning" />
+                    <Typography variant="body2" color="warning.main">
+                      Phương thức thanh toán này chưa được tích hợp, vui lòng chọn phương thức khác.
+                    </Typography>
+                  </Box>
                 </Box>
               </Collapse>
             </SelectedPaymentMethodCard>
@@ -312,7 +312,7 @@ export default function PaymentMethodSelector({ onPaymentInforChange }: Props) {
                 <Box mt={3} px={2}>
                   <Divider sx={{ mb: 3 }} />
                   <Fade in={selectedMethod === 'wallet'} timeout={800}>
-                    <RadioGroup onChange = {(e) => handleWalletChange(e.target.value)}>
+                    <RadioGroup onChange={(e) => handleWalletChange(e.target.value)}>
                       <Box display="flex" gap={2} justifyContent="space-between">
                         <Paper sx={{ 
                           p: 2, 
@@ -369,6 +369,14 @@ export default function PaymentMethodSelector({ onPaymentInforChange }: Props) {
                           />
                         </Paper>
                       </Box>
+                      {selectedWalletType && COMING_SOON_METHODS.includes(selectedWalletType) && (
+                        <Box display="flex" alignItems="center" gap={1} mt={2}>
+                          <InfoOutlinedIcon fontSize="small" color="warning" />
+                          <Typography variant="body2" color="warning.main">
+                            Phương thức thanh toán này chưa được tích hợp, vui lòng chọn phương thức khác.
+                          </Typography>
+                        </Box>
+                      )}
                     </RadioGroup>
                   </Fade>
                 </Box>

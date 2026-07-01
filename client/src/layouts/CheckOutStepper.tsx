@@ -74,9 +74,9 @@ export default function CheckOutStepper({ addresses, onActiveStepChange, onPayme
             return false
         if (activeStep === 0 && selectedAddress === null) 
             return false
-        if (activeStep === 1 && 
+        if (activeStep === 1 &&
             (paymentInfor.paymentMethod === null || paymentInfor.paymentMethod === ''
-                || (paymentInfor.paymentMethod === 'CreditCard' && paymentInfor.isValid === false))) 
+                || !paymentInfor.isValid))
             return false
         if (activeStep === 2)
             return false

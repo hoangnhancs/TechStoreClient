@@ -2,7 +2,7 @@
 
 Frontend for a full-stack e-commerce application built with React + TypeScript + Vite. Connects to an ASP.NET Core backend.
 
-**[Live Demo](https://e-commerce-store-five-azure.vercel.app/)**
+**[Live Demo](https://shop.ec.io.vn/)**
 
 **Account demo:**
 
@@ -114,11 +114,11 @@ client/src/
 
 3. Create a `.env.development` file:
    ```env
-   VITE_API_URL=https://localhost:5001/api
-   VITE_COMMENT_URL=https://localhost:5001/commentHub
-   VITE_REVIEW_URL=https://localhost:5001/reviewHub
-   VITE_NOTIFICATION_URL=https://localhost:5001/notificationHub
-   VITE_ORDER_URL=https://localhost:5001/orderHub
+   VITE_API_URL=https://localhost:6001/api
+   VITE_COMMENT_URL=https://localhost:6001/commentHub
+   VITE_REVIEW_URL=https://localhost:6001/reviewHub
+   VITE_NOTIFICATION_URL=https://localhost:6001/notificationHub
+   VITE_ORDER_URL=https://localhost:6001/orderHub
    VITE_STRIPE_PK=your_stripe_publishable_key
    ```
 

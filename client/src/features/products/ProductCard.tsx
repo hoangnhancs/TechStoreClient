@@ -207,7 +207,7 @@ export default function ProductCard({product}: Props) {
                   }}
                   variant="body2"
                 >
-                  {formatCurrency(product.price)}
+                  {formatCurrency(product.oldPrice)}
                 </Typography>
                 {/* Discounted Price */}
                 <Typography
@@ -218,9 +218,7 @@ export default function ProductCard({product}: Props) {
                   }}
                   variant="body1"
                 >
-                  {formatCurrency(
-                    product.price - (product.price * product.discountPercentage) / 100
-                  )}
+                  {formatCurrency(product.price)}
                 </Typography>
               </>
             ) : (
